@@ -130,6 +130,7 @@ input[type="range"]::-moz-range-thumb {
   .field {
     @apply w-full rounded-xl border border-[#D8E2F0] bg-white
            px-4 py-3 text-[#0F1E36] text-sm outline-none
+           placeholder:text-[#9CA3AF]
            focus:border-[#1A3C6E] focus:ring-2 focus:ring-[#1A3C6E]/15
            transition-colors;
   }
