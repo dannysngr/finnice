@@ -70,18 +70,21 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value;
-    // Если поле очищено — сбрасываем в пустое (показывается placeholder)
-    if (raw === "" || raw === PREFIX.trimEnd()) { setPhone(""); return; }
-    if (!raw.startsWith(PREFIX)) { setPhone(PREFIX); return; }
-    const digits = extractDigits(raw.slice(PREFIX.length));
-    if (digits.length > 0 && digits[0] !== "9") return;
+    if (raw === "") { setPhone(""); return; }
+    // Извлекаем только цифры (из любого формата, включая случай когда PREFIX ещё нет)
+    const digits = extractDigits(raw.startsWith(PREFIX) ? raw.slice(PREFIX.length) : raw);
+    if (digits.length === 0) { setPhone(""); return; }
+    if (digits[0] !== "9") return;          // номер должен начинаться на 9
     setPhone(PREFIX + fmtDigits(digits));
+  }
+  function handlePhoneBlur() {
+    // Если остался только PREFIX (пользователь нажал и ушёл без ввода) — сбрасываем
+    if (phone === PREFIX || phone === PREFIX.trim()) setPhone("");
   }
   function handlePhoneKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     const { selectionStart: ss, selectionEnd: se } = e.currentTarget;
     if ((e.key === "Backspace" || e.key === "Delete") && ss !== null && se !== null
         && ss <= PREFIX.length && se <= PREFIX.length) {
-      // При удалении на PREFIX — очищаем поле полностью (чтобы вернуть placeholder)
       setPhone("");
       e.preventDefault();
     }
@@ -209,13 +212,10 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
               <label className="block text-[10px] font-semibold text-[#374151] mb-1">Телефон</label>
               <input type="tel" required value={phone}
                      onChange={handlePhoneChange} onKeyDown={handlePhoneKeyDown}
+                     onBlur={handlePhoneBlur}
                      onFocus={(e) => {
-                       if (!phone) {
-                         setPhone(PREFIX);
-                         requestAnimationFrame(() => {
-                           e.target.setSelectionRange(PREFIX.length, PREFIX.length);
-                         });
-                       } else {
+                       // Не вставляем PREFIX при фокусе — плейсхолдер остаётся до первого ввода
+                       if (phone) {
                          const l = e.target.value.length;
                          e.target.setSelectionRange(l, l);
                        }
