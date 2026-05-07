@@ -4,7 +4,7 @@ import { Calculator } from "@/components/Calculator";
 import { SmartphonesSection } from "@/components/SmartphonesSection";
 import {
   PARTNER_TABS, CITIES, DISTRICTS,
-  ABOUT, VALUES, BLOG_POSTS, PROJECTS,
+  ABOUT, VALUES, BLOG_POSTS,
 } from "@/lib/data";
 
 export default function HomePage() {
@@ -17,7 +17,6 @@ export default function HomePage() {
       <LocationSection />
       <AboutSection />
       <BlogSection />
-      <ProjectsSection />
     </main>
   );
 }
@@ -193,32 +192,3 @@ function BlogSection() {
   );
 }
 
-/* ── 7. Projects ─────────────────────────────────────────────── */
-function ProjectsSection() {
-  return (
-    <section className="py-14 bg-[#F4F7FC]">
-      <div className="section">
-        <h2 className="text-3xl font-extrabold text-[#0A1628] text-center mb-10">
-          Наши проекты
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {PROJECTS.map((pr) => (
-            <Link
-              key={pr.title}
-              href={pr.href}
-              className="card p-8 border border-[#D8E2F0] hover:border-[#1A3C6E]/30
-                         hover:shadow-md transition-all group block"
-            >
-              <span className="text-4xl block mb-4">{pr.icon}</span>
-              <h3 className="font-extrabold text-[#0A1628] text-lg mb-2
-                             group-hover:text-[#1A3C6E] transition-colors">
-                {pr.title}
-              </h3>
-              <p className="text-[#6B7280] text-sm leading-relaxed">{pr.desc}</p>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
