@@ -121,7 +121,7 @@ export default function ContactsPage() {
             {/* ── Yandex Maps iframe ── */}
             <div className="rounded-3xl overflow-hidden border border-[#D8E2F0] h-80 md:h-[420px]">
               <iframe
-                src="https://yandex.ru/maps/?from=mapframe&ll=45.6981%2C43.3177&z=17&mode=search&text=%D0%93%D1%80%D0%BE%D0%B7%D0%BD%D1%8B%D0%B9%2C+%D1%83%D0%BB.+%D0%9E%D1%80%D0%B7%D0%B0%D0%BC%D0%B8%D0%B5%D0%B2%D0%B0%2C+8&source=mapframe"
+                src="https://yandex.ru/map-widget/v1/?text=%D0%93%D1%80%D0%BE%D0%B7%D0%BD%D1%8B%D0%B9%2C+%D1%83%D0%BB.+%D0%9E%D1%80%D0%B7%D0%B0%D0%BC%D0%B8%D0%B5%D0%B2%D0%B0%2C+8&z=17&l=map&lang=ru_RU"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
