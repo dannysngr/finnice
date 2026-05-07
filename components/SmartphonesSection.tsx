@@ -14,6 +14,14 @@ const BRANDS = ["Apple", "Samsung", "Xiaomi", "Honor"] as const;
 // Канонический порядок объёмов памяти
 const MEMORY_ORDER = ["64 ГБ", "128 ГБ", "256 ГБ", "512 ГБ", "1 ТБ", "2 ТБ"];
 
+// Приоритет типа SIM: eSIM → SIM + eSIM → остальные
+const SIM_ORDER: Record<string, number> = {
+  "eSIM":      0,
+  "SIM + eSIM": 1,
+  "2 SIM":     2,
+  "1 SIM":     3,
+};
+
 const SIMS: ("Все" | SimType)[] = ["Все", "SIM + eSIM", "2 SIM", "1 SIM", "eSIM"];
 const DEFAULT_TERM = 6;
 
@@ -215,13 +223,21 @@ export function SmartphonesSection() {
     setSim("Все");
   }
 
-  // Применяем фильтры к уже дедуплицированному каталогу
+  // Применяем фильтры + сортировка: память → SIM → модель
   const filtered = useMemo(() => {
-    return brandItems.filter(p => {
+    const result = brandItems.filter(p => {
       if (model  !== "Все" && p.model  !== model)  return false;
       if (memory !== "Все" && p.memory !== memory) return false;
       if (sim    !== "Все" && p.sim    !== sim)    return false;
       return true;
+    });
+
+    return result.sort((a, b) => {
+      const memDiff = MEMORY_ORDER.indexOf(a.memory) - MEMORY_ORDER.indexOf(b.memory);
+      if (memDiff !== 0) return memDiff;
+      const simDiff = (SIM_ORDER[a.sim] ?? 99) - (SIM_ORDER[b.sim] ?? 99);
+      if (simDiff !== 0) return simDiff;
+      return a.model.localeCompare(b.model, "ru");
     });
   }, [brandItems, model, memory, sim]);
 
