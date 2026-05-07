@@ -37,12 +37,19 @@ function fmtDigits(d: string) {
 // ─── Компонент ────────────────────────────────────────────────
 export function ApplicationModal({ open, onClose, preset }: Props) {
   const [name,  setName]  = useState("");
-  const [phone, setPhone] = useState(PREFIX);
+  const [phone, setPhone] = useState("");
   const [sent,  setSent]  = useState(false);
   const [term,  setTerm]  = useState<number>(preset?.term ?? 6);
   const overlayRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { if (open && preset?.term) setTerm(preset.term); }, [open, preset?.term]);
+  useEffect(() => {
+    if (open) {
+      if (preset?.term) setTerm(preset.term);
+      setPhone("");
+      setName("");
+      setSent(false);
+    }
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
@@ -63,6 +70,8 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value;
+    // Если поле очищено — сбрасываем в пустое (показывается placeholder)
+    if (raw === "" || raw === PREFIX.trimEnd()) { setPhone(""); return; }
     if (!raw.startsWith(PREFIX)) { setPhone(PREFIX); return; }
     const digits = extractDigits(raw.slice(PREFIX.length));
     if (digits.length > 0 && digits[0] !== "9") return;
@@ -71,7 +80,11 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
   function handlePhoneKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     const { selectionStart: ss, selectionEnd: se } = e.currentTarget;
     if ((e.key === "Backspace" || e.key === "Delete") && ss !== null && se !== null
-        && ss <= PREFIX.length && se <= PREFIX.length) e.preventDefault();
+        && ss <= PREFIX.length && se <= PREFIX.length) {
+      // При удалении на PREFIX — очищаем поле полностью (чтобы вернуть placeholder)
+      setPhone("");
+      e.preventDefault();
+    }
   }
   const handleSubmit   = (e: React.FormEvent)  => { e.preventDefault(); setSent(true); };
   const handleBackdrop = (e: React.MouseEvent) => { if (e.target === overlayRef.current) onClose(); };
@@ -196,7 +209,17 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
               <label className="block text-[10px] font-semibold text-[#374151] mb-1">Телефон</label>
               <input type="tel" required value={phone}
                      onChange={handlePhoneChange} onKeyDown={handlePhoneKeyDown}
-                     onFocus={(e) => { const l = e.target.value.length; e.target.setSelectionRange(l, l); }}
+                     onFocus={(e) => {
+                       if (!phone) {
+                         setPhone(PREFIX);
+                         requestAnimationFrame(() => {
+                           e.target.setSelectionRange(PREFIX.length, PREFIX.length);
+                         });
+                       } else {
+                         const l = e.target.value.length;
+                         e.target.setSelectionRange(l, l);
+                       }
+                     }}
                      placeholder="+7 (928) 999-99-99"
                      className="field w-full text-xs py-2 tracking-wider" />
             </div>
