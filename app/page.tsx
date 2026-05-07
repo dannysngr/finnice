@@ -3,7 +3,7 @@ import { HeroSlider } from "@/components/HeroSlider";
 import { Calculator } from "@/components/Calculator";
 import { SmartphonesSection } from "@/components/SmartphonesSection";
 import {
-  PARTNER_TABS, CITIES, DISTRICTS,
+  CITIES, DISTRICTS,
   ABOUT, VALUES, BLOG_POSTS,
 } from "@/lib/data";
 
@@ -13,7 +13,6 @@ export default function HomePage() {
       <HeroSlider />
       <CalculatorSection />
       <SmartphonesSection />
-      <PartnersSection />
       <LocationSection />
       <AboutSection />
       <BlogSection />
@@ -33,55 +32,6 @@ function CalculatorSection() {
 }
 
 /* ── 2. Smartphones — вынесен в SmartphonesSection.tsx ─────── */
-
-/* ── 3. Partners ─────────────────────────────────────────────── */
-function PartnersSection() {
-  const tab = PARTNER_TABS[0]; // default: Смартфоны
-  return (
-    <section className="py-14 bg-[#F4F7FC]">
-      <div className="section">
-        <h2 className="text-3xl lg:text-4xl font-extrabold text-[#0A1628] mb-6">
-          Наши партнеры
-        </h2>
-
-        {/* Tab buttons */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {PARTNER_TABS.map((t, i) => (
-            <button
-              key={t.key}
-              className={`px-5 py-2 rounded-full text-sm font-semibold border transition-colors ${
-                i === 0
-                  ? "bg-[#1A3C6E] text-white border-[#1A3C6E]"
-                  : "border-[#D8E2F0] text-[#6B7280] hover:border-[#1A3C6E] hover:text-[#1A3C6E]"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Partner logos */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-3">
-          {tab.partners.map((name) => (
-            <div
-              key={name}
-              className="aspect-[4/3] bg-white rounded-2xl border border-[#D8E2F0]
-                         shadow-[0_1px_8px_rgba(0,0,0,0.06)] flex items-center justify-center p-3
-                         hover:border-[#1A3C6E]/30 transition-colors cursor-pointer"
-            >
-              <span className="text-xs font-semibold text-[#6B7280] text-center leading-tight">{name}</span>
-            </div>
-          ))}
-        </div>
-
-        <Link href="/partners/"
-              className="inline-flex mt-4 text-sm font-semibold text-[#1A3C6E] hover:underline">
-          Все партнеры по {tab.label.toLowerCase()} →
-        </Link>
-      </div>
-    </section>
-  );
-}
 
 /* ── 4. Location coverage ────────────────────────────────────── */
 function LocationSection() {
