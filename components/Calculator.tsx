@@ -308,11 +308,11 @@ function NumberSlider({
 function ResultCell({ label, value }: { label: string; value: number }) {
   return (
     <div className="text-center">
+      <p className="text-white/65 text-[10px] md:text-[11px] leading-tight mb-1.5">{label}</p>
       <p className="text-lg md:text-2xl lg:text-4xl font-extrabold text-white leading-tight">
         {fmtRub(value)}
         <span className="text-xs md:text-sm font-medium text-white/60 ml-1">руб.</span>
       </p>
-      <p className="text-white/55 text-[10px] md:text-[11px] mt-1.5 leading-tight">{label}</p>
     </div>
   );
 }
