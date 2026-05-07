@@ -215,6 +215,10 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
                                transition-all shadow-md">
               Отправить заявку
             </button>
+
+            <p className="text-center text-[10px] text-[#9CA3AF]">
+              Ответим в течение 15 минут · г. Грозный, ул. Орзамиева, 8
+            </p>
           </form>
         )}
       </div>
