@@ -25,6 +25,21 @@ const SIM_ORDER: Record<string, number> = {
 const SIMS: ("Все" | SimType)[] = ["Все", "SIM + eSIM", "2 SIM", "1 SIM", "eSIM"];
 const DEFAULT_TERM = 6;
 
+// ─── Ключи сортировки для модели iPhone ──────────────────────
+// Возвращает [поколение_desc, приоритет_модели]
+function iphoneSortKey(model: string): [number, number] {
+  // Поколение: «iPhone 17 Pro Max» → 17  (убывающий → берём с минусом)
+  const gen = parseInt(model.match(/iPhone\s+(\d+)/i)?.[1] ?? "0");
+  // Тип модели: Pro(0) → Pro Max(1) → Air(2) → base/e(3)
+  const lower = model.toLowerCase();
+  let tier: number;
+  if      (lower.includes("pro max")) tier = 1;
+  else if (lower.includes("pro"))     tier = 0;
+  else if (lower.includes("air"))     tier = 2;
+  else                                tier = 3; // базовый / e
+  return [-gen, tier]; // отрицательное поколение = новые первые
+}
+
 // ─── Дедупликация каталога по модель+память+SIM (max цена) ────
 // Выполняется один раз при инициализации модуля
 const DEDUPED_CATALOG: PhoneItem[] = (() => {
@@ -233,10 +248,20 @@ export function SmartphonesSection() {
     });
 
     return result.sort((a, b) => {
+      // 1. Поколение (убывающий) + тип модели — только для Apple
+      if (a.brand === "Apple") {
+        const [genA, tierA] = iphoneSortKey(a.model);
+        const [genB, tierB] = iphoneSortKey(b.model);
+        if (genA !== genB)   return genA  - genB;   // новее = первее
+        if (tierA !== tierB) return tierA - tierB;  // Pro < Pro Max < Air < base
+      }
+      // 2. Объём памяти (возрастающий)
       const memDiff = MEMORY_ORDER.indexOf(a.memory) - MEMORY_ORDER.indexOf(b.memory);
       if (memDiff !== 0) return memDiff;
+      // 3. Тип SIM: eSIM → SIM+eSIM → …
       const simDiff = (SIM_ORDER[a.sim] ?? 99) - (SIM_ORDER[b.sim] ?? 99);
       if (simDiff !== 0) return simDiff;
+      // 4. Название (алфавит)
       return a.model.localeCompare(b.model, "ru");
     });
   }, [brandItems, model, memory, sim]);
