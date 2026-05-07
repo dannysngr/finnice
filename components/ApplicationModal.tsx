@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { fmtRub } from "@/lib/calculator-logic";
+import { fmtRub, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
 
 export interface ModalPreset {
   price:        number;
@@ -20,22 +20,17 @@ interface Props {
   preset?: ModalPreset;
 }
 
-// ─── Телефонная маска ─────────────────────────────────────────
-// Формат: +7 9XX XXX XX XX
+// Доступные сроки рассрочки
+const TERMS = [3, 4, 6, 10, 12];
 
+// ─── Телефонная маска ─────────────────────────────────────────
 const PREFIX = "+7 ";
 
-/** Только цифры, максимум 10 символов */
 function extractDigits(s: string): string {
   return s.replace(/\D/g, "").slice(0, 10);
 }
 
-/**
- * Форматирует 10 цифр (начиная с 9) в «9XX XXX XX XX».
- * Работает для частичного ввода.
- */
 function fmtDigits(d: string): string {
-  // группы: 3 | 3 | 2 | 2
   const parts: string[] = [];
   if (d.length > 0) parts.push(d.slice(0, 3));
   if (d.length > 3) parts.push(d.slice(3, 6));
@@ -47,10 +42,26 @@ function fmtDigits(d: string): string {
 // ─── Компонент ────────────────────────────────────────────────
 
 export function ApplicationModal({ open, onClose, preset }: Props) {
-  const [name,  setName]  = useState("");
-  const [phone, setPhone] = useState(PREFIX);
-  const [sent,  setSent]  = useState(false);
+  const [name,    setName]    = useState("");
+  const [phone,   setPhone]   = useState(PREFIX);
+  const [sent,    setSent]    = useState(false);
+
+  // Интерактивный срок — инициализируем из preset или дефолт 6 мес.
+  const [term, setTerm] = useState<number>(preset?.term ?? 6);
+
+  // Пересчитываем платёж при смене preset или срока
+  const price   = preset?.price ?? 0;
+  const down    = preset?.down  ?? Math.ceil(price * getMinDownPct(price));
+  const monthly = price > 0
+    ? calcInstallment({ price, down, term }).monthly
+    : (preset?.monthly ?? 0);
+
   const overlayRef = useRef<HTMLDivElement>(null);
+
+  // Сбрасываем срок при открытии нового товара
+  useEffect(() => {
+    if (open && preset?.term) setTerm(preset.term);
+  }, [open, preset?.term]);
 
   /* Закрыть по Escape */
   useEffect(() => {
@@ -67,46 +78,26 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
 
   if (!open) return null;
 
-  /* ── Обработчики телефона ── */
-
+  /* ── Телефон ── */
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value;
-
-    // Не даём убрать префикс
-    if (!raw.startsWith(PREFIX)) {
-      setPhone(PREFIX);
-      return;
-    }
-
-    const afterPrefix = raw.slice(PREFIX.length);
-    const digits = extractDigits(afterPrefix);
-
-    // Первая цифра после +7 строго «9» — любая другая отклоняется
+    if (!raw.startsWith(PREFIX)) { setPhone(PREFIX); return; }
+    const digits = extractDigits(raw.slice(PREFIX.length));
     if (digits.length > 0 && digits[0] !== "9") return;
-
     setPhone(PREFIX + fmtDigits(digits));
   }
 
   function handlePhoneKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     const el = e.currentTarget;
     const { selectionStart: ss, selectionEnd: se } = el;
-    // Запрещаем Backspace / Delete внутри префикса
     if (
       (e.key === "Backspace" || e.key === "Delete") &&
       ss !== null && se !== null &&
       ss <= PREFIX.length && se <= PREFIX.length
-    ) {
-      e.preventDefault();
-    }
+    ) e.preventDefault();
   }
 
-  /* ── Submit / backdrop ── */
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSent(true);
-  }
-
+  function handleSubmit(e: React.FormEvent) { e.preventDefault(); setSent(true); }
   function handleBackdrop(e: React.MouseEvent) {
     if (e.target === overlayRef.current) onClose();
   }
@@ -166,9 +157,9 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
 
             {/* Параметры рассрочки */}
             {preset && (
-              <div className="rounded-2xl bg-[#EBF0F9] p-4 text-sm space-y-3">
+              <div className="rounded-2xl bg-[#EBF0F9] p-4 space-y-3">
 
-                {/* Товар — показываем только если передано название */}
+                {/* Товар */}
                 {preset.productName && (
                   <div className="pb-3 border-b border-[#D8E2F0]">
                     <p className="text-[10px] text-[#6B7280] mb-1">Товар</p>
@@ -190,35 +181,56 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
                   </div>
                 )}
 
-                {/* Финансовые параметры */}
-                <div className="grid grid-cols-3 gap-2 text-center">
+                {/* Стоимость + взнос */}
+                <div className="grid grid-cols-2 gap-2 text-center">
                   <div>
                     <p className="text-[10px] text-[#6B7280] mb-0.5">Стоимость</p>
-                    <p className="font-extrabold text-[#0A1628]">{fmtRub(preset.price)} ₽</p>
+                    <p className="font-extrabold text-[#0A1628] text-sm">{fmtRub(preset.price)} ₽</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-[#6B7280] mb-0.5">Взнос</p>
-                    <p className="font-extrabold text-[#0A1628]">{fmtRub(preset.down)} ₽</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-[#6B7280] mb-0.5">Платёж</p>
-                    <p className="font-extrabold text-[#1A3C6E]">{fmtRub(preset.monthly)} ₽/мес.</p>
+                    <p className="text-[10px] text-[#6B7280] mb-0.5">Первоначальный взнос</p>
+                    <p className="font-extrabold text-[#0A1628] text-sm">{fmtRub(down)} ₽</p>
                   </div>
                 </div>
 
-                {preset.wbUrl && (
-                  <p className="text-[11px] text-[#6B7280] truncate">
-                    WB: {preset.wbUrl}
+                {/* ── Выбор срока ── */}
+                <div className="border-t border-[#D8E2F0] pt-3">
+                  <p className="text-[10px] text-[#6B7280] mb-2 font-semibold">Срок рассрочки</p>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {TERMS.map(t => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setTerm(t)}
+                        className={`flex-1 min-w-[44px] py-2 rounded-xl text-sm font-bold
+                                    border transition-all touch-manipulation
+                                    ${term === t
+                                      ? "bg-[#0A1628] text-white border-[#0A1628]"
+                                      : "bg-white text-[#374151] border-[#D8E2F0] hover:border-[#0A1628]"}`}
+                      >
+                        {t}<span className="text-[9px] font-normal ml-0.5">мес</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ── Итоговый платёж (крупно) ── */}
+                <div className="rounded-xl bg-[#0A1628] px-4 py-3 flex items-center justify-between">
+                  <p className="text-white/70 text-xs">Платёж / мес.</p>
+                  <p className="text-white font-extrabold text-xl leading-none">
+                    {fmtRub(monthly)} ₽
                   </p>
+                </div>
+
+                {preset.wbUrl && (
+                  <p className="text-[11px] text-[#6B7280] truncate">WB: {preset.wbUrl}</p>
                 )}
               </div>
             )}
 
             {/* ФИО */}
             <div>
-              <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                ФИО
-              </label>
+              <label className="block text-xs font-semibold text-[#374151] mb-1.5">ФИО</label>
               <input
                 type="text"
                 required
@@ -229,11 +241,9 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
               />
             </div>
 
-            {/* Телефон с маской */}
+            {/* Телефон */}
             <div>
-              <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                Телефон
-              </label>
+              <label className="block text-xs font-semibold text-[#374151] mb-1.5">Телефон</label>
               <input
                 type="tel"
                 required
@@ -241,7 +251,6 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
                 onChange={handlePhoneChange}
                 onKeyDown={handlePhoneKeyDown}
                 onFocus={(e) => {
-                  // Ставим курсор в конец при фокусе
                   const len = e.target.value.length;
                   e.target.setSelectionRange(len, len);
                 }}
@@ -249,28 +258,6 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
                 className="field w-full tracking-wider"
               />
             </div>
-
-            {/* Срок и платёж (readonly) */}
-            {preset && (
-              <div className="flex gap-3">
-                <div className="flex-1">
-                  <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                    Срок
-                  </label>
-                  <div className="field bg-[#F9FAFB] text-[#6B7280] text-sm">
-                    {preset.term} мес.
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                    Платёж / мес.
-                  </label>
-                  <div className="field bg-[#F9FAFB] text-[#1A3C6E] font-bold text-sm">
-                    {fmtRub(preset.monthly)} ₽
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Согласие */}
             <label className="flex items-start gap-2 cursor-pointer">
@@ -283,7 +270,6 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
               </span>
             </label>
 
-            {/* Кнопка — глубокий изумруд #0C7A58 */}
             <button
               type="submit"
               className="w-full py-4 rounded-full font-extrabold text-base text-white
