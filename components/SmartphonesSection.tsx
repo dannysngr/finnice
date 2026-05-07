@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { PHONES_CATALOG, type PhoneItem, type SimType } from "@/lib/data";
 import { calcInstallment, fmtRub, getMinDownPct } from "@/lib/calculator-logic";
@@ -11,37 +11,21 @@ import { useAppModal } from "@/lib/modal-context";
 
 const BRANDS = ["Apple", "Samsung", "Xiaomi", "Honor"] as const;
 
-// Канонический порядок объёмов памяти
 const MEMORY_ORDER = ["64 ГБ", "128 ГБ", "256 ГБ", "512 ГБ", "1 ТБ", "2 ТБ"];
 
-// Приоритет типа SIM: eSIM → SIM + eSIM → остальные
+const SIMS: ("Все" | SimType)[] = ["Все", "SIM + eSIM", "2 SIM", "1 SIM", "eSIM"];
+
+// Приоритет SIM: eSIM(0) → SIM+eSIM(1) → 2 SIM(2) → 1 SIM(3)
 const SIM_ORDER: Record<string, number> = {
-  "eSIM":      0,
+  "eSIM":       0,
   "SIM + eSIM": 1,
-  "2 SIM":     2,
-  "1 SIM":     3,
+  "2 SIM":      2,
+  "1 SIM":      3,
 };
 
-const SIMS: ("Все" | SimType)[] = ["Все", "SIM + eSIM", "2 SIM", "1 SIM", "eSIM"];
 const DEFAULT_TERM = 6;
 
-// ─── Ключи сортировки для модели iPhone ──────────────────────
-// Возвращает [поколение_desc, приоритет_модели]
-function iphoneSortKey(model: string): [number, number] {
-  // Поколение: «iPhone 17 Pro Max» → 17  (убывающий → берём с минусом)
-  const gen = parseInt(model.match(/iPhone\s+(\d+)/i)?.[1] ?? "0");
-  // Тип модели: Pro(0) → Pro Max(1) → Air(2) → base/e(3)
-  const lower = model.toLowerCase();
-  let tier: number;
-  if      (lower.includes("pro max")) tier = 1;
-  else if (lower.includes("pro"))     tier = 0;
-  else if (lower.includes("air"))     tier = 2;
-  else                                tier = 3; // базовый / e
-  return [-gen, tier]; // отрицательное поколение = новые первые
-}
-
-// ─── Дедупликация каталога по модель+память+SIM (max цена) ────
-// Выполняется один раз при инициализации модуля
+// ─── Дедупликация каталога: 1 запись на модель+память+SIM (макс. цена) ──
 const DEDUPED_CATALOG: PhoneItem[] = (() => {
   const best = new Map<string, PhoneItem>();
   for (const p of PHONES_CATALOG) {
@@ -52,21 +36,32 @@ const DEDUPED_CATALOG: PhoneItem[] = (() => {
   return Array.from(best.values());
 })();
 
-// ─── Вычислить ежемесячный платёж ────────────────────────────
+// ─── Ключи сортировки для iPhone ─────────────────────────────
+// [поколение (убыв.), тип модели (возр.)]
+function iphoneSortKey(model: string): [number, number] {
+  const gen = parseInt(model.match(/iPhone\s+(\d+)/i)?.[1] ?? "0");
+  const lower = model.toLowerCase();
+  let tier: number;
+  if      (lower.includes("pro max")) tier = 1;
+  else if (lower.includes("pro"))     tier = 0; // Pro перед Pro Max
+  else if (lower.includes("air"))     tier = 2;
+  else                                tier = 3; // базовый / e
+  return [-gen, tier];
+}
 
+// ─── Ежемесячный платёж ──────────────────────────────────────
 function monthly(price: number): number {
   const down = Math.ceil(price * getMinDownPct(price));
   return calcInstallment({ price, down, term: DEFAULT_TERM }).monthly;
 }
 
-// ─── Бейдж ────────────────────────────────────────────────────
-
+// ─── Бейдж ───────────────────────────────────────────────────
 function Badge({ text }: { text?: string }) {
   if (!text) return null;
   const cls =
-    text === "Хит"     ? "bg-amber-100  text-amber-700"  :
-    text === "Новинка" ? "bg-[#EBF0F9]  text-[#1A3C6E]"  :
-                         "bg-red-100    text-red-600";
+    text === "Хит"     ? "bg-amber-100 text-amber-700" :
+    text === "Новинка" ? "bg-[#EBF0F9] text-[#1A3C6E]" :
+                         "bg-red-100   text-red-600";
   return (
     <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold z-10 ${cls}`}>
       {text}
@@ -74,8 +69,7 @@ function Badge({ text }: { text?: string }) {
   );
 }
 
-// ─── Карточка товара ──────────────────────────────────────────
-
+// ─── Карточка товара ─────────────────────────────────────────
 function PhoneCard({ phone }: { phone: PhoneItem }) {
   const perMonth = monthly(phone.price);
   const { openModal } = useAppModal();
@@ -98,7 +92,6 @@ function PhoneCard({ phone }: { phone: PhoneItem }) {
     <div className="card p-3 hover:shadow-lg transition-all group relative flex flex-col">
       <Badge text={phone.badge} />
 
-      {/* Изображение */}
       <div className="w-full aspect-[3/4] bg-gradient-to-b from-[#F4F7FC] to-[#EBF0F9] rounded-xl mb-3 overflow-hidden flex items-center justify-center"
            style={{ filter: "drop-shadow(0 8px 16px rgba(10,22,40,0.12))" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -111,17 +104,14 @@ function PhoneCard({ phone }: { phone: PhoneItem }) {
             (e.currentTarget.nextSibling as HTMLElement).style.display = "flex";
           }}
         />
-        {/* Фолбэк */}
         <div className="hidden w-full h-full items-center justify-center text-5xl">📱</div>
       </div>
 
-      {/* Название */}
       <p className="text-[11px] text-[#6B7280] mb-0.5">{phone.brand}</p>
       <h3 className="font-bold text-[#0A1628] text-xs leading-snug mb-1 line-clamp-2 group-hover:text-[#1A3C6E] transition-colors">
         {phone.model}
       </h3>
 
-      {/* Память + SIM */}
       <div className="flex items-center gap-1.5 mb-2 flex-wrap">
         <span className="px-2 py-0.5 bg-[#EBF0F9] text-[#1A3C6E] rounded-full text-[10px] font-semibold">
           {phone.memory}
@@ -131,7 +121,6 @@ function PhoneCard({ phone }: { phone: PhoneItem }) {
         </span>
       </div>
 
-      {/* Цена */}
       <div className="mt-auto">
         <p className="font-extrabold text-[#0A1628] text-sm leading-none">{fmtRub(phone.price)} ₽</p>
         <p className="text-[10px] text-[#0C7A58] font-semibold mt-0.5">
@@ -139,7 +128,6 @@ function PhoneCard({ phone }: { phone: PhoneItem }) {
         </p>
       </div>
 
-      {/* Кнопка */}
       <button
         onClick={handleBuy}
         className="mt-3 w-full py-2.5 rounded-xl bg-[#0A1628] text-white
@@ -152,8 +140,7 @@ function PhoneCard({ phone }: { phone: PhoneItem }) {
   );
 }
 
-// ─── Дропдаун-фильтр ──────────────────────────────────────────
-
+// ─── Дропдаун-фильтр ─────────────────────────────────────────
 interface DropdownProps {
   label:    string;
   options:  string[];
@@ -187,8 +174,7 @@ function FilterDropdown({ label, options, value, onChange }: DropdownProps) {
   );
 }
 
-// ─── Фильтр-таблетка производителя ───────────────────────────
-
+// ─── Таблетка бренда ─────────────────────────────────────────
 function BrandPill({ brand, active, onClick }: { brand: string; active: boolean; onClick: () => void }) {
   return (
     <button
@@ -203,21 +189,21 @@ function BrandPill({ brand, active, onClick }: { brand: string; active: boolean;
   );
 }
 
-// ─── Главный компонент ────────────────────────────────────────
-
+// ─── Главный компонент ───────────────────────────────────────
 export function SmartphonesSection() {
   const [brand,  setBrand]  = useState("Apple");
-  const [memory, setMemory] = useState("Все");
   const [model,  setModel]  = useState("Все");
+  const [memory, setMemory] = useState("Все");
+  const [color,  setColor]  = useState("Все");
   const [sim,    setSim]    = useState<"Все" | SimType>("Все");
 
-  // Базовый дедуплицированный список для текущего бренда
+  // Дедуплицированный список для текущего бренда
   const brandItems = useMemo(
     () => DEDUPED_CATALOG.filter(p => p.brand === brand),
     [brand]
   );
 
-  // Динамические опции фильтров (на основе уже дедуплицированных данных)
+  // Опции фильтров — строятся динамически на основе дедуплицированных данных
   const modelOptions = useMemo(() => {
     const models = Array.from(new Set(brandItems.map(p => p.model)));
     return ["Все", ...models];
@@ -230,47 +216,74 @@ export function SmartphonesSection() {
     return ["Все", ...mems];
   }, [brandItems, model]);
 
-  // Сброс зависимых фильтров при смене бренда
+  // Цвета берём из исходного PHONES_CATALOG (не дедуплицированного),
+  // чтобы показать все доступные варианты для выбранной модели
+  const colorOptions = useMemo(() => {
+    let phones = PHONES_CATALOG.filter(p => p.brand === brand);
+    if (model !== "Все") phones = phones.filter(p => p.model === model);
+    const all = phones.flatMap(p => p.colors);
+    return ["Все", ...Array.from(new Set(all))];
+  }, [brand, model]);
+
+  // Сбрасываем память и цвет, если они недоступны для новой модели
+  useEffect(() => {
+    if (memory !== "Все" && !memoryOptions.includes(memory)) setMemory("Все");
+  }, [memoryOptions, memory]);
+
+  useEffect(() => {
+    if (color !== "Все" && !colorOptions.includes(color)) setColor("Все");
+  }, [colorOptions, color]);
+
   function handleBrandChange(b: string) {
     setBrand(b);
     setModel("Все");
     setMemory("Все");
+    setColor("Все");
     setSim("Все");
   }
 
-  // Применяем фильтры + сортировка: память → SIM → модель
+  // Фильтрация + сортировка
   const filtered = useMemo(() => {
+    // Фильтруем дедуплицированный каталог
+    // Фильтр по цвету проверяем через исходный PHONES_CATALOG (цвета не хранятся в деду)
+    const colorSet = color !== "Все"
+      ? new Set(
+          PHONES_CATALOG
+            .filter(p => p.brand === brand && p.colors.includes(color))
+            .map(p => `${p.model}|${p.memory}|${p.sim}`)
+        )
+      : null;
+
     const result = brandItems.filter(p => {
       if (model  !== "Все" && p.model  !== model)  return false;
       if (memory !== "Все" && p.memory !== memory) return false;
       if (sim    !== "Все" && p.sim    !== sim)    return false;
+      if (colorSet && !colorSet.has(`${p.model}|${p.memory}|${p.sim}`)) return false;
       return true;
     });
 
+    // Сортировка: поколение↓ → тип модели → память↑ → SIM
     return result.sort((a, b) => {
-      // 1. Поколение (убывающий) + тип модели — только для Apple
       if (a.brand === "Apple") {
         const [genA, tierA] = iphoneSortKey(a.model);
         const [genB, tierB] = iphoneSortKey(b.model);
-        if (genA !== genB)   return genA  - genB;   // новее = первее
-        if (tierA !== tierB) return tierA - tierB;  // Pro < Pro Max < Air < base
+        if (genA !== genB)   return genA  - genB;
+        if (tierA !== tierB) return tierA - tierB;
       }
-      // 2. Объём памяти (возрастающий)
       const memDiff = MEMORY_ORDER.indexOf(a.memory) - MEMORY_ORDER.indexOf(b.memory);
       if (memDiff !== 0) return memDiff;
-      // 3. Тип SIM: eSIM → SIM+eSIM → …
       const simDiff = (SIM_ORDER[a.sim] ?? 99) - (SIM_ORDER[b.sim] ?? 99);
       if (simDiff !== 0) return simDiff;
-      // 4. Название (алфавит)
       return a.model.localeCompare(b.model, "ru");
     });
-  }, [brandItems, model, memory, sim]);
+  }, [brandItems, model, memory, color, sim, brand]);
 
-  const hasFilters = model !== "Все" || memory !== "Все" || sim !== "Все";
+  const hasFilters = model !== "Все" || memory !== "Все" || color !== "Все" || sim !== "Все";
 
   function resetFilters() {
     setModel("Все");
     setMemory("Все");
+    setColor("Все");
     setSim("Все");
   }
 
@@ -278,7 +291,6 @@ export function SmartphonesSection() {
     <section className="py-14">
       <div className="section">
 
-        {/* ── Заголовок ── */}
         <div className="flex items-end justify-between mb-5 gap-4 flex-wrap">
           <div>
             <h2 className="text-3xl lg:text-4xl font-extrabold text-[#0A1628]">
@@ -294,26 +306,32 @@ export function SmartphonesSection() {
           </Link>
         </div>
 
-        {/* ── Фильтр по производителю (таблетки) ── */}
+        {/* Бренды */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
           {BRANDS.map(b => (
             <BrandPill key={b} brand={b} active={brand === b} onClick={() => handleBrandChange(b)} />
           ))}
         </div>
 
-        {/* ── Дропдаун-фильтры ── */}
+        {/* Фильтры */}
         <div className="flex flex-wrap gap-2 mb-6">
           <FilterDropdown
             label="Модель"
             options={modelOptions}
             value={model}
-            onChange={(m) => { setModel(m); setMemory("Все"); }}
+            onChange={(m) => { setModel(m); setMemory("Все"); setColor("Все"); }}
           />
           <FilterDropdown
             label="Память"
             options={memoryOptions}
             value={memory}
             onChange={setMemory}
+          />
+          <FilterDropdown
+            label="Цвет"
+            options={colorOptions}
+            value={color}
+            onChange={setColor}
           />
           <FilterDropdown
             label="SIM"
@@ -332,15 +350,12 @@ export function SmartphonesSection() {
           )}
         </div>
 
-        {/* ── Сетка товаров ── */}
+        {/* Сетка */}
         {filtered.length === 0 ? (
           <div className="text-center py-16 text-[#9CA3AF]">
             <div className="text-4xl mb-3">🔍</div>
             <p className="font-semibold">Нет товаров по выбранным фильтрам</p>
-            <button
-              onClick={resetFilters}
-              className="mt-3 text-sm text-[#0C7A58] underline"
-            >
+            <button onClick={resetFilters} className="mt-3 text-sm text-[#0C7A58] underline">
               Сбросить фильтры
             </button>
           </div>
@@ -350,7 +365,6 @@ export function SmartphonesSection() {
           </div>
         )}
 
-        {/* ── Счётчик ── */}
         {filtered.length > 0 && (
           <p className="text-xs text-[#9CA3AF] mt-4 text-center">
             Показано {filtered.length} из {brandItems.length} моделей

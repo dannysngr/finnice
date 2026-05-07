@@ -269,6 +269,132 @@ export const PHONES_CATALOG: PhoneItem[] = [
     img: A("iphone-14"),
   },
 
+  /* ══ iPhone 13 Pro Max ══════════════════════════════════════════ */
+  {
+    id: "ip13promax-256-2sim", brand: "Apple", model: "iPhone 13 Pro Max",
+    memory: "256 ГБ", sim: "2 SIM", price: 47500,
+    colors: ["Graphite (Графитовый)", "Silver (Серебристый)", "Gold (Золотой)", "Sierra Blue (Синий Sierra)"],
+    img: A("iphone-13-pro-max"),
+  },
+  {
+    id: "ip13promax-128-2sim", brand: "Apple", model: "iPhone 13 Pro Max",
+    memory: "128 ГБ", sim: "2 SIM", price: 43500,
+    colors: ["Graphite (Графитовый)", "Sierra Blue (Синий Sierra)"],
+    img: A("iphone-13-pro-max"),
+  },
+
+  /* ══ iPhone 13 Pro ════════════════════════════════════════════ */
+  {
+    id: "ip13pro-256-2sim", brand: "Apple", model: "iPhone 13 Pro",
+    memory: "256 ГБ", sim: "2 SIM", price: 44500,
+    colors: ["Graphite (Графитовый)", "Sierra Blue (Синий Sierra)", "Silver (Серебристый)"],
+    img: A("iphone-13-pro"),
+  },
+  {
+    id: "ip13pro-128-2sim", brand: "Apple", model: "iPhone 13 Pro",
+    memory: "128 ГБ", sim: "2 SIM", price: 41000,
+    colors: ["Graphite (Графитовый)", "Silver (Серебристый)"],
+    img: A("iphone-13-pro"),
+  },
+
+  /* ══ iPhone 13 ════════════════════════════════════════════════ */
+  {
+    id: "ip13-256-2sim", brand: "Apple", model: "iPhone 13",
+    memory: "256 ГБ", sim: "2 SIM", price: 39500,
+    colors: ["Black (Черный)", "Blue (Синий)", "Starlight (Звёздный свет)"],
+    img: A("iphone-13"),
+  },
+  {
+    id: "ip13-128-2sim", brand: "Apple", model: "iPhone 13",
+    memory: "128 ГБ", sim: "2 SIM", price: 35500,
+    colors: ["Black (Черный)", "Pink (Розовый)", "Blue (Синий)", "Starlight (Звёздный свет)"],
+    img: A("iphone-13"),
+  },
+
+  /* ══ iPhone 12 Pro Max ══════════════════════════════════════════ */
+  {
+    id: "ip12promax-256-2sim", brand: "Apple", model: "iPhone 12 Pro Max",
+    memory: "256 ГБ", sim: "2 SIM", price: 38500,
+    colors: ["Graphite (Графитовый)", "Silver (Серебристый)", "Pacific Blue (Тихоокеанский синий)"],
+    img: A("iphone-12-pro-max"),
+  },
+  {
+    id: "ip12promax-128-2sim", brand: "Apple", model: "iPhone 12 Pro Max",
+    memory: "128 ГБ", sim: "2 SIM", price: 35000,
+    colors: ["Graphite (Графитовый)", "Gold (Золотой)"],
+    img: A("iphone-12-pro-max"),
+  },
+
+  /* ══ iPhone 12 Pro ════════════════════════════════════════════ */
+  {
+    id: "ip12pro-256-2sim", brand: "Apple", model: "iPhone 12 Pro",
+    memory: "256 ГБ", sim: "2 SIM", price: 36500,
+    colors: ["Graphite (Графитовый)", "Pacific Blue (Тихоокеанский синий)", "Silver (Серебристый)"],
+    img: A("iphone-12-pro"),
+  },
+  {
+    id: "ip12pro-128-2sim", brand: "Apple", model: "iPhone 12 Pro",
+    memory: "128 ГБ", sim: "2 SIM", price: 33000,
+    colors: ["Graphite (Графитовый)", "Silver (Серебристый)"],
+    img: A("iphone-12-pro"),
+  },
+
+  /* ══ iPhone 12 ════════════════════════════════════════════════ */
+  {
+    id: "ip12-128-2sim", brand: "Apple", model: "iPhone 12",
+    memory: "128 ГБ", sim: "2 SIM", price: 31500,
+    colors: ["Black (Черный)", "White (Белый)", "Blue (Синий)", "Product Red"],
+    img: A("iphone-12"),
+  },
+  {
+    id: "ip12-64-2sim", brand: "Apple", model: "iPhone 12",
+    memory: "64 ГБ", sim: "2 SIM", price: 28000,
+    colors: ["Black (Черный)", "White (Белый)"],
+    img: A("iphone-12"),
+  },
+
+  /* ══ iPhone 11 Pro Max ══════════════════════════════════════════ */
+  {
+    id: "ip11promax-256-2sim", brand: "Apple", model: "iPhone 11 Pro Max",
+    memory: "256 ГБ", sim: "2 SIM", price: 33500,
+    colors: ["Space Gray (Серый космос)", "Silver (Серебристый)", "Gold (Золотой)", "Midnight Green (Тёмно-зелёный)"],
+    img: A("iphone-11-pro-max"),
+  },
+  {
+    id: "ip11promax-64-2sim", brand: "Apple", model: "iPhone 11 Pro Max",
+    memory: "64 ГБ", sim: "2 SIM", price: 29500,
+    colors: ["Space Gray (Серый космос)", "Silver (Серебристый)"],
+    img: A("iphone-11-pro-max"),
+  },
+
+  /* ══ iPhone 11 Pro ════════════════════════════════════════════ */
+  {
+    id: "ip11pro-256-2sim", brand: "Apple", model: "iPhone 11 Pro",
+    memory: "256 ГБ", sim: "2 SIM", price: 31500,
+    colors: ["Space Gray (Серый космос)", "Midnight Green (Тёмно-зелёный)", "Silver (Серебристый)"],
+    img: A("iphone-11-pro"),
+  },
+  {
+    id: "ip11pro-64-2sim", brand: "Apple", model: "iPhone 11 Pro",
+    memory: "64 ГБ", sim: "2 SIM", price: 28000,
+    colors: ["Space Gray (Серый космос)", "Silver (Серебристый)"],
+    img: A("iphone-11-pro"),
+  },
+
+  /* ══ iPhone 11 ════════════════════════════════════════════════ */
+  {
+    id: "ip11-128-2sim", brand: "Apple", model: "iPhone 11",
+    memory: "128 ГБ", sim: "2 SIM", price: 27500,
+    colors: ["Black (Черный)", "White (Белый)", "Purple (Фиолетовый)", "Yellow (Жёлтый)"],
+    img: A("iphone-11"),
+  },
+  {
+    id: "ip11-64-2sim", brand: "Apple", model: "iPhone 11",
+    memory: "64 ГБ", sim: "2 SIM", price: 24500,
+    colors: ["Black (Черный)", "White (Белый)", "Green (Зелёный)"],
+    img: A("iphone-11"),
+  },
+
   /* ══ Samsung Galaxy S26 series (январь 2026) ════════════════════ */
   {
     id: "s26ultra-256", brand: "Samsung", model: "Galaxy S26 Ultra",
