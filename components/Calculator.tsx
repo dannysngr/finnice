@@ -85,7 +85,7 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
           <CalcIcon />
         </div>
         <h2 className="text-xl md:text-2xl font-extrabold text-white">
-          Рассчитайте рассрочку
+          Калькулятор рассрочки
         </h2>
       </div>
 
