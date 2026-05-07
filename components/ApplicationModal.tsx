@@ -41,26 +41,6 @@ function fmtDigits(d: string): string {
   return p.join(" ");
 }
 
-// ─── Строка информационного блока ────────────────────────────
-function InfoRow({
-  label, value, accent = false, large = false,
-}: {
-  label: string; value: string; accent?: boolean; large?: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-2 py-2">
-      <p className={`text-xs leading-tight ${accent ? "text-white/80" : "text-[#6B7280]"}`}>
-        {label}
-      </p>
-      <p className={`font-extrabold whitespace-nowrap
-                     ${large  ? "text-xl"  : "text-sm"}
-                     ${accent ? "text-white" : "text-[#0A1628]"}`}>
-        {value}
-      </p>
-    </div>
-  );
-}
-
 // ─── Компонент ────────────────────────────────────────────────
 
 export function ApplicationModal({ open, onClose, preset }: Props) {
@@ -170,25 +150,34 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
 
             {preset && (
               <>
-                {/* ── Товар ── */}
+                {/* ── Товар + цена (справочно) ── */}
                 {preset.productName && (
-                  <div className="rounded-2xl border border-[#D8E2F0] px-4 py-3">
-                    <p className="text-[10px] text-[#9CA3AF] mb-1 font-semibold uppercase tracking-wide">Товар</p>
-                    <p className="font-bold text-[#0A1628] leading-snug">{preset.productName}</p>
-                    {(preset.memory || preset.sim) && (
-                      <div className="flex flex-wrap gap-1.5 mt-1.5">
-                        {preset.memory && (
-                          <span className="px-2 py-0.5 bg-[#EBF0F9] rounded-full text-[10px] font-semibold text-[#1A3C6E]">
-                            {preset.memory}
-                          </span>
-                        )}
-                        {preset.sim && (
-                          <span className="px-2 py-0.5 bg-[#F4F7FC] rounded-full text-[10px] text-[#6B7280]">
-                            {preset.sim}
-                          </span>
+                  <div className="rounded-2xl bg-[#F4F7FC] px-4 py-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-[10px] text-[#9CA3AF] mb-0.5 font-semibold uppercase tracking-wide">Товар</p>
+                        <p className="font-bold text-[#0A1628] leading-snug text-sm">{preset.productName}</p>
+                        {(preset.memory || preset.sim) && (
+                          <div className="flex flex-wrap gap-1.5 mt-1.5">
+                            {preset.memory && (
+                              <span className="px-2 py-0.5 bg-white rounded-full text-[10px] font-semibold text-[#1A3C6E] border border-[#D8E2F0]">
+                                {preset.memory}
+                              </span>
+                            )}
+                            {preset.sim && (
+                              <span className="px-2 py-0.5 bg-white rounded-full text-[10px] text-[#6B7280] border border-[#D8E2F0]">
+                                {preset.sim}
+                              </span>
+                            )}
+                          </div>
                         )}
                       </div>
-                    )}
+                      {/* Цена — справочно, приглушённо */}
+                      <div className="text-right shrink-0">
+                        <p className="text-[10px] text-[#9CA3AF]">Стоимость</p>
+                        <p className="text-sm font-bold text-[#9CA3AF]">{fmtRub(price)} ₽</p>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -216,27 +205,48 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
                   </div>
                 </div>
 
-                {/* ── Детальная разбивка ── */}
+                {/* ── Сетка 2×2 ── */}
                 <div className="rounded-2xl border border-[#D8E2F0] overflow-hidden">
-                  <div className="px-4 divide-y divide-[#F3F4F6]">
-                    <InfoRow label="Полная стоимость товара"  value={`${fmtRub(price)} ₽`} />
-                    <InfoRow
-                      label={down > 0 ? "Первоначальный взнос (25%)" : "Первоначальный взнос"}
-                      value={down > 0 ? `${fmtRub(down)} ₽` : "не требуется"}
-                    />
-                    <InfoRow label={`Наценка (${term} мес.)`}    value={`${fmtRub(res.markup)} ₽`} />
-                    <InfoRow label="Итоговая стоимость"          value={`${fmtRub(res.total)} ₽`} />
+                  <div className="grid grid-cols-2 divide-x divide-y divide-[#D8E2F0]">
+
+                    {/* Взнос */}
+                    <div className="px-4 py-3 bg-white">
+                      <p className="text-[10px] text-[#9CA3AF] mb-1 leading-tight">
+                        {down > 0 ? "Первонач. взнос (25%)" : "Первонач. взнос"}
+                      </p>
+                      <p className="font-extrabold text-[#0A1628] text-sm">
+                        {down > 0 ? `${fmtRub(down)} ₽` : "—"}
+                      </p>
+                    </div>
+
+                    {/* Итоговая стоимость */}
+                    <div className="px-4 py-3 bg-white">
+                      <p className="text-[10px] text-[#9CA3AF] mb-1 leading-tight">Итоговая стоимость</p>
+                      <p className="font-extrabold text-[#0A1628] text-sm">{fmtRub(res.total)} ₽</p>
+                    </div>
+
+                    {/* Наценка */}
+                    <div className="px-4 py-3 bg-[#F9FAFB]">
+                      <p className="text-[10px] text-[#9CA3AF] mb-1 leading-tight">Наценка</p>
+                      <p className="font-extrabold text-[#0A1628] text-sm">{fmtRub(res.markup)} ₽</p>
+                    </div>
+
+                    {/* Срок */}
+                    <div className="px-4 py-3 bg-[#F9FAFB]">
+                      <p className="text-[10px] text-[#9CA3AF] mb-1 leading-tight">Срок</p>
+                      <p className="font-extrabold text-[#0A1628] text-sm">{term} мес.</p>
+                    </div>
                   </div>
 
-                  {/* Ежемесячный платёж — акцентный блок */}
-                  <div className="bg-[#0A1628] px-4 py-4 flex items-center justify-between">
+                  {/* Ежемесячный платёж — главный акцент */}
+                  <div className="bg-[#0A1628] px-5 py-4 flex items-center justify-between">
                     <div>
                       <p className="text-white/60 text-[10px] font-semibold uppercase tracking-wide mb-0.5">
                         Ежемесячный платёж
                       </p>
-                      <p className="text-white/50 text-[10px]">за {term} мес.</p>
+                      <p className="text-white/40 text-[10px]">за {term} мес. · без переплаты</p>
                     </div>
-                    <p className="text-white font-extrabold text-2xl leading-none">
+                    <p className="text-white font-extrabold text-2xl leading-none tabular-nums">
                       {fmtRub(res.monthly)} ₽
                     </p>
                   </div>
