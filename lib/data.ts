@@ -169,6 +169,19 @@ export const PHONES_CATALOG: PhoneItem[] = [
     colors: ["Silver (Серебристый)"],
     img: A("iphone-17-pro-max"),
   },
+  // 2 ТБ
+  {
+    id: "ip17promax-2tb-esim", brand: "Apple", model: "iPhone 17 Pro Max",
+    memory: "2 ТБ", sim: "eSIM", price: 168000,
+    colors: ["Silver (Серебристый)", "Deep Blue (Глубокий синий)", "Cosmic Orange (Космический оранжевый)"],
+    img: A("iphone-17-pro-max"),
+  },
+  {
+    id: "ip17promax-2tb-sim", brand: "Apple", model: "iPhone 17 Pro Max",
+    memory: "2 ТБ", sim: "SIM + eSIM", price: 175000,
+    colors: ["Silver (Серебристый)", "Deep Blue (Глубокий синий)", "Cosmic Orange (Космический оранжевый)"],
+    img: A("iphone-17-pro-max"),
+  },
 
   /* ══ iPhone 17 Pro ══════════════════════════════════════════════ */
 
