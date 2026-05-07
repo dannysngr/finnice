@@ -183,20 +183,22 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
               </>
             )}
 
-            {/* ── ФИО + Телефон в одну строку ── */}
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-[10px] font-semibold text-[#374151] mb-1">ФИО</label>
-                <input type="text" required value={name} onChange={(e) => setName(e.target.value)}
-                       placeholder="Имя Фамилия" className="field w-full text-xs py-2" />
-              </div>
-              <div>
-                <label className="block text-[10px] font-semibold text-[#374151] mb-1">Телефон</label>
-                <input type="tel" required value={phone}
-                       onChange={handlePhoneChange} onKeyDown={handlePhoneKeyDown}
-                       onFocus={(e) => { const l = e.target.value.length; e.target.setSelectionRange(l, l); }}
-                       placeholder="+7 9__ ___" className="field w-full text-xs py-2 tracking-wider" />
-              </div>
+            {/* ── ФИО ── */}
+            <div>
+              <label className="block text-[10px] font-semibold text-[#374151] mb-1">ФИО</label>
+              <input type="text" required value={name} onChange={(e) => setName(e.target.value)}
+                     placeholder="Айдамиров Абузар Абдулхакимович"
+                     className="field w-full text-xs py-2" />
+            </div>
+
+            {/* ── Телефон ── */}
+            <div>
+              <label className="block text-[10px] font-semibold text-[#374151] mb-1">Телефон</label>
+              <input type="tel" required value={phone}
+                     onChange={handlePhoneChange} onKeyDown={handlePhoneKeyDown}
+                     onFocus={(e) => { const l = e.target.value.length; e.target.setSelectionRange(l, l); }}
+                     placeholder="+7 (928) 999-99-99"
+                     className="field w-full text-xs py-2 tracking-wider" />
             </div>
 
             {/* ── Согласие ── */}
