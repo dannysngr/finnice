@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { fmtRub, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
+import { fmtRub, calcInstallment, getMinDownPct, MIN_TERM, MAX_TERM } from "@/lib/calculator-logic";
 
 export interface ModalPreset {
   price:        number;
@@ -20,8 +20,11 @@ interface Props {
   preset?: ModalPreset;
 }
 
-// Доступные сроки рассрочки
-const TERMS = [3, 4, 6, 10, 12];
+// Диапазон сроков: 3..24 мес.
+const TERM_OPTIONS = Array.from(
+  { length: MAX_TERM - MIN_TERM + 1 },
+  (_, i) => MIN_TERM + i
+);
 
 // ─── Телефонная маска ─────────────────────────────────────────
 const PREFIX = "+7 ";
@@ -29,48 +32,58 @@ const PREFIX = "+7 ";
 function extractDigits(s: string): string {
   return s.replace(/\D/g, "").slice(0, 10);
 }
-
 function fmtDigits(d: string): string {
-  const parts: string[] = [];
-  if (d.length > 0) parts.push(d.slice(0, 3));
-  if (d.length > 3) parts.push(d.slice(3, 6));
-  if (d.length > 6) parts.push(d.slice(6, 8));
-  if (d.length > 8) parts.push(d.slice(8, 10));
-  return parts.join(" ");
+  const p: string[] = [];
+  if (d.length > 0) p.push(d.slice(0, 3));
+  if (d.length > 3) p.push(d.slice(3, 6));
+  if (d.length > 6) p.push(d.slice(6, 8));
+  if (d.length > 8) p.push(d.slice(8, 10));
+  return p.join(" ");
+}
+
+// ─── Строка информационного блока ────────────────────────────
+function InfoRow({
+  label, value, accent = false, large = false,
+}: {
+  label: string; value: string; accent?: boolean; large?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-2 py-2">
+      <p className={`text-xs leading-tight ${accent ? "text-white/80" : "text-[#6B7280]"}`}>
+        {label}
+      </p>
+      <p className={`font-extrabold whitespace-nowrap
+                     ${large  ? "text-xl"  : "text-sm"}
+                     ${accent ? "text-white" : "text-[#0A1628]"}`}>
+        {value}
+      </p>
+    </div>
+  );
 }
 
 // ─── Компонент ────────────────────────────────────────────────
 
 export function ApplicationModal({ open, onClose, preset }: Props) {
-  const [name,    setName]    = useState("");
-  const [phone,   setPhone]   = useState(PREFIX);
-  const [sent,    setSent]    = useState(false);
-
-  // Интерактивный срок — инициализируем из preset или дефолт 6 мес.
-  const [term, setTerm] = useState<number>(preset?.term ?? 6);
-
-  // Пересчитываем платёж при смене preset или срока
-  const price   = preset?.price ?? 0;
-  const down    = preset?.down  ?? Math.ceil(price * getMinDownPct(price));
-  const monthly = price > 0
-    ? calcInstallment({ price, down, term }).monthly
-    : (preset?.monthly ?? 0);
+  const [name,  setName]  = useState("");
+  const [phone, setPhone] = useState(PREFIX);
+  const [sent,  setSent]  = useState(false);
+  const [term,  setTerm]  = useState<number>(preset?.term ?? 6);
 
   const overlayRef = useRef<HTMLDivElement>(null);
 
-  // Сбрасываем срок при открытии нового товара
+  // Сброс срока при открытии нового товара
   useEffect(() => {
     if (open && preset?.term) setTerm(preset.term);
   }, [open, preset?.term]);
 
-  /* Закрыть по Escape */
+  // Закрыть по Escape
   useEffect(() => {
-    function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  /* Блокировка скролла */
+  // Блокировка скролла
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -78,7 +91,14 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
 
   if (!open) return null;
 
-  /* ── Телефон ── */
+  // ── Расчёт (живой пересчёт при смене term) ──
+  const price = preset?.price ?? 0;
+  const down  = preset?.down  ?? Math.ceil(price * getMinDownPct(price));
+  const res   = price > 0
+    ? calcInstallment({ price, down, term })
+    : { monthly: 0, markup: 0, total: 0, isValidDown: true, minDown: 0, minDownPct: 0 };
+
+  // ── Телефон ──
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value;
     if (!raw.startsWith(PREFIX)) { setPhone(PREFIX); return; }
@@ -86,10 +106,8 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
     if (digits.length > 0 && digits[0] !== "9") return;
     setPhone(PREFIX + fmtDigits(digits));
   }
-
   function handlePhoneKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    const el = e.currentTarget;
-    const { selectionStart: ss, selectionEnd: se } = el;
+    const { selectionStart: ss, selectionEnd: se } = e.currentTarget;
     if (
       (e.key === "Backspace" || e.key === "Delete") &&
       ss !== null && se !== null &&
@@ -110,19 +128,18 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
                  bg-black/60 backdrop-blur-sm"
     >
       <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl
-                      overflow-hidden animate-in fade-in zoom-in duration-200">
+                      overflow-hidden animate-in fade-in zoom-in duration-200
+                      max-h-[90dvh] overflow-y-auto">
 
-        {/* Шапка */}
-        <div className="px-6 pt-6 pb-4 border-b border-[#D8E2F0]">
+        {/* ── Шапка ── */}
+        <div className="sticky top-0 z-10 px-6 pt-6 pb-4 bg-white border-b border-[#D8E2F0]">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#F3F4F6]
                        flex items-center justify-center text-[#6B7280]
                        hover:bg-[#D8E2F0] transition-colors text-lg leading-none"
             aria-label="Закрыть"
-          >
-            ×
-          </button>
+          >×</button>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl grad-main flex items-center justify-center shrink-0">
               <span className="text-white font-extrabold text-sm">NF</span>
@@ -144,35 +161,29 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
               Менеджер свяжется с вами в течение 15 минут.
               Работаем по г. Грозный и Чеченской Республике.
             </p>
-            <button
-              onClick={() => { setSent(false); onClose(); }}
-              className="btn-primary"
-            >
+            <button onClick={() => { setSent(false); onClose(); }} className="btn-primary">
               Закрыть
             </button>
           </div>
         ) : (
-          /* ── Форма ── */
           <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
 
-            {/* Параметры рассрочки */}
             {preset && (
-              <div className="rounded-2xl bg-[#EBF0F9] p-4 space-y-3">
-
-                {/* Товар */}
+              <>
+                {/* ── Товар ── */}
                 {preset.productName && (
-                  <div className="pb-3 border-b border-[#D8E2F0]">
-                    <p className="text-[10px] text-[#6B7280] mb-1">Товар</p>
+                  <div className="rounded-2xl border border-[#D8E2F0] px-4 py-3">
+                    <p className="text-[10px] text-[#9CA3AF] mb-1 font-semibold uppercase tracking-wide">Товар</p>
                     <p className="font-bold text-[#0A1628] leading-snug">{preset.productName}</p>
                     {(preset.memory || preset.sim) && (
                       <div className="flex flex-wrap gap-1.5 mt-1.5">
                         {preset.memory && (
-                          <span className="px-2 py-0.5 bg-white rounded-full text-[10px] font-semibold text-[#1A3C6E] border border-[#D8E2F0]">
+                          <span className="px-2 py-0.5 bg-[#EBF0F9] rounded-full text-[10px] font-semibold text-[#1A3C6E]">
                             {preset.memory}
                           </span>
                         )}
                         {preset.sim && (
-                          <span className="px-2 py-0.5 bg-white rounded-full text-[10px] font-semibold text-[#6B7280] border border-[#D8E2F0]">
+                          <span className="px-2 py-0.5 bg-[#F4F7FC] rounded-full text-[10px] text-[#6B7280]">
                             {preset.sim}
                           </span>
                         )}
@@ -181,54 +192,65 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
                   </div>
                 )}
 
-                {/* Стоимость + взнос */}
-                <div className="grid grid-cols-2 gap-2 text-center">
-                  <div>
-                    <p className="text-[10px] text-[#6B7280] mb-0.5">Стоимость</p>
-                    <p className="font-extrabold text-[#0A1628] text-sm">{fmtRub(preset.price)} ₽</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-[#6B7280] mb-0.5">Первоначальный взнос</p>
-                    <p className="font-extrabold text-[#0A1628] text-sm">{fmtRub(down)} ₽</p>
-                  </div>
-                </div>
-
                 {/* ── Выбор срока ── */}
-                <div className="border-t border-[#D8E2F0] pt-3">
-                  <p className="text-[10px] text-[#6B7280] mb-2 font-semibold">Срок рассрочки</p>
-                  <div className="flex gap-1.5 flex-wrap">
-                    {TERMS.map(t => (
-                      <button
-                        key={t}
-                        type="button"
-                        onClick={() => setTerm(t)}
-                        className={`flex-1 min-w-[44px] py-2 rounded-xl text-sm font-bold
-                                    border transition-all touch-manipulation
-                                    ${term === t
-                                      ? "bg-[#0A1628] text-white border-[#0A1628]"
-                                      : "bg-white text-[#374151] border-[#D8E2F0] hover:border-[#0A1628]"}`}
-                      >
-                        {t}<span className="text-[9px] font-normal ml-0.5">мес</span>
-                      </button>
-                    ))}
+                <div>
+                  <label className="block text-xs font-semibold text-[#374151] mb-1.5">
+                    Срок рассрочки
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={term}
+                      onChange={(e) => setTerm(Number(e.target.value))}
+                      className="w-full appearance-none bg-white border border-[#D8E2F0]
+                                 rounded-xl px-4 py-3 text-sm font-bold text-[#0A1628]
+                                 outline-none cursor-pointer transition-colors
+                                 hover:border-[#0A1628] focus:border-[#0A1628]
+                                 touch-manipulation"
+                    >
+                      {TERM_OPTIONS.map(t => (
+                        <option key={t} value={t}>{t} месяцев</option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2
+                                     text-[#6B7280] text-xs">▾</span>
                   </div>
                 </div>
 
-                {/* ── Итоговый платёж (крупно) ── */}
-                <div className="rounded-xl bg-[#0A1628] px-4 py-3 flex items-center justify-between">
-                  <p className="text-white/70 text-xs">Платёж / мес.</p>
-                  <p className="text-white font-extrabold text-xl leading-none">
-                    {fmtRub(monthly)} ₽
-                  </p>
+                {/* ── Детальная разбивка ── */}
+                <div className="rounded-2xl border border-[#D8E2F0] overflow-hidden">
+                  <div className="px-4 divide-y divide-[#F3F4F6]">
+                    <InfoRow label="Полная стоимость товара"  value={`${fmtRub(price)} ₽`} />
+                    <InfoRow
+                      label={down > 0 ? "Первоначальный взнос (25%)" : "Первоначальный взнос"}
+                      value={down > 0 ? `${fmtRub(down)} ₽` : "не требуется"}
+                    />
+                    <InfoRow label={`Наценка (${term} мес.)`}    value={`${fmtRub(res.markup)} ₽`} />
+                    <InfoRow label="Итоговая стоимость"          value={`${fmtRub(res.total)} ₽`} />
+                  </div>
+
+                  {/* Ежемесячный платёж — акцентный блок */}
+                  <div className="bg-[#0A1628] px-4 py-4 flex items-center justify-between">
+                    <div>
+                      <p className="text-white/60 text-[10px] font-semibold uppercase tracking-wide mb-0.5">
+                        Ежемесячный платёж
+                      </p>
+                      <p className="text-white/50 text-[10px]">за {term} мес.</p>
+                    </div>
+                    <p className="text-white font-extrabold text-2xl leading-none">
+                      {fmtRub(res.monthly)} ₽
+                    </p>
+                  </div>
                 </div>
 
                 {preset.wbUrl && (
-                  <p className="text-[11px] text-[#6B7280] truncate">WB: {preset.wbUrl}</p>
+                  <p className="text-[11px] text-[#6B7280] truncate px-1">
+                    WB: {preset.wbUrl}
+                  </p>
                 )}
-              </div>
+              </>
             )}
 
-            {/* ФИО */}
+            {/* ── ФИО ── */}
             <div>
               <label className="block text-xs font-semibold text-[#374151] mb-1.5">ФИО</label>
               <input
@@ -241,7 +263,7 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
               />
             </div>
 
-            {/* Телефон */}
+            {/* ── Телефон ── */}
             <div>
               <label className="block text-xs font-semibold text-[#374151] mb-1.5">Телефон</label>
               <input
@@ -259,7 +281,7 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
               />
             </div>
 
-            {/* Согласие */}
+            {/* ── Согласие ── */}
             <label className="flex items-start gap-2 cursor-pointer">
               <input type="checkbox" required className="mt-0.5 accent-[#0C7A58]" />
               <span className="text-[11px] text-[#9CA3AF] leading-relaxed">
@@ -279,7 +301,7 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
               Отправить заявку
             </button>
 
-            <p className="text-center text-[11px] text-[#9CA3AF]">
+            <p className="text-center text-[11px] text-[#9CA3AF] pb-1">
               Ответим в течение 15 минут · г. Грозный, ул. Орзамиева, 8
             </p>
           </form>
