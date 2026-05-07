@@ -36,17 +36,88 @@ const DEDUPED_CATALOG: PhoneItem[] = (() => {
   return Array.from(best.values());
 })();
 
-// ─── Ключи сортировки для iPhone ─────────────────────────────
-// [поколение (убыв.), тип модели (возр.)]
+// ─── Ключи сортировки ────────────────────────────────────────
+
+// Apple iPhone: [поколение↓, тип модели]
+// Pro(0) → Pro Max(1) → Air(2) → base(3)
 function iphoneSortKey(model: string): [number, number] {
   const gen = parseInt(model.match(/iPhone\s+(\d+)/i)?.[1] ?? "0");
   const lower = model.toLowerCase();
   let tier: number;
   if      (lower.includes("pro max")) tier = 1;
-  else if (lower.includes("pro"))     tier = 0; // Pro перед Pro Max
+  else if (lower.includes("pro"))     tier = 0;
   else if (lower.includes("air"))     tier = 2;
-  else                                tier = 3; // базовый / e
+  else                                tier = 3;
   return [-gen, tier];
+}
+
+// Samsung: [серия, поколение↓, тир модели]
+// S(0) → Z Fold/Flip(1) → A(2)
+// Внутри S: Ultra(0) → +(1) → base(2)
+// Внутри Z: Fold(0) → Flip(1)
+function samsungSortKey(model: string): [number, number, number] {
+  const lower = model.toLowerCase();
+  // Поколение: «Galaxy S26 Ultra» → 26, «Galaxy Z Fold7» → 7
+  const gen = parseInt(model.match(/\d+/)?.[0] ?? "0");
+  let series: number;
+  let tier: number;
+  if (lower.includes(" s")) {
+    series = 0;
+    if      (lower.includes("ultra")) tier = 0;
+    else if (lower.includes("+"))     tier = 1;
+    else                              tier = 2;
+  } else if (lower.includes("fold") || lower.includes("flip")) {
+    series = 1;
+    tier = lower.includes("fold") ? 0 : 1;
+  } else {
+    // A-серия
+    series = 2;
+    tier = 0;
+  }
+  return [series, -gen, tier];
+}
+
+// Xiaomi: [серия, поколение↓, тир модели]
+// Numeric(0) → T(1) → Redmi Note(2) → Redmi(3)
+// Внутри Numeric: Ultra(0) → Pro(1) → base(2)
+function xiaomiSortKey(model: string): [number, number, number] {
+  const lower = model.toLowerCase();
+  const gen = parseInt(model.match(/\d+/)?.[0] ?? "0");
+  let series: number;
+  let tier: number;
+  if (lower.startsWith("xiaomi ") && /xiaomi\s+\d/.test(lower)) {
+    series = 0;
+    if      (lower.includes("ultra")) tier = 0;
+    else if (lower.includes("pro"))   tier = 1;
+    else                              tier = 2;
+  } else if (lower.includes(" t")) {
+    series = 1; tier = 0;
+  } else if (lower.includes("redmi note")) {
+    series = 2; tier = 0;
+  } else {
+    series = 3; tier = 0;
+  }
+  return [series, -gen, tier];
+}
+
+// Honor: [серия, поколение↓, тир модели]
+// Magic(0) → Numeric(1) → X(2)
+// Внутри Numeric: Pro(0) → base(1)
+function honorSortKey(model: string): [number, number, number] {
+  const lower = model.toLowerCase();
+  const gen = parseInt(model.match(/\d+/)?.[0] ?? "0");
+  let series: number;
+  let tier: number;
+  if (lower.includes("magic")) {
+    series = 0;
+    tier = lower.includes("pro") ? 0 : 1;
+  } else if (/honor\s+\d/.test(lower)) {
+    series = 1;
+    tier = lower.includes("pro") ? 0 : 1;
+  } else {
+    series = 2; tier = 0;
+  }
+  return [series, -gen, tier];
 }
 
 // ─── Ежемесячный платёж ──────────────────────────────────────
@@ -262,14 +333,29 @@ export function SmartphonesSection() {
       return true;
     });
 
-    // Сортировка: поколение↓ → тип модели → память↑ → SIM
+    // Сортировка: серия/поколение↓ → тип модели → память↑ → SIM
     return result.sort((a, b) => {
+      // Бренд-специфичные ключи (до 3 уровней)
+      let brandDiff = 0;
       if (a.brand === "Apple") {
-        const [genA, tierA] = iphoneSortKey(a.model);
-        const [genB, tierB] = iphoneSortKey(b.model);
-        if (genA !== genB)   return genA  - genB;
-        if (tierA !== tierB) return tierA - tierB;
+        const ka = iphoneSortKey(a.model);
+        const kb = iphoneSortKey(b.model);
+        brandDiff = ka[0] - kb[0] || ka[1] - kb[1];
+      } else if (a.brand === "Samsung") {
+        const ka = samsungSortKey(a.model);
+        const kb = samsungSortKey(b.model);
+        brandDiff = ka[0] - kb[0] || ka[1] - kb[1] || ka[2] - kb[2];
+      } else if (a.brand === "Xiaomi") {
+        const ka = xiaomiSortKey(a.model);
+        const kb = xiaomiSortKey(b.model);
+        brandDiff = ka[0] - kb[0] || ka[1] - kb[1] || ka[2] - kb[2];
+      } else if (a.brand === "Honor") {
+        const ka = honorSortKey(a.model);
+        const kb = honorSortKey(b.model);
+        brandDiff = ka[0] - kb[0] || ka[1] - kb[1] || ka[2] - kb[2];
       }
+      if (brandDiff !== 0) return brandDiff;
+      // Общие критерии: память↑ → SIM
       const memDiff = MEMORY_ORDER.indexOf(a.memory) - MEMORY_ORDER.indexOf(b.memory);
       if (memDiff !== 0) return memDiff;
       const simDiff = (SIM_ORDER[a.sim] ?? 99) - (SIM_ORDER[b.sim] ?? 99);
