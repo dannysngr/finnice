@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { PHONES_CATALOG, type PhoneItem, type SimType } from "@/lib/data";
 import { calcInstallment, fmtRub, getMinDownPct } from "@/lib/calculator-logic";
@@ -15,9 +15,21 @@ const BRANDS = ["Apple", "Samsung", "Xiaomi", "Honor"] as const;
 const MEMORY_ORDER = ["64 ГБ", "128 ГБ", "256 ГБ", "512 ГБ", "1 ТБ", "2 ТБ"];
 
 const SIMS: ("Все" | SimType)[] = ["Все", "SIM + eSIM", "2 SIM", "1 SIM", "eSIM"];
-const DEFAULT_TERM = 6; // срок для расчёта «от X руб./мес»
+const DEFAULT_TERM = 6;
 
-// ─── Вычислить ежемесячный платёж (с учётом обязательного взноса 25% при цене > 50к) ──
+// ─── Дедупликация каталога по модель+память+SIM (max цена) ────
+// Выполняется один раз при инициализации модуля
+const DEDUPED_CATALOG: PhoneItem[] = (() => {
+  const best = new Map<string, PhoneItem>();
+  for (const p of PHONES_CATALOG) {
+    const key = `${p.brand}|${p.model}|${p.memory}|${p.sim}`;
+    const prev = best.get(key);
+    if (!prev || p.price > prev.price) best.set(key, p);
+  }
+  return Array.from(best.values());
+})();
+
+// ─── Вычислить ежемесячный платёж ────────────────────────────
 
 function monthly(price: number): number {
   const down = Math.ceil(price * getMinDownPct(price));
@@ -46,8 +58,8 @@ function PhoneCard({ phone }: { phone: PhoneItem }) {
   const { openModal } = useAppModal();
 
   function handleBuy() {
-    const down        = Math.ceil(phone.price * getMinDownPct(phone.price));
-    const monthlyAmt  = calcInstallment({ price: phone.price, down, term: DEFAULT_TERM }).monthly;
+    const down       = Math.ceil(phone.price * getMinDownPct(phone.price));
+    const monthlyAmt = calcInstallment({ price: phone.price, down, term: DEFAULT_TERM }).monthly;
     openModal({
       productName: phone.model,
       memory:      phone.memory,
@@ -126,10 +138,6 @@ interface DropdownProps {
   onChange: (v: string) => void;
 }
 
-/**
- * Первый элемент options всегда «Все» — он отображается как название фильтра.
- * Остальные элементы показываются без preffix «Метка: значение».
- */
 function FilterDropdown({ label, options, value, onChange }: DropdownProps) {
   const isActive = value !== options[0];
   return (
@@ -143,14 +151,11 @@ function FilterDropdown({ label, options, value, onChange }: DropdownProps) {
                       ? "bg-[#0C7A58] border-[#0C7A58] text-white"
                       : "bg-white border-[#D8E2F0] text-[#374151] hover:border-[#0C7A58]"}`}
       >
-        {/* «Все» — показываем как заголовок фильтра */}
         <option value={options[0]}>{label}</option>
-        {/* Остальные варианты — только значение, без приставки */}
         {options.slice(1).map((o) => (
           <option key={o} value={o}>{o}</option>
         ))}
       </select>
-      {/* Стрелка */}
       <span className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs
                         ${isActive ? "text-white" : "text-[#6B7280]"}`}>
         ▾
@@ -181,91 +186,50 @@ export function SmartphonesSection() {
   const [brand,  setBrand]  = useState("Apple");
   const [memory, setMemory] = useState("Все");
   const [model,  setModel]  = useState("Все");
-  const [color,  setColor]  = useState("Все");
   const [sim,    setSim]    = useState<"Все" | SimType>("Все");
 
-  // Динамический список моделей для выбранного бренда
-  const modelOptions = useMemo(() => {
-    const models = Array.from(
-      new Set(PHONES_CATALOG.filter(p => p.brand === brand).map(p => p.model))
-    );
-    return ["Все", ...models];
-  }, [brand]);
+  // Базовый дедуплицированный список для текущего бренда
+  const brandItems = useMemo(
+    () => DEDUPED_CATALOG.filter(p => p.brand === brand),
+    [brand]
+  );
 
-  // Динамический список памяти — зависит от бренда И выбранной модели
+  // Динамические опции фильтров (на основе уже дедуплицированных данных)
+  const modelOptions = useMemo(() => {
+    const models = Array.from(new Set(brandItems.map(p => p.model)));
+    return ["Все", ...models];
+  }, [brandItems]);
+
   const memoryOptions = useMemo(() => {
-    let phones = PHONES_CATALOG.filter(p => p.brand === brand);
-    if (model !== "Все") phones = phones.filter(p => p.model === model);
-    const mems = Array.from(new Set(phones.map(p => p.memory)));
+    const base = model !== "Все" ? brandItems.filter(p => p.model === model) : brandItems;
+    const mems = Array.from(new Set(base.map(p => p.memory)));
     mems.sort((a, b) => MEMORY_ORDER.indexOf(a) - MEMORY_ORDER.indexOf(b));
     return ["Все", ...mems];
-  }, [brand, model]);
+  }, [brandItems, model]);
 
-  // Динамический список цветов — зависит от бренда И выбранной модели
-  const colorOptions = useMemo(() => {
-    let phones = PHONES_CATALOG.filter(p => p.brand === brand);
-    if (model !== "Все") phones = phones.filter(p => p.model === model);
-    const all = phones.flatMap(p => p.colors);
-    return ["Все", ...Array.from(new Set(all))];
-  }, [brand, model]);
-
-  // Если текущий выбор памяти недоступен для новой модели — сбрасываем
-  useEffect(() => {
-    if (memory !== "Все" && !memoryOptions.includes(memory)) {
-      setMemory("Все");
-    }
-  }, [memoryOptions, memory]);
-
-  // Если текущий цвет недоступен для новой модели — сбрасываем
-  useEffect(() => {
-    if (color !== "Все" && !colorOptions.includes(color)) {
-      setColor("Все");
-    }
-  }, [colorOptions, color]);
-
-  // Сброс всех зависимых фильтров при смене бренда
+  // Сброс зависимых фильтров при смене бренда
   function handleBrandChange(b: string) {
     setBrand(b);
     setModel("Все");
     setMemory("Все");
-    setColor("Все");
     setSim("Все");
   }
 
-  // Сброс памяти и цвета при смене модели (useEffect выше сделает это автоматически,
-  // но явный сброс через setModel нужен для немедленного обновления)
-  function handleModelChange(m: string) {
-    setModel(m);
-    // Память и цвет сбросятся через useEffect, если выйдут за пределы новых опций
-  }
-
-  // Применяем фильтры + дедупликация по model+memory+sim (оставляем максимальную цену)
+  // Применяем фильтры к уже дедуплицированному каталогу
   const filtered = useMemo(() => {
-    const matched = PHONES_CATALOG.filter(p => {
-      if (p.brand  !== brand)                            return false;
-      if (model  !== "Все" && p.model  !== model)        return false;
-      if (memory !== "Все" && p.memory !== memory)       return false;
-      if (color  !== "Все" && !p.colors.includes(color)) return false;
-      if (sim    !== "Все" && p.sim    !== sim)          return false;
+    return brandItems.filter(p => {
+      if (model  !== "Все" && p.model  !== model)  return false;
+      if (memory !== "Все" && p.memory !== memory) return false;
+      if (sim    !== "Все" && p.sim    !== sim)    return false;
       return true;
     });
+  }, [brandItems, model, memory, sim]);
 
-    // Для каждой уникальной комбинации модель+память+SIM оставляем запись с наибольшей ценой
-    const best = new Map<string, PhoneItem>();
-    for (const p of matched) {
-      const key = `${p.model}|${p.memory}|${p.sim}`;
-      const prev = best.get(key);
-      if (!prev || p.price > prev.price) best.set(key, p);
-    }
-    return Array.from(best.values());
-  }, [brand, model, memory, color, sim]);
-
-  const hasFilters = model !== "Все" || memory !== "Все" || color !== "Все" || sim !== "Все";
+  const hasFilters = model !== "Все" || memory !== "Все" || sim !== "Все";
 
   function resetFilters() {
     setModel("Все");
     setMemory("Все");
-    setColor("Все");
     setSim("Все");
   }
 
@@ -302,19 +266,13 @@ export function SmartphonesSection() {
             label="Модель"
             options={modelOptions}
             value={model}
-            onChange={handleModelChange}
+            onChange={(m) => { setModel(m); setMemory("Все"); }}
           />
           <FilterDropdown
             label="Память"
             options={memoryOptions}
             value={memory}
             onChange={setMemory}
-          />
-          <FilterDropdown
-            label="Цвет"
-            options={colorOptions}
-            value={color}
-            onChange={setColor}
           />
           <FilterDropdown
             label="SIM"
@@ -354,7 +312,7 @@ export function SmartphonesSection() {
         {/* ── Счётчик ── */}
         {filtered.length > 0 && (
           <p className="text-xs text-[#9CA3AF] mt-4 text-center">
-            Показано {filtered.length} из {PHONES_CATALOG.filter(p => p.brand === brand).length} моделей
+            Показано {filtered.length} из {brandItems.length} моделей
           </p>
         )}
       </div>
