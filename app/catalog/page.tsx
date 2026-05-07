@@ -9,72 +9,155 @@ import {
 import { fmtRub, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
 import { useAppModal } from "@/lib/modal-context";
 
-// ─── Расширенный тип с опциональным img ───────────────────────────
-type CatalogItem = Product & { img?: string };
+// ─── Расширенный тип с опциональными полями ───────────────────
+type CatalogItem = Product & { img?: string; sim?: string };
 
-// ─── Порядок памяти ───────────────────────────────────────────────
-const MEM_ORDER = ["64 ГБ","128 ГБ","256 ГБ","512 ГБ","1 ТБ","2 ТБ"];
+// ─── Порядок памяти ───────────────────────────────────────────
+const MEM_ORDER = ["64 ГБ", "128 ГБ", "256 ГБ", "512 ГБ", "1 ТБ", "2 ТБ"];
 
-// ─── Строим карточки телефонов из PHONES_CATALOG ─────────────────
-const PHONE_ITEMS: CatalogItem[] = (() => {
-  type ModelAcc = {
-    brand: string; model: string; minPrice: number;
-    mems: Set<string>; badge?: string; img: string;
-  };
-  const map = new Map<string, ModelAcc>();
+// ─── Порядок SIM ──────────────────────────────────────────────
+const SIM_ORDER: Record<string, number> = {
+  "eSIM": 0, "SIM + eSIM": 1, "2 SIM": 2, "1 SIM": 3,
+};
 
-  for (const p of PHONES_CATALOG) {
-    const key = `${p.brand}|${p.model}`;
-    if (!map.has(key)) {
-      map.set(key, {
-        brand: p.brand, model: p.model,
-        minPrice: p.price, mems: new Set([p.memory]),
-        badge: p.badge, img: p.img,
-      });
-    } else {
-      const e = map.get(key)!;
-      if (p.price < e.minPrice) e.minPrice = p.price;
-      e.mems.add(p.memory);
-      if (p.badge && !e.badge) e.badge = p.badge;
-    }
+// ─── Порядок брендов ──────────────────────────────────────────
+const BRAND_PRIORITY = ["Apple", "Samsung", "Xiaomi", "Honor"];
+function brandRank(b: string): number {
+  const i = BRAND_PRIORITY.indexOf(b);
+  return i === -1 ? BRAND_PRIORITY.length : i;
+}
+
+// ─── Ключи сортировки (аналог SmartphonesSection) ────────────
+
+function iphoneSortKey(model: string): [number, number] {
+  const gen = parseInt(model.match(/iPhone\s+(\d+)/i)?.[1] ?? "0");
+  const lower = model.toLowerCase();
+  let tier: number;
+  if      (lower.includes("pro max")) tier = 1;
+  else if (lower.includes("pro"))     tier = 0;
+  else if (lower.includes("air"))     tier = 2;
+  else                                tier = 3;
+  return [-gen, tier];
+}
+
+function samsungSortKey(model: string): [number, number, number] {
+  const lower = model.toLowerCase();
+  const gen = parseInt(model.match(/\d+/)?.[0] ?? "0");
+  let series: number, tier: number;
+  if (lower.includes(" s")) {
+    series = 0;
+    tier = lower.includes("ultra") ? 0 : lower.includes("+") ? 1 : 2;
+  } else if (lower.includes("fold") || lower.includes("flip")) {
+    series = 1;
+    tier = lower.includes("fold") ? 0 : 1;
+  } else {
+    series = 2; tier = 0;
   }
+  return [series, -gen, tier];
+}
 
-  return Array.from(map.values()).map((e) => {
-    const name     = e.model.startsWith(e.brand) ? e.model : `${e.brand} ${e.model}`;
-    const memories = Array.from(e.mems).sort(
-      (a, b) => MEM_ORDER.indexOf(a) - MEM_ORDER.indexOf(b)
-    );
-    return {
-      id:          `phone-${e.brand.toLowerCase()}-${e.model.toLowerCase().replace(/\s+/g, "-")}`,
-      name,
-      slug:        name.toLowerCase().replace(/[^a-zа-яё0-9]+/gi, "-"),
-      category:    "telefony" as const,
-      brand:       e.brand,
-      price:       e.minPrice,
-      badge:       e.badge,
-      emoji:       "📱",
-      img:         e.img,
-      memories,
-      inStock:     true,
-      rating:      5,
-      reviewCount: 0,
-      description: "",
-      specs:       [],
-    } satisfies CatalogItem;
-  });
-})();
+function xiaomiSortKey(model: string): [number, number, number] {
+  const lower = model.toLowerCase();
+  const gen = parseInt(model.match(/\d+/)?.[0] ?? "0");
+  let series: number, tier: number;
+  if (lower.startsWith("xiaomi ") && /xiaomi\s+\d/.test(lower)) {
+    series = 0;
+    tier = lower.includes("ultra") ? 0 : lower.includes("pro") ? 1 : 2;
+  } else if (lower.includes(" t")) {
+    series = 1; tier = 0;
+  } else if (lower.includes("redmi note")) {
+    series = 2; tier = 0;
+  } else {
+    series = 3; tier = 0;
+  }
+  return [series, -gen, tier];
+}
 
-// ─── Прочие товары (не телефоны) из PRODUCTS ─────────────────────
+function honorSortKey(model: string): [number, number, number] {
+  const lower = model.toLowerCase();
+  const gen = parseInt(model.match(/\d+/)?.[0] ?? "0");
+  let series: number, tier: number;
+  if (lower.includes("magic")) {
+    series = 0; tier = lower.includes("pro") ? 0 : 1;
+  } else if (/honor\s+\d/.test(lower)) {
+    series = 1; tier = lower.includes("pro") ? 0 : 1;
+  } else {
+    series = 2; tier = 0;
+  }
+  return [series, -gen, tier];
+}
+
+// Единый ключ для сортировки "По популярности"
+function defaultSortKey(item: CatalogItem): number[] {
+  const bRank = brandRank(item.brand);
+  const brand = item.brand;
+  const model = item.name;
+  let modelKey: number[];
+  if (brand === "Apple") {
+    const k = iphoneSortKey(model);
+    modelKey = [k[0], k[1]];
+  } else if (brand === "Samsung") {
+    const k = samsungSortKey(model);
+    modelKey = [k[0], k[1], k[2]];
+  } else if (brand === "Xiaomi") {
+    const k = xiaomiSortKey(model);
+    modelKey = [k[0], k[1], k[2]];
+  } else if (brand === "Honor") {
+    const k = honorSortKey(model);
+    modelKey = [k[0], k[1], k[2]];
+  } else {
+    modelKey = [0];
+  }
+  const memRank = MEM_ORDER.indexOf(item.memories?.[0] ?? "");
+  const simRank = SIM_ORDER[item.sim ?? ""] ?? 99;
+  return [bRank, ...modelKey, memRank, simRank];
+}
+
+function cmpArrays(a: number[], b: number[]): number {
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    const d = (a[i] ?? 0) - (b[i] ?? 0);
+    if (d !== 0) return d;
+  }
+  return 0;
+}
+
+// ─── Строим карточки телефонов из PHONES_CATALOG (без группировки) ──
+// Каждая запись в PHONES_CATALOG → отдельная карточка в каталоге
+const PHONE_ITEMS: CatalogItem[] = PHONES_CATALOG.map((p) => {
+  const name = p.model.startsWith(p.brand) ? p.model : `${p.brand} ${p.model}`;
+  return {
+    id:          p.id,
+    name,
+    slug:        name.toLowerCase().replace(/[^a-zа-яё0-9]+/gi, "-"),
+    category:    "telefony" as const,
+    brand:       p.brand,
+    price:       p.price,
+    badge:       p.badge,
+    emoji:       "📱",
+    img:         p.img,
+    sim:         p.sim,
+    memories:    [p.memory],
+    inStock:     true,
+    rating:      5,
+    reviewCount: 0,
+    description: "",
+    specs:       [],
+  } satisfies CatalogItem;
+});
+
+// ─── Прочие товары (не телефоны) из PRODUCTS ─────────────────
 const OTHER_ITEMS: CatalogItem[] = PRODUCTS.filter(
   (p) => p.category !== "telefony"
 );
 
-// ─── Общий каталог ────────────────────────────────────────────────
+// ─── Общий каталог ────────────────────────────────────────────
 const ALL_ITEMS: CatalogItem[] = [...PHONE_ITEMS, ...OTHER_ITEMS];
 
-// ─── Статические данные для фильтров ─────────────────────────────
-const ALL_BRANDS  = Array.from(new Set(ALL_ITEMS.map((p) => p.brand))).sort();
-const GLOBAL_MAX  = Math.ceil(Math.max(...ALL_ITEMS.map((p) => p.price)) / 5_000) * 5_000;
+// ─── Список брендов в нужном порядке ─────────────────────────
+const ALL_BRANDS = Array.from(new Set(ALL_ITEMS.map((p) => p.brand)))
+  .sort((a, b) => brandRank(a) - brandRank(b) || a.localeCompare(b, "ru"));
+
+const GLOBAL_MAX = Math.ceil(Math.max(...ALL_ITEMS.map((p) => p.price)) / 5_000) * 5_000;
 
 /* ════════════════════════════════════════════════════════════════
    Обёртка — передаём Suspense для useSearchParams
@@ -108,9 +191,11 @@ function CatalogContent() {
     if (activeCat !== "all") list = list.filter((p) => p.category === activeCat);
     if (brands.length)       list = list.filter((p) => brands.includes(p.brand));
     list = list.filter((p) => p.price <= maxPrice);
-    if (sort === "price_asc")  list.sort((a, b) => a.price - b.price);
-    if (sort === "price_desc") list.sort((a, b) => b.price - a.price);
-    return list;
+
+    if (sort === "price_asc")  return list.sort((a, b) => a.price - b.price);
+    if (sort === "price_desc") return list.sort((a, b) => b.price - a.price);
+    // "popular" — бренд→модель→память→SIM
+    return list.sort((a, b) => cmpArrays(defaultSortKey(a), defaultSortKey(b)));
   }, [activeCat, brands, maxPrice, sort]);
 
   function toggleBrand(b: string) {
@@ -143,7 +228,6 @@ function CatalogContent() {
 
         {/* Плитки категорий */}
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-13 gap-3 mb-8 auto-cols-fr">
-          {/* Все */}
           <button
             onClick={() => setActiveCat("all")}
             className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all
@@ -294,6 +378,7 @@ function ProductCard({ item: p }: { item: CatalogItem }) {
     openModal({
       productName: p.name,
       memory:      p.memories?.[0],
+      sim:         p.sim,
       price:       p.price,
       down,
       term:        6,
@@ -333,28 +418,34 @@ function ProductCard({ item: p }: { item: CatalogItem }) {
         </div>
       </div>
 
+      {/* Бренд */}
+      <p className="text-[11px] text-[#6B7280] mb-0.5">{p.brand}</p>
+
       {/* Название */}
-      <h3 className="font-semibold text-[#0A1628] text-xs leading-snug mb-1 line-clamp-2
+      <h3 className="font-semibold text-[#0A1628] text-xs leading-snug mb-1.5 line-clamp-2
                      group-hover:text-[#1A3C6E] transition-colors">
         {p.name}
       </h3>
 
-      {/* Варианты памяти */}
-      {p.memories && p.memories.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-2">
-          {p.memories.map((m) => (
-            <span key={m}
-              className="px-1.5 py-0.5 bg-[#EBF0F9] text-[#1A3C6E] rounded text-[9px] font-semibold">
-              {m}
-            </span>
-          ))}
-        </div>
-      )}
+      {/* Память + SIM */}
+      <div className="flex flex-wrap gap-1 mb-2">
+        {p.memories && p.memories.length > 0 && p.memories.map((m) => (
+          <span key={m}
+            className="px-1.5 py-0.5 bg-[#EBF0F9] text-[#1A3C6E] rounded-full text-[9px] font-semibold">
+            {m}
+          </span>
+        ))}
+        {p.sim && (
+          <span className="px-1.5 py-0.5 bg-[#F4F7FC] text-[#6B7280] rounded-full text-[9px]">
+            {p.sim}
+          </span>
+        )}
+      </div>
 
       {/* Цена */}
       <div className="mt-auto">
         <p className="font-extrabold text-[#0A1628] text-sm leading-none">
-          от {fmtRub(p.price)} ₽
+          {fmtRub(p.price)} ₽
           {p.oldPrice && (
             <span className="ml-2 text-[11px] text-[#9CA3AF] line-through font-normal">
               {fmtRub(p.oldPrice)} ₽
