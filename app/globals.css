@@ -2,26 +2,140 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Design tokens ──────────────────────────────────────────── */
+/*
+  NEW PALETTE — ФинНайс
+  Primary : Deep Royal Navy  #1A3C6E
+  Dark    : Dark Navy        #0E2344
+  Mid     : Medium Navy      #1E4582
+  Accent  : Dark Emerald     #0C7A58
+  Gold    : Old Gold         #C8972B
+  Light   : Pale Navy bg     #EBF0F9
+  Footer  : Deep Navy bg     #0A1628
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --brand:         #1A3C6E;   /* Deep Royal Navy  */
+  --brand-dark:    #0E2344;   /* Darker Navy      */
+  --brand-mid:     #1E4582;   /* Medium Navy      */
+  --emerald:       #0C7A58;   /* Dark Emerald     */
+  --gold:          #C8972B;   /* Old Gold         */
+  --brand-light:   #EBF0F9;   /* Pale Navy bg     */
+  --navy:          #0A1628;   /* Footer bg        */
+  --text:          #0F1E36;   /* Body text (deep navy-black) */
+  --teal:          #10B981;   /* Slider fill (keep) */
+  --orange:        #F97316;
+  --gray-bg:       #F4F7FC;
+  --gray-border:   #D8E2F0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ─── Base ───────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  background: #fff;
+  font-family: var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
 }
 
+/* ─── Number input: скрыть spin-кнопки (стрелки) ────────────── */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; }
+
+/* ─── Range slider ───────────────────────────────────────────── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+  background: rgba(255,255,255,0.25);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--teal);
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--teal);
+  border: 2px solid white;
+  cursor: pointer;
+}
+
+/* ─── Utilities ──────────────────────────────────────────────── */
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  /* NF logo / key gradient: navy → emerald */
+  .grad-main { background: linear-gradient(135deg, #0E2344 0%, #1A3C6E 55%, #0C7A58 100%); }
+  /* Card gradient */
+  .grad-card { background: linear-gradient(135deg, #1A3C6E 0%, #0C7A58 100%); }
+  /* Gold accent */
+  .grad-gold { background: linear-gradient(135deg, #C8972B 0%, #E8B84B 100%); }
+
+  .text-balance { text-wrap: balance; }
+}
+
+/* ─── Components ─────────────────────────────────────────────── */
+@layer components {
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2
+           rounded-full font-semibold transition-all duration-150
+           active:scale-95 select-none cursor-pointer;
+  }
+  .btn-primary {
+    @apply btn px-6 py-3 text-sm text-white
+           bg-[#1A3C6E] hover:bg-[#0E2344];
+  }
+  .btn-white {
+    @apply btn px-6 py-3 text-sm text-[#0F1E36]
+           bg-white hover:bg-gray-100 shadow-sm;
+  }
+  .btn-outline {
+    @apply btn px-5 py-2 text-sm text-[#1A3C6E]
+           border-2 border-[#1A3C6E] hover:bg-[#1A3C6E] hover:text-white;
+  }
+  .btn-orange {
+    @apply btn px-6 py-3 text-sm text-white
+           bg-[#F97316] hover:bg-[#EA580C];
+  }
+  .btn-gold {
+    @apply btn px-6 py-3 text-sm text-white
+           bg-[#C8972B] hover:bg-[#A87820];
+  }
+  .btn-grad {
+    @apply btn px-6 py-3 text-sm text-white grad-card
+           hover:opacity-90;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-white rounded-2xl shadow-[0_2px_16px_rgba(10,22,40,0.08)]
+           border border-[#D8E2F0];
+  }
+
+  /* Form inputs */
+  .field {
+    @apply w-full rounded-xl border border-[#D8E2F0] bg-white
+           px-4 py-3 text-[#0F1E36] text-sm outline-none
+           focus:border-[#1A3C6E] focus:ring-2 focus:ring-[#1A3C6E]/15
+           transition-colors;
+  }
+
+  /* Section wrapper */
+  .section {
+    @apply max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10;
   }
 }
