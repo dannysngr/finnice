@@ -20,19 +20,12 @@ interface Props {
   preset?: ModalPreset;
 }
 
-// Диапазон сроков: 3..24 мес.
-const TERM_OPTIONS = Array.from(
-  { length: MAX_TERM - MIN_TERM + 1 },
-  (_, i) => MIN_TERM + i
-);
+const TERM_OPTIONS = Array.from({ length: MAX_TERM - MIN_TERM + 1 }, (_, i) => MIN_TERM + i);
 
-// ─── Телефонная маска ─────────────────────────────────────────
+// ─── Маска телефона ───────────────────────────────────────────
 const PREFIX = "+7 ";
-
-function extractDigits(s: string): string {
-  return s.replace(/\D/g, "").slice(0, 10);
-}
-function fmtDigits(d: string): string {
+const extractDigits = (s: string) => s.replace(/\D/g, "").slice(0, 10);
+function fmtDigits(d: string) {
   const p: string[] = [];
   if (d.length > 0) p.push(d.slice(0, 3));
   if (d.length > 3) p.push(d.slice(3, 6));
@@ -42,28 +35,19 @@ function fmtDigits(d: string): string {
 }
 
 // ─── Компонент ────────────────────────────────────────────────
-
 export function ApplicationModal({ open, onClose, preset }: Props) {
   const [name,  setName]  = useState("");
   const [phone, setPhone] = useState(PREFIX);
   const [sent,  setSent]  = useState(false);
   const [term,  setTerm]  = useState<number>(preset?.term ?? 6);
-
   const overlayRef = useRef<HTMLDivElement>(null);
 
-  // Сброс срока при открытии нового товара
-  useEffect(() => {
-    if (open && preset?.term) setTerm(preset.term);
-  }, [open, preset?.term]);
-
-  // Закрыть по Escape
+  useEffect(() => { if (open && preset?.term) setTerm(preset.term); }, [open, preset?.term]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
-
-  // Блокировка скролла
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -71,14 +55,12 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
 
   if (!open) return null;
 
-  // ── Расчёт (живой пересчёт при смене term) ──
   const price = preset?.price ?? 0;
   const down  = preset?.down  ?? Math.ceil(price * getMinDownPct(price));
   const res   = price > 0
     ? calcInstallment({ price, down, term })
     : { monthly: 0, markup: 0, total: 0, isValidDown: true, minDown: 0, minDownPct: 0 };
 
-  // ── Телефон ──
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value;
     if (!raw.startsWith(PREFIX)) { setPhone(PREFIX); return; }
@@ -88,235 +70,164 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
   }
   function handlePhoneKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     const { selectionStart: ss, selectionEnd: se } = e.currentTarget;
-    if (
-      (e.key === "Backspace" || e.key === "Delete") &&
-      ss !== null && se !== null &&
-      ss <= PREFIX.length && se <= PREFIX.length
-    ) e.preventDefault();
+    if ((e.key === "Backspace" || e.key === "Delete") && ss !== null && se !== null
+        && ss <= PREFIX.length && se <= PREFIX.length) e.preventDefault();
   }
-
-  function handleSubmit(e: React.FormEvent) { e.preventDefault(); setSent(true); }
-  function handleBackdrop(e: React.MouseEvent) {
-    if (e.target === overlayRef.current) onClose();
-  }
+  const handleSubmit   = (e: React.FormEvent)  => { e.preventDefault(); setSent(true); };
+  const handleBackdrop = (e: React.MouseEvent) => { if (e.target === overlayRef.current) onClose(); };
 
   return (
-    <div
-      ref={overlayRef}
-      onClick={handleBackdrop}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4
-                 bg-black/60 backdrop-blur-sm"
-    >
-      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl
-                      overflow-hidden animate-in fade-in zoom-in duration-200
-                      max-h-[90dvh] overflow-y-auto">
+    <div ref={overlayRef} onClick={handleBackdrop}
+         className="fixed inset-0 z-50 flex items-center justify-center p-3
+                    bg-black/60 backdrop-blur-sm">
 
-        {/* ── Шапка ── */}
-        <div className="sticky top-0 z-10 px-6 pt-6 pb-4 bg-white border-b border-[#D8E2F0]">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#F3F4F6]
-                       flex items-center justify-center text-[#6B7280]
-                       hover:bg-[#D8E2F0] transition-colors text-lg leading-none"
-            aria-label="Закрыть"
-          >×</button>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl grad-main flex items-center justify-center shrink-0">
-              <span className="text-white font-extrabold text-sm">NF</span>
-            </div>
-            <div>
-              <h2 className="text-lg font-extrabold text-[#0A1628]">Заявка на рассрочку</h2>
-              <p className="text-xs text-[#6B7280]">ФинНайс — без Риба и скрытых платежей</p>
-            </div>
+      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl
+                      overflow-hidden animate-in fade-in zoom-in duration-200">
+
+        {/* ── Шапка (компактная) ── */}
+        <div className="flex items-center gap-2.5 px-4 pt-4 pb-3 border-b border-[#D8E2F0]">
+          <div className="w-8 h-8 rounded-lg grad-main flex items-center justify-center shrink-0">
+            <span className="text-white font-extrabold text-xs">NF</span>
           </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-sm font-extrabold text-[#0A1628] leading-tight">Заявка на рассрочку</h2>
+            <p className="text-[10px] text-[#9CA3AF]">ФинНайс · без Риба и скрытых платежей</p>
+          </div>
+          <button onClick={onClose}
+                  className="w-7 h-7 rounded-full bg-[#F3F4F6] flex items-center justify-center
+                             text-[#6B7280] hover:bg-[#D8E2F0] transition-colors text-base leading-none shrink-0"
+                  aria-label="Закрыть">×</button>
         </div>
 
         {sent ? (
           /* ── Успех ── */
-          <div className="px-6 py-10 text-center">
-            <div className="w-16 h-16 rounded-full bg-[#D1FAE5] flex items-center justify-center
-                            text-3xl mx-auto mb-4">✅</div>
-            <h3 className="text-xl font-extrabold text-[#0A1628] mb-2">Заявка принята!</h3>
-            <p className="text-[#6B7280] text-sm leading-relaxed mb-6">
+          <div className="px-5 py-8 text-center">
+            <div className="w-12 h-12 rounded-full bg-[#D1FAE5] flex items-center justify-center
+                            text-2xl mx-auto mb-3">✅</div>
+            <h3 className="text-base font-extrabold text-[#0A1628] mb-1">Заявка принята!</h3>
+            <p className="text-[#6B7280] text-xs leading-relaxed mb-4">
               Менеджер свяжется с вами в течение 15 минут.
-              Работаем по г. Грозный и Чеченской Республике.
             </p>
-            <button onClick={() => { setSent(false); onClose(); }} className="btn-primary">
+            <button onClick={() => { setSent(false); onClose(); }} className="btn-primary text-sm">
               Закрыть
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+          <form onSubmit={handleSubmit} className="px-4 pt-3 pb-4 space-y-3">
 
             {preset && (
               <>
-                {/* ── Товар + цена (справочно) ── */}
-                {preset.productName && (
-                  <div className="rounded-2xl bg-[#F4F7FC] px-4 py-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="text-[10px] text-[#9CA3AF] mb-0.5 font-semibold uppercase tracking-wide">Товар</p>
-                        <p className="font-bold text-[#0A1628] leading-snug text-sm">{preset.productName}</p>
-                        {(preset.memory || preset.sim) && (
-                          <div className="flex flex-wrap gap-1.5 mt-1.5">
-                            {preset.memory && (
-                              <span className="px-2 py-0.5 bg-white rounded-full text-[10px] font-semibold text-[#1A3C6E] border border-[#D8E2F0]">
-                                {preset.memory}
-                              </span>
-                            )}
-                            {preset.sim && (
-                              <span className="px-2 py-0.5 bg-white rounded-full text-[10px] text-[#6B7280] border border-[#D8E2F0]">
-                                {preset.sim}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      {/* Цена — справочно, приглушённо */}
-                      <div className="text-right shrink-0">
-                        <p className="text-[10px] text-[#9CA3AF]">Стоимость</p>
-                        <p className="text-sm font-bold text-[#9CA3AF]">{fmtRub(price)} ₽</p>
-                      </div>
+                {/* ── Товар + срок в одной строке ── */}
+                <div className="flex items-center gap-2">
+                  {/* Название + бейджи */}
+                  <div className="flex-1 min-w-0 bg-[#F4F7FC] rounded-xl px-3 py-2">
+                    {preset.productName && (
+                      <p className="font-bold text-[#0A1628] text-xs leading-snug truncate">
+                        {preset.productName}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {preset.memory && (
+                        <span className="px-1.5 py-0.5 bg-[#EBF0F9] rounded-full text-[9px] font-semibold text-[#1A3C6E]">
+                          {preset.memory}
+                        </span>
+                      )}
+                      {preset.sim && (
+                        <span className="px-1.5 py-0.5 bg-white rounded-full text-[9px] text-[#6B7280] border border-[#D8E2F0]">
+                          {preset.sim}
+                        </span>
+                      )}
+                      <span className="px-1.5 py-0.5 bg-white rounded-full text-[9px] text-[#9CA3AF] border border-[#D8E2F0]">
+                        {fmtRub(price)} ₽
+                      </span>
                     </div>
                   </div>
-                )}
 
-                {/* ── Выбор срока ── */}
-                <div>
-                  <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                    Срок рассрочки
-                  </label>
-                  <div className="relative">
+                  {/* Срок — select компактный */}
+                  <div className="relative shrink-0">
                     <select
                       value={term}
                       onChange={(e) => setTerm(Number(e.target.value))}
-                      className="w-full appearance-none bg-white border border-[#D8E2F0]
-                                 rounded-xl px-4 py-3 text-sm font-bold text-[#0A1628]
-                                 outline-none cursor-pointer transition-colors
-                                 hover:border-[#0A1628] focus:border-[#0A1628]
-                                 touch-manipulation"
+                      className="appearance-none bg-white border border-[#D8E2F0] rounded-xl
+                                 pl-3 pr-7 py-2 text-xs font-bold text-[#0A1628]
+                                 outline-none cursor-pointer hover:border-[#0A1628]
+                                 focus:border-[#0A1628] transition-colors touch-manipulation"
                     >
                       {TERM_OPTIONS.map(t => (
-                        <option key={t} value={t}>{t} месяцев</option>
+                        <option key={t} value={t}>{t} мес.</option>
                       ))}
                     </select>
-                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2
-                                     text-[#6B7280] text-xs">▾</span>
+                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2
+                                     text-[#6B7280] text-[10px]">▾</span>
                   </div>
                 </div>
 
-                {/* ── Сетка 2×2 ── */}
-                <div className="rounded-2xl border border-[#D8E2F0] overflow-hidden">
-                  <div className="grid grid-cols-2 divide-x divide-y divide-[#D8E2F0]">
-
-                    {/* Взнос */}
-                    <div className="px-4 py-3 bg-white">
-                      <p className="text-[10px] text-[#9CA3AF] mb-1 leading-tight">
-                        {down > 0 ? "Первонач. взнос (25%)" : "Первонач. взнос"}
-                      </p>
-                      <p className="font-extrabold text-[#0A1628] text-sm">
-                        {down > 0 ? `${fmtRub(down)} ₽` : "—"}
-                      </p>
-                    </div>
-
-                    {/* Итоговая стоимость */}
-                    <div className="px-4 py-3 bg-white">
-                      <p className="text-[10px] text-[#9CA3AF] mb-1 leading-tight">Итоговая стоимость</p>
-                      <p className="font-extrabold text-[#0A1628] text-sm">{fmtRub(res.total)} ₽</p>
-                    </div>
-
-                    {/* Наценка */}
-                    <div className="px-4 py-3 bg-[#F9FAFB]">
-                      <p className="text-[10px] text-[#9CA3AF] mb-1 leading-tight">Наценка</p>
-                      <p className="font-extrabold text-[#0A1628] text-sm">{fmtRub(res.markup)} ₽</p>
-                    </div>
-
-                    {/* Срок */}
-                    <div className="px-4 py-3 bg-[#F9FAFB]">
-                      <p className="text-[10px] text-[#9CA3AF] mb-1 leading-tight">Срок</p>
-                      <p className="font-extrabold text-[#0A1628] text-sm">{term} мес.</p>
-                    </div>
+                {/* ── Сетка 2×2 + платёж ── */}
+                <div className="rounded-xl border border-[#D8E2F0] overflow-hidden">
+                  <div className="grid grid-cols-2 divide-x divide-y divide-[#E5E7EB]">
+                    <Cell label={down > 0 ? "Взнос (25%)" : "Взнос"} value={down > 0 ? `${fmtRub(down)} ₽` : "—"} />
+                    <Cell label="Итого с наценкой"  value={`${fmtRub(res.total)} ₽`} />
+                    <Cell label="Наценка"            value={`${fmtRub(res.markup)} ₽`} alt />
+                    <Cell label="Срок"               value={`${term} мес.`} alt />
                   </div>
-
-                  {/* Ежемесячный платёж — главный акцент */}
-                  <div className="bg-[#0A1628] px-5 py-4 flex items-center justify-between">
-                    <div>
-                      <p className="text-white/60 text-[10px] font-semibold uppercase tracking-wide mb-0.5">
-                        Ежемесячный платёж
-                      </p>
-                      <p className="text-white/40 text-[10px]">за {term} мес. · без переплаты</p>
-                    </div>
-                    <p className="text-white font-extrabold text-2xl leading-none tabular-nums">
+                  {/* Акцент: ежемесячный платёж */}
+                  <div className="bg-[#0A1628] px-4 py-3 flex items-center justify-between">
+                    <p className="text-white/60 text-[10px] font-semibold uppercase tracking-wide">
+                      Платёж / мес.
+                    </p>
+                    <p className="text-white font-extrabold text-xl leading-none tabular-nums">
                       {fmtRub(res.monthly)} ₽
                     </p>
                   </div>
                 </div>
-
-                {preset.wbUrl && (
-                  <p className="text-[11px] text-[#6B7280] truncate px-1">
-                    WB: {preset.wbUrl}
-                  </p>
-                )}
               </>
             )}
 
-            {/* ── ФИО ── */}
-            <div>
-              <label className="block text-xs font-semibold text-[#374151] mb-1.5">ФИО</label>
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Айдамиров Абузар Абдулхакимович"
-                className="field w-full"
-              />
-            </div>
-
-            {/* ── Телефон ── */}
-            <div>
-              <label className="block text-xs font-semibold text-[#374151] mb-1.5">Телефон</label>
-              <input
-                type="tel"
-                required
-                value={phone}
-                onChange={handlePhoneChange}
-                onKeyDown={handlePhoneKeyDown}
-                onFocus={(e) => {
-                  const len = e.target.value.length;
-                  e.target.setSelectionRange(len, len);
-                }}
-                placeholder="+7 9__ ___ __ __"
-                className="field w-full tracking-wider"
-              />
+            {/* ── ФИО + Телефон в одну строку ── */}
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-[10px] font-semibold text-[#374151] mb-1">ФИО</label>
+                <input type="text" required value={name} onChange={(e) => setName(e.target.value)}
+                       placeholder="Имя Фамилия" className="field w-full text-xs py-2" />
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold text-[#374151] mb-1">Телефон</label>
+                <input type="tel" required value={phone}
+                       onChange={handlePhoneChange} onKeyDown={handlePhoneKeyDown}
+                       onFocus={(e) => { const l = e.target.value.length; e.target.setSelectionRange(l, l); }}
+                       placeholder="+7 9__ ___" className="field w-full text-xs py-2 tracking-wider" />
+              </div>
             </div>
 
             {/* ── Согласие ── */}
-            <label className="flex items-start gap-2 cursor-pointer">
-              <input type="checkbox" required className="mt-0.5 accent-[#0C7A58]" />
-              <span className="text-[11px] text-[#9CA3AF] leading-relaxed">
-                Даю согласие на обработку персональных данных в соответствии с{" "}
-                <a href="/politika/" className="text-[#1A3C6E] underline">
-                  политикой конфиденциальности
-                </a>
+            <label className="flex items-start gap-1.5 cursor-pointer">
+              <input type="checkbox" required className="mt-0.5 accent-[#0C7A58] shrink-0" />
+              <span className="text-[10px] text-[#9CA3AF] leading-snug">
+                Согласен с{" "}
+                <a href="/politika/" className="text-[#1A3C6E] underline">политикой конфиденциальности</a>
               </span>
             </label>
 
-            <button
-              type="submit"
-              className="w-full py-4 rounded-full font-extrabold text-base text-white
-                         bg-[#0C7A58] hover:bg-[#0A6347] active:scale-95
-                         transition-all shadow-md"
-            >
+            {/* ── Кнопка ── */}
+            <button type="submit"
+                    className="w-full py-3 rounded-full font-extrabold text-sm text-white
+                               bg-[#0C7A58] hover:bg-[#0A6347] active:scale-95
+                               transition-all shadow-md">
               Отправить заявку
             </button>
-
-            <p className="text-center text-[11px] text-[#9CA3AF] pb-1">
-              Ответим в течение 15 минут · г. Грозный, ул. Орзамиева, 8
-            </p>
           </form>
         )}
       </div>
+    </div>
+  );
+}
+
+// ─── Ячейка сетки ─────────────────────────────────────────────
+function Cell({ label, value, alt }: { label: string; value: string; alt?: boolean }) {
+  return (
+    <div className={`px-3 py-2 ${alt ? "bg-[#F9FAFB]" : "bg-white"}`}>
+      <p className="text-[9px] text-[#9CA3AF] mb-0.5 leading-tight">{label}</p>
+      <p className="font-extrabold text-[#0A1628] text-xs">{value}</p>
     </div>
   );
 }
