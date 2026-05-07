@@ -239,16 +239,25 @@ export function SmartphonesSection() {
     // Память и цвет сбросятся через useEffect, если выйдут за пределы новых опций
   }
 
-  // Применяем фильтры
+  // Применяем фильтры + дедупликация по model+memory+sim (оставляем максимальную цену)
   const filtered = useMemo(() => {
-    return PHONES_CATALOG.filter(p => {
-      if (p.brand  !== brand)                          return false;
-      if (model  !== "Все" && p.model  !== model)      return false;
-      if (memory !== "Все" && p.memory !== memory)     return false;
+    const matched = PHONES_CATALOG.filter(p => {
+      if (p.brand  !== brand)                            return false;
+      if (model  !== "Все" && p.model  !== model)        return false;
+      if (memory !== "Все" && p.memory !== memory)       return false;
       if (color  !== "Все" && !p.colors.includes(color)) return false;
-      if (sim    !== "Все" && p.sim    !== sim)        return false;
+      if (sim    !== "Все" && p.sim    !== sim)          return false;
       return true;
     });
+
+    // Для каждой уникальной комбинации модель+память+SIM оставляем запись с наибольшей ценой
+    const best = new Map<string, PhoneItem>();
+    for (const p of matched) {
+      const key = `${p.model}|${p.memory}|${p.sim}`;
+      const prev = best.get(key);
+      if (!prev || p.price > prev.price) best.set(key, p);
+    }
+    return Array.from(best.values());
   }, [brand, model, memory, color, sim]);
 
   const hasFilters = model !== "Все" || memory !== "Все" || color !== "Все" || sim !== "Все";
