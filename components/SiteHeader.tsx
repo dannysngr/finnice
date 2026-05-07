@@ -4,20 +4,36 @@ import Link from "next/link";
 import { COMPANY, NAV_LINKS, CATALOG_CATS } from "@/lib/data";
 
 export function SiteHeader() {
-  const [catalogOpen, setCatalogOpen] = useState(false);
-  const [mobileOpen,  setMobileOpen]  = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [catalogOpen,       setCatalogOpen]       = useState(false);
+  const [mobileCatalogOpen, setMobileCatalogOpen] = useState(false);
+  const [mobileOpen,        setMobileOpen]        = useState(false);
+  const desktopMenuRef = useRef<HTMLDivElement>(null);
 
-  // close catalog on outside click
+  // Закрываем десктопное меню по клику снаружи
   useEffect(() => {
     function onDown(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      if (desktopMenuRef.current && !desktopMenuRef.current.contains(e.target as Node)) {
         setCatalogOpen(false);
       }
     }
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
   }, []);
+
+  // Блокируем скролл страницы когда мобильный каталог открыт
+  useEffect(() => {
+    document.body.style.overflow = mobileCatalogOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileCatalogOpen]);
+
+  function toggleMobileCatalog() {
+    setMobileCatalogOpen((v) => !v);
+    setMobileOpen(false);     // закрываем бургер-меню если открыт
+  }
+  function toggleMobileMenu() {
+    setMobileOpen((v) => !v);
+    setMobileCatalogOpen(false); // закрываем каталог если открыт
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-[#D8E2F0] shadow-sm">
@@ -33,8 +49,8 @@ export function SiteHeader() {
           <span className="font-extrabold text-[#0A1628] text-lg tracking-tight">{COMPANY.name}</span>
         </Link>
 
-        {/* Catalog button + mega-menu */}
-        <div className="relative hidden lg:block" ref={menuRef}>
+        {/* ── Десктопная кнопка «Каталог» + выпадающее меню ── */}
+        <div className="relative hidden lg:block" ref={desktopMenuRef}>
           <div className="flex items-center rounded-full border-2 border-[#0A1628] overflow-hidden
                           hover:bg-[#0A1628] hover:text-white transition-colors group">
             <Link
@@ -77,7 +93,22 @@ export function SiteHeader() {
           )}
         </div>
 
-        {/* Search */}
+        {/* ── Мобильная кнопка «Каталог» (только < lg) ── */}
+        <button
+          onClick={toggleMobileCatalog}
+          aria-label="Открыть каталог"
+          aria-expanded={mobileCatalogOpen}
+          className={`lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2
+                      font-semibold text-xs transition-colors shrink-0
+                      ${mobileCatalogOpen
+                        ? "bg-[#0A1628] border-[#0A1628] text-white"
+                        : "border-[#0A1628] text-[#0A1628] hover:bg-[#0A1628] hover:text-white"}`}
+        >
+          {mobileCatalogOpen ? <CloseIcon /> : <GridIcon />}
+          Каталог
+        </button>
+
+        {/* Строка поиска (md+) */}
         <div className="flex-1 max-w-xl hidden md:flex">
           <div className="flex w-full rounded-full border border-[#D8E2F0] overflow-hidden
                           focus-within:border-[#1A3C6E] focus-within:ring-2 focus-within:ring-[#1A3C6E]/20 transition-all">
@@ -92,7 +123,7 @@ export function SiteHeader() {
           </div>
         </div>
 
-        {/* Right icons */}
+        {/* Иконки справа */}
         <div className="ml-auto flex items-center gap-4">
           <Link href="#" className="hidden sm:flex flex-col items-center gap-0.5 text-[#6B7280] hover:text-[#1A3C6E] transition-colors">
             <HeartIcon />
@@ -102,8 +133,9 @@ export function SiteHeader() {
             <UserIcon />
             <span className="text-[10px] leading-none">Войти</span>
           </Link>
+          {/* Бургер-кнопка (только < lg) */}
           <button
-            onClick={() => setMobileOpen(!mobileOpen)}
+            onClick={toggleMobileMenu}
             className="lg:hidden p-2 text-[#0A1628]"
             aria-label="Меню"
           >
@@ -112,7 +144,7 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* ── Row 2 — secondary nav ────────────────────────────── */}
+      {/* ── Row 2 — вторичная навигация (десктоп) ───────────── */}
       <div className="hidden lg:block border-t border-[#F3F4F6] bg-[#FAFAFA]">
         <div className="section flex items-center justify-between h-10">
           <nav className="flex items-center gap-6">
@@ -137,7 +169,47 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* ── Mobile drawer ─────────────────────────────────────── */}
+      {/* ── Мобильный каталог (overlay + панель) ─────────────── */}
+      {mobileCatalogOpen && (
+        <div className="lg:hidden fixed inset-0 top-16 z-40 flex flex-col">
+          {/* Панель категорий */}
+          <div className="bg-white border-b border-[#D8E2F0] shadow-xl px-4 pt-4 pb-5">
+            <p className="text-[10px] text-[#9CA3AF] font-semibold uppercase tracking-widest mb-3 px-1">
+              Категории
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {CATALOG_CATS.map((cat) => (
+                <Link
+                  key={cat.label}
+                  href={cat.href}
+                  onClick={() => setMobileCatalogOpen(false)}
+                  className="flex items-center px-4 py-3.5 rounded-xl text-sm font-semibold
+                             text-[#0A1628] bg-[#F4F7FC] hover:bg-[#EBF0F9] hover:text-[#1A3C6E]
+                             transition-colors active:scale-95"
+                >
+                  {cat.label}
+                </Link>
+              ))}
+            </div>
+            <Link
+              href="/catalog/"
+              onClick={() => setMobileCatalogOpen(false)}
+              className="mt-3 flex items-center justify-center gap-2 w-full py-3
+                         rounded-xl border-2 border-[#1A3C6E] text-[#1A3C6E] text-sm font-bold
+                         hover:bg-[#1A3C6E] hover:text-white transition-colors"
+            >
+              Весь каталог →
+            </Link>
+          </div>
+          {/* Полупрозрачный backdrop — закрывает при клике */}
+          <div
+            className="flex-1 bg-black/40 backdrop-blur-sm"
+            onClick={() => setMobileCatalogOpen(false)}
+          />
+        </div>
+      )}
+
+      {/* ── Мобильное бургер-меню ─────────────────────────────── */}
       {mobileOpen && (
         <div className="lg:hidden border-t border-[#D8E2F0] bg-white px-4 py-4 space-y-1">
           <div className="flex w-full rounded-full border border-[#D8E2F0] overflow-hidden mb-4">
@@ -176,6 +248,26 @@ function BurgerIcon() {
       <line x1="2" y1="5"  x2="16" y2="5"  stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
       <line x1="2" y1="9"  x2="16" y2="9"  stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
       <line x1="2" y1="13" x2="16" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+}
+/** Иконка сетки (2×2) для мобильной кнопки «Каталог» */
+function GridIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.4"/>
+      <rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.4"/>
+      <rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.4"/>
+      <rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.4"/>
+    </svg>
+  );
+}
+/** Иконка × для активной кнопки «Каталог» */
+function CloseIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <line x1="2" y1="2" x2="12" y2="12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+      <line x1="12" y1="2" x2="2" y2="12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
     </svg>
   );
 }
