@@ -245,39 +245,6 @@ function FilterDropdown({ label, options, value, onChange }: DropdownProps) {
   );
 }
 
-// ─── Цветовые точки ──────────────────────────────────────────
-const COLOR_DOT: Record<string, string> = {
-  // ── Чёрные / тёмные ──
-  "Black": "⚫", "Space Black": "⚫", "Titanium Black": "⚫",
-  "Black Titanium": "⚫", "Midnight": "⚫", "Phantom Black": "⚫",
-  "Onyx Black": "⚫", "Moonstone Black": "⚫",
-  // ── Серые ──
-  "Graphite": "🩶", "Space Gray": "🩶", "Titanium Gray": "🩶", "Marble Gray": "🩶",
-  // ── Белые / серебро ──
-  "White": "⚪", "White Titanium": "⚪", "Cloud White": "⚪",
-  "Moonlight White": "⚪", "Silver": "⚪", "Titanium Silver": "⚪",
-  "Natural Titanium": "⚪", "Starlight": "⚪",
-  // ── Золото / жёлтый ──
-  "Gold": "🟡", "Light Gold": "🟡", "Desert Titanium": "🟡",
-  "Yellow": "🟡", "Amber Yellow": "🟡", "Awesome Lemon": "🟡",
-  // ── Синие ──
-  "Blue": "🔵", "Blue Titanium": "🔵", "Titanium Blue": "🔵",
-  "Deep Blue": "🔵", "Pacific Blue": "🔵", "Ocean Blue": "🔵",
-  "Sierra Blue": "🔵", "Sky Blue": "🔵", "Mist Blue": "🔵",
-  "Icy Blue": "🔵", "Dragon Blue": "🔵", "Awesome Iceblue": "🔵",
-  "Awesome Navy": "🔵", "Ultramarine": "🔵",
-  // ── Зелёные ──
-  "Green": "🟢", "Titanium Green": "🟢", "Alpine Green": "🟢",
-  "Midnight Green": "🟢", "Emerald Green": "🟢", "Jade Green": "🟢",
-  "Teal": "🟢", "Sage": "🟢", "Mint": "🟢",
-  // ── Оранжевые ──
-  "Cosmic Orange": "🟠", "Sandstone Orange": "🟠",
-  // ── Розовые / фиолетовые ──
-  "Pink": "🩷", "Coral Pink": "🩷",
-  "Purple": "🟣", "Deep Purple": "🟣", "Lavender": "🟣",
-  "Awesome Lilac": "🟣", "Cobalt Violet": "🟣",
-};
-
 // ── Принадлежность к группам (по английскому названию до скобок) ──
 const TITANIUM_PRO_SET = new Set([
   "Black Titanium", "Blue Titanium", "Cosmic Orange", "Deep Blue",
@@ -294,7 +261,6 @@ const CLASSIC_SET = new Set([
 ]);
 
 function engName(c: string) { return c.split("(")[0].trim(); }
-function colorDot(c: string) { return COLOR_DOT[engName(c)] ?? "◾"; }
 
 // ─── Цветовой дропдаун с группами ────────────────────────────
 function ColorFilterDropdown({
@@ -343,7 +309,7 @@ function ColorFilterDropdown({
         {groups.map(([groupLabel, items]) => (
           <optgroup key={groupLabel} label={groupLabel}>
             {items.map((c) => (
-              <option key={c} value={c}>{colorDot(c)} {c}</option>
+              <option key={c} value={c}>{c}</option>
             ))}
           </optgroup>
         ))}
