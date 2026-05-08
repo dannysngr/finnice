@@ -143,13 +143,13 @@ export const PHONES_CATALOG: PhoneItem[] = [
   { id: "ip17pro-1tb-esim", brand: "Apple", model: "iPhone 17 Pro", memory: "1 ТБ",  sim: "eSIM",       price: 132000,
     colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro") },
 
-  /* ══ iPhone 17 Air ════════════════════════════════════════════════ */
-  { id: "ip17air-256-esim", brand: "Apple", model: "iPhone 17 Air", memory: "256 ГБ", sim: "eSIM", price: 72000, badge: "Новинка",
-    colors: ["Sky Blue (Небесно-голубой)", "Light Gold (Светлое золото)", "Cloud White (Облачный белый)", "Space Black (Космический черный)"], img: A("iphone-17-air") },
-  { id: "ip17air-512-esim", brand: "Apple", model: "iPhone 17 Air", memory: "512 ГБ", sim: "eSIM", price: 87000,
-    colors: ["Sky Blue (Небесно-голубой)", "Light Gold (Светлое золото)", "Cloud White (Облачный белый)", "Space Black (Космический черный)"], img: A("iphone-17-air") },
-  { id: "ip17air-1tb-esim",  brand: "Apple", model: "iPhone 17 Air", memory: "1 ТБ",  sim: "eSIM", price: 103000,
-    colors: ["Sky Blue (Небесно-голубой)", "Light Gold (Светлое золото)", "Cloud White (Облачный белый)", "Space Black (Космический черный)"], img: A("iphone-17-air") },
+  /* ══ iPhone Air ═══════════════════════════════════════════════════ */
+  { id: "ip17air-256-esim", brand: "Apple", model: "iPhone Air", memory: "256 ГБ", sim: "eSIM", price: 72000, badge: "Новинка",
+    colors: ["Sky Blue (Небесно-голубой)", "Light Gold (Светлое золото)", "Cloud White (Облачный белый)", "Space Black (Космический черный)"], img: A("iphone-air") },
+  { id: "ip17air-512-esim", brand: "Apple", model: "iPhone Air", memory: "512 ГБ", sim: "eSIM", price: 87000,
+    colors: ["Sky Blue (Небесно-голубой)", "Light Gold (Светлое золото)", "Cloud White (Облачный белый)", "Space Black (Космический черный)"], img: A("iphone-air") },
+  { id: "ip17air-1tb-esim",  brand: "Apple", model: "iPhone Air", memory: "1 ТБ",  sim: "eSIM", price: 103000,
+    colors: ["Sky Blue (Небесно-голубой)", "Light Gold (Светлое золото)", "Cloud White (Облачный белый)", "Space Black (Космический черный)"], img: A("iphone-air") },
 
   /* ══ iPhone 17 ════════════════════════════════════════════════════ */
   { id: "ip17-128-sim",  brand: "Apple", model: "iPhone 17", memory: "128 ГБ", sim: "SIM + eSIM", price: 55000, badge: "Хит",
