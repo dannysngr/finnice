@@ -245,6 +245,117 @@ function FilterDropdown({ label, options, value, onChange }: DropdownProps) {
   );
 }
 
+// ─── Цветовые точки ──────────────────────────────────────────
+const COLOR_DOT: Record<string, string> = {
+  // ── Чёрные / тёмные ──
+  "Black": "⚫", "Space Black": "⚫", "Titanium Black": "⚫",
+  "Black Titanium": "⚫", "Midnight": "⚫", "Phantom Black": "⚫",
+  "Onyx Black": "⚫", "Moonstone Black": "⚫",
+  // ── Серые ──
+  "Graphite": "🩶", "Space Gray": "🩶", "Titanium Gray": "🩶", "Marble Gray": "🩶",
+  // ── Белые / серебро ──
+  "White": "⚪", "White Titanium": "⚪", "Cloud White": "⚪",
+  "Moonlight White": "⚪", "Silver": "⚪", "Titanium Silver": "⚪",
+  "Natural Titanium": "⚪", "Starlight": "⚪",
+  // ── Золото / жёлтый ──
+  "Gold": "🟡", "Light Gold": "🟡", "Desert Titanium": "🟡",
+  "Yellow": "🟡", "Amber Yellow": "🟡", "Awesome Lemon": "🟡",
+  // ── Синие ──
+  "Blue": "🔵", "Blue Titanium": "🔵", "Titanium Blue": "🔵",
+  "Deep Blue": "🔵", "Pacific Blue": "🔵", "Ocean Blue": "🔵",
+  "Sierra Blue": "🔵", "Sky Blue": "🔵", "Mist Blue": "🔵",
+  "Icy Blue": "🔵", "Dragon Blue": "🔵", "Awesome Iceblue": "🔵",
+  "Awesome Navy": "🔵", "Ultramarine": "🔵",
+  // ── Зелёные ──
+  "Green": "🟢", "Titanium Green": "🟢", "Alpine Green": "🟢",
+  "Midnight Green": "🟢", "Emerald Green": "🟢", "Jade Green": "🟢",
+  "Teal": "🟢", "Sage": "🟢", "Mint": "🟢",
+  // ── Оранжевые ──
+  "Cosmic Orange": "🟠", "Sandstone Orange": "🟠",
+  // ── Розовые / фиолетовые ──
+  "Pink": "🩷", "Coral Pink": "🩷",
+  "Purple": "🟣", "Deep Purple": "🟣", "Lavender": "🟣",
+  "Awesome Lilac": "🟣", "Cobalt Violet": "🟣",
+};
+
+// ── Принадлежность к группам (по английскому названию до скобок) ──
+const TITANIUM_PRO_SET = new Set([
+  "Black Titanium", "Blue Titanium", "Cosmic Orange", "Deep Blue",
+  "Deep Purple",    "Desert Titanium", "Natural Titanium", "Space Black",
+  "Titanium Black", "Titanium Blue",   "Titanium Gray",    "Titanium Green",
+  "Titanium Silver","White Titanium",
+]);
+const AIR_PALETTE_SET = new Set([
+  "Cloud White", "Lavender", "Light Gold", "Mist Blue", "Sage", "Sky Blue",
+]);
+const CLASSIC_SET = new Set([
+  "Black", "Gold", "Graphite", "Midnight", "Silver",
+  "Space Gray", "Starlight", "White",
+]);
+
+function engName(c: string) { return c.split("(")[0].trim(); }
+function colorDot(c: string) { return COLOR_DOT[engName(c)] ?? "◾"; }
+
+// ─── Цветовой дропдаун с группами ────────────────────────────
+function ColorFilterDropdown({
+  options, value, onChange,
+}: { options: string[]; value: string; onChange: (v: string) => void }) {
+  const isActive = value !== "Все";
+
+  const groups = useMemo(() => {
+    const buckets: Record<string, string[]> = {
+      "Титановые и Pro": [],
+      "Палитра Air":     [],
+      "Классические":    [],
+      "Яркие цвета":     [],
+    };
+    for (const c of options.slice(1)) {           // пропускаем "Все"
+      const eng = engName(c);
+      if (TITANIUM_PRO_SET.has(eng) || eng.includes("Titanium")) {
+        buckets["Титановые и Pro"].push(c);
+      } else if (AIR_PALETTE_SET.has(eng)) {
+        buckets["Палитра Air"].push(c);
+      } else if (CLASSIC_SET.has(eng)) {
+        buckets["Классические"].push(c);
+      } else {
+        buckets["Яркие цвета"].push(c);
+      }
+    }
+    for (const arr of Object.values(buckets)) {
+      arr.sort((a, b) => engName(a).localeCompare(engName(b)));
+    }
+    return (Object.entries(buckets) as [string, string[]][])
+      .filter(([, items]) => items.length > 0);
+  }, [options]);
+
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`appearance-none pl-3 pr-7 py-2 rounded-xl border text-sm font-medium
+                    cursor-pointer outline-none transition-colors
+                    ${isActive
+                      ? "bg-[#0C7A58] border-[#0C7A58] text-white"
+                      : "bg-white border-[#D8E2F0] text-[#374151] hover:border-[#0C7A58]"}`}
+      >
+        <option value="Все">Цвет</option>
+        {groups.map(([groupLabel, items]) => (
+          <optgroup key={groupLabel} label={groupLabel}>
+            {items.map((c) => (
+              <option key={c} value={c}>{colorDot(c)} {c}</option>
+            ))}
+          </optgroup>
+        ))}
+      </select>
+      <span className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs
+                        ${isActive ? "text-white" : "text-[#6B7280]"}`}>
+        ▾
+      </span>
+    </div>
+  );
+}
+
 // ─── Таблетка бренда ─────────────────────────────────────────
 function BrandPill({ brand, active, onClick }: { brand: string; active: boolean; onClick: () => void }) {
   return (
@@ -413,8 +524,7 @@ export function SmartphonesSection() {
             value={memory}
             onChange={setMemory}
           />
-          <FilterDropdown
-            label="Цвет"
+          <ColorFilterDropdown
             options={colorOptions}
             value={color}
             onChange={setColor}
