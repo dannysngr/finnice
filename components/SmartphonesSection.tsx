@@ -41,12 +41,15 @@ const DEDUPED_CATALOG: PhoneItem[] = (() => {
 // Apple iPhone: [поколение↓, тип модели]
 // Pro(0) → Pro Max(1) → Air(2) → base(3)
 function iphoneSortKey(model: string): [number, number] {
-  const gen = parseInt(model.match(/iPhone\s+(\d+)/i)?.[1] ?? "0");
   const lower = model.toLowerCase();
+  const genMatch = model.match(/iPhone\s+(\d+)/i);
+  // "iPhone Air" не содержит числа → считаем поколением 17 (текущее)
+  const gen = genMatch ? parseInt(genMatch[1]) : (lower.includes("air") ? 17 : 0);
   let tier: number;
   if      (lower.includes("pro max")) tier = 1;
   else if (lower.includes("pro"))     tier = 0;
   else if (lower.includes("air"))     tier = 2;
+  else if (lower.includes("plus"))    tier = 2;  // Plus = то же место, что Air в своём поколении
   else                                tier = 3;
   return [-gen, tier];
 }
