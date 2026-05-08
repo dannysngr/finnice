@@ -111,302 +111,239 @@ const A = (filename: string) => `/images/phones/${filename}.jpg`;
 
 export const PHONES_CATALOG: PhoneItem[] = [
 
-  /* ══ iPhone 17 Pro Max (май 2026) ══════════════════════════════ */
+  /* ══ iPhone 17 Pro Max ═══════════════════════════════════════════ */
+  { id: "ip17promax-256-sim",  brand: "Apple", model: "iPhone 17 Pro Max", memory: "256 ГБ", sim: "SIM + eSIM", price: 114500, badge: "Новинка",
+    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro-max") },
+  { id: "ip17promax-512-sim",  brand: "Apple", model: "iPhone 17 Pro Max", memory: "512 ГБ", sim: "SIM + eSIM", price: 132000,
+    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro-max") },
+  { id: "ip17promax-1tb-sim",  brand: "Apple", model: "iPhone 17 Pro Max", memory: "1 ТБ",  sim: "SIM + eSIM", price: 149000,
+    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro-max") },
+  { id: "ip17promax-2tb-sim",  brand: "Apple", model: "iPhone 17 Pro Max", memory: "2 ТБ",  sim: "SIM + eSIM", price: 175000,
+    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro-max") },
+  { id: "ip17promax-256-esim", brand: "Apple", model: "iPhone 17 Pro Max", memory: "256 ГБ", sim: "eSIM",       price: 108000,
+    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro-max") },
+  { id: "ip17promax-512-esim", brand: "Apple", model: "iPhone 17 Pro Max", memory: "512 ГБ", sim: "eSIM",       price: 124000,
+    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro-max") },
+  { id: "ip17promax-1tb-esim", brand: "Apple", model: "iPhone 17 Pro Max", memory: "1 ТБ",  sim: "eSIM",       price: 143000,
+    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro-max") },
+  { id: "ip17promax-2tb-esim", brand: "Apple", model: "iPhone 17 Pro Max", memory: "2 ТБ",  sim: "eSIM",       price: 168000,
+    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro-max") },
 
-  // SIM + eSIM
-  {
-    id: "ip17promax-256-sim-silver", brand: "Apple", model: "iPhone 17 Pro Max",
-    memory: "256 ГБ", sim: "SIM + eSIM", price: 115000, badge: "Новинка",
-    colors: ["Silver (Серебристый)"],
-    img: A("iphone-17-pro-max"),
-  },
-  {
-    id: "ip17promax-256-sim", brand: "Apple", model: "iPhone 17 Pro Max",
-    memory: "256 ГБ", sim: "SIM + eSIM", price: 114500,
-    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)"],
-    img: A("iphone-17-pro-max"),
-  },
-  {
-    id: "ip17promax-512-sim", brand: "Apple", model: "iPhone 17 Pro Max",
-    memory: "512 ГБ", sim: "SIM + eSIM", price: 132500,
-    colors: ["Silver (Серебристый)", "Deep Blue (Глубокий синий)"],
-    img: A("iphone-17-pro-max"),
-  },
-  {
-    id: "ip17promax-512-sim-orange", brand: "Apple", model: "iPhone 17 Pro Max",
-    memory: "512 ГБ", sim: "SIM + eSIM", price: 129000,
-    colors: ["Cosmic Orange (Космический оранжевый)"],
-    img: A("iphone-17-pro-max"),
-  },
-  {
-    id: "ip17promax-1tb-sim", brand: "Apple", model: "iPhone 17 Pro Max",
-    memory: "1 ТБ", sim: "SIM + eSIM", price: 149000,
-    colors: ["Deep Blue (Глубокий синий)", "Cosmic Orange (Космический оранжевый)", "Silver (Серебристый)"],
-    img: A("iphone-17-pro-max"),
-  },
-  // eSIM
-  {
-    id: "ip17promax-256-esim", brand: "Apple", model: "iPhone 17 Pro Max",
-    memory: "256 ГБ", sim: "eSIM", price: 108000,
-    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"],
-    img: A("iphone-17-pro-max"),
-  },
-  {
-    id: "ip17promax-512-esim-silver", brand: "Apple", model: "iPhone 17 Pro Max",
-    memory: "512 ГБ", sim: "eSIM", price: 124000,
-    colors: ["Silver (Серебристый)"],
-    img: A("iphone-17-pro-max"),
-  },
-  {
-    id: "ip17promax-512-esim-orange", brand: "Apple", model: "iPhone 17 Pro Max",
-    memory: "512 ГБ", sim: "eSIM", price: 119900,
-    colors: ["Cosmic Orange (Космический оранжевый)"],
-    img: A("iphone-17-pro-max"),
-  },
-  {
-    id: "ip17promax-1tb-esim", brand: "Apple", model: "iPhone 17 Pro Max",
-    memory: "1 ТБ", sim: "eSIM", price: 143000,
-    colors: ["Silver (Серебристый)"],
-    img: A("iphone-17-pro-max"),
-  },
-  // 2 ТБ
-  {
-    id: "ip17promax-2tb-esim", brand: "Apple", model: "iPhone 17 Pro Max",
-    memory: "2 ТБ", sim: "eSIM", price: 168000,
-    colors: ["Silver (Серебристый)", "Deep Blue (Глубокий синий)", "Cosmic Orange (Космический оранжевый)"],
-    img: A("iphone-17-pro-max"),
-  },
-  {
-    id: "ip17promax-2tb-sim", brand: "Apple", model: "iPhone 17 Pro Max",
-    memory: "2 ТБ", sim: "SIM + eSIM", price: 175000,
-    colors: ["Silver (Серебристый)", "Deep Blue (Глубокий синий)", "Cosmic Orange (Космический оранжевый)"],
-    img: A("iphone-17-pro-max"),
-  },
+  /* ══ iPhone 17 Pro ════════════════════════════════════════════════ */
+  { id: "ip17pro-256-sim",  brand: "Apple", model: "iPhone 17 Pro", memory: "256 ГБ", sim: "SIM + eSIM", price: 104500, badge: "Новинка",
+    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro") },
+  { id: "ip17pro-512-sim",  brand: "Apple", model: "iPhone 17 Pro", memory: "512 ГБ", sim: "SIM + eSIM", price: 123000,
+    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro") },
+  { id: "ip17pro-1tb-sim",  brand: "Apple", model: "iPhone 17 Pro", memory: "1 ТБ",  sim: "SIM + eSIM", price: 140000,
+    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro") },
+  { id: "ip17pro-256-esim", brand: "Apple", model: "iPhone 17 Pro", memory: "256 ГБ", sim: "eSIM",       price: 98000,
+    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro") },
+  { id: "ip17pro-512-esim", brand: "Apple", model: "iPhone 17 Pro", memory: "512 ГБ", sim: "eSIM",       price: 114500,
+    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro") },
+  { id: "ip17pro-1tb-esim", brand: "Apple", model: "iPhone 17 Pro", memory: "1 ТБ",  sim: "eSIM",       price: 132000,
+    colors: ["Cosmic Orange (Космический оранжевый)", "Deep Blue (Глубокий синий)", "Silver (Серебристый)"], img: A("iphone-17-pro") },
 
-  /* ══ iPhone 17 Pro ══════════════════════════════════════════════ */
+  /* ══ iPhone 17 Air ════════════════════════════════════════════════ */
+  { id: "ip17air-256-esim", brand: "Apple", model: "iPhone 17 Air", memory: "256 ГБ", sim: "eSIM", price: 72000, badge: "Новинка",
+    colors: ["Sky Blue (Небесно-голубой)", "Light Gold (Светлое золото)", "Cloud White (Облачный белый)", "Space Black (Космический черный)"], img: A("iphone-17-air") },
+  { id: "ip17air-512-esim", brand: "Apple", model: "iPhone 17 Air", memory: "512 ГБ", sim: "eSIM", price: 87000,
+    colors: ["Sky Blue (Небесно-голубой)", "Light Gold (Светлое золото)", "Cloud White (Облачный белый)", "Space Black (Космический черный)"], img: A("iphone-17-air") },
+  { id: "ip17air-1tb-esim",  brand: "Apple", model: "iPhone 17 Air", memory: "1 ТБ",  sim: "eSIM", price: 103000,
+    colors: ["Sky Blue (Небесно-голубой)", "Light Gold (Светлое золото)", "Cloud White (Облачный белый)", "Space Black (Космический черный)"], img: A("iphone-17-air") },
 
-  // SIM + eSIM
-  {
-    id: "ip17pro-256-sim", brand: "Apple", model: "iPhone 17 Pro",
-    memory: "256 ГБ", sim: "SIM + eSIM", price: 104500, badge: "Новинка",
-    colors: ["Silver (Серебристый)", "Deep Blue (Глубокий синий)"],
-    img: A("iphone-17-pro"),
-  },
-  {
-    id: "ip17pro-256-sim-orange", brand: "Apple", model: "iPhone 17 Pro",
-    memory: "256 ГБ", sim: "SIM + eSIM", price: 104000,
-    colors: ["Cosmic Orange (Космический оранжевый)"],
-    img: A("iphone-17-pro"),
-  },
-  {
-    id: "ip17pro-512-sim", brand: "Apple", model: "iPhone 17 Pro",
-    memory: "512 ГБ", sim: "SIM + eSIM", price: 123000,
-    colors: ["Deep Blue (Глубокий синий)", "Silver (Серебристый)"],
-    img: A("iphone-17-pro"),
-  },
-  // eSIM
-  {
-    id: "ip17pro-256-esim", brand: "Apple", model: "iPhone 17 Pro",
-    memory: "256 ГБ", sim: "eSIM", price: 98000,
-    colors: ["Silver (Серебристый)", "Deep Blue (Глубокий синий)"],
-    img: A("iphone-17-pro"),
-  },
-  {
-    id: "ip17pro-512-esim", brand: "Apple", model: "iPhone 17 Pro",
-    memory: "512 ГБ", sim: "eSIM", price: 114500,
-    colors: ["Silver (Серебристый)"],
-    img: A("iphone-17-pro"),
-  },
+  /* ══ iPhone 17 ════════════════════════════════════════════════════ */
+  { id: "ip17-128-sim",  brand: "Apple", model: "iPhone 17", memory: "128 ГБ", sim: "SIM + eSIM", price: 55000, badge: "Хит",
+    colors: ["Lavender (Лавандовый)", "Sage (Шалфей)", "Mist Blue (Дымчатый синий)", "White (Белый)", "Black (Черный)"], img: A("iphone-17") },
+  { id: "ip17-256-sim",  brand: "Apple", model: "iPhone 17", memory: "256 ГБ", sim: "SIM + eSIM", price: 65000,
+    colors: ["Lavender (Лавандовый)", "Sage (Шалфей)", "Mist Blue (Дымчатый синий)", "White (Белый)", "Black (Черный)"], img: A("iphone-17") },
+  { id: "ip17-512-sim",  brand: "Apple", model: "iPhone 17", memory: "512 ГБ", sim: "SIM + eSIM", price: 79000,
+    colors: ["Lavender (Лавандовый)", "Sage (Шалфей)", "Mist Blue (Дымчатый синий)", "White (Белый)", "Black (Черный)"], img: A("iphone-17") },
+  { id: "ip17-128-esim", brand: "Apple", model: "iPhone 17", memory: "128 ГБ", sim: "eSIM",       price: 50000,
+    colors: ["Lavender (Лавандовый)", "Sage (Шалфей)", "Mist Blue (Дымчатый синий)", "White (Белый)", "Black (Черный)"], img: A("iphone-17") },
+  { id: "ip17-256-esim", brand: "Apple", model: "iPhone 17", memory: "256 ГБ", sim: "eSIM",       price: 60000,
+    colors: ["Lavender (Лавандовый)", "Sage (Шалфей)", "Mist Blue (Дымчатый синий)", "White (Белый)", "Black (Черный)"], img: A("iphone-17") },
+  { id: "ip17-512-esim", brand: "Apple", model: "iPhone 17", memory: "512 ГБ", sim: "eSIM",       price: 73000,
+    colors: ["Lavender (Лавандовый)", "Sage (Шалфей)", "Mist Blue (Дымчатый синий)", "White (Белый)", "Black (Черный)"], img: A("iphone-17") },
 
-  /* ══ iPhone 17 Air (eSIM, май 2026) ══════════════════════════════ */
-  {
-    id: "ip17air-256-esim", brand: "Apple", model: "iPhone 17 Air",
-    memory: "256 ГБ", sim: "eSIM", price: 74900, badge: "Новинка",
-    colors: ["Cloud Black (Облачный черный)", "Cloud White (Облачный белый)", "Light Gold (Светло-золотой)", "Sky Blue (Небесно-голубой)"],
-    img: A("iphone-17e"),
-  },
+  /* ══ iPhone 16 Pro Max ════════════════════════════════════════════ */
+  { id: "ip16promax-256-sim", brand: "Apple", model: "iPhone 16 Pro Max", memory: "256 ГБ", sim: "SIM + eSIM", price: 104000, badge: "Хит",
+    colors: ["Desert Titanium (Пустынный титан)", "Natural Titanium (Натуральный титан)", "White Titanium (Белый титан)", "Black Titanium (Черный титан)"], img: A("iphone-16-pro-max") },
+  { id: "ip16promax-512-sim", brand: "Apple", model: "iPhone 16 Pro Max", memory: "512 ГБ", sim: "SIM + eSIM", price: 122000,
+    colors: ["Desert Titanium (Пустынный титан)", "Natural Titanium (Натуральный титан)", "White Titanium (Белый титан)", "Black Titanium (Черный титан)"], img: A("iphone-16-pro-max") },
+  { id: "ip16promax-1tb-sim",  brand: "Apple", model: "iPhone 16 Pro Max", memory: "1 ТБ",  sim: "SIM + eSIM", price: 140000,
+    colors: ["Desert Titanium (Пустынный титан)", "Natural Titanium (Натуральный титан)", "White Titanium (Белый титан)", "Black Titanium (Черный титан)"], img: A("iphone-16-pro-max") },
 
-  /* ══ iPhone 17 (базовый) ════════════════════════════════════════ */
-  {
-    id: "ip17-256-sim", brand: "Apple", model: "iPhone 17",
-    memory: "256 ГБ", sim: "SIM + eSIM", price: 67500, badge: "Хит",
-    colors: ["White (Белый)", "Black (Черный)", "Blue (Синий)", "Sage (Шалфейный)", "Lavender (Лавандовый)"],
-    img: A("iphone-17"),
-  },
-  {
-    id: "ip17-256-esim", brand: "Apple", model: "iPhone 17",
-    memory: "256 ГБ", sim: "eSIM", price: 62500,
-    colors: ["Black (Черный)"],
-    img: A("iphone-17"),
-  },
+  /* ══ iPhone 16 Pro ════════════════════════════════════════════════ */
+  { id: "ip16pro-128-sim", brand: "Apple", model: "iPhone 16 Pro", memory: "128 ГБ", sim: "SIM + eSIM", price: 80000, badge: "Хит",
+    colors: ["Desert Titanium (Пустынный титан)", "Natural Titanium (Натуральный титан)", "White Titanium (Белый титан)", "Black Titanium (Черный титан)"], img: A("iphone-16-pro") },
+  { id: "ip16pro-256-sim", brand: "Apple", model: "iPhone 16 Pro", memory: "256 ГБ", sim: "SIM + eSIM", price: 92000,
+    colors: ["Desert Titanium (Пустынный титан)", "Natural Titanium (Натуральный титан)", "White Titanium (Белый титан)", "Black Titanium (Черный титан)"], img: A("iphone-16-pro") },
+  { id: "ip16pro-512-sim", brand: "Apple", model: "iPhone 16 Pro", memory: "512 ГБ", sim: "SIM + eSIM", price: 108000,
+    colors: ["Desert Titanium (Пустынный титан)", "Natural Titanium (Натуральный титан)", "White Titanium (Белый титан)", "Black Titanium (Черный титан)"], img: A("iphone-16-pro") },
+  { id: "ip16pro-1tb-sim",  brand: "Apple", model: "iPhone 16 Pro", memory: "1 ТБ",  sim: "SIM + eSIM", price: 125000,
+    colors: ["Desert Titanium (Пустынный титан)", "Natural Titanium (Натуральный титан)", "White Titanium (Белый титан)", "Black Titanium (Черный титан)"], img: A("iphone-16-pro") },
 
-  /* ══ iPhone 16 ══════════════════════════════════════════════════ */
-  {
-    id: "ip16-256", brand: "Apple", model: "iPhone 16",
-    memory: "256 ГБ", sim: "SIM + eSIM", price: 62900,
-    colors: ["Black (Черный)", "Pink (Розовый)"],
-    img: A("iphone-16"),
-  },
-  {
-    id: "ip16-128", brand: "Apple", model: "iPhone 16",
-    memory: "128 ГБ", sim: "SIM + eSIM", price: 55500, badge: "Хит",
-    colors: ["Pink (Розовый)", "Teal (Бирюзовый)", "Black (Черный)", "White (Белый)", "Ultramarine (Ультрамарин)"],
-    img: A("iphone-16"),
-  },
+  /* ══ iPhone 16 Plus ═══════════════════════════════════════════════ */
+  { id: "ip16plus-128-sim", brand: "Apple", model: "iPhone 16 Plus", memory: "128 ГБ", sim: "SIM + eSIM", price: 62000,
+    colors: ["Ultramarine (Ультрамарин)", "Teal (Бирюзовый)", "Pink (Розовый)", "White (Белый)", "Black (Черный)"], img: A("iphone-16-plus") },
+  { id: "ip16plus-256-sim", brand: "Apple", model: "iPhone 16 Plus", memory: "256 ГБ", sim: "SIM + eSIM", price: 72000,
+    colors: ["Ultramarine (Ультрамарин)", "Teal (Бирюзовый)", "Pink (Розовый)", "White (Белый)", "Black (Черный)"], img: A("iphone-16-plus") },
+  { id: "ip16plus-512-sim", brand: "Apple", model: "iPhone 16 Plus", memory: "512 ГБ", sim: "SIM + eSIM", price: 86000,
+    colors: ["Ultramarine (Ультрамарин)", "Teal (Бирюзовый)", "Pink (Розовый)", "White (Белый)", "Black (Черный)"], img: A("iphone-16-plus") },
 
-  /* ══ iPhone 15 ══════════════════════════════════════════════════ */
-  {
-    id: "ip15-256-blue", brand: "Apple", model: "iPhone 15",
-    memory: "256 ГБ", sim: "SIM + eSIM", price: 54500,
-    colors: ["Blue (Синий)"],
-    img: A("iphone-15"),
-  },
-  {
-    id: "ip15-128", brand: "Apple", model: "iPhone 15",
-    memory: "128 ГБ", sim: "SIM + eSIM", price: 47500,
-    colors: ["Black (Черный)", "Blue (Синий)"],
-    img: A("iphone-15"),
-  },
+  /* ══ iPhone 16 ════════════════════════════════════════════════════ */
+  { id: "ip16-128-sim", brand: "Apple", model: "iPhone 16", memory: "128 ГБ", sim: "SIM + eSIM", price: 55500, badge: "Хит",
+    colors: ["Ultramarine (Ультрамарин)", "Teal (Бирюзовый)", "Pink (Розовый)", "White (Белый)", "Black (Черный)"], img: A("iphone-16") },
+  { id: "ip16-256-sim", brand: "Apple", model: "iPhone 16", memory: "256 ГБ", sim: "SIM + eSIM", price: 62900,
+    colors: ["Ultramarine (Ультрамарин)", "Teal (Бирюзовый)", "Pink (Розовый)", "White (Белый)", "Black (Черный)"], img: A("iphone-16") },
+  { id: "ip16-512-sim", brand: "Apple", model: "iPhone 16", memory: "512 ГБ", sim: "SIM + eSIM", price: 76000,
+    colors: ["Ultramarine (Ультрамарин)", "Teal (Бирюзовый)", "Pink (Розовый)", "White (Белый)", "Black (Черный)"], img: A("iphone-16") },
 
-  /* ══ iPhone 14 ══════════════════════════════════════════════════ */
-  {
-    id: "ip14-512-black", brand: "Apple", model: "iPhone 14",
-    memory: "512 ГБ", sim: "SIM + eSIM", price: 49900,
-    colors: ["Black (Черный)"],
-    img: A("iphone-14"),
-  },
-  {
-    id: "ip14-256-black", brand: "Apple", model: "iPhone 14",
-    memory: "256 ГБ", sim: "SIM + eSIM", price: 46900,
-    colors: ["Black (Черный)"],
-    img: A("iphone-14"),
-  },
+  /* ══ iPhone 15 Pro Max ════════════════════════════════════════════ */
+  { id: "ip15promax-256-sim", brand: "Apple", model: "iPhone 15 Pro Max", memory: "256 ГБ", sim: "SIM + eSIM", price: 88000,
+    colors: ["Natural Titanium (Натуральный титан)", "Blue Titanium (Синий титан)", "White Titanium (Белый титан)", "Black Titanium (Черный титан)"], img: A("iphone-15-pro-max") },
+  { id: "ip15promax-512-sim", brand: "Apple", model: "iPhone 15 Pro Max", memory: "512 ГБ", sim: "SIM + eSIM", price: 104000,
+    colors: ["Natural Titanium (Натуральный титан)", "Blue Titanium (Синий титан)", "White Titanium (Белый титан)", "Black Titanium (Черный титан)"], img: A("iphone-15-pro-max") },
+  { id: "ip15promax-1tb-sim",  brand: "Apple", model: "iPhone 15 Pro Max", memory: "1 ТБ",  sim: "SIM + eSIM", price: 120000,
+    colors: ["Natural Titanium (Натуральный титан)", "Blue Titanium (Синий титан)", "White Titanium (Белый титан)", "Black Titanium (Черный титан)"], img: A("iphone-15-pro-max") },
 
-  /* ══ iPhone 13 Pro Max ══════════════════════════════════════════ */
-  {
-    id: "ip13promax-256-2sim", brand: "Apple", model: "iPhone 13 Pro Max",
-    memory: "256 ГБ", sim: "2 SIM", price: 47500,
-    colors: ["Graphite (Графитовый)", "Silver (Серебристый)", "Gold (Золотой)", "Sierra Blue (Синий Sierra)"],
-    img: A("iphone-13-pro-max"),
-  },
-  {
-    id: "ip13promax-128-2sim", brand: "Apple", model: "iPhone 13 Pro Max",
-    memory: "128 ГБ", sim: "2 SIM", price: 43500,
-    colors: ["Graphite (Графитовый)", "Sierra Blue (Синий Sierra)"],
-    img: A("iphone-13-pro-max"),
-  },
+  /* ══ iPhone 15 Pro ════════════════════════════════════════════════ */
+  { id: "ip15pro-128-sim", brand: "Apple", model: "iPhone 15 Pro", memory: "128 ГБ", sim: "SIM + eSIM", price: 68000,
+    colors: ["Natural Titanium (Натуральный титан)", "Blue Titanium (Синий титан)", "White Titanium (Белый титан)", "Black Titanium (Черный титан)"], img: A("iphone-15-pro") },
+  { id: "ip15pro-256-sim", brand: "Apple", model: "iPhone 15 Pro", memory: "256 ГБ", sim: "SIM + eSIM", price: 78000,
+    colors: ["Natural Titanium (Натуральный титан)", "Blue Titanium (Синий титан)", "White Titanium (Белый титан)", "Black Titanium (Черный титан)"], img: A("iphone-15-pro") },
+  { id: "ip15pro-512-sim", brand: "Apple", model: "iPhone 15 Pro", memory: "512 ГБ", sim: "SIM + eSIM", price: 94000,
+    colors: ["Natural Titanium (Натуральный титан)", "Blue Titanium (Синий титан)", "White Titanium (Белый титан)", "Black Titanium (Черный титан)"], img: A("iphone-15-pro") },
+  { id: "ip15pro-1tb-sim",  brand: "Apple", model: "iPhone 15 Pro", memory: "1 ТБ",  sim: "SIM + eSIM", price: 110000,
+    colors: ["Natural Titanium (Натуральный титан)", "Blue Titanium (Синий титан)", "White Titanium (Белый титан)", "Black Titanium (Черный титан)"], img: A("iphone-15-pro") },
 
-  /* ══ iPhone 13 Pro ════════════════════════════════════════════ */
-  {
-    id: "ip13pro-256-2sim", brand: "Apple", model: "iPhone 13 Pro",
-    memory: "256 ГБ", sim: "2 SIM", price: 44500,
-    colors: ["Graphite (Графитовый)", "Sierra Blue (Синий Sierra)", "Silver (Серебристый)"],
-    img: A("iphone-13-pro"),
-  },
-  {
-    id: "ip13pro-128-2sim", brand: "Apple", model: "iPhone 13 Pro",
-    memory: "128 ГБ", sim: "2 SIM", price: 41000,
-    colors: ["Graphite (Графитовый)", "Silver (Серебристый)"],
-    img: A("iphone-13-pro"),
-  },
+  /* ══ iPhone 15 Plus ═══════════════════════════════════════════════ */
+  { id: "ip15plus-128-sim", brand: "Apple", model: "iPhone 15 Plus", memory: "128 ГБ", sim: "SIM + eSIM", price: 54000,
+    colors: ["Pink (Розовый)", "Yellow (Желтый)", "Green (Зеленый)", "Blue (Синий)", "Black (Черный)"], img: A("iphone-15-plus") },
+  { id: "ip15plus-256-sim", brand: "Apple", model: "iPhone 15 Plus", memory: "256 ГБ", sim: "SIM + eSIM", price: 62000,
+    colors: ["Pink (Розовый)", "Yellow (Желтый)", "Green (Зеленый)", "Blue (Синий)", "Black (Черный)"], img: A("iphone-15-plus") },
+  { id: "ip15plus-512-sim", brand: "Apple", model: "iPhone 15 Plus", memory: "512 ГБ", sim: "SIM + eSIM", price: 76000,
+    colors: ["Pink (Розовый)", "Yellow (Желтый)", "Green (Зеленый)", "Blue (Синий)", "Black (Черный)"], img: A("iphone-15-plus") },
 
-  /* ══ iPhone 13 ════════════════════════════════════════════════ */
-  {
-    id: "ip13-256-2sim", brand: "Apple", model: "iPhone 13",
-    memory: "256 ГБ", sim: "2 SIM", price: 39500,
-    colors: ["Black (Черный)", "Blue (Синий)", "Starlight (Звёздный свет)"],
-    img: A("iphone-13"),
-  },
-  {
-    id: "ip13-128-2sim", brand: "Apple", model: "iPhone 13",
-    memory: "128 ГБ", sim: "2 SIM", price: 35500,
-    colors: ["Black (Черный)", "Pink (Розовый)", "Blue (Синий)", "Starlight (Звёздный свет)"],
-    img: A("iphone-13"),
-  },
+  /* ══ iPhone 15 ════════════════════════════════════════════════════ */
+  { id: "ip15-128-sim", brand: "Apple", model: "iPhone 15", memory: "128 ГБ", sim: "SIM + eSIM", price: 47500,
+    colors: ["Pink (Розовый)", "Yellow (Желтый)", "Green (Зеленый)", "Blue (Синий)", "Black (Черный)"], img: A("iphone-15") },
+  { id: "ip15-256-sim", brand: "Apple", model: "iPhone 15", memory: "256 ГБ", sim: "SIM + eSIM", price: 54500,
+    colors: ["Pink (Розовый)", "Yellow (Желтый)", "Green (Зеленый)", "Blue (Синий)", "Black (Черный)"], img: A("iphone-15") },
+  { id: "ip15-512-sim", brand: "Apple", model: "iPhone 15", memory: "512 ГБ", sim: "SIM + eSIM", price: 68000,
+    colors: ["Pink (Розовый)", "Yellow (Желтый)", "Green (Зеленый)", "Blue (Синий)", "Black (Черный)"], img: A("iphone-15") },
 
-  /* ══ iPhone 12 Pro Max ══════════════════════════════════════════ */
-  {
-    id: "ip12promax-256-2sim", brand: "Apple", model: "iPhone 12 Pro Max",
-    memory: "256 ГБ", sim: "2 SIM", price: 38500,
-    colors: ["Graphite (Графитовый)", "Silver (Серебристый)", "Pacific Blue (Тихоокеанский синий)"],
-    img: A("iphone-12-pro-max"),
-  },
-  {
-    id: "ip12promax-128-2sim", brand: "Apple", model: "iPhone 12 Pro Max",
-    memory: "128 ГБ", sim: "2 SIM", price: 35000,
-    colors: ["Graphite (Графитовый)", "Gold (Золотой)"],
-    img: A("iphone-12-pro-max"),
-  },
+  /* ══ iPhone 14 Pro Max ════════════════════════════════════════════ */
+  { id: "ip14promax-128-sim", brand: "Apple", model: "iPhone 14 Pro Max", memory: "128 ГБ", sim: "SIM + eSIM", price: 70000,
+    colors: ["Space Black (Космический черный)", "Silver (Серебристый)", "Gold (Золотистый)", "Deep Purple (Темно-фиолетовый)"], img: A("iphone-14-pro-max") },
+  { id: "ip14promax-256-sim", brand: "Apple", model: "iPhone 14 Pro Max", memory: "256 ГБ", sim: "SIM + eSIM", price: 80000,
+    colors: ["Space Black (Космический черный)", "Silver (Серебристый)", "Gold (Золотистый)", "Deep Purple (Темно-фиолетовый)"], img: A("iphone-14-pro-max") },
+  { id: "ip14promax-512-sim", brand: "Apple", model: "iPhone 14 Pro Max", memory: "512 ГБ", sim: "SIM + eSIM", price: 94000,
+    colors: ["Space Black (Космический черный)", "Silver (Серебристый)", "Gold (Золотистый)", "Deep Purple (Темно-фиолетовый)"], img: A("iphone-14-pro-max") },
+  { id: "ip14promax-1tb-sim",  brand: "Apple", model: "iPhone 14 Pro Max", memory: "1 ТБ",  sim: "SIM + eSIM", price: 108000,
+    colors: ["Space Black (Космический черный)", "Silver (Серебристый)", "Gold (Золотистый)", "Deep Purple (Темно-фиолетовый)"], img: A("iphone-14-pro-max") },
 
-  /* ══ iPhone 12 Pro ════════════════════════════════════════════ */
-  {
-    id: "ip12pro-256-2sim", brand: "Apple", model: "iPhone 12 Pro",
-    memory: "256 ГБ", sim: "2 SIM", price: 36500,
-    colors: ["Graphite (Графитовый)", "Pacific Blue (Тихоокеанский синий)", "Silver (Серебристый)"],
-    img: A("iphone-12-pro"),
-  },
-  {
-    id: "ip12pro-128-2sim", brand: "Apple", model: "iPhone 12 Pro",
-    memory: "128 ГБ", sim: "2 SIM", price: 33000,
-    colors: ["Graphite (Графитовый)", "Silver (Серебристый)"],
-    img: A("iphone-12-pro"),
-  },
+  /* ══ iPhone 14 Pro ════════════════════════════════════════════════ */
+  { id: "ip14pro-128-sim", brand: "Apple", model: "iPhone 14 Pro", memory: "128 ГБ", sim: "SIM + eSIM", price: 60000,
+    colors: ["Space Black (Космический черный)", "Silver (Серебристый)", "Gold (Золотистый)", "Deep Purple (Темно-фиолетовый)"], img: A("iphone-14-pro") },
+  { id: "ip14pro-256-sim", brand: "Apple", model: "iPhone 14 Pro", memory: "256 ГБ", sim: "SIM + eSIM", price: 70000,
+    colors: ["Space Black (Космический черный)", "Silver (Серебристый)", "Gold (Золотистый)", "Deep Purple (Темно-фиолетовый)"], img: A("iphone-14-pro") },
+  { id: "ip14pro-512-sim", brand: "Apple", model: "iPhone 14 Pro", memory: "512 ГБ", sim: "SIM + eSIM", price: 84000,
+    colors: ["Space Black (Космический черный)", "Silver (Серебристый)", "Gold (Золотистый)", "Deep Purple (Темно-фиолетовый)"], img: A("iphone-14-pro") },
+  { id: "ip14pro-1tb-sim",  brand: "Apple", model: "iPhone 14 Pro", memory: "1 ТБ",  sim: "SIM + eSIM", price: 98000,
+    colors: ["Space Black (Космический черный)", "Silver (Серебристый)", "Gold (Золотистый)", "Deep Purple (Темно-фиолетовый)"], img: A("iphone-14-pro") },
 
-  /* ══ iPhone 12 ════════════════════════════════════════════════ */
-  {
-    id: "ip12-128-2sim", brand: "Apple", model: "iPhone 12",
-    memory: "128 ГБ", sim: "2 SIM", price: 31500,
-    colors: ["Black (Черный)", "White (Белый)", "Blue (Синий)", "Product Red"],
-    img: A("iphone-12"),
-  },
-  {
-    id: "ip12-64-2sim", brand: "Apple", model: "iPhone 12",
-    memory: "64 ГБ", sim: "2 SIM", price: 28000,
-    colors: ["Black (Черный)", "White (Белый)"],
-    img: A("iphone-12"),
-  },
+  /* ══ iPhone 14 Plus ═══════════════════════════════════════════════ */
+  { id: "ip14plus-128-sim", brand: "Apple", model: "iPhone 14 Plus", memory: "128 ГБ", sim: "SIM + eSIM", price: 48000,
+    colors: ["Midnight (Темная ночь)", "Starlight (Сияющая звезда)", "(PRODUCT)RED (Красный)", "Blue (Синий)", "Purple (Фиолетовый)", "Yellow (Желтый)"], img: A("iphone-14-plus") },
+  { id: "ip14plus-256-sim", brand: "Apple", model: "iPhone 14 Plus", memory: "256 ГБ", sim: "SIM + eSIM", price: 56000,
+    colors: ["Midnight (Темная ночь)", "Starlight (Сияющая звезда)", "(PRODUCT)RED (Красный)", "Blue (Синий)", "Purple (Фиолетовый)", "Yellow (Желтый)"], img: A("iphone-14-plus") },
+  { id: "ip14plus-512-sim", brand: "Apple", model: "iPhone 14 Plus", memory: "512 ГБ", sim: "SIM + eSIM", price: 68000,
+    colors: ["Midnight (Темная ночь)", "Starlight (Сияющая звезда)", "(PRODUCT)RED (Красный)", "Blue (Синий)", "Purple (Фиолетовый)", "Yellow (Желтый)"], img: A("iphone-14-plus") },
 
-  /* ══ iPhone 11 Pro Max ══════════════════════════════════════════ */
-  {
-    id: "ip11promax-256-2sim", brand: "Apple", model: "iPhone 11 Pro Max",
-    memory: "256 ГБ", sim: "2 SIM", price: 33500,
-    colors: ["Space Gray (Серый космос)", "Silver (Серебристый)", "Gold (Золотой)", "Midnight Green (Тёмно-зелёный)"],
-    img: A("iphone-11-pro-max"),
-  },
-  {
-    id: "ip11promax-64-2sim", brand: "Apple", model: "iPhone 11 Pro Max",
-    memory: "64 ГБ", sim: "2 SIM", price: 29500,
-    colors: ["Space Gray (Серый космос)", "Silver (Серебристый)"],
-    img: A("iphone-11-pro-max"),
-  },
+  /* ══ iPhone 14 ════════════════════════════════════════════════════ */
+  { id: "ip14-128-sim", brand: "Apple", model: "iPhone 14", memory: "128 ГБ", sim: "SIM + eSIM", price: 42000,
+    colors: ["Midnight (Темная ночь)", "Starlight (Сияющая звезда)", "(PRODUCT)RED (Красный)", "Blue (Синий)", "Purple (Фиолетовый)", "Yellow (Желтый)"], img: A("iphone-14") },
+  { id: "ip14-256-sim", brand: "Apple", model: "iPhone 14", memory: "256 ГБ", sim: "SIM + eSIM", price: 46900,
+    colors: ["Midnight (Темная ночь)", "Starlight (Сияющая звезда)", "(PRODUCT)RED (Красный)", "Blue (Синий)", "Purple (Фиолетовый)", "Yellow (Желтый)"], img: A("iphone-14") },
+  { id: "ip14-512-sim", brand: "Apple", model: "iPhone 14", memory: "512 ГБ", sim: "SIM + eSIM", price: 56000,
+    colors: ["Midnight (Темная ночь)", "Starlight (Сияющая звезда)", "(PRODUCT)RED (Красный)", "Blue (Синий)", "Purple (Фиолетовый)", "Yellow (Желтый)"], img: A("iphone-14") },
 
-  /* ══ iPhone 11 Pro ════════════════════════════════════════════ */
-  {
-    id: "ip11pro-256-2sim", brand: "Apple", model: "iPhone 11 Pro",
-    memory: "256 ГБ", sim: "2 SIM", price: 31500,
-    colors: ["Space Gray (Серый космос)", "Midnight Green (Тёмно-зелёный)", "Silver (Серебристый)"],
-    img: A("iphone-11-pro"),
-  },
-  {
-    id: "ip11pro-64-2sim", brand: "Apple", model: "iPhone 11 Pro",
-    memory: "64 ГБ", sim: "2 SIM", price: 28000,
-    colors: ["Space Gray (Серый космос)", "Silver (Серебристый)"],
-    img: A("iphone-11-pro"),
-  },
+  /* ══ iPhone 13 Pro Max ════════════════════════════════════════════ */
+  { id: "ip13promax-128-2sim", brand: "Apple", model: "iPhone 13 Pro Max", memory: "128 ГБ", sim: "2 SIM", price: 43500,
+    colors: ["Graphite (Графитовый)", "Gold (Золотистый)", "Silver (Серебристый)", "Sierra Blue (Небесно-голубой)", "Alpine Green (Альпийский зеленый)"], img: A("iphone-13-pro-max") },
+  { id: "ip13promax-256-2sim", brand: "Apple", model: "iPhone 13 Pro Max", memory: "256 ГБ", sim: "2 SIM", price: 47500,
+    colors: ["Graphite (Графитовый)", "Gold (Золотистый)", "Silver (Серебристый)", "Sierra Blue (Небесно-голубой)", "Alpine Green (Альпийский зеленый)"], img: A("iphone-13-pro-max") },
+  { id: "ip13promax-512-2sim", brand: "Apple", model: "iPhone 13 Pro Max", memory: "512 ГБ", sim: "2 SIM", price: 55000,
+    colors: ["Graphite (Графитовый)", "Gold (Золотистый)", "Silver (Серебристый)", "Sierra Blue (Небесно-голубой)", "Alpine Green (Альпийский зеленый)"], img: A("iphone-13-pro-max") },
+  { id: "ip13promax-1tb-2sim",  brand: "Apple", model: "iPhone 13 Pro Max", memory: "1 ТБ",  sim: "2 SIM", price: 65000,
+    colors: ["Graphite (Графитовый)", "Gold (Золотистый)", "Silver (Серебристый)", "Sierra Blue (Небесно-голубой)", "Alpine Green (Альпийский зеленый)"], img: A("iphone-13-pro-max") },
 
-  /* ══ iPhone 11 ════════════════════════════════════════════════ */
-  {
-    id: "ip11-128-2sim", brand: "Apple", model: "iPhone 11",
-    memory: "128 ГБ", sim: "2 SIM", price: 27500,
-    colors: ["Black (Черный)", "White (Белый)", "Purple (Фиолетовый)", "Yellow (Жёлтый)"],
-    img: A("iphone-11"),
-  },
-  {
-    id: "ip11-64-2sim", brand: "Apple", model: "iPhone 11",
-    memory: "64 ГБ", sim: "2 SIM", price: 24500,
-    colors: ["Black (Черный)", "White (Белый)", "Green (Зелёный)"],
-    img: A("iphone-11"),
-  },
+  /* ══ iPhone 13 Pro ════════════════════════════════════════════════ */
+  { id: "ip13pro-128-2sim", brand: "Apple", model: "iPhone 13 Pro", memory: "128 ГБ", sim: "2 SIM", price: 41000,
+    colors: ["Graphite (Графитовый)", "Gold (Золотистый)", "Silver (Серебристый)", "Sierra Blue (Небесно-голубой)", "Alpine Green (Альпийский зеленый)"], img: A("iphone-13-pro") },
+  { id: "ip13pro-256-2sim", brand: "Apple", model: "iPhone 13 Pro", memory: "256 ГБ", sim: "2 SIM", price: 44500,
+    colors: ["Graphite (Графитовый)", "Gold (Золотистый)", "Silver (Серебристый)", "Sierra Blue (Небесно-голубой)", "Alpine Green (Альпийский зеленый)"], img: A("iphone-13-pro") },
+  { id: "ip13pro-512-2sim", brand: "Apple", model: "iPhone 13 Pro", memory: "512 ГБ", sim: "2 SIM", price: 52000,
+    colors: ["Graphite (Графитовый)", "Gold (Золотистый)", "Silver (Серебристый)", "Sierra Blue (Небесно-голубой)", "Alpine Green (Альпийский зеленый)"], img: A("iphone-13-pro") },
+  { id: "ip13pro-1tb-2sim",  brand: "Apple", model: "iPhone 13 Pro", memory: "1 ТБ",  sim: "2 SIM", price: 62000,
+    colors: ["Graphite (Графитовый)", "Gold (Золотистый)", "Silver (Серебристый)", "Sierra Blue (Небесно-голубой)", "Alpine Green (Альпийский зеленый)"], img: A("iphone-13-pro") },
+
+  /* ══ iPhone 13 ════════════════════════════════════════════════════ */
+  { id: "ip13-128-2sim", brand: "Apple", model: "iPhone 13", memory: "128 ГБ", sim: "2 SIM", price: 35500,
+    colors: ["Starlight (Сияющая звезда)", "Midnight (Темная ночь)", "Blue (Синий)", "Pink (Розовый)", "(PRODUCT)RED (Красный)", "Green (Зеленый)"], img: A("iphone-13") },
+  { id: "ip13-256-2sim", brand: "Apple", model: "iPhone 13", memory: "256 ГБ", sim: "2 SIM", price: 39500,
+    colors: ["Starlight (Сияющая звезда)", "Midnight (Темная ночь)", "Blue (Синий)", "Pink (Розовый)", "(PRODUCT)RED (Красный)", "Green (Зеленый)"], img: A("iphone-13") },
+  { id: "ip13-512-2sim", brand: "Apple", model: "iPhone 13", memory: "512 ГБ", sim: "2 SIM", price: 46000,
+    colors: ["Starlight (Сияющая звезда)", "Midnight (Темная ночь)", "Blue (Синий)", "Pink (Розовый)", "(PRODUCT)RED (Красный)", "Green (Зеленый)"], img: A("iphone-13") },
+
+  /* ══ iPhone 12 Pro Max ════════════════════════════════════════════ */
+  { id: "ip12promax-128-2sim", brand: "Apple", model: "iPhone 12 Pro Max", memory: "128 ГБ", sim: "2 SIM", price: 35000,
+    colors: ["Graphite (Графитовый)", "Silver (Серебристый)", "Gold (Золотистый)", "Pacific Blue (Тихоокеанский синий)"], img: A("iphone-12-pro-max") },
+  { id: "ip12promax-256-2sim", brand: "Apple", model: "iPhone 12 Pro Max", memory: "256 ГБ", sim: "2 SIM", price: 38500,
+    colors: ["Graphite (Графитовый)", "Silver (Серебристый)", "Gold (Золотистый)", "Pacific Blue (Тихоокеанский синий)"], img: A("iphone-12-pro-max") },
+  { id: "ip12promax-512-2sim", brand: "Apple", model: "iPhone 12 Pro Max", memory: "512 ГБ", sim: "2 SIM", price: 46000,
+    colors: ["Graphite (Графитовый)", "Silver (Серебристый)", "Gold (Золотистый)", "Pacific Blue (Тихоокеанский синий)"], img: A("iphone-12-pro-max") },
+
+  /* ══ iPhone 12 Pro ════════════════════════════════════════════════ */
+  { id: "ip12pro-128-2sim", brand: "Apple", model: "iPhone 12 Pro", memory: "128 ГБ", sim: "2 SIM", price: 33000,
+    colors: ["Graphite (Графитовый)", "Silver (Серебристый)", "Gold (Золотистый)", "Pacific Blue (Тихоокеанский синий)"], img: A("iphone-12-pro") },
+  { id: "ip12pro-256-2sim", brand: "Apple", model: "iPhone 12 Pro", memory: "256 ГБ", sim: "2 SIM", price: 36500,
+    colors: ["Graphite (Графитовый)", "Silver (Серебристый)", "Gold (Золотистый)", "Pacific Blue (Тихоокеанский синий)"], img: A("iphone-12-pro") },
+  { id: "ip12pro-512-2sim", brand: "Apple", model: "iPhone 12 Pro", memory: "512 ГБ", sim: "2 SIM", price: 44000,
+    colors: ["Graphite (Графитовый)", "Silver (Серебристый)", "Gold (Золотистый)", "Pacific Blue (Тихоокеанский синий)"], img: A("iphone-12-pro") },
+
+  /* ══ iPhone 12 ════════════════════════════════════════════════════ */
+  { id: "ip12-64-2sim",  brand: "Apple", model: "iPhone 12", memory: "64 ГБ",  sim: "2 SIM", price: 28000,
+    colors: ["Black (Черный)", "White (Белый)", "(PRODUCT)RED (Красный)", "Green (Зеленый)", "Blue (Синий)", "Purple (Фиолетовый)"], img: A("iphone-12") },
+  { id: "ip12-128-2sim", brand: "Apple", model: "iPhone 12", memory: "128 ГБ", sim: "2 SIM", price: 31500,
+    colors: ["Black (Черный)", "White (Белый)", "(PRODUCT)RED (Красный)", "Green (Зеленый)", "Blue (Синий)", "Purple (Фиолетовый)"], img: A("iphone-12") },
+  { id: "ip12-256-2sim", brand: "Apple", model: "iPhone 12", memory: "256 ГБ", sim: "2 SIM", price: 36000,
+    colors: ["Black (Черный)", "White (Белый)", "(PRODUCT)RED (Красный)", "Green (Зеленый)", "Blue (Синий)", "Purple (Фиолетовый)"], img: A("iphone-12") },
+
+  /* ══ iPhone 11 Pro Max ════════════════════════════════════════════ */
+  { id: "ip11promax-64-2sim",  brand: "Apple", model: "iPhone 11 Pro Max", memory: "64 ГБ",  sim: "2 SIM", price: 29500,
+    colors: ["Space Gray (Серый космос)", "Midnight Green (Темно-зеленый)", "Silver (Серебристый)", "Gold (Золотистый)"], img: A("iphone-11-pro-max") },
+  { id: "ip11promax-256-2sim", brand: "Apple", model: "iPhone 11 Pro Max", memory: "256 ГБ", sim: "2 SIM", price: 33500,
+    colors: ["Space Gray (Серый космос)", "Midnight Green (Темно-зеленый)", "Silver (Серебристый)", "Gold (Золотистый)"], img: A("iphone-11-pro-max") },
+  { id: "ip11promax-512-2sim", brand: "Apple", model: "iPhone 11 Pro Max", memory: "512 ГБ", sim: "2 SIM", price: 40000,
+    colors: ["Space Gray (Серый космос)", "Midnight Green (Темно-зеленый)", "Silver (Серебристый)", "Gold (Золотистый)"], img: A("iphone-11-pro-max") },
+
+  /* ══ iPhone 11 Pro ════════════════════════════════════════════════ */
+  { id: "ip11pro-64-2sim",  brand: "Apple", model: "iPhone 11 Pro", memory: "64 ГБ",  sim: "2 SIM", price: 28000,
+    colors: ["Space Gray (Серый космос)", "Midnight Green (Темно-зеленый)", "Silver (Серебристый)", "Gold (Золотистый)"], img: A("iphone-11-pro") },
+  { id: "ip11pro-256-2sim", brand: "Apple", model: "iPhone 11 Pro", memory: "256 ГБ", sim: "2 SIM", price: 31500,
+    colors: ["Space Gray (Серый космос)", "Midnight Green (Темно-зеленый)", "Silver (Серебристый)", "Gold (Золотистый)"], img: A("iphone-11-pro") },
+  { id: "ip11pro-512-2sim", brand: "Apple", model: "iPhone 11 Pro", memory: "512 ГБ", sim: "2 SIM", price: 38000,
+    colors: ["Space Gray (Серый космос)", "Midnight Green (Темно-зеленый)", "Silver (Серебристый)", "Gold (Золотистый)"], img: A("iphone-11-pro") },
+
+  /* ══ iPhone 11 ════════════════════════════════════════════════════ */
+  { id: "ip11-64-2sim",  brand: "Apple", model: "iPhone 11", memory: "64 ГБ",  sim: "2 SIM", price: 24500,
+    colors: ["Black (Черный)", "Green (Зеленый)", "Yellow (Желтый)", "Purple (Фиолетовый)", "(PRODUCT)RED (Красный)", "White (Белый)"], img: A("iphone-11") },
+  { id: "ip11-128-2sim", brand: "Apple", model: "iPhone 11", memory: "128 ГБ", sim: "2 SIM", price: 27500,
+    colors: ["Black (Черный)", "Green (Зеленый)", "Yellow (Желтый)", "Purple (Фиолетовый)", "(PRODUCT)RED (Красный)", "White (Белый)"], img: A("iphone-11") },
+  { id: "ip11-256-2sim", brand: "Apple", model: "iPhone 11", memory: "256 ГБ", sim: "2 SIM", price: 31000,
+    colors: ["Black (Черный)", "Green (Зеленый)", "Yellow (Желтый)", "Purple (Фиолетовый)", "(PRODUCT)RED (Красный)", "White (Белый)"], img: A("iphone-11") },
 
   /* ══ Samsung Galaxy S26 series (январь 2026) ════════════════════ */
   {
