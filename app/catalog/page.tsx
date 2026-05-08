@@ -21,7 +21,7 @@ const SIM_ORDER: Record<string, number> = {
 };
 
 // ─── Порядок брендов ──────────────────────────────────────────
-const BRAND_PRIORITY = ["Apple", "Samsung", "Xiaomi", "Honor"];
+const BRAND_PRIORITY = ["Apple", "Samsung", "Xiaomi", "Honor", "Sony", "Microsoft", "Garmin", "Meta", "Pitaka", "Bose", "Valve", "Lenovo", "LG"];
 function brandRank(b: string): number {
   const i = BRAND_PRIORITY.indexOf(b);
   return i === -1 ? BRAND_PRIORITY.length : i;
@@ -235,7 +235,7 @@ function CatalogContent() {
         </h1>
 
         {/* Плитки категорий */}
-        <div className="grid grid-cols-4 sm:grid-cols-7 lg:grid-cols-[repeat(13,minmax(0,1fr))] gap-2 mb-8">
+        <div className="grid grid-cols-4 sm:grid-cols-7 lg:grid-cols-[repeat(14,minmax(0,1fr))] gap-2 mb-8">
           {/* Все */}
           <button
             onClick={() => setActiveCat("all")}
@@ -534,6 +534,17 @@ function CatIcon({ cat }: { cat: string }) {
           <rect x="6" y="5.5" width="8" height="9" rx="3" stroke="currentColor" strokeWidth="1.5"/>
           <path d="M8.5 5.5V4h3v1.5M8.5 14.5V16h3v-1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           <path d="M10 8v2.5l1.5 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      );
+    case "gadzety_i_konsoli":
+      return (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="1.5" y="6" width="17" height="8" rx="2.5" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M6.5 10h3M8 8.5v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <circle cx="13" cy="9.5" r="0.7" fill="currentColor"/>
+          <circle cx="15" cy="11" r="0.7" fill="currentColor"/>
+          <circle cx="11" cy="11" r="0.7" fill="currentColor"/>
+          <circle cx="13" cy="12.5" r="0.7" fill="currentColor"/>
         </svg>
       );
     case "televizory":
