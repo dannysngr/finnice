@@ -12,7 +12,7 @@ import { useAppModal } from "@/lib/modal-context";
 // ─── Расширенный тип с опциональными полями ───────────────────
 type CatalogItem = Product & { img?: string; sim?: string };
 
-// ─── Порядок памяти ───────────────────────────────────────────
+// ─── Порядок памяти (хранилище + RAM, возрастающий) ──────────
 const MEM_ORDER = ["64 ГБ", "128 ГБ", "256 ГБ", "512 ГБ", "1 ТБ", "2 ТБ"];
 
 // ─── Порядок SIM ──────────────────────────────────────────────
@@ -95,8 +95,13 @@ function defaultSortKey(item: CatalogItem): number[] {
   const bRank = brandRank(item.brand);
   const brand = item.brand;
   const model = item.name;
+  const cat   = item.category;
   let modelKey: number[];
-  if (brand === "Apple") {
+
+  if (brand === "Apple" && cat !== "telefony") {
+    // Не-телефонная Apple-техника: год убывает, цена убывает
+    modelKey = [-(item.year ?? 0), -item.price];
+  } else if (brand === "Apple") {
     const k = iphoneSortKey(model);
     modelKey = [k[0], k[1]];
   } else if (brand === "Samsung") {
@@ -109,7 +114,7 @@ function defaultSortKey(item: CatalogItem): number[] {
     const k = honorSortKey(model);
     modelKey = [k[0], k[1], k[2]];
   } else {
-    modelKey = [0];
+    modelKey = [0, -item.price];
   }
   const memRank = MEM_ORDER.indexOf(item.memories?.[0] ?? "");
   const simRank = SIM_ORDER[item.sim ?? ""] ?? 99;
