@@ -230,16 +230,18 @@ function CatalogContent() {
         </h1>
 
         {/* Плитки категорий */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-13 gap-3 mb-8 auto-cols-fr">
+        <div className="grid grid-cols-4 sm:grid-cols-7 lg:grid-cols-[repeat(13,minmax(0,1fr))] gap-2 mb-8">
+          {/* Все */}
           <button
             onClick={() => setActiveCat("all")}
-            className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all
+            className={`flex flex-col items-center justify-center gap-2 py-4 px-1 rounded-2xl border
+              transition-all duration-200
               ${activeCat === "all"
-                ? "bg-[#1A3C6E] border-[#1A3C6E] text-white shadow-md"
-                : "bg-white border-[#D8E2F0] text-[#6B7280] hover:border-[#1A3C6E]/40 hover:text-[#1A3C6E]"}`}
+                ? "bg-[#0A1628] border-[#0A1628] text-white shadow-md -translate-y-px"
+                : "bg-white border-[#EBEBEB] text-[#6B7280] hover:bg-[#F5F6F8] hover:border-[#D4D9E1] hover:-translate-y-px hover:shadow-sm"}`}
           >
-            <span className="text-2xl">🏷️</span>
-            <span className="text-[10px] font-semibold leading-tight">Все</span>
+            <CatAllIcon />
+            <span className="text-[11px] font-medium tracking-wider leading-tight">Все</span>
           </button>
 
           {CATALOG_CATS.map((cat) => {
@@ -248,13 +250,16 @@ function CatalogContent() {
               <button
                 key={cat.cat}
                 onClick={() => setActiveCat(cat.cat)}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all
+                className={`flex flex-col items-center justify-center gap-2 py-4 px-1 rounded-2xl border
+                  transition-all duration-200
                   ${active
-                    ? "bg-[#1A3C6E] border-[#1A3C6E] text-white shadow-md"
-                    : "bg-white border-[#D8E2F0] text-[#6B7280] hover:border-[#1A3C6E]/40 hover:text-[#1A3C6E]"}`}
+                    ? "bg-[#0A1628] border-[#0A1628] text-white shadow-md -translate-y-px"
+                    : "bg-white border-[#EBEBEB] text-[#6B7280] hover:bg-[#F5F6F8] hover:border-[#D4D9E1] hover:-translate-y-px hover:shadow-sm"}`}
               >
-                <span className="text-2xl">{CAT_EMOJIS[cat.cat] ?? "📦"}</span>
-                <span className="text-[10px] font-semibold leading-tight">{cat.label}</span>
+                <CatIcon cat={cat.cat} />
+                <span className="text-[11px] font-medium tracking-wider leading-tight text-center">
+                  {cat.label}
+                </span>
               </button>
             );
           })}
@@ -472,18 +477,123 @@ function ProductCard({ item: p }: { item: CatalogItem }) {
   );
 }
 
-/* ── Эмодзи категорий ─────────────────────────────────────────── */
-const CAT_EMOJIS: Record<string, string> = {
-  "telefony":          "📱",
-  "planshety":         "📟",
-  "aksessuary":        "🎧",
-  "noutbuki":          "💻",
-  "smart_chasy":       "⌚",
-  "televizory":        "📺",
-  "bytovaya_tekhnika": "🫧",
-  "konditsionery":     "❄️",
-  "mebel":             "🪑",
-  "detskie_tovary":    "🧸",
-  "dlya_doma_i_sada":  "🏠",
-  "posuda_i_kukhnya":  "🍳",
-};
+/* ── SVG-иконки категорий (20×20, stroke 1.5, no fill) ─────────── */
+
+function CatAllIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <rect x="2"    y="2"    width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+      <rect x="11"   y="2"    width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+      <rect x="2"    y="11"   width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+      <rect x="11"   y="11"   width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+    </svg>
+  );
+}
+
+function CatIcon({ cat }: { cat: string }) {
+  switch (cat) {
+    case "telefony":
+      return (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="5.5" y="1.5" width="9" height="17" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+          <circle cx="10" cy="15.5" r="0.9" fill="currentColor"/>
+        </svg>
+      );
+    case "planshety":
+      return (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="2.5" y="3" width="15" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+          <circle cx="16.5" cy="10" r="0.9" fill="currentColor"/>
+          <line x1="6" y1="6" x2="12" y2="6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      );
+    case "aksessuary":
+      return (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M4 9.5a6 6 0 0112 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <rect x="2" y="9.5" width="3.5" height="5.5" rx="1.75" stroke="currentColor" strokeWidth="1.5"/>
+          <rect x="14.5" y="9.5" width="3.5" height="5.5" rx="1.75" stroke="currentColor" strokeWidth="1.5"/>
+        </svg>
+      );
+    case "noutbuki":
+      return (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="3" y="4" width="14" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M1 15h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M7 15l.5-2h5l.5 2" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+        </svg>
+      );
+    case "smart_chasy":
+      return (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="6" y="5.5" width="8" height="9" rx="3" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M8.5 5.5V4h3v1.5M8.5 14.5V16h3v-1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M10 8v2.5l1.5 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      );
+    case "televizory":
+      return (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="1.5" y="3.5" width="17" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M7 16.5h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M10 14.5v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      );
+    case "bytovaya_tekhnika":
+      return (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="3" y="1.5" width="14" height="17" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+          <circle cx="10" cy="11" r="4" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M5.5 5h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <circle cx="12.5" cy="5" r="1" fill="currentColor"/>
+        </svg>
+      );
+    case "konditsionery":
+      return (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="1.5" y="5" width="17" height="7" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M5 15.5c2-2 3-2 5 0s3 2 5 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M6 8.5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <circle cx="15" cy="8.5" r="1" fill="currentColor"/>
+        </svg>
+      );
+    case "mebel":
+      return (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M5 11V5.5a1 1 0 011-1h8a1 1 0 011 1V11" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+          <path d="M3.5 11h13v2.5H3.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+          <path d="M6 13.5v3M14 13.5v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      );
+    case "detskie_tovary":
+      return (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M3 4.5h3l4 8h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M6 4.5l6.5 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <circle cx="7.5" cy="16" r="1.75" stroke="currentColor" strokeWidth="1.5"/>
+          <circle cx="14" cy="16" r="1.75" stroke="currentColor" strokeWidth="1.5"/>
+        </svg>
+      );
+    case "dlya_doma_i_sada":
+      return (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M3 10L10 3l7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M5 8.5V17h4v-4h2v4h4V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      );
+    case "posuda_i_kukhnya":
+      return (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M6.5 2v4.5a2.5 2.5 0 000 5V18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M5 2v3M6.5 2v3M8 2v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M13.5 2c0 0 2 2.5 2 5s-2 2.5-2 2.5V18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      );
+    default:
+      return (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+        </svg>
+      );
+  }
+}
