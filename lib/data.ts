@@ -1399,6 +1399,7 @@ export const PRODUCTS: Product[] = [
   // ── AirPods Pro 3  (2025) ──────────────────────────────────────
   { id:"airpods-pro3",  name:"AirPods Pro 3", slug:"airpods-pro3",
     category:"aksessuary", brand:"Apple", price:29990, badge:"Новинка", year:2025, emoji:"🎧",
+    img:"/images/phones/airpods-pro3.jpg",
     colors:["White (Белый)"],
     inStock:true, rating:5, reviewCount:41,
     description:"AirPods Pro 3 — новое поколение с чипом H3, улучшенным ANC, персонализированным Spatial Audio и здоровьесберегающими функциями: мониторинг слуха, слуховой аппарат.",
@@ -1407,12 +1408,14 @@ export const PRODUCTS: Product[] = [
   // ── AirPods 4  (2024) ─────────────────────────────────────────
   { id:"airpods4-anc",     name:"AirPods 4 (с активным шумоподавлением)", slug:"airpods4-anc",
     category:"aksessuary", brand:"Apple", price:19990, badge:"Хит", year:2024, emoji:"🎧",
+    img:"/images/phones/airpods4-anc.jpg",
     colors:["White (Белый)"],
     inStock:true, rating:5, reviewCount:87,
     description:"AirPods 4 с активным шумоподавлением — первые полностью открытые наушники Apple с ANC. Чип H2, Spatial Audio и адаптивный звук.",
     specs:[{key:"Чип",val:"Apple H2"},{key:"ANC",val:"Есть"},{key:"Автономность",val:"до 5 ч + 30 ч (кейс)"},{key:"Кейс",val:"MagSafe / USB-C"}] },
   { id:"airpods4",         name:"AirPods 4",                               slug:"airpods4",
     category:"aksessuary", brand:"Apple", price:14990, year:2024, emoji:"🎧",
+    img:"/images/phones/airpods4.jpg",
     colors:["White (Белый)"],
     inStock:true, rating:5, reviewCount:122,
     description:"AirPods 4 — обновлённый дизайн с H2, Spatial Audio и улучшенной акустикой. Без ANC, но с отличным звуком по лучшей цене.",
@@ -1658,6 +1661,7 @@ export const PRODUCTS: Product[] = [
   // ── Steam Deck OLED  (2023) ────────────────────────────────────
   { id:"steam-deck-oled-512", name:"Steam Deck OLED 512GB", slug:"steam-deck-oled-512",
     category:"gadzety_i_konsoli", brand:"Valve", price:59990, badge:"Хит", year:2023, emoji:"🎮",
+    img:"/images/phones/steam-deck.jpg",
     memories:["512 ГБ"],
     colors:["Black"],
     inStock:true, rating:5, reviewCount:34,
@@ -1665,6 +1669,7 @@ export const PRODUCTS: Product[] = [
     specs:[{key:"Дисплей",val:"7.4\" OLED HDR, 90 Гц"},{key:"APU",val:"AMD Zen 2 + RDNA 2"},{key:"ОЗУ",val:"16 ГБ LPDDR5"},{key:"Накопитель",val:"512 ГБ NVMe"},{key:"Автономность",val:"до 12 ч"},{key:"ОС",val:"SteamOS 3"}] },
   { id:"steam-deck-oled-1tb",  name:"Steam Deck OLED 1TB",   slug:"steam-deck-oled-1tb",
     category:"gadzety_i_konsoli", brand:"Valve", price:74990, year:2023, emoji:"🎮",
+    img:"/images/phones/steam-deck.jpg",
     memories:["1 ТБ"],
     colors:["Black"],
     inStock:true, rating:5, reviewCount:19,
