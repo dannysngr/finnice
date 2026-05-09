@@ -1,44 +1,49 @@
 /**
  * POST /api/auth/send-code
  * ─────────────────────────────────────────────────────────────────
- * Принимает номер телефона, генерирует 4-значный код,
- * сохраняет его в store (TTL 5 мин) и отправляет через Telegram.
+ * Тело: { phone: string }
  *
- * Body: { phone: string }
- *
- * Responses:
- *   200 { ok: true, message: string }
- *   400 { ok: false, error: string }
- *   429 { ok: false, error: string }   ← rate limit
- *   500 { ok: false, error: string }
+ * Ответы:
+ *   200 { ok: true }                         — код отправлен в Telegram
+ *   200 { ok: false, needsTelegram: true }   — номер не привязан к боту
+ *   400 { ok: false, error: string }         — неверные данные
+ *   429 { ok: false, error: string }         — rate limit
+ *   500 { ok: false, error: string }         — ошибка сервера
  * ─────────────────────────────────────────────────────────────────
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { Telegraf }                   from "telegraf";
 import {
   generateCode,
   normalizePhone,
   saveCode,
   isRateLimited,
 } from "@/lib/code-store";
-import { sendOtpCode, sendOtpToSupport } from "@/lib/telegram";
+import { findByPhone, upsertUser }    from "@/lib/user-store";
 
-// ─── User lookup helper (заглушка → замените на реальный DB-запрос) ─
-async function getTelegramChatId(phone: string): Promise<number | null> {
-  // TODO: SELECT telegram_chat_id FROM users WHERE phone = $1
-  // Пример (Prisma):
-  //   const user = await prisma.user.findUnique({ where: { phone } });
-  //   return user?.telegramChatId ?? null;
-
-  // Временная заглушка: используйте TELEGRAM_SUPPORT_CHAT_ID пока
-  // пользователь не зарегистрировал свой аккаунт через бота.
-  void phone;
-  return null;
+/* ── Telegram ────────────────────────────────────────────── */
+let _bot: Telegraf | null = null;
+function getBot(): Telegraf {
+  if (_bot) return _bot;
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) throw new Error("TELEGRAM_BOT_TOKEN не задан");
+  _bot = new Telegraf(token);
+  return _bot;
 }
 
+async function sendViaTelegram(chatId: number, code: string, phone: string) {
+  const bot = getBot();
+  await bot.telegram.sendMessage(
+    chatId,
+    `🔐 *Ваш код для ФинНайс: ${code}*\n\nДействителен 5 минут.\nНомер: ${phone}\n\n_Если вы не запрашивали код — просто проигнорируйте это сообщение._`,
+    { parse_mode: "Markdown" }
+  );
+}
+
+/* ── Route ───────────────────────────────────────────────── */
 export async function POST(req: NextRequest) {
   try {
-    // 1. Парсим тело запроса
     const body = await req.json().catch(() => null);
     if (!body?.phone) {
       return NextResponse.json(
@@ -47,7 +52,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Нормализуем номер
     let phone: string;
     try {
       phone = normalizePhone(body.phone);
@@ -58,7 +62,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Rate limit: не чаще 1 раза в 60 секунд
+    // Rate limit
     if (isRateLimited(phone)) {
       return NextResponse.json(
         { ok: false, error: "Подождите минуту перед повторным запросом" },
@@ -66,36 +70,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Генерируем и сохраняем код
+    // Ищем пользователя
+    const user = findByPhone(phone);
+
+    // Если нет chat_id — просим привязать Telegram
+    if (!user?.chatId) {
+      // Создаём запись без chatId (чтобы потом обновить через бота)
+      upsertUser(phone, {});
+      return NextResponse.json({ ok: false, needsTelegram: true });
+    }
+
+    // Генерируем и сохраняем код
     const code = generateCode();
     saveCode(phone, code);
 
-    // 5. Ищем Telegram chat_id пользователя
-    const chatId = await getTelegramChatId(phone);
-
-    if (chatId) {
-      // Отправляем напрямую пользователю
-      await sendOtpCode(chatId, code, phone);
-    } else {
-      // Fallback: отправляем в чат поддержки (менеджер передаёт код клиенту)
-      await sendOtpToSupport(code, phone);
-    }
-
-    // 6. В dev-режиме логируем код для удобства тестирования
+    // Dev: логируем
     if (process.env.NODE_ENV !== "production") {
-      console.log(`[OTP DEV] ${phone} → ${code}`);
+      console.log(`[OTP] ${phone} → ${code}`);
     }
 
-    return NextResponse.json({
-      ok: true,
-      message: chatId
-        ? "Код отправлен в Telegram"
-        : "Код отправлен оператору. Ожидайте звонка или сообщения.",
-    });
+    // Отправляем через Telegram
+    await sendViaTelegram(user.chatId, code, phone);
+
+    return NextResponse.json({ ok: true });
+
   } catch (err) {
-    console.error("[send-code] Ошибка:", err);
+    console.error("[send-code]", err);
     return NextResponse.json(
-      { ok: false, error: "Внутренняя ошибка сервера" },
+      { ok: false, error: "Ошибка сервера. Попробуйте позже." },
       { status: 500 }
     );
   }
