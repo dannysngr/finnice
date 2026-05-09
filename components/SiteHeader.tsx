@@ -2,11 +2,13 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { COMPANY, NAV_LINKS, CATALOG_CATS } from "@/lib/data";
+import { AuthModal } from "@/components/AuthModal";
 
 export function SiteHeader() {
   const [catalogOpen,       setCatalogOpen]       = useState(false);
   const [mobileCatalogOpen, setMobileCatalogOpen] = useState(false);
   const [mobileOpen,        setMobileOpen]        = useState(false);
+  const [authOpen,          setAuthOpen]          = useState(false);
   const desktopMenuRef = useRef<HTMLDivElement>(null);
 
   // Закрываем десктопное меню по клику снаружи
@@ -129,10 +131,14 @@ export function SiteHeader() {
             <HeartIcon />
             <span className="text-[10px] leading-none">Избранное</span>
           </Link>
-          <Link href="?login=yes" className="hidden sm:flex flex-col items-center gap-0.5 text-[#6B7280] hover:text-[#1A3C6E] transition-colors">
+          <button
+            onClick={() => setAuthOpen(true)}
+            className="hidden sm:flex flex-col items-center gap-0.5 text-[#6B7280]
+                       hover:text-[#1A3C6E] transition-colors"
+          >
             <UserIcon />
             <span className="text-[10px] leading-none">Войти</span>
-          </Link>
+          </button>
           {/* Бургер-кнопка (только < lg) */}
           <button
             onClick={toggleMobileMenu}
@@ -235,8 +241,19 @@ export function SiteHeader() {
             <PhoneIcon />
             {COMPANY.phone}
           </a>
+          <button
+            onClick={() => { setMobileOpen(false); setAuthOpen(true); }}
+            className="flex items-center justify-center gap-2 mt-2 py-3 w-full rounded-full
+                       bg-[#0C7A58] text-white text-sm font-bold hover:bg-[#0a6449] transition-colors"
+          >
+            <UserIcon />
+            Войти в кабинет
+          </button>
         </div>
       )}
+      {/* ── Auth Modal ───────────────────────────────────────── */}
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+
     </header>
   );
 }
