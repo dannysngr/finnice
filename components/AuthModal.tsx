@@ -106,12 +106,9 @@ function PhoneScreen({
         </button>
       </div>
 
-      <h2 className="text-[22px] font-black text-[#0A1628] leading-tight tracking-tight mb-1">
+      <h2 className="text-[22px] font-black text-[#0A1628] leading-tight tracking-tight mb-6">
         Войти в кабинет
       </h2>
-      <p className="text-sm text-[#6B7280] mb-6">
-        Введите номер, привязанный к договору
-      </p>
 
       <label className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-widest mb-2 block">
         Номер телефона
@@ -151,8 +148,11 @@ function PhoneScreen({
         )}
       </motion.button>
 
-      <p className="text-[11px] text-[#9CA3AF] text-center mt-4">
-        Без процентов · Без штрафов · Сура 2:275
+      <p className="text-[11px] text-[#9CA3AF] text-center mt-4 leading-relaxed">
+        Продолжая, вы соглашаетесь с условиями наших{" "}
+        <a href="/politika/" className="underline underline-offset-2 hover:text-[#0C7A58] transition-colors">
+          юридических документов
+        </a>
       </p>
     </motion.div>
   );
