@@ -59,10 +59,12 @@ function PhoneScreen({
 }) {
   const [phone,   setPhone]   = useState("+7");
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhone(applyPhoneMask(e.target.value));
+    setApiError("");
   };
 
   const isReady = phone.replace(/\D/g, "").length === 11;
@@ -70,8 +72,24 @@ function PhoneScreen({
   const handleSubmit = async () => {
     if (!isReady || loading) return;
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1200));
-    onNext(phone);
+    setApiError("");
+    try {
+      const res = await fetch("/api/auth/send-code", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ phone }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setApiError(data.error ?? "Ошибка отправки кода");
+        return;
+      }
+      onNext(phone);
+    } catch {
+      setApiError("Нет соединения с сервером");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -130,6 +148,17 @@ function PhoneScreen({
                      placeholder:text-[#D1D5DB] placeholder:font-normal"
         />
       </div>
+
+      {apiError && (
+        <motion.p
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-1.5 text-sm text-red-500 mb-3"
+        >
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          {apiError}
+        </motion.p>
+      )}
 
       <motion.button
         onClick={handleSubmit}
@@ -198,13 +227,27 @@ function OTPScreen({
 
   const verify = async (code: string) => {
     setStatus("loading");
-    await new Promise(r => setTimeout(r, 1100));
-    if (code.length === 4) {
-      onSuccess();
-    } else {
+    try {
+      const res  = await fetch("/api/auth/verify-code", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ phone, code }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        onSuccess();
+      } else {
+        setStatus("error");
+        setDigits(["", "", "", ""]);
+        setTimeout(() => {
+          refs.current[0]?.focus();
+          setStatus("idle");
+        }, 800);
+      }
+    } catch {
       setStatus("error");
       setDigits(["", "", "", ""]);
-      refs.current[0]?.focus();
+      setTimeout(() => { refs.current[0]?.focus(); setStatus("idle"); }, 800);
     }
   };
 
