@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { simulateCohorts, type MonthSnapshot } from "@/lib/finance/cohort-simulator";
+import { simulateCohorts, type MonthSnapshot, type CohortSimResult } from "@/lib/finance/cohort-simulator";
 import { markupRounded } from "@/lib/finance/iso-irr";
 
 function fmtRub(x: number): string {
@@ -529,6 +529,9 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
         </div>
       )}
 
+      {/* ════════ 📊 Резюме — что в итоге кому достанется ════════ */}
+      <SimulationSummary sim={sim} horizon={horizon} termMonths={termMonths} investorProfitShare={investorProfitShare} />
+
       {/* ════════ На конец периода — общая сводка ════════ */}
       <div className="mb-6 rounded-xl p-4" style={{ background: "#F9FAFB", border: "1px solid #D1D5DB" }}>
         <h3 className="text-xs font-semibold uppercase text-[#6B7280] mb-2">
@@ -836,6 +839,247 @@ function SliderField({ label, value, min, max, step, onChange, format, parse }: 
       <div className="flex justify-between text-[9px] text-[#9CA3AF] mt-0.5 px-1">
         <span>{format(min)}</span>
         <span>{format(max)}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   📊 SimulationSummary — человеческое резюме
+   ════════════════════════════════════════════════════════════ */
+function SimulationSummary({
+  sim, horizon, termMonths, investorProfitShare,
+}: {
+  sim: CohortSimResult;
+  horizon: number;
+  termMonths: number;
+  investorProfitShare: number;
+}) {
+  const isolated = sim.isolated;
+  const hasInvestor = sim.investorCapital > 0;
+
+  /* Когда последняя сделка завершится */
+  const lastSnap = sim.months[sim.months.length - 1];
+  const allCohortLastClose = (lastSnap?.activeCohorts ?? []).length > 0
+    ? Math.max(...(lastSnap?.activeCohorts ?? []).map(c => c.startMonth + termMonths))
+    : horizon;
+  const monthsAfterHorizon = Math.max(0, allCohortLastClose - horizon);
+
+  /* Хелперы */
+  const word = (n: number, one: string, few: string, many: string): string => {
+    const mod10 = n % 10, mod100 = n % 100;
+    if (mod100 >= 11 && mod100 <= 14) return many;
+    if (mod10 === 1) return one;
+    if (mod10 >= 2 && mod10 <= 4) return few;
+    return many;
+  };
+  const monthWord = (n: number) => word(n, "месяц", "месяца", "месяцев");
+  const dealWord  = (n: number) => word(n, "сделка", "сделки", "сделок");
+
+  /* Pool 1 (компания) */
+  const p1Active = isolated?.pool1.activeDeals ?? 0;
+  const p1Recv   = isolated?.pool1.receivables ?? 0;
+  const p1Cash   = isolated?.pool1.cash ?? sim.finalCash;
+
+  /* Pool 2 (инвесторский оригинал) */
+  const p2Active = isolated?.pool2.activeDeals ?? 0;
+  const p2Recv   = isolated?.pool2.receivables ?? 0;
+  const p2Cash   = isolated?.pool2.cash ?? 0;
+
+  /* Pool 3 (инвесторский накопительный) */
+  const p3Active = isolated?.pool3.activeDeals ?? 0;
+  const p3Recv   = isolated?.pool3.receivables ?? 0;
+  const p3Cash   = isolated?.pool3.cash ?? 0;
+
+  /* Декомпозиция профита для отображения */
+  const companyTotal     = sim.companyProfit;
+  const companyOnHand    = sim.companyWithdrawn;
+  const companyReinvested = sim.companyReinvested;
+  const companyROI       = sim.companyRoiAnnual;
+
+  const investorTotal     = sim.investorProfit;
+  const investorOnHand    = sim.investorWithdrawn;
+  const investorReinvested = sim.investorReinvested;
+  const investorROI       = sim.investorRoiAnnual;
+
+  const dataExists = sim.totalDealsClosed > 0 || sim.totalGrossProfit > 0;
+  if (!dataExists) {
+    return (
+      <div className="mb-6 bg-[#FEF3C7] border border-[#FCD34D] rounded-2xl p-5">
+        <h3 className="text-base font-bold text-[#92400E] mb-2">📊 Резюме симуляции</h3>
+        <p className="text-sm text-[#78350F]">
+          За {horizon} {monthWord(horizon)} ни одна сделка не успела закрыться (срок сделки {termMonths} мес).
+          Прибыли пока нет. Увеличьте горизонт симуляции до как минимум {termMonths + 1} мес, чтобы увидеть результаты.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-6 bg-white border-2 border-[#0C7A58] rounded-2xl p-6 shadow-sm">
+      <h3 className="text-base font-extrabold text-[#0A1628] mb-1">
+        📊 Резюме симуляции — что кому достанется
+      </h3>
+      <p className="text-xs text-[#6B7280] mb-5">
+        Human-language вывод по итогам {horizon} {monthWord(horizon)} работы при текущих параметрах.
+      </p>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        {/* ── 🏢 КОМПАНИЯ ──────────────────────────────── */}
+        <div className="rounded-xl p-5" style={{ background: "#F0FDF4", border: "1px solid #86EFAC" }}>
+          <h4 className="text-sm font-extrabold text-[#065F46] mb-3 flex items-center gap-2">
+            🏢 Компания
+          </h4>
+
+          <p className="text-sm text-[#0A1628] leading-relaxed mb-3">
+            За <b>{horizon} {monthWord(horizon)}</b> компания заработала{" "}
+            <b className="text-[#065F46]">{fmtRubFull(companyTotal)} ₽</b> прибыли{" "}
+            {isFinite(companyROI) && companyROI > 0 && (
+              <>(годовая доходность <b>{fmtPct(companyROI, 1)}</b>)</>
+            )}.
+          </p>
+
+          {isolated && (
+            <div className="text-[12px] text-[#374151] mb-3 space-y-1">
+              <div>📦 Источники прибыли:</div>
+              <ul className="list-none space-y-0.5 ml-3">
+                <li>• Pool 1 (свой капитал {fmtRubFull(isolated.pool1.capitalAtStart)} ₽): <b>{fmtRubFull(isolated.companyFromP1)} ₽</b></li>
+                <li>• Pool 2 (доля {fmtPctInt(1 - investorProfitShare)} от инвесторского пула): <b>{fmtRubFull(isolated.companyFromP2)} ₽</b></li>
+              </ul>
+            </div>
+          )}
+
+          <div className="text-[12px] text-[#374151] mb-3 space-y-0.5">
+            <div>💰 Что произошло с этими деньгами:</div>
+            <ul className="list-none space-y-0.5 ml-3">
+              <li>
+                • <b>На руки выведено:</b> {fmtRubFull(companyOnHand)} ₽{" "}
+                {companyOnHand > 0 && <span className="text-[#9CA3AF]">(средне {fmtRub(companyOnHand / horizon)} ₽/мес)</span>}
+              </li>
+              <li>
+                • <b>Реинвестировано:</b> {fmtRubFull(companyReinvested)} ₽
+                {isolated && (
+                  <span className="text-[#9CA3AF]"> — {fmtRubFull(isolated.companyP1Reinvested)} в Pool 1, {fmtRubFull(isolated.companyP2Reinvested)} перемещено из Pool 2 в Pool 1</span>
+                )}
+              </li>
+            </ul>
+          </div>
+
+          {(p1Active > 0 || p1Recv > 0) && (
+            <div className="text-[12px] text-[#374151] mb-3 space-y-0.5">
+              <div>⏳ В работе на конец периода (Pool 1):</div>
+              <ul className="list-none space-y-0.5 ml-3">
+                <li>• <b>{p1Active} {dealWord(p1Active)}</b> активны</li>
+                <li>• Ожидаемые поступления: <b>{fmtRubFull(p1Recv)} ₽</b></li>
+                <li>• Свободный cash в Pool 1: <b>{fmtRubFull(p1Cash)} ₽</b></li>
+              </ul>
+            </div>
+          )}
+
+          {monthsAfterHorizon > 0 && (
+            <p className="text-[12px] text-[#065F46] italic">
+              📅 Все активные сделки закроются за следующие <b>{monthsAfterHorizon} {monthWord(monthsAfterHorizon)}</b>{" "}
+              после конца симуляции. Это деньги, которые ещё «дозреют» вне горизонта.
+            </p>
+          )}
+        </div>
+
+        {/* ── 💼 ИНВЕСТОР ──────────────────────────────── */}
+        {hasInvestor ? (
+          <div className="rounded-xl p-5" style={{ background: "#F5F3FF", border: "1px solid #C4B5FD" }}>
+            <h4 className="text-sm font-extrabold text-[#5b21b6] mb-3 flex items-center gap-2">
+              💼 Инвестор
+            </h4>
+
+            <p className="text-sm text-[#0A1628] leading-relaxed mb-3">
+              За <b>{horizon} {monthWord(horizon)}</b> инвестор заработал{" "}
+              <b className="text-[#5b21b6]">{fmtRubFull(investorTotal)} ₽</b> прибыли{" "}
+              {isFinite(investorROI) && investorROI > 0 && (
+                <>(годовая доходность <b>{fmtPct(investorROI, 1)}</b>)</>
+              )}.
+            </p>
+
+            {isolated && (
+              <div className="text-[12px] text-[#374151] mb-3 space-y-1">
+                <div>📦 Источники прибыли:</div>
+                <ul className="list-none space-y-0.5 ml-3">
+                  <li>• Pool 2 (доля {fmtPctInt(investorProfitShare)} от инвесторского пула): <b>{fmtRubFull(isolated.investorFromP2)} ₽</b></li>
+                  <li>• Pool 3 (накопительный, его собственный): <b>{fmtRubFull(isolated.investorFromP3)} ₽</b></li>
+                </ul>
+              </div>
+            )}
+
+            <div className="text-[12px] text-[#374151] mb-3 space-y-0.5">
+              <div>💰 Что произошло с этими деньгами:</div>
+              <ul className="list-none space-y-0.5 ml-3">
+                <li>
+                  • <b>На руки выведено:</b> {fmtRubFull(investorOnHand)} ₽{" "}
+                  {investorOnHand > 0 && <span className="text-[#9CA3AF]">(средне {fmtRub(investorOnHand / horizon)} ₽/мес)</span>}
+                </li>
+                <li>
+                  • <b>Реинвестировано:</b> {fmtRubFull(investorReinvested)} ₽
+                  {isolated && (
+                    <span className="text-[#9CA3AF]"> — {fmtRubFull(isolated.investorP2Reinvested)} перемещено в Pool 3, {fmtRubFull(isolated.investorP3Reinvested)} осталось в Pool 3</span>
+                  )}
+                </li>
+              </ul>
+            </div>
+
+            {(p2Active > 0 || p3Active > 0 || p2Recv > 0 || p3Recv > 0) && (
+              <div className="text-[12px] text-[#374151] mb-3 space-y-0.5">
+                <div>⏳ В работе на конец периода:</div>
+                <ul className="list-none space-y-0.5 ml-3">
+                  {(p2Active > 0 || p2Recv > 0) && (
+                    <li>• Pool 2: <b>{p2Active} {dealWord(p2Active)}</b>, ожидаемые поступления <b>{fmtRubFull(p2Recv)} ₽</b></li>
+                  )}
+                  {(p3Active > 0 || p3Recv > 0) && (
+                    <li>• Pool 3: <b>{p3Active} {dealWord(p3Active)}</b>, ожидаемые поступления <b>{fmtRubFull(p3Recv)} ₽</b></li>
+                  )}
+                  <li>• Cash в Pool 3 (накопительный, доступен инвестору): <b>{fmtRubFull(p3Cash)} ₽</b></li>
+                </ul>
+              </div>
+            )}
+
+            {/* Возврат основного капитала */}
+            {isolated && (
+              <div className="rounded-lg p-2.5 mt-3" style={{ background: "rgba(124, 58, 237, 0.1)", border: "1px dashed #7c3aed" }}>
+                <div className="text-[11px] font-bold text-[#5b21b6] mb-0.5">🏦 Возврат основного капитала инвестора</div>
+                <p className="text-[12px] text-[#374151] leading-relaxed">
+                  Pool 2 содержит <b>{fmtRubFull(p2Cash + p2Recv)} ₽</b> (cash + receivables) — это
+                  оригинальные <b>{fmtRubFull(isolated.pool2.capitalAtStart)} ₽</b> инвестора, которые
+                  работают циклически. По истечении инвестиционного срока эти деньги возвращаются инвестору.
+                  {p2Recv > 0 && (
+                    <> Из них <b>{fmtRubFull(p2Recv)} ₽</b> ещё в активных сделках Pool 2 — поступят в течение {monthsAfterHorizon || termMonths} {monthWord(monthsAfterHorizon || termMonths)}.</>
+                  )}
+                </p>
+              </div>
+            )}
+
+            {monthsAfterHorizon > 0 && (
+              <p className="text-[12px] text-[#5b21b6] italic mt-3">
+                📅 Все его активные сделки закроются за следующие <b>{monthsAfterHorizon} {monthWord(monthsAfterHorizon)}</b>{" "}
+                после конца периода.
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="rounded-xl p-5" style={{ background: "#F9FAFB", border: "1px solid #E5E7EB" }}>
+            <h4 className="text-sm font-extrabold text-[#9CA3AF] mb-3">💼 Инвестор</h4>
+            <p className="text-xs text-[#6B7280]">
+              Инвестор не задан (доля капитала инвестора = 0). Вся прибыль идёт компании.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Итоговая строка */}
+      <div className="mt-5 pt-4 border-t border-[#E5E7EB] text-sm text-[#0A1628]">
+        <b>Итого за {horizon} {monthWord(horizon)}:</b> совокупная прибыль <b className="text-[#065F46]">{fmtRubFull(sim.totalNetProfit)} ₽</b>.
+        {" "}Извлечено наличными: <b>{fmtRubFull(sim.totalWithdrawn)} ₽</b>.
+        {" "}Реинвестировано в работу: <b>{fmtRubFull(sim.totalNetProfit - sim.totalWithdrawn)} ₽</b>.
+        {" "}В активных сделках: <b>{sim.finalActiveDeals} {dealWord(sim.finalActiveDeals)}</b>, ожидаемые поступления{" "}
+        <b>{fmtRubFull(sim.finalEquity - sim.finalCash - sim.totalWithdrawn)} ₽</b>.
       </div>
     </div>
   );
