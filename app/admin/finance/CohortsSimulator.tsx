@@ -1044,6 +1044,74 @@ function SimulationSummary({
               </div>
             )}
 
+            {/* Декомпозиция Pool 2 receivables: что инвестор реально получит */}
+            {p2Recv > 0 && isolated && (() => {
+              const cost = sim.params.dealCost;
+              const downAmt = cost * sim.params.downPct;
+              const capPerDeal = cost - downAmt;
+              const markupAmt = cost * sim.params.markupPct;
+              const totalPay = capPerDeal + markupAmt;
+              const principalShare = capPerDeal / totalPay;
+              const markupShare = markupAmt / totalPay;
+              const principalFromRecv = p2Recv * principalShare;
+              const markupFromRecv = p2Recv * markupShare;
+
+              const dRate = sim.params.defaultRate ?? 0;
+              const rRate = sim.params.recoveryRate ?? 0.5;
+              const opRate = sim.params.opExRate ?? 0;
+              const grossFromActive = p2Active * markupAmt;
+              const defaultLoss = p2Active * dRate * (1 - rRate) * totalPay;
+              const opex = grossFromActive * opRate;
+              const netFromActive = grossFromActive - defaultLoss - opex;
+              const investorNetShare = netFromActive * investorProfitShare;
+              const companyNetShare = netFromActive * (1 - investorProfitShare);
+
+              return (
+                <div className="text-[12px] text-[#374151] mb-3 rounded-lg p-2.5"
+                     style={{ background: "rgba(124, 58, 237, 0.08)", border: "1px solid rgba(124, 58, 237, 0.2)" }}>
+                  <div className="font-bold text-[#5b21b6] mb-1.5">
+                    🔍 Откуда возьмутся 11.5М в работе (Pool 2)?
+                  </div>
+                  <div className="space-y-0.5 ml-1">
+                    <div>📦 <b>{fmtRubFull(p2Recv)} ₽</b> — это будущий cash от 414 активных сделок:</div>
+                    <ul className="list-none space-y-0.5 ml-3 text-[11.5px]">
+                      <li>
+                        ├─ <b>Принципал (~{fmtPct(principalShare, 0)}):</b> <b>{fmtRubFull(principalFromRecv)} ₽</b>
+                        {" "}<span className="text-[#6B7280]">→ оседает в Pool 2 cash → возвращается инвестору как часть его 8М</span>
+                      </li>
+                      <li>
+                        └─ <b>Markup (~{fmtPct(markupShare, 0)}):</b> <b>{fmtRubFull(markupFromRecv)} ₽</b>
+                        {" "}<span className="text-[#6B7280]">— но это распределённый markup за оставшиеся платежи</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="mt-2 pt-2 border-t border-[#7c3aed]/20">
+                    <div className="mb-1">📐 <b>Полный gross markup</b> для {p2Active} активных при закрытии (за вычетом дефолтов/opex):</div>
+                    <ul className="list-none space-y-0.5 ml-3 text-[11.5px]">
+                      <li>Gross markup: <b>{fmtRubFull(grossFromActive)} ₽</b></li>
+                      <li>− Default loss ({fmtPct(dRate, 1)} × {fmtPct(1 - rRate, 0)}): <b>−{fmtRubFull(defaultLoss)} ₽</b></li>
+                      <li>− OpEx ({fmtPct(opRate, 0)}): <b>−{fmtRubFull(opex)} ₽</b></li>
+                      <li className="font-bold text-[#0A1628]">= Net markup для Pool 2: <b>{fmtRubFull(netFromActive)} ₽</b></li>
+                      <li>
+                        Распределяется {fmtPctInt(1 - investorProfitShare)} / {fmtPctInt(investorProfitShare)}:
+                        <ul className="list-none ml-3">
+                          <li>├─ <b className="text-[#065F46]">Компании ({fmtPctInt(1 - investorProfitShare)}):</b> <b>{fmtRubFull(companyNetShare)} ₽</b> (через Pool 1 в её хвост)</li>
+                          <li>└─ <b className="text-[#5b21b6]">Вам ({fmtPctInt(investorProfitShare)}):</b> <b>{fmtRubFull(investorNetShare)} ₽</b> ← это ваш доход за wind-down</li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="mt-2 pt-2 border-t border-[#7c3aed]/20 text-[11px] text-[#6B7280] leading-relaxed">
+                    <b>Вывод:</b> большая часть 11.5М в работе — это <b>возврат вашего собственного капитала</b>,
+                    а не «новая прибыль». Реальный новый доход за wind-down — это {fmtRubFull(investorNetShare)} ₽
+                    (≈ {fmtPctInt(investorNetShare / p2Recv)} от 11.5М в работе).
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Возврат основного капитала */}
             {isolated && (
               <div className="rounded-lg p-2.5 mt-3" style={{ background: "rgba(124, 58, 237, 0.1)", border: "1px dashed #7c3aed" }}>

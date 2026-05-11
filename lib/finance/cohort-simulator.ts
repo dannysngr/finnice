@@ -769,6 +769,19 @@ function simulateIsolated(params: CohortSimParams): CohortSimResult {
     if (wdP1Cohorts.length + wdP2Cohorts.length + wdP3Cohorts.length === 0) break;
   }
 
+  /* === Sanity check: общая сумма распределена корректно === */
+  const wdTotalNet = wdMonths.reduce((s, m) => s + m.netProfit, 0);
+  const wdDistributed = wdTotCompany + wdTotInvestor;
+  if (Math.abs(wdTotalNet - wdDistributed) > 1) {
+    console.warn(`[simulator] Wind-down profit distribution mismatch: net=${wdTotalNet.toFixed(0)} vs distributed=${wdDistributed.toFixed(0)}`);
+  }
+  /* Проверка: total closures в wind-down должны быть равны активным на конец */
+  const wdClosures = wdMonths.reduce((s, m) => s + m.closures, 0);
+  const horizonActive = p1Active + p2Active + p3Active;
+  if (Math.abs(wdClosures - horizonActive) > 0) {
+    console.warn(`[simulator] Wind-down closures ${wdClosures} ≠ horizon active ${horizonActive}`);
+  }
+
   /* Итого "на руках" каждой стороны после полного wind-down */
   const horizonCompanyWithdrawn = cumCompanyP1Withdrawn + cumCompanyP2Withdrawn;
   const horizonInvestorWithdrawn = cumInvestorP2Withdrawn + cumInvestorP3Withdrawn;
