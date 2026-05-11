@@ -30,9 +30,11 @@ export interface CohortSimParams {
   /** Какой % доступного кеша идёт в новые сделки каждый месяц (0..1) */
   deployRate?:      number;
 
-  /* ── Стратегия капитала ─────────────────────────── */
-  /** Если false — net profit выводится из работы каждый месяц */
-  reinvestProfit?:  boolean;
+  /* ── Стратегия капитала (раздельный реинвест) ────── */
+  /** Какой % прибыли КОМПАНИИ реинвестируется (0..1). 0=всё выводим, 1=всё в работу */
+  companyReinvestPct?:  number;
+  /** Какой % прибыли ИНВЕСТОРА реинвестируется (0..1) */
+  investorReinvestPct?: number;
 
   /* ── Инвестор ───────────────────────────────────── */
   /** Доля инвесторского капитала в стартовом капитале (0..1) */
@@ -66,15 +68,21 @@ export interface MonthSnapshot {
   investorProfitThisMonth: number;
   companyProfitThisMonth:  number;
 
-  /* Withdrawn this month (если reinvest=false) */
-  withdrawnThisMonth: number;
+  /* Раздельные потоки */
+  companyWithdrawnThisMonth:  number;
+  companyReinvestedThisMonth: number;
+  investorWithdrawnThisMonth: number;
+  investorReinvestedThisMonth: number;
 
   /* Cumulatives */
-  cumulativeGrossProfit:    number;
-  cumulativeNetProfit:      number;
-  cumulativeInvestorProfit: number;
-  cumulativeCompanyProfit:  number;
-  cumulativeWithdrawn:      number;
+  cumulativeGrossProfit:        number;
+  cumulativeNetProfit:          number;
+  cumulativeInvestorProfit:     number;
+  cumulativeCompanyProfit:      number;
+  cumulativeCompanyWithdrawn:   number;
+  cumulativeCompanyReinvested:  number;
+  cumulativeInvestorWithdrawn:  number;
+  cumulativeInvestorReinvested: number;
 
   activeDeals:      number;
   activeCohorts:    ActiveCohort[];
@@ -94,16 +102,23 @@ export interface CohortSimResult {
   totalDefaultLoss: number;
   totalOpEx:        number;
   totalNetProfit:   number;
-  totalWithdrawn:   number;
 
   /* Money split */
   investorCapital:  number;
   companyCapital:   number;
   investorProfit:   number;
   companyProfit:    number;
-  /** ROI investor (annualized) */
+
+  /* Извлечено и оставлено в работе */
+  companyWithdrawn:   number;
+  companyReinvested:  number;
+  investorWithdrawn:  number;
+  investorReinvested: number;
+  totalWithdrawn:     number;
+
+  /** ROI investor (annualized, по полной прибыли) */
   investorRoiAnnual: number;
-  /** ROI company (annualized) */
+  /** ROI company (annualized, по полной прибыли) */
   companyRoiAnnual:  number;
 
   finalCash:        number;
@@ -119,7 +134,8 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
     recoveryRate        = 0.5,
     opExRate            = 0,
     deployRate          = 1,
-    reinvestProfit      = true,
+    companyReinvestPct  = 1,
+    investorReinvestPct = 1,
     investorCapitalPct  = 0,
     investorProfitShare = 0.5,
   } = params;
@@ -140,11 +156,14 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
   const months: MonthSnapshot[] = [];
 
   let cash = capital;
-  let cumulativeGrossProfit    = 0;
-  let cumulativeNetProfit      = 0;
-  let cumulativeInvestorProfit = 0;
-  let cumulativeCompanyProfit  = 0;
-  let cumulativeWithdrawn      = 0;
+  let cumulativeGrossProfit        = 0;
+  let cumulativeNetProfit          = 0;
+  let cumulativeInvestorProfit     = 0;
+  let cumulativeCompanyProfit      = 0;
+  let cumulativeCompanyWithdrawn   = 0;
+  let cumulativeCompanyReinvested  = 0;
+  let cumulativeInvestorWithdrawn  = 0;
+  let cumulativeInvestorReinvested = 0;
   let totalDealsClosed = 0;
   let totalDefaultLoss = 0;
   let totalOpEx        = 0;
@@ -204,13 +223,28 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
     totalDefaultLoss += defaultLossThisMonth;
     totalOpEx        += opExCost;
 
-    /* 5. Вывод прибыли (если не реинвест) */
-    let withdrawnThisMonth = 0;
-    if (!reinvestProfit && netProfit > 0) {
-      withdrawnThisMonth = netProfit;
-      cash -= withdrawnThisMonth;
-      cumulativeWithdrawn += withdrawnThisMonth;
+    /* 5. Раздельный вывод/реинвест компании и инвестора */
+    let companyWithdrawnThisMonth  = 0;
+    let companyReinvestedThisMonth = 0;
+    let investorWithdrawnThisMonth = 0;
+    let investorReinvestedThisMonth = 0;
+
+    if (companyPart > 0) {
+      companyReinvestedThisMonth = companyPart * companyReinvestPct;
+      companyWithdrawnThisMonth  = companyPart - companyReinvestedThisMonth;
     }
+    if (investorPart > 0) {
+      investorReinvestedThisMonth = investorPart * investorReinvestPct;
+      investorWithdrawnThisMonth  = investorPart - investorReinvestedThisMonth;
+    }
+
+    cumulativeCompanyWithdrawn   += companyWithdrawnThisMonth;
+    cumulativeCompanyReinvested  += companyReinvestedThisMonth;
+    cumulativeInvestorWithdrawn  += investorWithdrawnThisMonth;
+    cumulativeInvestorReinvested += investorReinvestedThisMonth;
+
+    const totalWithdrawnThisMonth = companyWithdrawnThisMonth + investorWithdrawnThisMonth;
+    cash -= totalWithdrawnThisMonth;
 
     /* 6. Deploy новых сделок (с учётом deployRate) */
     const availableForDeploy = cash * deployRate;
@@ -226,7 +260,8 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
       const remaining = capitalPerDeal - c.paymentsMade * monthlyPayment * collectionRate;
       return acc + Math.max(0, remaining * c.count);
     }, 0);
-    const equityNow = capital + cumulativeNetProfit - cumulativeWithdrawn;
+    const totalWithdrawnSoFar = cumulativeCompanyWithdrawn + cumulativeInvestorWithdrawn;
+    const equityNow = capital + cumulativeNetProfit - totalWithdrawnSoFar;
     const utilization = equityNow > 0 ? Math.min(1, capitalOccupied / equityNow) : 0;
 
     months.push({
@@ -243,12 +278,18 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
       netProfit,
       investorProfitThisMonth: investorPart,
       companyProfitThisMonth:  companyPart,
-      withdrawnThisMonth,
+      companyWithdrawnThisMonth,
+      companyReinvestedThisMonth,
+      investorWithdrawnThisMonth,
+      investorReinvestedThisMonth,
       cumulativeGrossProfit,
       cumulativeNetProfit,
       cumulativeInvestorProfit,
       cumulativeCompanyProfit,
-      cumulativeWithdrawn,
+      cumulativeCompanyWithdrawn,
+      cumulativeCompanyReinvested,
+      cumulativeInvestorWithdrawn,
+      cumulativeInvestorReinvested,
       activeDeals,
       activeCohorts: cohorts.map(c => ({ ...c })),
       capitalOccupied,
@@ -269,7 +310,8 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
     const remaining = termMonths - c.paymentsMade;
     return acc + c.count * remaining * monthlyPayment * collectionRate;
   }, 0);
-  const finalEquity = finalCash + finalReceivables + cumulativeWithdrawn;
+  const totalWithdrawn = cumulativeCompanyWithdrawn + cumulativeInvestorWithdrawn;
+  const finalEquity = finalCash + finalReceivables + totalWithdrawn;
 
   /* ROI annualized */
   const horizonYears = monthsToSimulate / 12;
@@ -292,12 +334,18 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
     totalDefaultLoss,
     totalOpEx,
     totalNetProfit:   cumulativeNetProfit,
-    totalWithdrawn:   cumulativeWithdrawn,
 
     investorCapital,
     companyCapital,
     investorProfit:    cumulativeInvestorProfit,
     companyProfit:     cumulativeCompanyProfit,
+
+    companyWithdrawn:   cumulativeCompanyWithdrawn,
+    companyReinvested:  cumulativeCompanyReinvested,
+    investorWithdrawn:  cumulativeInvestorWithdrawn,
+    investorReinvested: cumulativeInvestorReinvested,
+    totalWithdrawn,
+
     investorRoiAnnual,
     companyRoiAnnual,
 

@@ -40,8 +40,9 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
   const [opExRate, setOpExRate]         = useState(0.20);
   const [deployRate, setDeployRate]     = useState(1.0);
 
-  /* ── Стратегия ───────────────────────────── */
-  const [reinvestProfit, setReinvestProfit] = useState(true);
+  /* ── Стратегия (раздельный реинвест) ─────── */
+  const [companyReinvestPct,  setCompanyReinvestPct]  = useState(1.0);
+  const [investorReinvestPct, setInvestorReinvestPct] = useState(1.0);
 
   /* ── Инвестор ────────────────────────────── */
   const [investorCapitalPct, setInvestorCapitalPct] = useState(0);
@@ -57,12 +58,13 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
     capital, monthsToSimulate: horizon,
     dealCost, termMonths, downPct, markupPct,
     defaultRate, recoveryRate, opExRate, deployRate,
-    reinvestProfit,
+    companyReinvestPct, investorReinvestPct,
     investorCapitalPct, investorProfitShare,
   }), [
     capital, horizon, dealCost, termMonths, downPct, markupPct,
     defaultRate, recoveryRate, opExRate, deployRate,
-    reinvestProfit, investorCapitalPct, investorProfitShare,
+    companyReinvestPct, investorReinvestPct,
+    investorCapitalPct, investorProfitShare,
   ]);
 
   const allCohorts = useMemo(() => {
@@ -138,34 +140,40 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
         </p>
       </Group>
 
-      {/* ════════ Блок 3: Стратегия ════════ */}
-      <Group title="3. Стратегия капитала" accent="#0C7A58">
-        <div className="flex items-start gap-4">
-          <button
-            onClick={() => setReinvestProfit(v => !v)}
-            className="flex items-center gap-3 cursor-pointer"
-          >
-            <div
-              className="w-12 h-7 rounded-full transition-colors relative"
-              style={{ background: reinvestProfit ? "#0C7A58" : "#D1D5DB" }}
-            >
-              <div
-                className="absolute top-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform"
-                style={{ transform: reinvestProfit ? "translateX(24px)" : "translateX(2px)" }}
-              />
-            </div>
-            <div className="text-left">
-              <div className="text-xs font-bold text-[#0A1628]">
-                {reinvestProfit ? "Реинвестируем прибыль" : "Выводим прибыль помесячно"}
-              </div>
-              <div className="text-[10px] text-[#9CA3AF]">
-                {reinvestProfit
-                  ? "Прибыль остаётся в работе → капитал растёт компаундом"
-                  : "Прибыль каждый месяц выводится → капитал ≈ constant"}
-              </div>
-            </div>
-          </button>
+      {/* ════════ Блок 3: Стратегия (раздельный реинвест) ════════ */}
+      <Group title="3. Стратегия капитала — раздельный реинвест" accent="#0C7A58">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <SliderField label="Реинвест прибыли КОМПАНИИ"
+            value={companyReinvestPct}
+            min={0} max={1} step={0.05}
+            onChange={setCompanyReinvestPct}
+            format={v => fmtPctInt(v)} />
+          <SliderField label="Реинвест прибыли ИНВЕСТОРА"
+            value={investorReinvestPct}
+            min={0} max={1} step={0.05}
+            onChange={setInvestorReinvestPct}
+            format={v => fmtPctInt(v)} />
         </div>
+
+        {/* Пресеты */}
+        <div className="flex flex-wrap gap-2">
+          <PresetBtn label="🔁 Всё реинвест"
+            onClick={() => { setCompanyReinvestPct(1); setInvestorReinvestPct(1); }} />
+          <PresetBtn label="💵 Всё выводим"
+            onClick={() => { setCompanyReinvestPct(0); setInvestorReinvestPct(0); }} />
+          <PresetBtn label="🏢 Компания реинвест · 💸 Инвестор вывод"
+            onClick={() => { setCompanyReinvestPct(1); setInvestorReinvestPct(0); }} />
+          <PresetBtn label="🏢 Компания вывод · 💼 Инвестор реинвест"
+            onClick={() => { setCompanyReinvestPct(0); setInvestorReinvestPct(1); }} />
+          <PresetBtn label="½ ½"
+            onClick={() => { setCompanyReinvestPct(0.5); setInvestorReinvestPct(0.5); }} />
+        </div>
+
+        <p className="mt-3 text-[11px] text-[#6B7280] leading-relaxed">
+          <b>Реинвест 100%</b> — вся прибыль идёт в новые сделки → капитал растёт компаундом.
+          <b> Реинвест 0%</b> — прибыль извлекается → стабильный денежный поток.
+          Можно настроить независимо: например, инвестор получает прибыль каждый месяц на руки, а мы остаёмся в работе.
+        </p>
       </Group>
 
       {/* ════════ Блок 4: Инвестор ════════ */}
@@ -215,23 +223,35 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
             accent />
         </div>
 
-        {/* Investor & company split */}
+        {/* Компания: прибыль / извлечено / реинвестировано */}
+        <div className="rounded-xl p-4 mb-3" style={{ background: "#F0FDF4", border: "1px solid #86EFAC" }}>
+          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#065F46] mb-2">🏢 Компания</h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <MetricCell label="Капитал внесён" value={fmtRubFull(sim.companyCapital) + " ₽"} />
+            <MetricCell label="Полная прибыль" value={fmtRubFull(sim.companyProfit) + " ₽"} accent />
+            <MetricCell label="Извлечено (cash)"
+              value={fmtRubFull(sim.companyWithdrawn) + " ₽"}
+              subValue={`${fmtPctInt(companyReinvestPct === 1 ? 0 : 1 - companyReinvestPct)} от прибыли`} />
+            <MetricCell label="В работе (reinvest)"
+              value={fmtRubFull(sim.companyReinvested) + " ₽"}
+              subValue={`${fmtPctInt(companyReinvestPct)} от прибыли · ROI ${fmtPct(sim.companyRoiAnnual, 1)}/год`} accent />
+          </div>
+        </div>
+
+        {/* Инвестор: прибыль / извлечено / реинвестировано */}
         {hasInvestor && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-            <MetricCell label="Прибыль инвестору"
-              value={fmtRubFull(sim.investorProfit) + " ₽"}
-              subValue={`ROI ${fmtPct(sim.investorRoiAnnual, 1)}/год`}
-              investor />
-            <MetricCell label="Прибыль компании"
-              value={fmtRubFull(sim.companyProfit) + " ₽"}
-              subValue={`ROI ${fmtPct(sim.companyRoiAnnual, 1)}/год`}
-              accent />
-            <MetricCell label="ROI капитала инвестора"
-              value={fmtPct(sim.investorRoiAnnual, 1) + "/год"}
-              investor />
-            <MetricCell label="ROI капитала компании"
-              value={fmtPct(sim.companyRoiAnnual, 1) + "/год"}
-              accent />
+          <div className="rounded-xl p-4 mb-3" style={{ background: "#F5F3FF", border: "1px solid #C4B5FD" }}>
+            <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#5b21b6] mb-2">💼 Инвестор</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <MetricCell label="Капитал внесён" value={fmtRubFull(sim.investorCapital) + " ₽"} investor />
+              <MetricCell label="Полная прибыль" value={fmtRubFull(sim.investorProfit) + " ₽"} investor />
+              <MetricCell label="Извлечено (cash)"
+                value={fmtRubFull(sim.investorWithdrawn) + " ₽"}
+                subValue={`${fmtPctInt(investorReinvestPct === 1 ? 0 : 1 - investorReinvestPct)} от прибыли`} />
+              <MetricCell label="В работе (reinvest)"
+                value={fmtRubFull(sim.investorReinvested) + " ₽"}
+                subValue={`${fmtPctInt(investorReinvestPct)} от прибыли · ROI ${fmtPct(sim.investorRoiAnnual, 1)}/год`} investor />
+            </div>
           </div>
         )}
 
@@ -240,24 +260,18 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
           <MetricCell label="Закрыто сделок"      value={sim.totalDealsClosed.toString()} />
           <MetricCell label="Steady state"         value={sim.steadyStateMonth !== null ? `M${sim.steadyStateMonth}` : "—"} />
           <MetricCell label="Кеш в конце"          value={fmtRub(sim.finalCash) + " ₽"} />
-          {reinvestProfit
-            ? <MetricCell label="Equity на конец" value={fmtRub(sim.finalEquity) + " ₽"} accent />
-            : <MetricCell label="Выведено за период" value={fmtRub(sim.totalWithdrawn) + " ₽"} accent />}
+          <MetricCell label="Total извлечено"      value={fmtRub(sim.totalWithdrawn) + " ₽"} accent />
           <MetricCell
             label={`Annualized ROI (${horizon}мес)`}
             value={fmtPct(annualizedRealized, 1)}
-            subValue={reinvestProfit ? "by net profit" : "by withdrawn"}
+            subValue="by net profit"
             accent />
         </div>
 
-        {!reinvestProfit && (
-          <p className="text-[11px] text-[#0C7A58] mt-3 italic">
-            ℹ️ Прибыль выводится помесячно → капитал не растёт компаундом. {fmtRub(sim.totalWithdrawn)} ₽ извлечено за {horizon} мес ≈ {fmtRub(sim.totalWithdrawn / horizon)} ₽/мес средний денежный поток.
-          </p>
-        )}
-        {reinvestProfit && annualizedEquity > 0 && (
-          <p className="text-[11px] text-[#0C7A58] mt-3 italic">
-            ℹ️ С учётом неполученных платежей по активным сделкам equity-доходность: <b>{fmtPct(annualizedEquity, 1)}/год</b>.
+        {sim.totalWithdrawn > 0 && (
+          <p className="text-[11px] text-[#6B7280] mt-3 italic">
+            ℹ️ За {horizon} мес извлечено <b>{fmtRub(sim.totalWithdrawn)} ₽</b> (среднее <b>{fmtRub(sim.totalWithdrawn / horizon)} ₽/мес</b> денежный поток).
+            Equity на конец: <b>{fmtRub(sim.finalEquity)} ₽</b>{annualizedEquity > 0 ? ` → equity-доходность ${fmtPct(annualizedEquity, 1)}/год` : ""}.
           </p>
         )}
       </div>
@@ -292,7 +306,8 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
                 <th className="text-right p-2">Закрылось</th>
                 <th className="text-right p-2">Gross/мес</th>
                 <th className="text-right p-2">Net/мес</th>
-                {!reinvestProfit && <th className="text-right p-2">Выведено</th>}
+                <th className="text-right p-2">🏢 вывод</th>
+                {hasInvestor && <th className="text-right p-2">💼 вывод</th>}
                 <th className="text-right p-2">Net ∑</th>
                 <th className="text-right p-2">Активно</th>
                 <th className="text-left p-2 pl-4">Прибыль</th>
@@ -307,7 +322,7 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
                   maxCumProfit={maxCumProfit}
                   maxActiveDeals={maxActiveDeals}
                   isSteadyState={sim.steadyStateMonth !== null && m.month >= sim.steadyStateMonth}
-                  showWithdraw={!reinvestProfit}
+                  hasInvestor={hasInvestor}
                 />
               ))}
             </tbody>
@@ -319,6 +334,19 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
 }
 
 /* ════════════════════════════════════════════════════════════ */
+
+function PresetBtn({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="px-3 py-1.5 text-[11px] font-semibold rounded-lg
+                 border border-[#D1D5DB] text-[#0A1628] bg-white
+                 hover:border-[#0C7A58] hover:bg-[#F0FDF4] transition-colors"
+    >
+      {label}
+    </button>
+  );
+}
 
 function Group({ title, accent, children }: { title: string; accent: string; children: React.ReactNode }) {
   return (
@@ -395,13 +423,13 @@ function CohortStaircase({
 }
 
 function MonthRow({
-  m, maxCumProfit, maxActiveDeals, isSteadyState, showWithdraw,
+  m, maxCumProfit, maxActiveDeals, isSteadyState, hasInvestor,
 }: {
   m: MonthSnapshot;
   maxCumProfit: number;
   maxActiveDeals: number;
   isSteadyState: boolean;
-  showWithdraw: boolean;
+  hasInvestor: boolean;
 }) {
   const cumPct = (m.cumulativeNetProfit / maxCumProfit) * 100;
   const activePct = (m.activeDeals / maxActiveDeals) * 100;
@@ -426,9 +454,12 @@ function MonthRow({
       <td className="text-right p-2 font-bold" style={{ color: m.netProfit > 0 ? "#0C7A58" : m.netProfit < 0 ? "#dc2626" : "#9CA3AF" }}>
         {m.netProfit !== 0 ? (m.netProfit > 0 ? "+" : "") + fmtRub(m.netProfit) : "—"}
       </td>
-      {showWithdraw && (
-        <td className="text-right p-2" style={{ color: m.withdrawnThisMonth > 0 ? "#7c3aed" : "#9CA3AF" }}>
-          {m.withdrawnThisMonth > 0 ? "−" + fmtRub(m.withdrawnThisMonth) : "—"}
+      <td className="text-right p-2" style={{ color: m.companyWithdrawnThisMonth > 0 ? "#065F46" : "#9CA3AF" }}>
+        {m.companyWithdrawnThisMonth > 0 ? "−" + fmtRub(m.companyWithdrawnThisMonth) : "—"}
+      </td>
+      {hasInvestor && (
+        <td className="text-right p-2" style={{ color: m.investorWithdrawnThisMonth > 0 ? "#5b21b6" : "#9CA3AF" }}>
+          {m.investorWithdrawnThisMonth > 0 ? "−" + fmtRub(m.investorWithdrawnThisMonth) : "—"}
         </td>
       )}
       <td className="text-right p-2 font-bold text-[#0A1628]">{fmtRub(m.cumulativeNetProfit)}</td>
