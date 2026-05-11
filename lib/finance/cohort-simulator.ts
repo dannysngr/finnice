@@ -21,7 +21,7 @@ export interface CohortSimParams {
   markupPct:        number;
 
   /* ── Стресс-тест ────────────────────────────────── */
-  /** Доля сделок, которые дефолтят (0..1) */
+  /** Доля сделок, которые дефолтят (0..1) — никогда не доплачивают */
   defaultRate?:     number;
   /** Сколько вернётся от дефолтной сделки (доля от total payments, 0..1) */
   recoveryRate?:    number;
@@ -29,6 +29,8 @@ export interface CohortSimParams {
   opExRate?:        number;
   /** Какой % доступного кеша идёт в новые сделки каждый месяц (0..1) */
   deployRate?:      number;
+  /** Доля платежей, приходящих на 1 месяц позже плана (0..1) — просрочка 30+ DPD */
+  delayRate?:       number;
 
   /* ── Стратегия капитала (раздельный реинвест) ────── */
   /** [Pro-rata/Carried] Какой % прибыли КОМПАНИИ реинвестируется */
@@ -241,6 +243,7 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
     recoveryRate        = 0.5,
     opExRate            = 0,
     deployRate          = 1,
+    delayRate           = 0,
     companyReinvestPct  = 1,
     investorReinvestPct = 1,
     investorCapitalPct  = 0,
@@ -264,6 +267,7 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
   const months: MonthSnapshot[] = [];
 
   let cash = capital;
+  let delayCarry = 0;   /* просрочка для общего пула */
   /* Раздельные балансы капитала каждой стороны */
   let investorBalance = capital * investorCapitalPct;
   let companyBalance  = capital - investorBalance;
@@ -292,17 +296,19 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
     let grossProfitThisMonth = 0;
     let defaultLossThisMonth = 0;
 
-    /* 1. Платежи от активных когорт (с учётом collectionRate) */
+    /* 1. Платежи от активных когорт (с учётом collectionRate) и просрочки */
+    let rawInflow = 0;
     if (t > 0) {
       for (const cohort of cohorts) {
         const age = t - cohort.startMonth;
         if (age >= 1 && age <= termMonths) {
-          const cohortInflow = cohort.count * monthlyPayment * collectionRate;
-          inflow += cohortInflow;
+          rawInflow += cohort.count * monthlyPayment * collectionRate;
           cohort.paymentsMade = age;
         }
       }
     }
+    inflow = rawInflow * (1 - delayRate) + delayCarry;
+    delayCarry = rawInflow * delayRate;
     cash += inflow;
 
     /* 2. Закрытия когорт */
@@ -498,6 +504,7 @@ function simulateIsolated(params: CohortSimParams): CohortSimResult {
     recoveryRate             = 0.5,
     opExRate                 = 0,
     deployRate               = 1,
+    delayRate                = 0,
     investorCapitalPct       = 0,
     investorProfitShare      = 0.5,
     companyReinvestPool1Pct  = 1,
@@ -525,6 +532,8 @@ function simulateIsolated(params: CohortSimParams): CohortSimResult {
   const p3Cohorts: ActiveCohort[] = [];
   let p1Deployed = 0, p2Deployed = 0, p3Deployed = 0;
   let p1Closed = 0,  p2Closed = 0,  p3Closed = 0;
+  /* Просрочка: «хвост» задержанных платежей за прошлый месяц для каждого пула */
+  let p1DelayCarry = 0, p2DelayCarry = 0, p3DelayCarry = 0;
 
   /* Cumulatives — общие */
   let cumGross   = 0;
@@ -546,17 +555,23 @@ function simulateIsolated(params: CohortSimParams): CohortSimResult {
   let prevActiveTotal = -1, stableCount = 0;
 
   for (let t = 0; t <= monthsToSimulate; t++) {
-    /* === Один тик для каждого пула: inflow, closures, opex === */
+    /* === Один тик для каждого пула: inflow (с учётом просрочки), closures, opex === */
     const r1 = processPoolTick(p1Cohorts, t, monthlyPayment, collectionRate, termMonths,
-                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate);
+                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate,
+                                delayRate, p1DelayCarry);
+    p1DelayCarry = r1.newDelayCarry;
     p1Cash += r1.inflow - r1.opExCost;
 
     const r2 = processPoolTick(p2Cohorts, t, monthlyPayment, collectionRate, termMonths,
-                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate);
+                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate,
+                                delayRate, p2DelayCarry);
+    p2DelayCarry = r2.newDelayCarry;
     p2Cash += r2.inflow - r2.opExCost;
 
     const r3 = processPoolTick(p3Cohorts, t, monthlyPayment, collectionRate, termMonths,
-                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate);
+                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate,
+                                delayRate, p3DelayCarry);
+    p3DelayCarry = r3.newDelayCarry;
     p3Cash += r3.inflow - r3.opExCost;
 
     p1Closed += r1.closures; p2Closed += r2.closures; p3Closed += r3.closures;
@@ -714,6 +729,10 @@ function simulateIsolated(params: CohortSimParams): CohortSimResult {
   const wdMonths: WindDownMonth[] = [];
   let wdTotCompany = 0;
   let wdTotInvestor = 0;
+  /* Continue delay carries from end of horizon */
+  let wdP1DelayCarry = p1DelayCarry;
+  let wdP2DelayCarry = p2DelayCarry;
+  let wdP3DelayCarry = p3DelayCarry;
   const totalActive = wdP1Cohorts.length + wdP2Cohorts.length + wdP3Cohorts.length;
   const maxAge = totalActive > 0
     ? Math.max(
@@ -721,20 +740,24 @@ function simulateIsolated(params: CohortSimParams): CohortSimResult {
         ...wdP2Cohorts.map(c => termMonths - c.paymentsMade),
         ...wdP3Cohorts.map(c => termMonths - c.paymentsMade),
         0,
-      )
+      ) + (delayRate > 0 ? 1 : 0)  /* +1 месяц для добивки задержанных */
     : 0;
 
   for (let offset = 1; offset <= maxAge; offset++) {
     const t = monthsToSimulate + offset;
 
     const r1 = processPoolTick(wdP1Cohorts, t, monthlyPayment, collectionRate, termMonths,
-                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate);
+                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate,
+                                delayRate, wdP1DelayCarry);
+    wdP1DelayCarry = r1.newDelayCarry;
     wdP1Cash += r1.inflow - r1.opExCost;
     wdP1Cash -= r1.netProfit;          /* профит уходит "в руки" компании */
     wdTotCompany += r1.netProfit;
 
     const r2 = processPoolTick(wdP2Cohorts, t, monthlyPayment, collectionRate, termMonths,
-                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate);
+                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate,
+                                delayRate, wdP2DelayCarry);
+    wdP2DelayCarry = r2.newDelayCarry;
     wdP2Cash += r2.inflow - r2.opExCost;
     const p2c = r2.netProfit * (1 - investorProfitShare);
     const p2i = r2.netProfit * investorProfitShare;
@@ -743,7 +766,9 @@ function simulateIsolated(params: CohortSimParams): CohortSimResult {
     wdTotInvestor += p2i;
 
     const r3 = processPoolTick(wdP3Cohorts, t, monthlyPayment, collectionRate, termMonths,
-                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate);
+                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate,
+                                delayRate, wdP3DelayCarry);
+    wdP3DelayCarry = r3.newDelayCarry;
     wdP3Cash += r3.inflow - r3.opExCost;
     wdP3Cash -= r3.netProfit;
     wdTotInvestor += r3.netProfit;
@@ -874,8 +899,9 @@ function processPoolTick(
   monthlyPayment: number, collectionRate: number,
   termMonths: number, profitPerDeal: number, capitalPerDeal: number,
   defaultRate: number, recoveryRate: number, opExRate: number,
+  delayRate: number = 0, prevDelayCarry: number = 0,
 ) {
-  let inflow = 0;
+  let rawInflow = 0;
   let closures = 0;
   let grossProfit = 0;
   let defaultLoss = 0;
@@ -884,11 +910,16 @@ function processPoolTick(
     for (const c of cohorts) {
       const age = t - c.startMonth;
       if (age >= 1 && age <= termMonths) {
-        inflow += c.count * monthlyPayment * collectionRate;
+        rawInflow += c.count * monthlyPayment * collectionRate;
         c.paymentsMade = age;
       }
     }
   }
+
+  /* Просрочка: delayRate платежей сдвигается на следующий месяц */
+  const onTimeInflow = rawInflow * (1 - delayRate);
+  const newDelayCarry = rawInflow * delayRate;
+  const inflow = onTimeInflow + prevDelayCarry;  /* приход в текущем месяце */
 
   for (let i = cohorts.length - 1; i >= 0; i--) {
     const c = cohorts[i];
@@ -902,5 +933,5 @@ function processPoolTick(
 
   const opExCost = grossProfit * opExRate;
   const netProfit = grossProfit - defaultLoss - opExCost;
-  return { inflow, closures, grossProfit, defaultLoss, opExCost, netProfit };
+  return { inflow, closures, grossProfit, defaultLoss, opExCost, netProfit, newDelayCarry };
 }

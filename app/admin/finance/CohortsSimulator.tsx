@@ -39,6 +39,7 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
   const [recoveryRate, setRecoveryRate] = useState(0.25);
   const [opExRate, setOpExRate]         = useState(0.20);
   const [deployRate, setDeployRate]     = useState(0.80);
+  const [delayRate, setDelayRate]       = useState(0.10);   /* 10% платежей с задержкой на 1 мес */
 
   /* ── Стратегия (для pro-rata/carried) — 2 слайдера ─ */
   const [companyReinvestPct,  setCompanyReinvestPct]  = useState(1.0);
@@ -64,7 +65,7 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
   const sim = useMemo(() => simulateCohorts({
     capital, monthsToSimulate: horizon,
     dealCost, termMonths, downPct, markupPct,
-    defaultRate, recoveryRate, opExRate, deployRate,
+    defaultRate, recoveryRate, opExRate, deployRate, delayRate,
     companyReinvestPct, investorReinvestPct,
     companyReinvestPool1Pct, companyReinvestPool2Pct,
     investorReinvestPool2Pct, investorReinvestPool3Pct,
@@ -72,7 +73,7 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
     profitSplitMode,
   }), [
     capital, horizon, dealCost, termMonths, downPct, markupPct,
-    defaultRate, recoveryRate, opExRate, deployRate,
+    defaultRate, recoveryRate, opExRate, deployRate, delayRate,
     companyReinvestPct, investorReinvestPct,
     companyReinvestPool1Pct, companyReinvestPool2Pct,
     investorReinvestPool2Pct, investorReinvestPool3Pct,
@@ -132,24 +133,40 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
 
       {/* ════════ Блок 2: Стресс-тест ════════ */}
       <Group title="2. Реалистичные допущения (стресс-тест)" accent="#dc2626">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <SliderField label="Доля дефолтов" value={defaultRate}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <SliderField label="Доля дефолтов"
+            value={defaultRate}
             min={0} max={0.15} step={0.005}
             onChange={setDefaultRate} format={v => fmtPct(v, 1)} />
-          <SliderField label="Возврат с дефолта" value={recoveryRate}
+          <SliderField label="Возврат с дефолта"
+            value={recoveryRate}
             min={0} max={1} step={0.05}
             onChange={setRecoveryRate} format={v => fmtPctInt(v)} />
-          <SliderField label="OpEx (% от gross)" value={opExRate}
+          <SliderField label="Просрочка 30+ DPD"
+            value={delayRate}
+            min={0} max={0.30} step={0.01}
+            onChange={setDelayRate} format={v => fmtPctInt(v)} />
+          <SliderField label="OpEx (% от gross)"
+            value={opExRate}
             min={0} max={0.5} step={0.01}
             onChange={setOpExRate} format={v => fmtPctInt(v)} />
-          <SliderField label="Эффективность деплоя" value={deployRate}
+          <SliderField label="Эффективность деплоя"
+            value={deployRate}
             min={0.5} max={1.0} step={0.05}
             onChange={setDeployRate} format={v => fmtPctInt(v)} />
         </div>
-        <p className="text-[10px] text-[#9CA3AF] mt-2 leading-relaxed">
-          <b>Возврат с дефолта</b> — какой % всех платежей мы получили, когда клиент перестал платить (обычно 30-60%).
-          {" "}<b>Эффективность деплоя</b> &lt;100% — буфер ликвидности или задержка поиска клиентов.
-        </p>
+        <div className="text-[10px] text-[#9CA3AF] mt-2 leading-relaxed space-y-1">
+          <p>
+            <b>Дефолт</b> — клиент совсем перестал платить. <b>Возврат с дефолта</b> — какой % платежей успел сделать (обычно 30-60%).
+          </p>
+          <p>
+            <b>Просрочка 30+ DPD</b> — какой % платежей приходит на 1 мес позже плана (платят, но с опозданием).
+            Уменьшает оборачиваемость капитала, не теряем деньги. Бенчмарки: РФ потребкредит 5-8%, BNPL 8-12%, Murabaha 5-10%, community-based 8-15%.
+          </p>
+          <p>
+            <b>Эффективность деплоя</b> &lt;100% — буфер ликвидности или задержка поиска клиентов.
+          </p>
+        </div>
       </Group>
 
       {/* ════════ Блок 3: Стратегия (раздельный реинвест) ════════ */}
