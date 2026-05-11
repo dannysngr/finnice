@@ -2,64 +2,55 @@
  * lib/user-store.ts
  * ─────────────────────────────────────────────────────────────────
  * Хранилище пользователей: phone ↔ telegram_chat_id.
+ * Бэкенд: Upstash Redis (REST API).
  *
- * Стратегия хранения:
- *   Dev / VPS  → JSON-файл в .data/users.json (работает «из коробки»)
- *   Vercel     → замените readStore/writeStore на Upstash Redis:
- *                await redis.hset("users", phone, JSON.stringify(user))
- *                await redis.hget("users", phone)
+ * Схема ключей:
+ *   user:{phone}   → JSON (UserRecord)   TTL: нет (постоянно)
+ *   chatid:{id}    → phone               TTL: нет (для обратного поиска)
  * ─────────────────────────────────────────────────────────────────
  */
 
-import fs   from "fs";
-import path from "path";
+import { getRedis } from "@/lib/redis";
+
+export type UserRole = "admin" | "moderator";
 
 export interface UserRecord {
-  phone:     string;           // нормализованный: +7XXXXXXXXXX
-  chatId:    number | null;    // Telegram chat_id, null пока не привязан
-  firstName: string | null;    // из Telegram contact
-  createdAt: number;           // Date.now()
+  phone:     string;
+  chatId:    number | null;
+  firstName: string | null;
+  createdAt: number;
   lastLogin: number | null;
+  role?:     UserRole | null;
 }
 
-/* ── paths ────────────────────────────────────────────────── */
-const DATA_DIR  = path.join(process.cwd(), ".data");
-const DATA_FILE = path.join(DATA_DIR, "users.json");
+/* ── helpers ──────────────────────────────────────────────── */
 
-/* ── file I/O ─────────────────────────────────────────────── */
-function readStore(): Record<string, UserRecord> {
-  try {
-    if (!fs.existsSync(DATA_DIR))  fs.mkdirSync(DATA_DIR, { recursive: true });
-    if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, "{}", "utf8");
-    return JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
-  } catch {
-    return {};
-  }
-}
-
-function writeStore(data: Record<string, UserRecord>): void {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), "utf8");
-}
+function userKey(phone: string)   { return `user:${phone}`; }
+function chatKey(chatId: number)  { return `chatid:${chatId}`; }
 
 /* ── public API ───────────────────────────────────────────── */
 
-export function findByPhone(phone: string): UserRecord | null {
-  return readStore()[phone] ?? null;
+export async function findByPhone(phone: string): Promise<UserRecord | null> {
+  const redis = getRedis();
+  const data  = await redis.get<UserRecord>(userKey(phone));
+  return data ?? null;
 }
 
-export function findByChatId(chatId: number): UserRecord | null {
-  const store = readStore();
-  return Object.values(store).find(u => u.chatId === chatId) ?? null;
+export async function findByChatId(chatId: number): Promise<UserRecord | null> {
+  const redis = getRedis();
+  const phone = await redis.get<string>(chatKey(chatId));
+  if (!phone) return null;
+  return findByPhone(phone);
 }
 
-/** Сохраняет нового пользователя или обновляет chat_id существующего */
-export function upsertUser(
+/** Создаёт или обновляет запись пользователя */
+export async function upsertUser(
   phone: string,
   update: Partial<Pick<UserRecord, "chatId" | "firstName">>
-): UserRecord {
-  const store   = readStore();
-  const existing = store[phone];
+): Promise<UserRecord> {
+  const redis    = getRedis();
+  const existing = await findByPhone(phone);
+
   const record: UserRecord = existing
     ? { ...existing, ...update }
     : {
@@ -69,27 +60,59 @@ export function upsertUser(
         createdAt: Date.now(),
         lastLogin: null,
       };
-  store[phone] = record;
-  writeStore(store);
+
+  await redis.set(userKey(phone), record);
+
+  // Обратный индекс chatId → phone
+  if (record.chatId) {
+    await redis.set(chatKey(record.chatId), phone);
+  }
+
   return record;
 }
 
-/** Привязывает chat_id к уже существующей записи (или создаёт новую) */
-export function linkTelegramChatId(
+/** Привязывает Telegram chat_id к номеру */
+export async function linkTelegramChatId(
   phone: string,
   chatId: number,
   firstName?: string
-): UserRecord {
+): Promise<UserRecord> {
   return upsertUser(phone, { chatId, firstName: firstName ?? null });
 }
 
-/** Обновляет lastLogin */
-export function touchLastLogin(phone: string): void {
-  const store = readStore();
-  if (store[phone]) {
-    store[phone].lastLogin = Date.now();
-    writeStore(store);
-  }
+/** Обновляет время последнего входа */
+export async function touchLastLogin(phone: string): Promise<void> {
+  const redis    = getRedis();
+  const existing = await findByPhone(phone);
+  if (!existing) return;
+  await redis.set(userKey(phone), { ...existing, lastLogin: Date.now() });
+}
+
+/** Устанавливает / снимает роль пользователя */
+export async function setUserRole(phone: string, role: UserRole | null): Promise<UserRecord | null> {
+  const redis    = getRedis();
+  const existing = await findByPhone(phone);
+  if (!existing) return null;
+  const updated: UserRecord = { ...existing, role: role ?? null };
+  await redis.set(userKey(phone), updated);
+  return updated;
+}
+
+/** Возвращает список пользователей с ролями (admin/moderator) */
+export async function listStaff(): Promise<UserRecord[]> {
+  const redis = getRedis();
+  // Простая реализация: сканируем все user:* ключи через SCAN
+  const keys: string[] = [];
+  let cursor = 0;
+  do {
+    const res = await redis.scan(cursor, { match: "user:*", count: 100 });
+    cursor = Number(res[0]);
+    keys.push(...res[1]);
+  } while (cursor !== 0);
+
+  if (keys.length === 0) return [];
+  const records = await Promise.all(keys.map(k => redis.get<UserRecord>(k)));
+  return records.filter((r): r is UserRecord => !!r && (r.role === "admin" || r.role === "moderator"));
 }
 
 /** Нормализует телефон к виду +7XXXXXXXXXX */

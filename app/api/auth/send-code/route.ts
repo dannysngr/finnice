@@ -20,7 +20,7 @@ import {
   saveCode,
   isRateLimited,
 } from "@/lib/code-store";
-import { findByPhone, upsertUser }    from "@/lib/user-store";
+import { findByPhone, upsertUser } from "@/lib/user-store";
 
 /* ── Telegram ────────────────────────────────────────────── */
 let _bot: Telegraf | null = null;
@@ -32,12 +32,23 @@ function getBot(): Telegraf {
   return _bot;
 }
 
-async function sendViaTelegram(chatId: number, code: string, phone: string) {
+async function sendViaTelegram(chatId: number, code: string) {
   const bot = getBot();
   await bot.telegram.sendMessage(
     chatId,
-    `🔐 *Ваш код для ФинНайс: ${code}*\n\nДействителен 5 минут.\nНомер: ${phone}\n\n_Если вы не запрашивали код — просто проигнорируйте это сообщение._`,
-    { parse_mode: "Markdown" }
+    `🔐 *Код подтверждения FinNice*\n\n\`${code}\`\n\n_Действителен 5 минут. Никому не сообщайте._`,
+    {
+      parse_mode: "Markdown",
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      reply_markup: {
+        // copy_text added in Bot API 7.3 — not yet in telegraf types
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        inline_keyboard: [[
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          { text: "📋 Скопировать код", copy_text: { text: code } } as unknown as import("@telegraf/types").InlineKeyboardButton,
+        ]],
+      },
+    }
   );
 }
 
@@ -63,7 +74,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Rate limit
-    if (isRateLimited(phone)) {
+    if (await isRateLimited(phone)) {
       return NextResponse.json(
         { ok: false, error: "Подождите минуту перед повторным запросом" },
         { status: 429 }
@@ -71,18 +82,17 @@ export async function POST(req: NextRequest) {
     }
 
     // Ищем пользователя
-    const user = findByPhone(phone);
+    const user = await findByPhone(phone);
 
     // Если нет chat_id — просим привязать Telegram
     if (!user?.chatId) {
-      // Создаём запись без chatId (чтобы потом обновить через бота)
-      upsertUser(phone, {});
+      await upsertUser(phone, {});
       return NextResponse.json({ ok: false, needsTelegram: true });
     }
 
     // Генерируем и сохраняем код
     const code = generateCode();
-    saveCode(phone, code);
+    await saveCode(phone, code);
 
     // Dev: логируем
     if (process.env.NODE_ENV !== "production") {
@@ -90,7 +100,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Отправляем через Telegram
-    await sendViaTelegram(user.chatId, code, phone);
+    await sendViaTelegram(user.chatId, code);
 
     return NextResponse.json({ ok: true });
 

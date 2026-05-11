@@ -74,6 +74,10 @@ input[type="range"]::-moz-range-thumb {
   cursor: pointer;
 }
 
+/* ─── Phone caret blink ──────────────────────────────────────── */
+@keyframes nf-caret { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.nf-caret { animation: nf-caret 1s step-end infinite; }
+
 /* ─── Utilities ──────────────────────────────────────────────── */
 @layer utilities {
   /* NF logo / key gradient: navy → emerald */

@@ -39,6 +39,23 @@ function getBot(): Telegraf {
 /* ── public helpers ───────────────────────────────────────── */
 
 /**
+ * Универсальная отправка сообщения в любой chat_id.
+ * Использует простой Markdown (не MarkdownV2).
+ */
+export async function sendToChat(
+  chatId: number | string,
+  text: string,
+): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) return;
+  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chatId, text, parse_mode: "Markdown" }),
+  });
+}
+
+/**
  * Отправляет OTP-код пользователю.
  *
  * @param chatId  Telegram chat_id пользователя (число или строка).

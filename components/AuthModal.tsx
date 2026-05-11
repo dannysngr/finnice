@@ -18,14 +18,13 @@ import {
 } from "lucide-react";
 
 /* ─── helpers ─────────────────────────────────────────────── */
-function applyPhoneMask(raw: string): string {
-  const digits = raw.replace(/\D/g, "").replace(/^7|^8/, "").slice(0, 10);
-  let r = "+7";
-  if (digits.length > 0) r += " (" + digits.slice(0, 3);
-  if (digits.length >= 3) r += ") " + digits.slice(3, 6);
-  if (digits.length >= 6) r += "-"  + digits.slice(6, 8);
-  if (digits.length >= 8) r += "-"  + digits.slice(8, 10);
-  return r;
+function fmtPhoneDigits(d: string): string {
+  const parts: string[] = [];
+  if (d.length > 0) parts.push(d.slice(0, 3));
+  if (d.length > 3) parts.push(d.slice(3, 6));
+  if (d.length > 6) parts.push(d.slice(6, 8));
+  if (d.length > 8) parts.push(d.slice(8, 10));
+  return parts.join(" ");
 }
 
 /* ─── animations ──────────────────────────────────────────── */
@@ -111,11 +110,15 @@ function PhoneScreen({
   onNeedsTelegram: (phone: string) => void;
   onClose:         () => void;
 }) {
-  const [phone,    setPhone]    = useState("+7");
+  const [phoneDigits, setPhoneDigits] = useState("");
+  const [phoneFocused, setPhoneFocused] = useState(false);
   const [loading,  setLoading]  = useState(false);
   const [apiError, setApiError] = useState("");
+  const phoneInputRef = useRef<HTMLInputElement | null>(null);
 
-  const isReady = phone.replace(/\D/g, "").length === 11;
+  const isReady   = phoneDigits.length === 10;
+  const fullPhone = "+7" + phoneDigits;
+  const phoneFmt  = fmtPhoneDigits(phoneDigits);
 
   const handleSubmit = async () => {
     if (!isReady || loading) return;
@@ -125,19 +128,19 @@ function PhoneScreen({
       const res  = await fetch("/api/auth/send-code", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ phone }),
+        body:    JSON.stringify({ phone: fullPhone }),
       });
       const data = await res.json();
 
       if (data.needsTelegram) {
-        onNeedsTelegram(phone);
+        onNeedsTelegram(fullPhone);
         return;
       }
       if (!res.ok || !data.ok) {
         setApiError(data.error ?? "Ошибка отправки кода");
         return;
       }
-      onSuccess(phone);
+      onSuccess(fullPhone);
     } catch {
       setApiError("Нет соединения с сервером");
     } finally {
@@ -156,21 +159,51 @@ function PhoneScreen({
       <label className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-widest mb-2 block">
         Номер телефона
       </label>
-      <div className="relative mb-4">
-        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+
+      {/* ── Ghost Input ─────────────────────────────── */}
+      <div className="relative mb-4 cursor-text"
+           onClick={() => phoneInputRef.current?.focus()}>
+
+        {/* Скрытый инпут — браузер видит только цифры */}
         <input
+          ref={phoneInputRef}
           type="tel"
           inputMode="numeric"
-          value={phone}
-          onChange={e => { setPhone(applyPhoneMask(e.target.value)); setApiError(""); }}
-          onFocus={() => { if (phone === "+7") setPhone("+7 ("); }}
+          autoComplete="tel"
+          value={phoneDigits}
+          maxLength={10}
+          onChange={e => {
+            setPhoneDigits(e.target.value.replace(/\D/g, "").slice(0, 10));
+            setApiError("");
+          }}
+          onFocus={() => setPhoneFocused(true)}
+          onBlur={() => setPhoneFocused(false)}
           onKeyDown={e => { if (e.key === "Enter" && isReady) handleSubmit(); }}
-          placeholder="+7 (___) ___-__-__"
-          className="w-full pl-11 pr-4 py-4 rounded-[14px] bg-[#F3F3F7] text-[#0A1628]
-                     font-semibold text-base outline-none transition-all
-                     focus:ring-2 focus:ring-[#0C7A58]/40
-                     placeholder:text-[#D1D5DB] placeholder:font-normal"
+          className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-text"
+          style={{ caretColor: "transparent" }}
+          aria-label="Номер телефона"
         />
+
+        {/* Визуальный слой */}
+        <div className="w-full pl-11 pr-4 py-4 rounded-[14px] bg-[#F3F3F7] font-semibold
+                        text-base select-none flex items-center transition-all"
+             style={{ boxShadow: phoneFocused ? "0 0 0 2px rgba(12,122,88,0.4)" : "none" }}>
+          <Phone className="shrink-0 mr-3 w-4 h-4 text-[#9CA3AF]" />
+          <span className="flex items-center">
+            {phoneDigits ? (
+              <>
+                <span className="text-[#9CA3AF]">+7 </span>
+                <span className="text-[#0A1628]">{phoneFmt}</span>
+              </>
+            ) : (
+              <span className="text-[#D1D5DB] font-normal">+7 928 000 00 00</span>
+            )}
+            {phoneFocused && (
+              <span className="nf-caret inline-block w-px rounded-sm ml-px"
+                    style={{ height: "1.15em", background: "#0C7A58", verticalAlign: "text-bottom" }} />
+            )}
+          </span>
+        </div>
       </div>
 
       {apiError && (
@@ -477,7 +510,15 @@ function OTPScreen({
    ═══════════════════════════════════════════════════════════ */
 type Phase = "phone" | "telegram" | "otp";
 
-export function AuthModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function AuthModal({
+  open,
+  onClose,
+  onSuccess: onSuccessCallback,
+}: {
+  open:        boolean;
+  onClose:     () => void;
+  onSuccess?:  () => void;   // опциональный колбэк для хедера
+}) {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("phone");
   const [phone, setPhone] = useState("");
@@ -507,6 +548,7 @@ export function AuthModal({ open, onClose }: { open: boolean; onClose: () => voi
   }, [resetAndClose]);
 
   const handleSuccess = () => {
+    onSuccessCallback?.();   // уведомляем хедер
     resetAndClose();
     router.push("/lk");
   };

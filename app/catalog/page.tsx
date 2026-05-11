@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   CATALOG_CATS, PRODUCTS, PHONES_CATALOG,
@@ -165,6 +165,34 @@ const ALL_ITEMS: CatalogItem[] = [...PHONE_ITEMS, ...OTHER_ITEMS];
 const ALL_BRANDS = Array.from(new Set(ALL_ITEMS.map((p) => p.brand)))
   .sort((a, b) => brandRank(a) - brandRank(b) || a.localeCompare(b, "ru"));
 
+// ─── Маппинг: категория → набор spec-фильтров ────────────────
+const CAT_SPEC_FILTERS: Record<string, Array<{ label: string; specKey: string }>> = {
+  noutbuki:          [
+    { label: "Процессор",  specKey: "Процессор"  },
+    { label: "ОЗУ",        specKey: "ОЗУ"        },
+    { label: "Накопитель", specKey: "Накопитель" },
+  ],
+  planshety:         [
+    { label: "Дисплей",    specKey: "Дисплей"    },
+    { label: "Процессор",  specKey: "Процессор"  },
+    { label: "Накопитель", specKey: "Накопитель" },
+  ],
+  smart_chasy:       [
+    { label: "Корпус",     specKey: "Корпус"     },
+    { label: "Чип",        specKey: "Чип"        },
+    { label: "GPS",        specKey: "GPS"        },
+  ],
+  televizory:        [
+    { label: "Экран",      specKey: "Экран"      },
+    { label: "Smart TV",   specKey: "Smart TV"   },
+    { label: "Частота",    specKey: "Частота"    },
+  ],
+  bytovaya_tekhnika: [
+    { label: "Тип",        specKey: "Тип"        },
+    { label: "Класс",      specKey: "Класс"      },
+  ],
+};
+
 const GLOBAL_MAX = Math.ceil(Math.max(...ALL_ITEMS.map((p) => p.price)) / 5_000) * 5_000;
 
 /* ════════════════════════════════════════════════════════════════
@@ -185,6 +213,8 @@ export default function CatalogPage() {
 /* ════════════════════════════════════════════════════════════════
    Основной контент — читает ?cat из URL
 ════════════════════════════════════════════════════════════════ */
+interface CartEntry { productId: string; qty: number; }
+
 function CatalogContent() {
   const searchParams = useSearchParams();
   const initCat      = searchParams.get("cat") ?? "all";
@@ -194,17 +224,189 @@ function CatalogContent() {
   const [maxPrice,  setMaxPrice]  = useState(GLOBAL_MAX);
   const [sort,      setSort]      = useState<"popular"|"price_asc"|"price_desc">("popular");
 
+  // ─── Телефонные фильтры (только для категории "telefony") ────
+  const [phoneBrand,  setPhoneBrand]  = useState("Все");
+  const [phoneModel,  setPhoneModel]  = useState("Все");
+  const [phoneMemory, setPhoneMemory] = useState("Все");
+  const [phoneColor,  setPhoneColor]  = useState("Все");
+  const [phoneSim,    setPhoneSim]    = useState("Все");
+
+  // ─── Spec-фильтры для остальных категорий ────────────────────
+  const [specBrandFilter, setSpecBrandFilter] = useState("Все");
+  const [specFilters,     setSpecFilters]     = useState<Record<string, string>>({});
+
+  // ─── Auth / Favorites / Cart ───────────────────────────────
+  const [authed,    setAuthed]    = useState(false);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [cart,      setCart]      = useState<CartEntry[]>([]);
+
+  useEffect(() => {
+    // Проверка авторизации и загрузка данных пользователя
+    fetch("/api/auth/me")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.authed) {
+          setAuthed(true);
+          // Загружаем избранное и корзину параллельно
+          Promise.all([
+            fetch("/api/favorites").then(r => r.ok ? r.json() : { ids: [] }),
+            fetch("/api/cart").then(r => r.ok ? r.json() : { items: [] }),
+          ]).then(([fav, crt]) => {
+            setFavorites(fav.ids ?? []);
+            setCart(crt.items ?? []);
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Сбрасываем все категорийные фильтры при смене категории
+  useEffect(() => {
+    setPhoneBrand("Все"); setPhoneModel("Все");
+    setPhoneMemory("Все"); setPhoneColor("Все"); setPhoneSim("Все");
+    setSpecBrandFilter("Все"); setSpecFilters({});
+  }, [activeCat]);
+
+  // ─── Опции телефонных фильтров (динамические) ───────────────
+  const phoneCatalogItems = useMemo(
+    () => PHONES_CATALOG.filter(p => phoneBrand === "Все" || p.brand === phoneBrand),
+    [phoneBrand]
+  );
+  const phoneModelOptions = useMemo(() => {
+    const models = Array.from(new Set(phoneCatalogItems.map(p => p.model)));
+    return ["Все", ...models];
+  }, [phoneCatalogItems]);
+  const phoneMemoryOptions = useMemo(() => {
+    const base = phoneModel !== "Все"
+      ? phoneCatalogItems.filter(p => p.model === phoneModel)
+      : phoneCatalogItems;
+    const mems = Array.from(new Set(base.map(p => p.memory)));
+    mems.sort((a, b) => MEM_ORDER.indexOf(a) - MEM_ORDER.indexOf(b));
+    return ["Все", ...mems];
+  }, [phoneCatalogItems, phoneModel]);
+  const phoneColorOptions = useMemo(() => {
+    let phones = phoneCatalogItems;
+    if (phoneModel !== "Все") phones = phones.filter(p => p.model === phoneModel);
+    const all = phones.flatMap(p => p.colors);
+    return ["Все", ...Array.from(new Set(all)).sort()];
+  }, [phoneCatalogItems, phoneModel]);
+  const phoneSimOptions = useMemo(() => {
+    let phones = phoneCatalogItems;
+    if (phoneModel !== "Все") phones = phones.filter(p => p.model === phoneModel);
+    if (phoneMemory !== "Все") phones = phones.filter(p => p.memory === phoneMemory);
+    const sims = Array.from(new Set(phones.map(p => p.sim)));
+    const SIM_LIST = ["SIM + eSIM", "2 SIM", "1 SIM", "eSIM"];
+    sims.sort((a, b) => SIM_LIST.indexOf(a) - SIM_LIST.indexOf(b));
+    return ["Все", ...sims];
+  }, [phoneCatalogItems, phoneModel, phoneMemory]);
+
+  // ─── Бренды в текущей категории (для пилюль) ────────────────
+  const catBrands = useMemo(() => {
+    if (activeCat === "all") return ALL_BRANDS;
+    const items = activeCat === "telefony"
+      ? PHONE_ITEMS
+      : OTHER_ITEMS.filter(p => p.category === activeCat);
+    return Array.from(new Set(items.map(p => p.brand)))
+      .sort((a, b) => brandRank(a) - brandRank(b) || a.localeCompare(b, "ru"));
+  }, [activeCat]);
+
+  // ─── Определения spec-фильтров для текущей категории ─────────
+  const catSpecFilterDefs = useMemo(
+    () => (activeCat !== "all" && activeCat !== "telefony")
+      ? (CAT_SPEC_FILTERS[activeCat] ?? [])
+      : [],
+    [activeCat]
+  );
+
+  // ─── Доступные значения spec-фильтров (динамически) ──────────
+  const specFilterOptions = useMemo(() => {
+    if (!catSpecFilterDefs.length) return {} as Record<string, string[]>;
+    const catItems = OTHER_ITEMS.filter(p =>
+      p.category === activeCat &&
+      (specBrandFilter === "Все" || p.brand === specBrandFilter)
+    );
+    const opts: Record<string, string[]> = {};
+    for (const { specKey } of catSpecFilterDefs) {
+      const vals = Array.from(new Set(
+        catItems.flatMap(p => p.specs.filter(s => s.key === specKey).map(s => s.val))
+      )).filter(Boolean).sort();
+      if (vals.length >= 2) opts[specKey] = ["Все", ...vals];
+    }
+    return opts;
+  }, [activeCat, catSpecFilterDefs, specBrandFilter]);
+
+  const handleToggleFav = useCallback(async (productId: string) => {
+    // Оптимистичное обновление
+    setFavorites(prev =>
+      prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
+    );
+    try {
+      const r = await fetch("/api/favorites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId }),
+      });
+      const d = await r.json();
+      if (d.ids) setFavorites(d.ids);
+    } catch { /* откат не нужен — просто логируем */ }
+  }, []);
+
+  const handleAddCart = useCallback(async (productId: string) => {
+    const already = cart.some(c => c.productId === productId);
+    if (already) return;
+    // Оптимистичное обновление
+    setCart(prev => [...prev, { productId, qty: 1 }]);
+    try {
+      const r = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, qty: 1 }),
+      });
+      const d = await r.json();
+      if (d.items) setCart(d.items);
+    } catch { /* игнорируем ошибки сети */ }
+  }, [cart]);
+
   const filtered = useMemo(() => {
     let list = [...ALL_ITEMS];
     if (activeCat !== "all") list = list.filter((p) => p.category === activeCat);
-    if (brands.length)       list = list.filter((p) => brands.includes(p.brand));
-    list = list.filter((p) => p.price <= maxPrice);
 
+    if (activeCat === "telefony") {
+      // Телефонные фильтры — пилюли брендов + модель/память/цвет/SIM
+      if (phoneBrand !== "Все") list = list.filter(p => p.brand === phoneBrand);
+      if (phoneModel !== "Все") {
+        const ids = new Set(PHONES_CATALOG.filter(p => p.model === phoneModel).map(p => p.id));
+        list = list.filter(p => ids.has(p.id));
+      }
+      if (phoneMemory !== "Все") {
+        const ids = new Set(PHONES_CATALOG.filter(p => p.memory === phoneMemory).map(p => p.id));
+        list = list.filter(p => ids.has(p.id));
+      }
+      if (phoneSim !== "Все") list = list.filter(p => p.sim === phoneSim);
+      if (phoneColor !== "Все") {
+        const ids = new Set(PHONES_CATALOG.filter(p => p.colors.includes(phoneColor)).map(p => p.id));
+        list = list.filter(p => ids.has(p.id));
+      }
+    } else if (activeCat !== "all") {
+      // Конкретная не-телефонная категория: бренд-пилюля + spec-фильтры
+      if (specBrandFilter !== "Все") list = list.filter(p => p.brand === specBrandFilter);
+      for (const [specKey, val] of Object.entries(specFilters)) {
+        if (val && val !== "Все") {
+          list = list.filter(p => p.specs.some(s => s.key === specKey && s.val === val));
+        }
+      }
+    } else {
+      // "Все" — используем sidebar-чекбоксы брендов
+      if (brands.length) list = list.filter((p) => brands.includes(p.brand));
+    }
+
+    list = list.filter((p) => p.price <= maxPrice);
     if (sort === "price_asc")  return list.sort((a, b) => a.price - b.price);
     if (sort === "price_desc") return list.sort((a, b) => b.price - a.price);
-    // "popular" — бренд→модель→память→SIM
     return list.sort((a, b) => cmpArrays(defaultSortKey(a), defaultSortKey(b)));
-  }, [activeCat, brands, maxPrice, sort]);
+  }, [activeCat, brands, maxPrice, sort,
+      phoneBrand, phoneModel, phoneMemory, phoneSim, phoneColor,
+      specBrandFilter, specFilters]);
 
   function toggleBrand(b: string) {
     setBrands((prev) =>
@@ -214,7 +416,17 @@ function CatalogContent() {
 
   function resetAll() {
     setBrands([]); setMaxPrice(GLOBAL_MAX); setActiveCat("all");
+    setPhoneBrand("Все"); setPhoneModel("Все");
+    setPhoneMemory("Все"); setPhoneColor("Все"); setPhoneSim("Все");
+    setSpecBrandFilter("Все"); setSpecFilters({});
   }
+
+  const phoneFiltersActive =
+    phoneBrand !== "Все" || phoneModel !== "Все" ||
+    phoneMemory !== "Все" || phoneColor !== "Все" || phoneSim !== "Все";
+
+  const specFiltersActive =
+    specBrandFilter !== "Все" || Object.values(specFilters).some(v => v && v !== "Все");
 
   const sliderPct = ((maxPrice - 5_000) / (GLOBAL_MAX - 5_000)) * 100;
 
@@ -270,12 +482,105 @@ function CatalogContent() {
           })}
         </div>
 
+        {/* ── Универсальный блок фильтров категории ─────────────── */}
+        {activeCat !== "all" && (catBrands.length > 1 || catSpecFilterDefs.length > 0 || activeCat === "telefony") && (
+          <div className="mb-6 p-4 bg-[#F4F7FC] rounded-2xl border border-[#D8E2F0]">
+
+            {/* Строка брендов (не показываем, если бренд один) */}
+            {catBrands.length > 1 && (
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span className="text-xs font-semibold text-[#9CA3AF] shrink-0 mr-1">Бренд:</span>
+                {(["Все", ...catBrands] as string[]).map(b => {
+                  const activeBrand = activeCat === "telefony" ? phoneBrand : specBrandFilter;
+                  return (
+                    <button
+                      key={b}
+                      onClick={() => {
+                        if (activeCat === "telefony") {
+                          setPhoneBrand(b);
+                          setPhoneModel("Все"); setPhoneMemory("Все");
+                          setPhoneColor("Все"); setPhoneSim("Все");
+                        } else {
+                          setSpecBrandFilter(b);
+                          setSpecFilters({});
+                        }
+                      }}
+                      className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all
+                        ${activeBrand === b
+                          ? "bg-[#0A1628] text-white border-[#0A1628]"
+                          : "bg-white border-[#D8E2F0] text-[#6B7280] hover:border-[#0A1628] hover:text-[#0A1628]"}`}
+                    >
+                      {b}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Телефоны: модель / память / цвет / SIM */}
+            {activeCat === "telefony" && (
+              <div className="flex flex-wrap gap-2 items-center">
+                <CatalogFilterSelect
+                  label="Модель" options={phoneModelOptions} value={phoneModel}
+                  onChange={v => { setPhoneModel(v); setPhoneMemory("Все"); setPhoneColor("Все"); }}
+                />
+                <CatalogFilterSelect
+                  label="Память" options={phoneMemoryOptions} value={phoneMemory}
+                  onChange={setPhoneMemory}
+                />
+                <CatalogFilterSelect
+                  label="Цвет" options={phoneColorOptions} value={phoneColor}
+                  onChange={setPhoneColor}
+                />
+                <CatalogFilterSelect
+                  label="SIM" options={phoneSimOptions} value={phoneSim}
+                  onChange={setPhoneSim}
+                />
+                {(phoneModel !== "Все" || phoneMemory !== "Все" || phoneColor !== "Все" || phoneSim !== "Все") && (
+                  <button
+                    onClick={() => { setPhoneModel("Все"); setPhoneMemory("Все"); setPhoneColor("Все"); setPhoneSim("Все"); }}
+                    className="px-3 py-2 rounded-xl text-xs text-[#6B7280] border border-[#D8E2F0]
+                               hover:border-red-300 hover:text-red-500 transition-colors"
+                  >✕ Сбросить</button>
+                )}
+              </div>
+            )}
+
+            {/* Остальные категории: spec-фильтры */}
+            {activeCat !== "telefony" && catSpecFilterDefs.length > 0 && (
+              <div className="flex flex-wrap gap-2 items-center">
+                {catSpecFilterDefs.map(({ label, specKey }) => {
+                  const opts = specFilterOptions[specKey];
+                  if (!opts) return null;   // нет вариантов — прячем
+                  return (
+                    <CatalogFilterSelect
+                      key={specKey}
+                      label={label}
+                      options={opts}
+                      value={specFilters[specKey] ?? "Все"}
+                      onChange={val => setSpecFilters(prev => ({ ...prev, [specKey]: val }))}
+                    />
+                  );
+                })}
+                {Object.values(specFilters).some(v => v && v !== "Все") && (
+                  <button
+                    onClick={() => setSpecFilters({})}
+                    className="px-3 py-2 rounded-xl text-xs text-[#6B7280] border border-[#D8E2F0]
+                               hover:border-red-300 hover:text-red-500 transition-colors"
+                  >✕ Сбросить</button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Сайдбар + сетка */}
         <div className="flex flex-col lg:flex-row gap-6">
 
           {/* Sidebar */}
           <aside className="w-full lg:w-60 shrink-0 space-y-6">
-            {/* Бренды */}
+            {/* Бренды — показываем только для "Все" (в конкретных категориях — пилюли выше) */}
+            {activeCat === "all" && (
             <div className="card p-4">
               <h3 className="font-bold text-[#0A1628] text-sm mb-3">Бренды</h3>
               <div className="space-y-2">
@@ -297,6 +602,7 @@ function CatalogContent() {
                 ))}
               </div>
             </div>
+            )}
 
             {/* Цена */}
             <div className="card p-4">
@@ -329,7 +635,7 @@ function CatalogContent() {
             </div>
 
             {/* Сброс */}
-            {(brands.length > 0 || maxPrice < GLOBAL_MAX || activeCat !== "all") && (
+            {(brands.length > 0 || maxPrice < GLOBAL_MAX || activeCat !== "all" || phoneFiltersActive || specFiltersActive) && (
               <button
                 onClick={resetAll}
                 className="w-full py-2 text-sm text-[#1A3C6E] border border-[#1A3C6E]/30 rounded-xl
@@ -370,8 +676,18 @@ function CatalogContent() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
-                {filtered.map((p) => <ProductCard key={p.id} item={p} />)}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
+                {filtered.map((p) => (
+                  <ProductCard
+                    key={p.id}
+                    item={p}
+                    authed={authed}
+                    inFavs={favorites.includes(p.id)}
+                    inCart={cart.some(c => c.productId === p.id)}
+                    onToggleFav={handleToggleFav}
+                    onAddCart={handleAddCart}
+                  />
+                ))}
               </div>
             )}
           </div>
@@ -381,8 +697,44 @@ function CatalogContent() {
   );
 }
 
+/* ── CatalogFilterSelect — компактный дропдаун для телефонных фильтров ── */
+function CatalogFilterSelect({
+  label, options, value, onChange,
+}: { label: string; options: string[]; value: string; onChange: (v: string) => void }) {
+  const isActive = value !== "Все";
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`appearance-none pl-3 pr-7 py-2 rounded-xl border text-sm font-medium
+                    cursor-pointer outline-none transition-colors
+                    ${isActive
+                      ? "bg-[#0A1628] border-[#0A1628] text-white"
+                      : "bg-white border-[#D8E2F0] text-[#374151] hover:border-[#0A1628]"}`}
+      >
+        <option value="Все">{label}</option>
+        {options.slice(1).map((o) => (
+          <option key={o} value={o}>{o}</option>
+        ))}
+      </select>
+      <span className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs
+                        ${isActive ? "text-white" : "text-[#6B7280]"}`}>▾</span>
+    </div>
+  );
+}
+
 /* ── ProductCard ──────────────────────────────────────────────── */
-function ProductCard({ item: p }: { item: CatalogItem }) {
+interface ProductCardProps {
+  item:          CatalogItem;
+  authed:        boolean;
+  inFavs:        boolean;
+  inCart:        boolean;
+  onToggleFav:   (id: string) => void;
+  onAddCart:     (id: string) => void;
+}
+
+function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }: ProductCardProps) {
   const { openModal } = useAppModal();
   const down = Math.ceil(p.price * getMinDownPct(p.price));
   const res  = calcInstallment({ price: p.price, down, term: 6 });
@@ -399,11 +751,57 @@ function ProductCard({ item: p }: { item: CatalogItem }) {
     });
   }
 
+  const btnInCart = inCart
+    ? "bg-[#0C7A58] text-white cursor-default"
+    : "bg-[#0A1628] text-white hover:bg-[#1A3C6E]";
+
+  const specsText = [
+    ...(p.memories && p.memories.length > 0 ? [p.memories.join(" / ")] : []),
+    ...(p.sim ? [p.sim] : []),
+  ].join(" · ");
+
+  const BtnContent = inCart ? (
+    <><svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+      <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2"
+            strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>В корзине</>
+  ) : (
+    <><svg width="11" height="11" viewBox="0 0 20 20" fill="none">
+      <path d="M3 3h1.5l2.5 9h8l2-6H7" stroke="currentColor" strokeWidth="1.6"
+            strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="9" cy="16.5" r="1.2" fill="currentColor"/>
+      <circle cx="15" cy="16.5" r="1.2" fill="currentColor"/>
+    </svg>В корзину</>
+  );
+
   return (
-    <div className="card p-4 hover:shadow-md transition-shadow group flex flex-col">
+    <div
+      className="bg-white flex flex-col group relative overflow-hidden
+                 transition-shadow duration-250
+                 hover:shadow-[0_4px_20px_rgba(10,22,40,0.10)]"
+      style={{ borderRadius: "14px", border: "1px solid #f0f0f0" }}
+    >
+
+      {/* Кнопка «Избранное» */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onToggleFav(p.id); }}
+        aria-label={inFavs ? "Убрать из избранного" : "В избранное"}
+        className={`absolute top-1.5 right-1.5 z-20 w-6 h-6 flex items-center justify-center
+                    rounded-full transition-all active:scale-90
+                    ${inFavs
+                      ? "bg-red-50 text-red-500"
+                      : "bg-white/90 text-[#C4C9D4] opacity-0 group-hover:opacity-100"}`}
+        style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+      >
+        <svg width="11" height="11" viewBox="0 0 20 20" fill={inFavs ? "currentColor" : "none"}>
+          <path d="M10 17S3 12.5 3 7a4 4 0 017-2.66A4 4 0 0117 7c0 5.5-7 10-7 10z"
+                stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
       {/* Бейдж */}
       {p.badge && (
-        <span className={`inline-block self-start px-2 py-0.5 text-[10px] font-bold rounded-full mb-2
+        <span className={`absolute top-1.5 left-1.5 z-20 px-1.5 py-0.5 text-[9px] font-bold rounded-full
           ${p.badge === "Хит"     ? "bg-amber-100 text-amber-700" :
             p.badge === "Новинка" ? "bg-[#EBF0F9] text-[#1A3C6E]" :
                                     "bg-red-100 text-red-600"}`}>
@@ -412,72 +810,97 @@ function ProductCard({ item: p }: { item: CatalogItem }) {
       )}
 
       {/* Изображение */}
-      <div className="w-full aspect-[3/4] bg-gradient-to-b from-[#F4F7FC] to-[#EBF0F9] rounded-xl mb-3
-                      overflow-hidden flex items-center justify-center">
+      <div className="w-full bg-white overflow-hidden flex items-center justify-center"
+           style={{ aspectRatio: "1/1" }}>
         {p.img ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={p.img}
             alt={p.name}
-            className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-contain p-2 group-hover:scale-[1.04]
+                       transition-transform duration-300"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.display = "none";
               (e.currentTarget.nextSibling as HTMLElement).style.display = "flex";
             }}
           />
         ) : null}
-        <div className={`${p.img ? "hidden" : "flex"} w-full h-full items-center justify-center text-5xl`}>
+        <div className={`${p.img ? "hidden" : "flex"} w-full h-full items-center justify-center text-4xl`}>
           {p.emoji}
         </div>
       </div>
 
-      {/* Бренд */}
-      <p className="text-[11px] text-[#6B7280] mb-0.5">{p.brand}</p>
-
-      {/* Название */}
-      <h3 className="font-semibold text-[#0A1628] text-xs leading-snug mb-1.5 line-clamp-2
-                     group-hover:text-[#1A3C6E] transition-colors">
-        {p.name}
-      </h3>
-
-      {/* Память + SIM */}
-      <div className="flex flex-wrap gap-1 mb-2">
-        {p.memories && p.memories.length > 0 && p.memories.map((m) => (
-          <span key={m}
-            className="px-1.5 py-0.5 bg-[#EBF0F9] text-[#1A3C6E] rounded-full text-[9px] font-semibold">
-            {m}
-          </span>
-        ))}
-        {p.sim && (
-          <span className="px-1.5 py-0.5 bg-[#F4F7FC] text-[#6B7280] rounded-full text-[9px]">
-            {p.sim}
-          </span>
+      {/* Текст */}
+      {/* pb-2 на мобиле (кнопка в потоке), sm:pb-8 резервирует ~32px под оверлей-кнопку */}
+      <div className="px-2.5 pt-1.5 pb-2 sm:pb-8">
+        <p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-[#8B8B8C]">
+          {p.brand}
+        </p>
+        <h3 className="font-medium text-[#0A1628] text-[13px] leading-snug line-clamp-2 mt-0.5">
+          {p.name}
+        </h3>
+        {/* Характеристики — всегда видны */}
+        {specsText && (
+          <p className="text-[10px] text-[#ADADAD] mt-0.5">{specsText}</p>
         )}
-      </div>
-
-      {/* Цена */}
-      <div className="mt-auto">
-        <p className="font-extrabold text-[#0A1628] text-sm leading-none">
+        {/* Цена */}
+        <p className="font-bold text-[#0A1628] mt-1.5 leading-none" style={{ fontSize: "15px" }}>
           {fmtRub(p.price)} ₽
           {p.oldPrice && (
-            <span className="ml-2 text-[11px] text-[#9CA3AF] line-through font-normal">
+            <span className="ml-1.5 text-[11px] text-[#C4C9D4] line-through font-normal">
               {fmtRub(p.oldPrice)} ₽
             </span>
           )}
         </p>
-        <p className="text-[10px] text-[#0C7A58] font-semibold mt-0.5">
+        <p className="text-[10px] text-[#9CA3AF] mt-0.5">
           от {fmtRub(res.monthly)} ₽/мес.
         </p>
+
+        {/* Мобиле: кнопка в потоке */}
+        {authed ? (
+          <button
+            onClick={inCart ? undefined : () => onAddCart(p.id)}
+            className={`mt-2 sm:hidden w-full py-1.5 rounded-[10px] text-[11px] font-semibold
+                        flex items-center justify-center gap-1 transition-all
+                        active:scale-95 touch-manipulation ${btnInCart}`}
+          >
+            {BtnContent}
+          </button>
+        ) : (
+          <button onClick={handleBuy}
+            className="mt-2 sm:hidden w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
+                       text-[11px] font-semibold active:scale-95 transition-all touch-manipulation">
+            Купить в рассрочку
+          </button>
+        )}
       </div>
 
-      <button
-        onClick={handleBuy}
-        className="mt-3 w-full py-2.5 rounded-xl bg-[#0A1628] text-white
-                   text-xs font-semibold hover:bg-[#1A3C6E] active:scale-95
-                   transition-all touch-manipulation"
-      >
-        Купить в рассрочку
-      </button>
+      {/* Десктоп: overlay button снизу */}
+      {authed ? (
+        <button
+          onClick={inCart ? undefined : () => onAddCart(p.id)}
+          className={`hidden sm:flex absolute inset-x-0 bottom-0 z-10
+                      items-center justify-center gap-1
+                      py-2 text-[11px] font-semibold
+                      translate-y-full group-hover:translate-y-0
+                      transition-transform duration-200
+                      active:scale-[0.98] touch-manipulation ${btnInCart}`}
+        >
+          {BtnContent}
+        </button>
+      ) : (
+        <button
+          onClick={handleBuy}
+          className="hidden sm:flex absolute inset-x-0 bottom-0 z-10
+                     items-center justify-center py-2
+                     bg-[#0A1628] text-white text-[11px] font-semibold
+                     translate-y-full group-hover:translate-y-0
+                     transition-transform duration-200
+                     active:scale-[0.98] touch-manipulation"
+        >
+          Купить в рассрочку
+        </button>
+      )}
     </div>
   );
 }

@@ -1,52 +1,43 @@
 /**
  * lib/code-store.ts
  * ─────────────────────────────────────────────────────────────────
- * In-process store для OTP-кодов (TTL 5 минут).
+ * Хранилище OTP-кодов.
+ * Бэкенд: Upstash Redis (REST API).
  *
- * ⚠️  Для production замените на Redis:
- *     await redis.set(`otp:${phone}`, JSON.stringify(entry), 'EX', 300)
- *     await redis.get(`otp:${phone}`)
- *     await redis.del(`otp:${phone}`)
- *
- * Текущая реализация прекрасно работает на одном инстансе (Vercel
- * Functions с "regional" routing или VPS). Serverless с несколькими
- * регионами → Redis обязателен.
+ * Схема ключей:
+ *   otp:{phone}       → JSON (CodeEntry)   TTL: 300 сек (5 мин)
+ *   ratelimit:{phone} → "1"                TTL: 60 сек
  * ─────────────────────────────────────────────────────────────────
  */
 
-const CODE_TTL_MS = 5 * 60 * 1000; // 5 минут
-const MAX_ATTEMPTS = 5;             // блокировка после N неверных попыток
+import { getRedis } from "@/lib/redis";
+
+const CODE_TTL_SEC   = 300; // 5 минут
+const RATE_LIMIT_SEC = 60;  // 1 запрос в минуту
+const MAX_ATTEMPTS   = 5;
 
 interface CodeEntry {
-  code:       string;
-  phone:      string;
-  createdAt:  number;
-  attempts:   number;
+  code:      string;
+  phone:     string;
+  createdAt: number;
+  attempts:  number;
 }
 
-// Singleton map, переживает hot-reload благодаря globalThis
-const globalStore = globalThis as typeof globalThis & {
-  __otpStore?: Map<string, CodeEntry>;
-};
-if (!globalStore.__otpStore) {
-  globalStore.__otpStore = new Map<string, CodeEntry>();
-}
-const store = globalStore.__otpStore;
+function otpKey(phone: string)       { return `otp:${phone}`; }
+function rateLimitKey(phone: string) { return `ratelimit:${phone}`; }
 
 /* ── helpers ──────────────────────────────────────────────── */
 
-/** Генерирует криптографически безопасный 4-значный код */
+/** Генерирует 4-значный код */
 export function generateCode(): string {
-  // crypto доступен в Node 14+ и Edge Runtime
   const array = new Uint32Array(1);
   crypto.getRandomValues(array);
-  return String(array[0] % 9000 + 1000); // 1000–9999
+  return String(array[0] % 9000 + 1000);
 }
 
 /** Нормализует номер к виду +7XXXXXXXXXX */
 export function normalizePhone(raw: string): string {
   const digits = raw.replace(/\D/g, "");
-  // Принимаем 10 цифр (без 7/8) или 11 цифр начинающихся с 7/8
   if (digits.length === 10) return "+7" + digits;
   if (digits.length === 11 && (digits[0] === "7" || digits[0] === "8")) {
     return "+7" + digits.slice(1);
@@ -56,48 +47,52 @@ export function normalizePhone(raw: string): string {
 
 /* ── public API ───────────────────────────────────────────── */
 
-/** Сохраняет код; возвращает его для отправки в Telegram */
-export function saveCode(phone: string, code: string): void {
-  store.set(phone, {
-    code,
-    phone,
-    createdAt: Date.now(),
-    attempts: 0,
-  });
+/** Сохраняет код в Redis с TTL 5 минут; ставит rate-limit метку */
+export async function saveCode(phone: string, code: string): Promise<void> {
+  const redis = getRedis();
+  const entry: CodeEntry = { code, phone, createdAt: Date.now(), attempts: 0 };
+  await Promise.all([
+    redis.set(otpKey(phone), entry, { ex: CODE_TTL_SEC }),
+    redis.set(rateLimitKey(phone), "1", { ex: RATE_LIMIT_SEC }),
+  ]);
 }
 
 export type VerifyResult =
   | { ok: true }
   | { ok: false; reason: "not_found" | "expired" | "wrong_code" | "too_many_attempts" };
 
-/** Проверяет код. Удаляет запись при успехе. */
-export function verifyCode(phone: string, inputCode: string): VerifyResult {
-  const entry = store.get(phone);
+/** Проверяет код. При успехе удаляет запись (one-time). */
+export async function verifyCode(
+  phone: string,
+  inputCode: string
+): Promise<VerifyResult> {
+  const redis = getRedis();
+  const entry = await redis.get<CodeEntry>(otpKey(phone));
 
   if (!entry) return { ok: false, reason: "not_found" };
 
-  if (Date.now() - entry.createdAt > CODE_TTL_MS) {
-    store.delete(phone);
-    return { ok: false, reason: "expired" };
-  }
-
+  // TTL контролируется Redis — если ключ существует, код ещё актуален
   if (entry.attempts >= MAX_ATTEMPTS) {
-    store.delete(phone);
+    await redis.del(otpKey(phone));
     return { ok: false, reason: "too_many_attempts" };
   }
 
   if (entry.code !== inputCode.trim()) {
-    entry.attempts++;
+    // Инкрементируем счётчик попыток
+    await redis.set(otpKey(phone), { ...entry, attempts: entry.attempts + 1 }, {
+      ex: CODE_TTL_SEC,
+    });
     return { ok: false, reason: "wrong_code" };
   }
 
-  store.delete(phone); // одноразовый код
+  // Успех — удаляем одноразовый код
+  await redis.del(otpKey(phone));
   return { ok: true };
 }
 
-/** Проверяет, не слишком ли часто запрашивают коды (rate-limit: 1 в 60 сек) */
-export function isRateLimited(phone: string): boolean {
-  const entry = store.get(phone);
-  if (!entry) return false;
-  return Date.now() - entry.createdAt < 60_000;
+/** Проверяет rate-limit (1 запрос в 60 сек) */
+export async function isRateLimited(phone: string): Promise<boolean> {
+  const redis  = getRedis();
+  const exists = await redis.exists(rateLimitKey(phone));
+  return exists === 1;
 }

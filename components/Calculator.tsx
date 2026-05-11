@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   calcInstallment,
+  calcInstallmentIsoIRR,
   fmtRub,
+  pluralPayment,
   getMinDownPct,
+  getGuarantors,
   MIN_PRICE,
   MAX_PRICE,
   MIN_TERM,
@@ -13,83 +16,107 @@ import {
 } from "@/lib/calculator-logic";
 import { useAppModal } from "@/lib/modal-context";
 
-// ─── Форматирование ───────────────────────────────────────────
+// helpers
 
-/** 30000 → «30 000» (неразрывный пробел как разделитель тысяч) */
 function addSpaces(n: number): string {
   if (!Number.isFinite(n) || n < 0) return "0";
-  return Math.round(n)
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
-
-/** «30 000» или «30000» → 30000 */
 function stripSpaces(s: string): number {
   return Number(s.replace(/[\s ]/g, ""));
 }
 
-// ─── Максимальный взнос ────────────────────────────────────────
-
-const MAX_DOWN_PCT = 0.60;   // 60 %
-
-// ─── Props ────────────────────────────────────────────────────
+const MAX_DOWN_PCT = 0.60;
 
 interface Props {
   withLink?:     boolean;
   initialPrice?: number;
 }
 
-// ─── Главный компонент ────────────────────────────────────────
-
 export function Calculator({ withLink = false, initialPrice }: Props) {
-  const startPrice = initialPrice ?? 30_000;
+  const startPrice   = initialPrice ?? 30_000;
+  const prevPriceRef = useRef(startPrice);
 
-  const [price,     setPrice]     = useState(startPrice);
-  const [down,      setDown]      = useState(Math.ceil(startPrice * getMinDownPct(startPrice)));
-  const [term,      setTerm]      = useState(6);
-  const [wbUrl,     setWbUrl]     = useState("");
+  const [price, setPrice] = useState(startPrice);
+  const [down,  setDown]  = useState(Math.ceil(startPrice * getMinDownPct(startPrice)));
+  const [term,  setTerm]  = useState(6);
+  const [wbUrl, setWbUrl] = useState("");
+
   const { openModal } = useAppModal();
 
-  const result = calcInstallment({ price, down, term });
+  /* ── iso-IRR публичная политика ──────────────────────── */
+  const [policy, setPolicy] = useState<{
+    inflation: number;
+    overrides: Record<string, number>;
+    loaded:    boolean;
+  }>({ inflation: 0.12, overrides: {}, loaded: false });
 
-  // При смене цены: подтягиваем взнос к минимуму, если ушёл ниже
+  useEffect(() => {
+    fetch("/api/finance/public-config")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d && typeof d.expectedInflationAnnual === "number") {
+          setPolicy({
+            inflation: d.expectedInflationAnnual,
+            overrides: d.matrixOverrides ?? {},
+            loaded:    true,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  /* Используем iso-IRR когда политика загрузилась, иначе legacy */
+  const result = policy.loaded
+    ? calcInstallmentIsoIRR(price, down, term, policy.inflation, policy.overrides)
+    : calcInstallment({ price, down, term });
+
   function handlePriceChange(v: number) {
+    const wasAbove = prevPriceRef.current >= HIGH_PRICE_THRESHOLD;
+    const isAbove  = v >= HIGH_PRICE_THRESHOLD;
+    prevPriceRef.current = v;
     setPrice(v);
     const minD = Math.ceil(v * getMinDownPct(v));
     const maxD = Math.floor(v * MAX_DOWN_PCT);
-    const clamped = Math.max(minD, Math.min(maxD, down));
-    setDown(clamped);
+    if (!wasAbove && isAbove) {
+      setDown(minD);
+    } else {
+      setDown(d => Math.max(minD, Math.min(maxD, d)));
+    }
   }
 
-  // Прогресс слайдеров (для зелёной заливки)
-  const pricePct = ((price - MIN_PRICE) / (MAX_PRICE - MIN_PRICE)) * 100;
-  const termPct  = ((term  - MIN_TERM)  / (MAX_TERM  - MIN_TERM))  * 100;
+  const isHighPrice = price >= HIGH_PRICE_THRESHOLD;
+  const maxDown     = Math.floor(price * MAX_DOWN_PCT);
+  const pricePct    = ((price - MIN_PRICE) / (MAX_PRICE - MIN_PRICE)) * 100;
+  const termPct     = ((term  - MIN_TERM)  / (MAX_TERM  - MIN_TERM))  * 100;
+  const guarantors  = getGuarantors(price);
 
-  // Лейбл взноса
-  const isHighPrice = price > HIGH_PRICE_THRESHOLD;
-  const downLabel   = isHighPrice
+  const downLabel = isHighPrice
     ? "Первоначальный взнос (мин. 25%):"
-    : "Первоначальный взнос (необязательный):";
-
-  const maxDown = Math.floor(price * MAX_DOWN_PCT);
+    : "Первоначальный взнос (по желанию):";
 
   return (
     <div
       id="calculator"
-      className="rounded-3xl p-6 md:p-10"
-      style={{ background: "linear-gradient(135deg, #0E2344 0%, #1E4582 50%, #0C7A58 100%)" }}
+      className="rounded-2xl p-4 md:p-6 flex flex-col overflow-hidden"
+      style={{
+        background: "linear-gradient(135deg, #0E2344 0%, #1E4582 50%, #0C7A58 100%)",
+        height:     "100%",
+        width:      "100%",
+        alignSelf:  "stretch",
+      }}
     >
       {/* Заголовок */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+      <div className="flex items-center gap-2 mb-3 sm:mb-5">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
           <CalcIcon />
         </div>
-        <h2 className="text-xl md:text-2xl font-extrabold text-white">
+        <h2 className="text-sm sm:text-base md:text-lg font-extrabold text-white">
           Калькулятор рассрочки
         </h2>
       </div>
 
-      {/* Поле ссылки (только /wb) */}
+      {/* Ссылка WB */}
       {withLink && (
         <div className="mb-6">
           <label className="block text-white/75 text-xs font-medium mb-2">
@@ -98,7 +125,7 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
           <input
             type="url"
             value={wbUrl}
-            onChange={(e) => setWbUrl(e.target.value)}
+            onChange={e => setWbUrl(e.target.value)}
             placeholder="https://www.wildberries.ru/catalog/..."
             className="w-full rounded-xl bg-white/15 border border-white/20 text-white
                        placeholder-white/35 px-4 py-3 text-sm outline-none
@@ -108,95 +135,118 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
       )}
 
       {/* Слайдеры */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <style>{`
+        .calc-inputs-row { display: flex; flex-direction: column; gap: 12px; }
+        @media (min-width: 640px) {
+          .calc-inputs-row {
+            flex-direction: row !important;
+            align-items: flex-end !important;
+            gap: 20px !important;
+          }
+          .calc-inputs-row > * { flex: 1 1 0; min-width: 0; }
+          .slider-label { min-height: 3rem !important; }
+          .slider-hint { min-height: 14px !important; }
+        }
+        .slider-hint { min-height: 0; }
+      `}</style>
+      <div className="calc-inputs-row mb-4">
 
         {/* Стоимость */}
         <NumberSlider
           label="Стоимость товара или услуги:"
-          value={price}
-          unit="руб."
-          trackPct={pricePct}
-          min={MIN_PRICE}
-          max={MAX_PRICE}
-          step={500}
-          format
-          onChange={handlePriceChange}
+          value={price} unit="₽" trackPct={pricePct}
+          min={MIN_PRICE} max={MAX_PRICE} step={500}
+          format onChange={handlePriceChange}
         />
 
-        {/* Взнос — без зелёной линии */}
+        {/* Взнос */}
         <NumberSlider
           label={downLabel}
-          value={down}
-          unit="руб."
-          trackPct={0}
-          noTrack
-          min={result.minDown}
-          max={maxDown}
-          step={500}
-          format
-          onChange={setDown}
+          value={down} unit="₽" trackPct={0} noTrack
+          min={result.minDown} max={maxDown} step={500}
+          format onChange={setDown}
           warn={!result.isValidDown}
         />
 
-        {/* Срок */}
+        {/* Количество платежей */}
         <NumberSlider
-          label="Срок рассрочки:"
-          value={term}
-          unit="мес."
-          trackPct={termPct}
-          min={MIN_TERM}
-          max={MAX_TERM}
-          step={1}
+          label="Количество платежей:"
+          value={term} unit="платежей" trackPct={termPct}
+          min={MIN_TERM} max={MAX_TERM} step={1}
           onChange={setTerm}
+          hint="1-й платёж — взнос, остальные ежемесячно"
         />
       </div>
 
-      {/* Предупреждение о минимальном взносе */}
+      {/* Инфо: взнос при ≥50к */}
+      <div className={`mb-3 flex items-start gap-2 rounded-xl px-3 py-2 text-[11px] sm:text-xs transition-all
+                       ${isHighPrice
+                         ? "bg-[#C8972B]/20 border border-[#C8972B]/40 text-[#E8B84B]"
+                         : "bg-white/8 border border-white/15 text-white/55"}`}>
+        <span className="shrink-0 mt-0.5">{isHighPrice ? "⚠️" : "ℹ️"}</span>
+        <span>
+          При сумме от 50&nbsp;000&nbsp;₽ первый взнос обязателен (от 25%).
+          {isHighPrice && (
+            <> Минимальный взнос: <strong>{fmtRub(result.minDown)}&nbsp;₽</strong>.</>
+          )}
+        </span>
+      </div>
+
+      {/* Предупреждение: взнос ниже минимума */}
       {!result.isValidDown && (
-        <div className="mb-5 flex items-start gap-2 bg-orange-500/20 border border-orange-400/40
+        <div className="mb-4 flex items-start gap-2 bg-orange-500/20 border border-orange-400/40
                         rounded-xl px-4 py-3 text-white/90 text-sm">
           <span className="shrink-0">⚠️</span>
-          Минимальный взнос — {fmtRub(result.minDown)} руб.&nbsp;
+          Взнос ниже минимума — {fmtRub(result.minDown)}&nbsp;₽&nbsp;
           ({Math.round(result.minDownPct * 100)}% от стоимости)
         </div>
       )}
 
-      {/* Кнопка «Рассчитать» (акцентный элемент) */}
-      <div className="flex justify-center mb-6">
-        <button
-          type="button"
-          className="px-10 py-3 rounded-full font-bold text-sm text-white
-                     border-2 border-white/40 hover:border-white hover:bg-white/10
-                     active:scale-95 transition-all"
-        >
-          Рассчитать
-        </button>
+      {/* Результаты — 2 главные карточки */}
+      <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+        <ResultCell label="Платёж / мес" value={result.monthly} />
+        <ResultCell label="Итого"        value={result.total}   />
       </div>
 
-      {/* Результаты */}
-      <div className="grid grid-cols-3 gap-3 md:gap-6 mb-8
-                      bg-white/10 rounded-2xl p-5 border border-white/15">
-        <ResultCell label="Ежемесячный платёж:" value={result.monthly} />
-        <ResultCell label="Наценка:"             value={result.markup}  />
-        <ResultCell label="Итоговая стоимость:"  value={result.total}   />
-      </div>
+      {/* Наценка · Ставка · Поручители — строкой текстом */}
+      <p className="text-white/55 text-[11px] sm:text-xs mb-3 sm:mb-4 text-center leading-relaxed">
+        Наценка:{" "}
+        <span className="text-white font-semibold tabular-nums">
+          {fmtRub(result.markup)}&nbsp;₽
+        </span>
+        <span className="text-white/30 mx-2">·</span>
+        Ставка:{" "}
+        <span className="text-white font-semibold tabular-nums">
+          {(result.rate * 100).toFixed(1)}%/мес
+        </span>
+        <span className="text-white/30 mx-2">·</span>
+        Поручители:{" "}
+        <span className="text-white font-semibold">
+          {guarantors === 0
+            ? "не требуются"
+            : guarantors === 1
+              ? "1 поручитель"
+              : "2 поручителя"}
+        </span>
+      </p>
 
       {/* Кнопка заявки */}
       <div className="flex justify-center">
         <button
-          onClick={() => openModal({ price, down, term, monthly: result.monthly, wbUrl: wbUrl || undefined })}
-          className="w-full md:w-2/3 py-4 bg-white text-[#0A1628] font-extrabold text-base
-                     rounded-full hover:bg-white/90 active:scale-95 transition-all shadow-lg"
+          onClick={() =>
+            openModal({ price, down, term, monthly: result.monthly, wbUrl: wbUrl || undefined })
+          }
+          className="px-8 sm:px-12 py-2 sm:py-2.5 bg-white text-[#0A1628] font-extrabold text-xs sm:text-sm
+                     rounded-full hover:bg-white/90 active:scale-95 transition-all shadow-md"
         >
           Подать заявку
         </button>
       </div>
-
     </div>
   );
 }
 
-// ─── Слайдер с форматированным числовым вводом ────────────────
+// Слайдер
 
 interface SliderProps {
   label:    string;
@@ -208,23 +258,20 @@ interface SliderProps {
   step:     number;
   onChange: (v: number) => void;
   warn?:    boolean;
-  /** Форматировать тысячи пробелами */
   format?:  boolean;
-  /** Убрать зелёную заливку трека */
   noTrack?: boolean;
+  hint?:    string;
 }
 
 function NumberSlider({
   label, value, unit, trackPct,
   min, max, step, onChange,
-  warn = false, format = false, noTrack = false,
+  warn = false, format = false, noTrack = false, hint,
 }: SliderProps) {
   const toDisplay = (n: number) => (format ? addSpaces(n) : String(n));
-
   const [raw,     setRaw]     = useState(toDisplay(value));
   const [focused, setFocused] = useState(false);
 
-  // Синхронизируем отображение когда value меняется снаружи (слайдер / смена цены)
   useEffect(() => {
     if (!focused) setRaw(toDisplay(value));
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -236,14 +283,13 @@ function NumberSlider({
 
   function handleFocus() {
     setFocused(true);
-    // На фокусе: показываем чистые цифры без пробелов — удобно редактировать
     if (format) setRaw(String(value));
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const str = e.target.value;
     setRaw(str);
-    if (str === "") return;           // разрешаем стереть
+    if (str === "") return;
     const n = parse(str);
     if (!isNaN(n) && n >= 0) onChange(Math.max(min, Math.min(max, n)));
   }
@@ -252,7 +298,7 @@ function NumberSlider({
     setFocused(false);
     const n = parse(raw);
     if (raw === "" || isNaN(n) || n < 0) {
-      setRaw(toDisplay(value));       // восстановить
+      setRaw(toDisplay(value));
     } else {
       const clamped = Math.max(min, Math.min(max, n));
       setRaw(toDisplay(clamped));
@@ -260,19 +306,31 @@ function NumberSlider({
     }
   }
 
+  // Для слайдера "Количество платежей" показываем склонение в unit-бейдже
+  const displayUnit = unit === "платежей" ? pluralPayment(value).split(" ")[1] : unit;
+
   const trackStyle = noTrack
     ? { background: "rgba(255,255,255,0.20)" }
     : { background: `linear-gradient(to right, #10B981 ${trackPct}%, rgba(255,255,255,0.20) ${trackPct}%)` };
 
   return (
-    <div>
-      <p className="text-white/70 text-xs font-medium mb-2 leading-snug">{label}</p>
-
-      {/* Поле ввода */}
-      <div
-        className={`flex items-center bg-white rounded-xl overflow-hidden border mb-3 transition-colors
-                    ${warn ? "border-orange-400" : "border-transparent"}`}
+    <div
+      className="flex flex-col w-full"
+      style={{ marginTop: 0, paddingTop: 0, paddingBottom: 0 }}
+    >
+      <p
+        className="slider-label text-white/70 text-[11px] sm:text-xs font-medium mb-1.5 sm:mb-2 leading-snug line-clamp-2"
+        style={{
+          marginTop:  0,
+          paddingTop: 0,
+          display:    "flex",
+          alignItems: "flex-end",
+        }}
       >
+        {label}
+      </p>
+      <div className={`flex items-center bg-white rounded-xl overflow-hidden border mb-3 transition-colors
+                       ${warn ? "border-orange-400" : "border-transparent"}`}>
         <input
           type="text"
           inputMode="numeric"
@@ -284,40 +342,38 @@ function NumberSlider({
                      text-right outline-none bg-transparent"
         />
         <span className="px-3 text-[#6B7280] text-xs font-medium border-l border-[#D8E2F0] shrink-0">
-          {unit}
+          {displayUnit}
         </span>
       </div>
-
-      {/* Слайдер */}
       <input
         type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
+        min={min} max={max} step={step} value={value}
+        onChange={e => onChange(Number(e.target.value))}
         className="w-full"
         style={trackStyle}
       />
-    </div>
-  );
-}
-
-// ─── Ячейка результата ────────────────────────────────────────
-
-function ResultCell({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="text-center">
-      <p className="text-white/65 text-[10px] md:text-[11px] leading-tight mb-1.5">{label}</p>
-      <p className="text-lg md:text-2xl lg:text-4xl font-extrabold text-white leading-tight">
-        {fmtRub(value)}
-        <span className="text-xs md:text-sm font-medium text-white/60 ml-1">руб.</span>
+      {/* Hint placeholder — рендерится всегда для одинакового низа всех слайдеров */}
+      <p className="slider-hint text-white/40 text-[10px] mt-1.5 leading-snug">
+        {hint || " "}
       </p>
     </div>
   );
 }
 
-// ─── Иконка ───────────────────────────────────────────────────
+// Ячейка результата
+
+function ResultCell({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="min-w-0 bg-white/10 border border-white/15 rounded-xl px-2 py-2.5 text-center">
+      <p className="text-white/55 text-[10px] leading-tight mb-1 whitespace-nowrap">{label}</p>
+      <p className="text-base sm:text-lg lg:text-xl font-extrabold text-white leading-tight tabular-nums">
+        {fmtRub(value)}<span className="text-[9px] sm:text-[10px] font-medium text-white/50"> ₽</span>
+      </p>
+    </div>
+  );
+}
+
+// Иконка
 
 function CalcIcon() {
   return (

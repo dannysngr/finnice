@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Верифицируем код
-    const result = verifyCode(phone, String(body.code).trim());
+    const result = await verifyCode(phone, String(body.code).trim());
     if (!result.ok) {
       return NextResponse.json(
         {
@@ -61,9 +61,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Обновляем lastLogin
-    touchLastLogin(phone);
+    await touchLastLogin(phone);
 
-    const user = findByPhone(phone);
+    const user = await findByPhone(phone);
 
     // Создаём сессионный токен
     const token = createSessionToken(phone);

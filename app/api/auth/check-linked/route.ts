@@ -2,7 +2,7 @@
  * GET /api/auth/check-linked?phone=+7XXXXXXXXXX
  * ─────────────────────────────────────────────────────────────────
  * Polling endpoint — клиент проверяет, привязал ли пользователь
- * Telegram к своему номеру (после открытия t.me/finnic3_bot).
+ * Telegram к своему номеру.
  *
  * 200 { linked: true }  — chat_id найден, можно отправить OTP
  * 200 { linked: false } — ещё не привязан
@@ -27,6 +27,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Неверный формат номера" }, { status: 400 });
   }
 
-  const user = findByPhone(phone);
+  const user = await findByPhone(phone);
   return NextResponse.json({ linked: !!user?.chatId });
 }

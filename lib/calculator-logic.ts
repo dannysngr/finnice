@@ -1,79 +1,180 @@
 /* ================================================================
-   calculator-logic.ts — математика рассрочки ФинНайс
+   calculator-logic.ts — математика рассрочки ФинНайс v2
    Правила:
-   • До 50 000 руб.  → взнос необязателен (0%)
-   • От 50 000 руб.  → минимальный взнос 25%, слайдер не уходит ниже
-   • Наценка = MAX(500, (цена − взнос) × 0.038 × срок)
-   • Минимальная сумма — 1 000 руб., минимальный срок — 3 мес.
+   • < 50 000 ₽  → взнос необязателен (0)
+   • ≥ 50 000 ₽  → минимальный взнос 25%
+   • Ставки (зависят только от суммы товара):
+     - < 150 000 ₽        → 4% / мес
+     - 150 000–500 000 ₽  → 3.5% / мес
+     - > 500 000 ₽        → 3% / мес
+     - Исключение: < 50 000 ₽ и взнос 0 → 4.5% / мес
+   • Наценка = Сумма × (Ставка × Срок)
+   • Итого = Сумма + Наценка
+   • Платёж/мес:
+     - взнос > 0 → (Итого − Взнос) / (Срок − 1)
+     - взнос = 0 → Итого / Срок
+   • Поручители: < 80 000 → 0, < 200 000 → 1, ≥ 200 000 → 2
    ================================================================ */
 
-// ─── Константы ────────────────────────────────────────────────
+// ─── Константы ─────────────────────────────────────────────────
 
-export const MARKUP_RATE          = 0.038;    // 3.8 % в месяц
-export const MIN_MARKUP           = 500;      // минимальная наценка, руб.
+export const HIGH_PRICE_THRESHOLD = 50_000;
+export const MIN_DOWN_PCT_HIGH    = 0.25;
 
-export const HIGH_PRICE_THRESHOLD = 50_000;   // порог обязательного взноса
-export const MIN_DOWN_PCT_HIGH    = 0.25;     // 25 % для суммы > 50 000 руб.
+export const MIN_PRICE = 1_000;
+export const MAX_PRICE = 1_000_000;
+export const MIN_TERM  = 3;
+export const MAX_TERM  = 12;
 
-export const MIN_PRICE            = 1_000;
-export const MAX_PRICE            = 1_000_000;
-export const MIN_TERM             = 3;        // мес.
-export const MAX_TERM             = 24;       // мес.
+// Обратная совместимость
+export const MIN_DOWN_PCT = 0.25;
+export const MARKUP_RATE  = 0.04;
+export const MIN_MARKUP   = 0;
 
-// Оставлено для обратной совместимости с импортами в catalog/page.tsx
-export const MIN_DOWN_PCT         = 0.20;
+// ─── Ставка ─────────────────────────────────────────────────────
 
-// ─── Хелпер: минимальный % взноса по сумме ────────────────────
-
-/** 0 для суммы ≤ 50 000 руб., 0.25 для суммы > 50 000 руб. */
-export function getMinDownPct(price: number): number {
-  return price > HIGH_PRICE_THRESHOLD ? MIN_DOWN_PCT_HIGH : 0;
+export function getRate(price: number, down: number): number {
+  if (price < HIGH_PRICE_THRESHOLD && down === 0) return 0.045;
+  if (price >= 500_000) return 0.030;
+  if (price >= 150_000) return 0.035;
+  return 0.040;
 }
 
-// ─── Типы ──────────────────────────────────────────────────────
+// ─── Минимальный взнос ──────────────────────────────────────────
+
+export function getMinDownPct(price: number): number {
+  return price >= HIGH_PRICE_THRESHOLD ? MIN_DOWN_PCT_HIGH : 0;
+}
+
+// ─── Поручители ─────────────────────────────────────────────────
+
+export function getGuarantors(price: number): number {
+  if (price < 80_000)  return 0;
+  if (price < 200_000) return 1;
+  return 2;
+}
+
+// ─── Типы ───────────────────────────────────────────────────────
 
 export interface CalcInput {
-  price: number;  // стоимость товара, руб.
-  down:  number;  // первоначальный взнос, руб.
-  term:  number;  // срок рассрочки, мес.
+  price: number;
+  down:  number;
+  term:  number;
 }
 
 export interface CalcResult {
-  monthly:     number;   // ежемесячный платёж, руб.
-  markup:      number;   // наценка, руб.
-  total:       number;   // итоговая сумма, руб.
-  minDown:     number;   // минимально допустимый взнос, руб.
-  minDownPct:  number;   // минимальный % взноса (0 или 0.25)
-  isValidDown: boolean;  // взнос >= minDown
+  monthly:     number;
+  markup:      number;
+  total:       number;
+  rate:        number;
+  minDown:     number;
+  minDownPct:  number;
+  isValidDown: boolean;
+  guarantors:  number;
 }
 
-// ─── Основная функция ─────────────────────────────────────────
+// ─── Основная функция ───────────────────────────────────────────
 
-export function calcInstallment(input: CalcInput): CalcResult {
-  const { price, down, term } = input;
-
+export function calcInstallment({ price, down, term }: CalcInput): CalcResult {
   const minDownPct  = getMinDownPct(price);
   const minDown     = Math.ceil(price * minDownPct);
   const isValidDown = down >= minDown;
+  const guarantors  = getGuarantors(price);
 
-  const base    = Math.max(0, price - down);
-  const markup  = Math.max(MIN_MARKUP, base * MARKUP_RATE * term);
-  const total   = price + markup;
-  const monthly = Math.ceil((base + markup) / term);
+  const rate   = getRate(price, down);
+  const markup = Math.round(price * rate * term);
+  const total  = price + markup;
 
-  return {
-    monthly:     Math.round(monthly),
-    markup:      Math.round(markup),
-    total:       Math.round(total),
-    minDown,
-    minDownPct,
-    isValidDown,
-  };
+  let monthly: number;
+  if (down > 0) {
+    monthly = Math.ceil((total - down) / Math.max(1, term - 1));
+  } else {
+    monthly = Math.ceil(total / term);
+  }
+
+  return { monthly, markup, total, rate, minDown, minDownPct, isValidDown, guarantors };
 }
 
-// ─── Форматирование ───────────────────────────────────────────
+// ─── iso-IRR вариант (использует политику из admin) ──────────────
 
-/** 12345 → «12 345» */
+import {
+  markupRounded as _markupRounded,
+  irrMonthly as _irrMonthly,
+  annualFromMonthly as _annualFromMonthly,
+} from "@/lib/finance/iso-irr";
+
+const STANDARD_DOWNS = [0, 0.10, 0.25, 0.40, 0.50];
+
+/**
+ * iso-IRR версия calcInstallment.
+ *
+ *   price        = стоимость товара у партнёра (cost)
+ *   down         = первоначальный взнос в рублях
+ *   term         = число ежемесячных платежей ПОСЛЕ взноса
+ *   inflation    = годовая инфляция (для премиума на n>6)
+ *   matrixOverrides = ручные override наценок из админки
+ *
+ * Возвращает CalcResult совместимый с публичным калькулятором.
+ */
+export function calcInstallmentIsoIRR(
+  price: number,
+  down:  number,
+  term:  number,
+  inflation: number,
+  matrixOverrides: Record<string, number> = {},
+): CalcResult {
+  const minDownPct  = getMinDownPct(price);
+  const minDown     = Math.ceil(price * minDownPct);
+  const isValidDown = down >= minDown;
+  const guarantors  = getGuarantors(price);
+
+  const downPct = price > 0 ? down / price : 0;
+
+  /* Override-lookup: ищем ближайший стандартный down */
+  const closestDown = STANDARD_DOWNS.reduce(
+    (a, b) => Math.abs(b - downPct) < Math.abs(a - downPct) ? b : a,
+    STANDARD_DOWNS[0],
+  );
+  const overrideKey = `${term}:${closestDown}`;
+  const override    = matrixOverrides[overrideKey];
+
+  const markupPct = override !== undefined
+    ? override
+    : _markupRounded(term, downPct, inflation);
+
+  const markup = Math.round(price * markupPct);
+  const total  = price + markup;
+
+  /* Ежемесячный платёж: (total − down) / term  (iso-IRR convention) */
+  const monthly = term > 0 ? Math.ceil((total - down) / term) : 0;
+
+  /* Implied monthly IRR — для отображения "ставки" в UI */
+  const capitalT0 = price - down;
+  const flows: number[] = [-capitalT0];
+  for (let i = 0; i < term; i++) flows.push(monthly);
+  const rM = _irrMonthly(flows);
+  const rate = isFinite(rM) ? rM : 0;
+
+  return { monthly, markup, total, rate, minDown, minDownPct, isValidDown, guarantors };
+}
+
+/** Helper: возвращает annual IRR для расчёта targetIrrAtCreation в заявке */
+export function impliedAnnualIrr(rate: number): number {
+  return _annualFromMonthly(rate);
+}
+
+// ─── Форматирование ─────────────────────────────────────────────
+
 export function fmtRub(n: number): string {
   return n.toLocaleString("ru-RU");
+}
+
+/** 1 платёж, 2 платежа, 5 платежей */
+export function pluralPayment(n: number): string {
+  const mod10  = n % 10;
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 14) return `${n} платежей`;
+  if (mod10 === 1)                   return `${n} платёж`;
+  if (mod10 >= 2 && mod10 <= 4)     return `${n} платежа`;
+  return `${n} платежей`;
 }

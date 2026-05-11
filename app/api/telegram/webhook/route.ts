@@ -7,7 +7,7 @@
  *   /start  → отправляет клавиатуру «Поделиться контактом»
  *
  * Сообщения:
- *   contact → сохраняет phone + chat_id в user-store
+ *   contact → сохраняет phone + chat_id в Redis
  *
  * Безопасность:
  *   Telegram передаёт X-Telegram-Bot-Api-Secret-Token header.
@@ -15,11 +15,10 @@
  * ─────────────────────────────────────────────────────────────────
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { Telegraf, Context }          from "telegraf";
+import { NextRequest, NextResponse }                from "next/server";
+import { Telegraf, Context }                        from "telegraf";
 import { linkTelegramChatId, normalizePhoneStrict } from "@/lib/user-store";
 
-// Lazy singleton — пересоздавать дорого
 let _bot: Telegraf | null = null;
 
 function getBot(): Telegraf {
@@ -37,16 +36,17 @@ function setupHandlers(bot: Telegraf) {
   // /start — запрашиваем контакт
   bot.start(async (ctx: Context) => {
     await ctx.reply(
-      "Привет! 👋\n\nЧтобы войти в личный кабинет ФинНайс, нам нужно подтвердить ваш номер телефона.",
+      "Привет! Я бот верификации *FinNice*.\n\nНажмите кнопку ниже, чтобы привязать номер телефона к аккаунту.",
       {
+        parse_mode: "Markdown",
         reply_markup: {
           keyboard: [[
             {
-              text:            "📱 Поделиться контактом",
+              text:            "📱 Поделиться номером",
               request_contact: true,
             },
           ]],
-          resize_keyboard:  true,
+          resize_keyboard:   true,
           one_time_keyboard: true,
         },
       }
@@ -58,7 +58,7 @@ function setupHandlers(bot: Telegraf) {
     const contact = ctx.message?.contact;
     if (!contact) return;
 
-    // Проверяем, что контакт — от самого пользователя, а не чужой
+    // Проверяем, что контакт от самого пользователя
     if (contact.user_id && contact.user_id !== ctx.from?.id) {
       await ctx.reply("❌ Пожалуйста, отправьте ваш собственный контакт.");
       return;
@@ -75,10 +75,16 @@ function setupHandlers(bot: Telegraf) {
     const chatId    = ctx.from!.id;
     const firstName = ctx.from?.first_name ?? contact.first_name ?? null;
 
-    linkTelegramChatId(phone, chatId, firstName ?? undefined);
+    try {
+      await linkTelegramChatId(phone, chatId, firstName ?? undefined);
+    } catch (err) {
+      console.error("[webhook] linkTelegramChatId error:", err);
+      await ctx.reply("❌ Ошибка сохранения. Попробуйте позже.");
+      return;
+    }
 
     await ctx.reply(
-      `✅ Отлично, ${firstName ?? ""}!\n\nНомер *${phone}* привязан к вашему Telegram.\n\nВернитесь на сайт — там уже можно войти в кабинет.`,
+      `✅ *Номер подтверждён*\n\nТеперь вы можете войти на [finnice.vercel.app](https://finnice.vercel.app).`,
       {
         parse_mode:   "Markdown",
         reply_markup: { remove_keyboard: true },
@@ -96,7 +102,6 @@ function setupHandlers(bot: Telegraf) {
 
 /* ── Route handler ─────────────────────────────────────────── */
 export async function POST(req: NextRequest) {
-  // Верифицируем секрет webhook'а
   const secret         = process.env.TELEGRAM_WEBHOOK_SECRET ?? "";
   const incomingSecret = req.headers.get("x-telegram-bot-api-secret-token") ?? "";
 
@@ -107,10 +112,7 @@ export async function POST(req: NextRequest) {
   try {
     const update = await req.json();
     const bot    = getBot();
-
-    // Обрабатываем обновление асинхронно
     await bot.handleUpdate(update);
-
     return new NextResponse("ok", { status: 200 });
   } catch (err) {
     console.error("[telegram/webhook] Ошибка:", err);

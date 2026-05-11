@@ -7,7 +7,7 @@
 export const COMPANY = {
   name:        "ФинНайс",
   legalName:   "ФинНайс",
-  slogan:      "Без Риба. Без скрытых платежей. Без пени и штрафов.",
+  slogan:      "Без риба. Без скрытых платежей. Без пени и штрафов.",
   phone:       "+7 (928) 999-99-99",
   phoneTel:    "tel:+79289999999",
   email:       "info@finnice.ru",
@@ -643,7 +643,7 @@ export const ABOUT = {
 export const VALUES = [
   {
     icon:  "✅",
-    title: "Без Риба",
+    title: "Без риба",
     desc:  "Рассрочка без процентов, строго по шариату",
   },
   {

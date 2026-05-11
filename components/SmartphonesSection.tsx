@@ -144,7 +144,16 @@ function Badge({ text }: { text?: string }) {
 }
 
 // ─── Карточка товара ─────────────────────────────────────────
-function PhoneCard({ phone }: { phone: PhoneItem }) {
+interface PhoneCardProps {
+  phone:        PhoneItem;
+  authed:       boolean;
+  inFavs:       boolean;
+  inCart:       boolean;
+  onToggleFav:  (id: string) => void;
+  onAddCart:    (id: string) => void;
+}
+
+function PhoneCard({ phone, authed, inFavs, inCart, onToggleFav, onAddCart }: PhoneCardProps) {
   const perMonth = monthly(phone.price);
   const { openModal } = useAppModal();
 
@@ -162,54 +171,134 @@ function PhoneCard({ phone }: { phone: PhoneItem }) {
     });
   }
 
+  /* Определяем классы кнопки один раз */
+  const btnInCart = inCart
+    ? "bg-[#0C7A58] text-white cursor-default"
+    : "bg-[#0A1628] text-white hover:bg-[#1A3C6E]";
+
+  const BtnContent = inCart ? (
+    <><svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+      <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2"
+            strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>В корзине</>
+  ) : (
+    <><svg width="11" height="11" viewBox="0 0 20 20" fill="none">
+      <path d="M3 3h1.5l2.5 9h8l2-6H7" stroke="currentColor" strokeWidth="1.6"
+            strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="9" cy="16.5" r="1.2" fill="currentColor"/>
+      <circle cx="15" cy="16.5" r="1.2" fill="currentColor"/>
+    </svg>В корзину</>
+  );
+
   return (
-    <div className="card p-3 hover:shadow-lg transition-all group relative flex flex-col">
+    <div
+      className="bg-white flex flex-col group relative overflow-hidden
+                 transition-shadow duration-250
+                 hover:shadow-[0_4px_20px_rgba(10,22,40,0.10)]"
+      style={{ borderRadius: "14px", border: "1px solid #f0f0f0" }}
+    >
       <Badge text={phone.badge} />
 
-      <div className="w-full aspect-[3/4] bg-gradient-to-b from-[#F4F7FC] to-[#EBF0F9] rounded-xl mb-3 overflow-hidden flex items-center justify-center"
-           style={{ filter: "drop-shadow(0 8px 16px rgba(10,22,40,0.12))" }}>
+      {/* ❤ — избранное */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onToggleFav(phone.id); }}
+        aria-label={inFavs ? "Убрать из избранного" : "В избранное"}
+        className={`absolute top-1.5 right-1.5 z-20 w-6 h-6 flex items-center justify-center
+                    rounded-full transition-all active:scale-90
+                    ${inFavs
+                      ? "bg-red-50 text-red-500"
+                      : "bg-white/90 text-[#C4C9D4] opacity-0 group-hover:opacity-100"}`}
+        style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+      >
+        <svg width="11" height="11" viewBox="0 0 20 20" fill={inFavs ? "currentColor" : "none"}>
+          <path d="M10 17S3 12.5 3 7a4 4 0 017-2.66A4 4 0 0117 7c0 5.5-7 10-7 10z"
+                stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
+      {/* Изображение */}
+      <div className="w-full bg-white overflow-hidden flex items-center justify-center"
+           style={{ aspectRatio: "1/1" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={phone.img}
           alt={`${phone.model} ${phone.memory}`}
-          className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-contain p-2 group-hover:scale-[1.04]
+                     transition-transform duration-300"
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).style.display = "none";
             (e.currentTarget.nextSibling as HTMLElement).style.display = "flex";
           }}
         />
-        <div className="hidden w-full h-full items-center justify-center text-5xl">📱</div>
+        <div className="hidden w-full h-full items-center justify-center text-4xl">📱</div>
       </div>
 
-      <p className="text-[11px] text-[#6B7280] mb-0.5">{phone.brand}</p>
-      <h3 className="font-bold text-[#0A1628] text-xs leading-snug mb-1 line-clamp-2 group-hover:text-[#1A3C6E] transition-colors">
-        {phone.model}
-      </h3>
-
-      <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-        <span className="px-2 py-0.5 bg-[#EBF0F9] text-[#1A3C6E] rounded-full text-[10px] font-semibold">
-          {phone.memory}
-        </span>
-        <span className="px-2 py-0.5 bg-[#F4F7FC] text-[#6B7280] rounded-full text-[10px]">
-          {phone.sim}
-        </span>
-      </div>
-
-      <div className="mt-auto">
-        <p className="font-extrabold text-[#0A1628] text-sm leading-none">{fmtRub(phone.price)} ₽</p>
-        <p className="text-[10px] text-[#0C7A58] font-semibold mt-0.5">
+      {/* Текст */}
+      {/* pb-2 на мобиле (кнопка в потоке), sm:pb-8 резервирует ~32px под оверлей-кнопку */}
+      <div className="px-2.5 pt-1.5 pb-2 sm:pb-8">
+        <p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-[#8B8B8C]">
+          {phone.brand}
+        </p>
+        <h3 className="font-medium text-[#0A1628] text-[13px] leading-snug line-clamp-2 mt-0.5">
+          {phone.model}
+        </h3>
+        {/* Характеристики — всегда видны */}
+        <p className="text-[10px] text-[#ADADAD] mt-0.5">
+          {phone.memory}<span className="mx-1">·</span>{phone.sim}
+        </p>
+        {/* Цена */}
+        <p className="font-bold text-[#0A1628] mt-1.5 leading-none" style={{ fontSize: "15px" }}>
+          {fmtRub(phone.price)} ₽
+        </p>
+        <p className="text-[10px] text-[#9CA3AF] mt-0.5">
           от {fmtRub(perMonth)} ₽/мес.
         </p>
+
+        {/* Кнопка: мобиле — в потоке, десктоп — absolute overlay */}
+        {authed ? (
+          <button
+            onClick={inCart ? undefined : () => onAddCart(phone.id)}
+            className={`mt-2 sm:hidden w-full py-1.5 rounded-[10px] text-[11px] font-semibold
+                        flex items-center justify-center gap-1 transition-all
+                        active:scale-95 touch-manipulation ${btnInCart}`}
+          >
+            {BtnContent}
+          </button>
+        ) : (
+          <button onClick={handleBuy}
+            className="mt-2 sm:hidden w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
+                       text-[11px] font-semibold active:scale-95 transition-all touch-manipulation">
+            Купить в рассрочку
+          </button>
+        )}
       </div>
 
-      <button
-        onClick={handleBuy}
-        className="mt-3 w-full py-2.5 rounded-xl bg-[#0A1628] text-white
-                   text-xs font-semibold hover:bg-[#0C7A58] active:scale-95
-                   transition-all touch-manipulation"
-      >
-        Купить в рассрочку
-      </button>
+      {/* Desktop overlay button — выезжает снизу, не меняет высоту */}
+      {authed ? (
+        <button
+          onClick={inCart ? undefined : () => onAddCart(phone.id)}
+          className={`hidden sm:flex absolute inset-x-0 bottom-0 z-10
+                      items-center justify-center gap-1
+                      py-2 text-[11px] font-semibold
+                      translate-y-full group-hover:translate-y-0
+                      transition-transform duration-200
+                      active:scale-[0.98] touch-manipulation ${btnInCart}`}
+        >
+          {BtnContent}
+        </button>
+      ) : (
+        <button
+          onClick={handleBuy}
+          className="hidden sm:flex absolute inset-x-0 bottom-0 z-10
+                     items-center justify-center py-2
+                     bg-[#0A1628] text-white text-[11px] font-semibold
+                     translate-y-full group-hover:translate-y-0
+                     transition-transform duration-200
+                     active:scale-[0.98] touch-manipulation"
+        >
+          Купить в рассрочку
+        </button>
+      )}
     </div>
   );
 }
@@ -340,6 +429,8 @@ function BrandPill({ brand, active, onClick }: { brand: string; active: boolean;
   );
 }
 
+interface CartEntry { productId: string; qty: number; }
+
 // ─── Главный компонент ───────────────────────────────────────
 export function SmartphonesSection() {
   const [brand,  setBrand]  = useState("Apple");
@@ -347,6 +438,52 @@ export function SmartphonesSection() {
   const [memory, setMemory] = useState("Все");
   const [color,  setColor]  = useState("Все");
   const [sim,    setSim]    = useState<"Все" | SimType>("Все");
+
+  // ─── Auth / Favorites / Cart ──────────────────────────────
+  const [authed,    setAuthed]    = useState(false);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [cart,      setCart]      = useState<CartEntry[]>([]);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.authed) {
+          setAuthed(true);
+          Promise.all([
+            fetch("/api/favorites").then(r => r.ok ? r.json() : { ids: [] }),
+            fetch("/api/cart").then(r => r.ok ? r.json() : { items: [] }),
+          ]).then(([fav, crt]) => {
+            setFavorites(fav.ids ?? []);
+            setCart(crt.items ?? []);
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleToggleFav = async (productId: string) => {
+    setFavorites(prev =>
+      prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
+    );
+    const r = await fetch("/api/favorites", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId }),
+    });
+    const d = await r.json();
+    if (d.ids) setFavorites(d.ids);
+  };
+
+  const handleAddCart = async (productId: string) => {
+    if (cart.some(c => c.productId === productId)) return;
+    setCart(prev => [...prev, { productId, qty: 1 }]);
+    const r = await fetch("/api/cart", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId, qty: 1 }),
+    });
+    const d = await r.json();
+    if (d.items) setCart(d.items);
+  };
 
   // Дедуплицированный список для текущего бренда
   const brandItems = useMemo(
@@ -515,26 +652,56 @@ export function SmartphonesSection() {
           )}
         </div>
 
-        {/* Сетка */}
-        {filtered.length === 0 ? (
-          <div className="text-center py-16 text-[#9CA3AF]">
-            <div className="text-4xl mb-3">🔍</div>
-            <p className="font-semibold">Нет товаров по выбранным фильтрам</p>
-            <button onClick={resetFilters} className="mt-3 text-sm text-[#0C7A58] underline">
-              Сбросить фильтры
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-            {filtered.map(phone => <PhoneCard key={phone.id} phone={phone} />)}
-          </div>
-        )}
+        {/* Сетка — лимит 12 товаров (3 ряда × 4 колонки) */}
+        {(() => {
+          const LIMIT = 12;
+          const displayed = filtered.slice(0, LIMIT);
+          const hasMore   = filtered.length > LIMIT || brandItems.length > LIMIT;
 
-        {filtered.length > 0 && (
-          <p className="text-xs text-[#9CA3AF] mt-4 text-center">
-            Показано {filtered.length} из {brandItems.length} моделей
-          </p>
-        )}
+          return filtered.length === 0 ? (
+            <div className="text-center py-16 text-[#9CA3AF]">
+              <div className="text-4xl mb-3">🔍</div>
+              <p className="font-semibold">Нет товаров по выбранным фильтрам</p>
+              <button onClick={resetFilters} className="mt-3 text-sm text-[#0C7A58] underline">
+                Сбросить фильтры
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+                {displayed.map(phone => (
+                  <PhoneCard
+                    key={phone.id}
+                    phone={phone}
+                    authed={authed}
+                    inFavs={favorites.includes(phone.id)}
+                    inCart={cart.some(c => c.productId === phone.id)}
+                    onToggleFav={handleToggleFav}
+                    onAddCart={handleAddCart}
+                  />
+                ))}
+              </div>
+
+              {/* Кнопка "Весь каталог" */}
+              <div className="mt-8 flex flex-col items-center gap-2">
+                {hasMore && (
+                  <p className="text-xs text-[#9CA3AF]">
+                    Показано {displayed.length} из {filtered.length} моделей
+                  </p>
+                )}
+                <Link
+                  href="/catalog/"
+                  className="inline-flex items-center gap-1.5 px-7 py-2.5 rounded-full
+                             border border-[#1A3C6E]/25 text-sm font-semibold text-[#1A3C6E]
+                             hover:bg-[#1A3C6E] hover:text-white hover:border-[#1A3C6E]
+                             transition-all shadow-sm"
+                >
+                  Весь каталог →
+                </Link>
+              </div>
+            </>
+          );
+        })()}
       </div>
     </section>
   );
