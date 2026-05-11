@@ -532,6 +532,9 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
       {/* ════════ 📊 Резюме — что в итоге кому достанется ════════ */}
       <SimulationSummary sim={sim} horizon={horizon} termMonths={termMonths} investorProfitShare={investorProfitShare} />
 
+      {/* ════════ 🏁 Wind-down — что будет если прекратить выдачу ════════ */}
+      <WindDownSection sim={sim} horizon={horizon} investorProfitShare={investorProfitShare} />
+
       {/* ════════ На конец периода — общая сводка ════════ */}
       <div className="mb-6 rounded-xl p-4" style={{ background: "#F9FAFB", border: "1px solid #D1D5DB" }}>
         <h3 className="text-xs font-semibold uppercase text-[#6B7280] mb-2">
@@ -1080,6 +1083,177 @@ function SimulationSummary({
         {" "}Реинвестировано в работу: <b>{fmtRubFull(sim.totalNetProfit - sim.totalWithdrawn)} ₽</b>.
         {" "}В активных сделках: <b>{sim.finalActiveDeals} {dealWord(sim.finalActiveDeals)}</b>, ожидаемые поступления{" "}
         <b>{fmtRubFull(sim.finalEquity - sim.finalCash - sim.totalWithdrawn)} ₽</b>.
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   🏁 WindDownSection — что будет если прекратить выдачу
+   ════════════════════════════════════════════════════════════ */
+function WindDownSection({
+  sim, horizon,
+}: {
+  sim: CohortSimResult;
+  horizon: number;
+  investorProfitShare: number;
+}) {
+  const wd = sim.windDown;
+  if (!wd || wd.months.length === 0) return null;
+
+  const wdHorizon = horizon + wd.totalMonths;
+  const horizonCompWithdrawn = sim.companyWithdrawn;
+  const horizonInvWithdrawn = sim.investorWithdrawn;
+
+  const word = (n: number, one: string, few: string, many: string) => {
+    const mod10 = n % 10, mod100 = n % 100;
+    if (mod100 >= 11 && mod100 <= 14) return many;
+    if (mod10 === 1) return one;
+    if (mod10 >= 2 && mod10 <= 4) return few;
+    return many;
+  };
+  const monthWord = (n: number) => word(n, "месяц", "месяца", "месяцев");
+
+  const fmtR = (x: number) => fmtRubFull(x) + " ₽";
+
+  /* Cumulative arrays для прогресс-бара */
+  let cumComp = 0, cumInv = 0;
+  const cumData = wd.months.map(m => {
+    cumComp += m.companyReceives;
+    cumInv  += m.investorReceives;
+    return { ...m, cumComp, cumInv };
+  });
+
+  const maxCum = Math.max(cumComp, cumInv, 1);
+
+  return (
+    <div className="mb-6 bg-white border-2 border-[#dc2626] rounded-2xl p-6 shadow-sm">
+      <h3 className="text-base font-extrabold text-[#0A1628] mb-1">
+        🏁 Что будет если прекратить выдачу новых сделок
+      </h3>
+      <p className="text-xs text-[#6B7280] mb-5 leading-relaxed">
+        Симуляция «wind-down»: после M{horizon} новых сделок не выдаём, только ждём пока активные сделки доплатят свой график.
+        Каждый месяц приходят платежи, закрываются когорты, признаётся прибыль, она <b>сразу уходит «в руки»</b> компании и инвестору.
+        Продлится <b>{wd.totalMonths} {monthWord(wd.totalMonths)}</b> (до M{wdHorizon}), пока все активные сделки не отплатят свой срок.
+      </p>
+
+      {/* Сводка по итогу wind-down */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+        {/* Company */}
+        <div className="rounded-xl p-4" style={{ background: "#F0FDF4", border: "1px solid #86EFAC" }}>
+          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#065F46] mb-2">
+            🏢 Компания получит в итоге
+          </h4>
+          <div className="text-2xl font-extrabold text-[#065F46] mb-2">{fmtR(wd.companyHandTotal)}</div>
+          <div className="text-[11px] text-[#374151] space-y-0.5">
+            <div>= уже извлечено за {horizon} мес: <b>{fmtR(horizonCompWithdrawn)}</b></div>
+            <div>+ доплатят в wind-down ({wd.totalMonths} мес): <b>{fmtR(wd.totalCompanyReceives)}</b></div>
+            <div>+ остаток в Pool 1 после wind-down: <b>{fmtR(wd.finalPool1Cash)}</b></div>
+            <div className="text-[#9CA3AF] mt-1 italic">
+              ROI от 2М своих: {fmtPct((wd.companyHandTotal - sim.companyCapital) / sim.companyCapital, 1)} за {wdHorizon} мес
+            </div>
+          </div>
+        </div>
+
+        {/* Investor */}
+        <div className="rounded-xl p-4" style={{ background: "#F5F3FF", border: "1px solid #C4B5FD" }}>
+          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#5b21b6] mb-2">
+            💼 Инвестор получит в итоге
+          </h4>
+          <div className="text-2xl font-extrabold text-[#5b21b6] mb-2">{fmtR(wd.investorHandTotal)}</div>
+          <div className="text-[11px] text-[#374151] space-y-0.5">
+            <div>= уже извлечено за {horizon} мес: <b>{fmtR(horizonInvWithdrawn)}</b></div>
+            <div>+ доплатят в wind-down ({wd.totalMonths} мес): <b>{fmtR(wd.totalInvestorReceives)}</b></div>
+            <div>+ Pool 2 (его капитал назад): <b>{fmtR(wd.finalPool2Cash)}</b></div>
+            <div>+ Pool 3 (его накопления): <b>{fmtR(wd.finalPool3Cash)}</b></div>
+            <div className="text-[#9CA3AF] mt-1 italic">
+              ROI от {fmtRubFull(sim.investorCapital)} ₽: {fmtPct((wd.investorHandTotal - sim.investorCapital) / sim.investorCapital, 1)} за {wdHorizon} мес
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Помесячный график wind-down */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="text-[10px] uppercase text-[#9CA3AF] border-b border-[#E5E7EB]">
+              <th className="text-left p-2">Месяц</th>
+              <th className="text-right p-2">Inflow</th>
+              <th className="text-right p-2">Закрылось</th>
+              <th className="text-right p-2">OpEx</th>
+              <th className="text-right p-2">Net profit</th>
+              <th className="text-right p-2">🏢 Получит</th>
+              <th className="text-right p-2">💼 Получит</th>
+              <th className="text-left p-2 pl-3">🏢 Кумулятив</th>
+              <th className="text-left p-2 pl-3">💼 Кумулятив</th>
+              <th className="text-right p-2">Активно P1/P2/P3</th>
+            </tr>
+          </thead>
+          <tbody className="font-mono">
+            {cumData.map(m => (
+              <tr key={m.monthOffset} className="border-b border-[#F3F4F6] hover:bg-[#F9FAFB]">
+                <td className="p-2 font-bold text-[#0A1628]">M{m.absoluteMonth}
+                  <span className="text-[9px] text-[#9CA3AF] font-normal ml-1">(+{m.monthOffset})</span>
+                </td>
+                <td className="text-right p-2">{fmtRub(m.totalInflow)}</td>
+                <td className="text-right p-2" style={{ color: m.closures > 0 ? "#dc2626" : "#9CA3AF" }}>
+                  {m.closures > 0 ? m.closures : "—"}
+                </td>
+                <td className="text-right p-2 text-[#9CA3AF]">
+                  {m.opEx > 0 ? "−" + fmtRub(m.opEx) : "—"}
+                </td>
+                <td className="text-right p-2 font-bold" style={{ color: m.netProfit > 0 ? "#0C7A58" : "#9CA3AF" }}>
+                  {m.netProfit > 0 ? "+" + fmtRub(m.netProfit) : "—"}
+                </td>
+                <td className="text-right p-2 font-bold text-[#065F46]">
+                  +{fmtRub(m.companyReceives)}
+                </td>
+                <td className="text-right p-2 font-bold text-[#5b21b6]">
+                  +{fmtRub(m.investorReceives)}
+                </td>
+                <td className="p-2 pl-3" style={{ width: 100 }}>
+                  <div className="flex items-center gap-1">
+                    <div className="flex-1 bg-[#F3F4F6] rounded-full overflow-hidden" style={{ height: 5 }}>
+                      <div style={{ width: `${(m.cumComp / maxCum) * 100}%`, height: "100%", background: "#065F46" }} />
+                    </div>
+                    <span className="text-[9px] text-[#065F46] font-mono tabular-nums shrink-0">{fmtRub(m.cumComp)}</span>
+                  </div>
+                </td>
+                <td className="p-2 pl-3" style={{ width: 100 }}>
+                  <div className="flex items-center gap-1">
+                    <div className="flex-1 bg-[#F3F4F6] rounded-full overflow-hidden" style={{ height: 5 }}>
+                      <div style={{ width: `${(m.cumInv / maxCum) * 100}%`, height: "100%", background: "#5b21b6" }} />
+                    </div>
+                    <span className="text-[9px] text-[#5b21b6] font-mono tabular-nums shrink-0">{fmtRub(m.cumInv)}</span>
+                  </div>
+                </td>
+                <td className="text-right p-2 text-[#6B7280]">
+                  {m.pool1?.activeAtEnd ?? 0} / {m.pool2?.activeAtEnd ?? 0} / {m.pool3?.activeAtEnd ?? 0}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Человеческое объяснение */}
+      <div className="mt-4 text-[12px] text-[#374151] leading-relaxed">
+        <p className="mb-2">
+          📅 <b>Расшифровка:</b> за следующие <b>{wd.totalMonths} {monthWord(wd.totalMonths)}</b> после M{horizon}
+          будут постепенно дозревать <b>{(sim.isolated?.pool1.activeDeals ?? 0) + (sim.isolated?.pool2.activeDeals ?? 0) + (sim.isolated?.pool3.activeDeals ?? 0)}</b> активных сделок.
+          Каждый месяц приходят инсталменты, opex {fmtPct(sim.params.opExRate ?? 0, 0)} вычитается, дефолты ({fmtPct(sim.params.defaultRate ?? 0, 1)} ставка)
+          уже учтены в эффективных платежах. Прибыль <b>сразу извлекается на руки</b>: компании из Pool 1 и её 60% доли с Pool 2, инвестору 40% с Pool 2 и его Pool 3.
+        </p>
+        <p className="mb-2">
+          🏦 <b>Возврат капитала инвестора:</b> на конец wind-down Pool 2 содержит <b>{fmtR(wd.finalPool2Cash)}</b>
+          — это его исходный капитал, физически возвращённый. Pool 3 содержит ещё <b>{fmtR(wd.finalPool3Cash)}</b>
+          — это его накопления, которые он вёл всё время.
+        </p>
+        <p>
+          🏢 <b>Возврат капитала компании:</b> Pool 1 содержит <b>{fmtR(wd.finalPool1Cash)}</b> — это компанийский исходный капитал
+          плюс реинвестированная прибыль за основной период.
+        </p>
       </div>
     </div>
   );

@@ -158,6 +158,9 @@ export interface CohortSimResult {
   investorShareInitial: number;
   investorShareFinal:   number;
 
+  /* Wind-down фаза — что будет если прекратить выдачу с конца горизонта */
+  windDown?: WindDownResult;
+
   /* Isolated mode — финальная декомпозиция (опционально) */
   isolated?: {
     pool1: PoolFinalState;
@@ -187,6 +190,44 @@ export interface PoolFinalState {
   totalDeployed:  number;   // сколько сделок выдано за период (включая закрытые)
   closures:       number;   // закрыто сделок
   capitalAtStart: number;
+}
+
+/* ── Wind-down (фаза после остановки выдачи) ─────────── */
+export interface WindDownPoolMonth {
+  inflow:      number;
+  closures:    number;
+  netProfit:   number;
+  cashEnd:     number;
+  activeAtEnd: number;
+}
+
+export interface WindDownMonth {
+  monthOffset:     number;   // 1, 2, 3...
+  absoluteMonth:   number;   // абсолютный T+offset
+  totalInflow:     number;
+  closures:        number;
+  netProfit:       number;
+  opEx:            number;
+  companyReceives: number;   // профит → компании в руки в этом месяце
+  investorReceives: number;
+  pool1?: WindDownPoolMonth;
+  pool2?: WindDownPoolMonth & { companyShare: number; investorShare: number; };
+  pool3?: WindDownPoolMonth;
+}
+
+export interface WindDownResult {
+  isolated:        boolean;        // true если был isolated mode
+  months:          WindDownMonth[];
+  totalMonths:     number;
+  totalCompanyReceives:  number;   // прибыль за wind-down (компания)
+  totalInvestorReceives: number;
+  /* Финальные cash после wind-down */
+  finalPool1Cash:  number;
+  finalPool2Cash:  number;         // возвращается инвестору как его капитал
+  finalPool3Cash:  number;
+  /* Финальные «итого на руках» */
+  companyHandTotal:  number;       // horizon-withdrawn + wind-down-receives + finalPool1Cash
+  investorHandTotal: number;       // horizon-withdrawn + wind-down-receives + finalPool2Cash + finalPool3Cash
 }
 
 export function simulateCohorts(params: CohortSimParams): CohortSimResult {
@@ -661,6 +702,91 @@ function simulateIsolated(params: CohortSimParams): CohortSimResult {
     ? Math.pow(1 + companyTotalProfit / companyCapitalInit, 1 / horizonYears) - 1
     : 0;
 
+  /* ════════ WIND-DOWN: после остановки выдачи ════════ */
+  /* Клонируем cohorts и cash чтобы не сломать main state */
+  const wdP1Cohorts = p1Cohorts.map(c => ({ ...c }));
+  const wdP2Cohorts = p2Cohorts.map(c => ({ ...c }));
+  const wdP3Cohorts = p3Cohorts.map(c => ({ ...c }));
+  let wdP1Cash = p1Cash;
+  let wdP2Cash = p2Cash;
+  let wdP3Cash = p3Cash;
+
+  const wdMonths: WindDownMonth[] = [];
+  let wdTotCompany = 0;
+  let wdTotInvestor = 0;
+  const totalActive = wdP1Cohorts.length + wdP2Cohorts.length + wdP3Cohorts.length;
+  const maxAge = totalActive > 0
+    ? Math.max(
+        ...wdP1Cohorts.map(c => termMonths - c.paymentsMade),
+        ...wdP2Cohorts.map(c => termMonths - c.paymentsMade),
+        ...wdP3Cohorts.map(c => termMonths - c.paymentsMade),
+        0,
+      )
+    : 0;
+
+  for (let offset = 1; offset <= maxAge; offset++) {
+    const t = monthsToSimulate + offset;
+
+    const r1 = processPoolTick(wdP1Cohorts, t, monthlyPayment, collectionRate, termMonths,
+                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate);
+    wdP1Cash += r1.inflow - r1.opExCost;
+    wdP1Cash -= r1.netProfit;          /* профит уходит "в руки" компании */
+    wdTotCompany += r1.netProfit;
+
+    const r2 = processPoolTick(wdP2Cohorts, t, monthlyPayment, collectionRate, termMonths,
+                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate);
+    wdP2Cash += r2.inflow - r2.opExCost;
+    const p2c = r2.netProfit * (1 - investorProfitShare);
+    const p2i = r2.netProfit * investorProfitShare;
+    wdP2Cash -= r2.netProfit;          /* профит уходит обеим сторонам */
+    wdTotCompany += p2c;
+    wdTotInvestor += p2i;
+
+    const r3 = processPoolTick(wdP3Cohorts, t, monthlyPayment, collectionRate, termMonths,
+                                profitPerDeal, capitalPerDeal, defaultRate, recoveryRate, opExRate);
+    wdP3Cash += r3.inflow - r3.opExCost;
+    wdP3Cash -= r3.netProfit;
+    wdTotInvestor += r3.netProfit;
+
+    wdMonths.push({
+      monthOffset: offset,
+      absoluteMonth: t,
+      totalInflow: r1.inflow + r2.inflow + r3.inflow,
+      closures:    r1.closures + r2.closures + r3.closures,
+      netProfit:   r1.netProfit + r2.netProfit + r3.netProfit,
+      opEx:        r1.opExCost + r2.opExCost + r3.opExCost,
+      companyReceives:  r1.netProfit + p2c,
+      investorReceives: p2i + r3.netProfit,
+      pool1: { inflow: r1.inflow, closures: r1.closures, netProfit: r1.netProfit,
+               cashEnd: wdP1Cash, activeAtEnd: wdP1Cohorts.reduce((a, c) => a + c.count, 0) },
+      pool2: { inflow: r2.inflow, closures: r2.closures, netProfit: r2.netProfit,
+               cashEnd: wdP2Cash, activeAtEnd: wdP2Cohorts.reduce((a, c) => a + c.count, 0),
+               companyShare: p2c, investorShare: p2i },
+      pool3: { inflow: r3.inflow, closures: r3.closures, netProfit: r3.netProfit,
+               cashEnd: wdP3Cash, activeAtEnd: wdP3Cohorts.reduce((a, c) => a + c.count, 0) },
+    });
+
+    if (wdP1Cohorts.length + wdP2Cohorts.length + wdP3Cohorts.length === 0) break;
+  }
+
+  /* Итого "на руках" каждой стороны после полного wind-down */
+  const horizonCompanyWithdrawn = cumCompanyP1Withdrawn + cumCompanyP2Withdrawn;
+  const horizonInvestorWithdrawn = cumInvestorP2Withdrawn + cumInvestorP3Withdrawn;
+  const windDown: WindDownResult = {
+    isolated: true,
+    months: wdMonths,
+    totalMonths: wdMonths.length,
+    totalCompanyReceives:  wdTotCompany,
+    totalInvestorReceives: wdTotInvestor,
+    finalPool1Cash:  wdP1Cash,
+    finalPool2Cash:  wdP2Cash,
+    finalPool3Cash:  wdP3Cash,
+    /* Компания получает: уже извлечённое (horizon) + wind-down receives + cash в Pool 1 */
+    companyHandTotal:  horizonCompanyWithdrawn + wdTotCompany + wdP1Cash,
+    /* Инвестор получает: уже извлечённое + wind-down receives + Pool 2 cash (его капитал назад) + Pool 3 cash */
+    investorHandTotal: horizonInvestorWithdrawn + wdTotInvestor + wdP2Cash + wdP3Cash,
+  };
+
   return {
     params,
     capitalPerDeal,
@@ -697,6 +823,8 @@ function simulateIsolated(params: CohortSimParams): CohortSimResult {
     companyBalanceFinal:  companyCapitalInit + cumCompanyP1Reinvested + cumCompanyP2Reinvested,
     investorShareInitial: investorCapitalPct,
     investorShareFinal:   investorProfitShare,
+
+    windDown,
 
     isolated: {
       pool1: {
