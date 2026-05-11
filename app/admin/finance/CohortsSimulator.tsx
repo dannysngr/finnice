@@ -163,13 +163,13 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
                 onChange={setCompanyReinvestPool1Pct}
                 format={v => fmtPctInt(v)}
                 parse={s => parseFloat(s) / 100} />
-              <SliderField label="🏢 Pool 2 → доля компании (60%) → реинвест в Pool 1"
+              <SliderField label={`🏢 Pool 2 → доля компании (${fmtPctInt(1 - investorProfitShare)}) → реинвест в Pool 1`}
                 value={companyReinvestPool2Pct}
                 min={0} max={1} step={0.05}
                 onChange={setCompanyReinvestPool2Pct}
                 format={v => fmtPctInt(v)}
                 parse={s => parseFloat(s) / 100} />
-              <SliderField label="💼 Pool 2 → доля инвестора (40%) → реинвест в Pool 3"
+              <SliderField label={`💼 Pool 2 → доля инвестора (${fmtPctInt(investorProfitShare)}) → реинвест в Pool 3`}
                 value={investorReinvestPool2Pct}
                 min={0} max={1} step={0.05}
                 onChange={setInvestorReinvestPool2Pct}
@@ -305,11 +305,21 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
           <SliderField label="Доля инвестора в капитале" value={investorCapitalPct}
             min={0} max={1} step={0.05}
             onChange={setInvestorCapitalPct} format={v => fmtPctInt(v)} />
-          {profitSplitMode === "carried" && (
-            <SliderField label="Контрактная доля инвестора в прибыли" value={investorProfitShare}
+          {(profitSplitMode === "carried" || profitSplitMode === "isolated") && (
+            <SliderField
+              label={
+                profitSplitMode === "isolated"
+                  ? "Доля инвестора в прибыли Pool 2 / доля компании"
+                  : "Контрактная доля инвестора в прибыли"
+              }
+              value={investorProfitShare}
               min={0} max={1} step={0.05}
               onChange={setInvestorProfitShare}
-              format={v => `${fmtPctInt(v)} / ${fmtPctInt(1 - v)}`} />
+              format={v => `${fmtPctInt(v)} / ${fmtPctInt(1 - v)}`}
+              parse={s => {
+                const n = parseFloat(s.replace(",", "."));
+                return isNaN(n) ? investorProfitShare : n / 100;
+              }} />
           )}
           {profitSplitMode === "prorata" && hasInvestor && (
             <div className="rounded-lg p-3 bg-[#F5F3FF] border border-[#C4B5FD] text-xs">
