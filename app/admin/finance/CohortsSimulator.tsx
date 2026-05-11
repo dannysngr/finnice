@@ -47,6 +47,7 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
   /* ── Инвестор ────────────────────────────── */
   const [investorCapitalPct, setInvestorCapitalPct] = useState(0);
   const [investorProfitShare, setInvestorProfitShare] = useState(0.5);
+  const [profitSplitMode, setProfitSplitMode] = useState<"prorata" | "carried">("prorata");
 
   /* Наценка — из iso-IRR матрицы (округлённая) */
   const markupPct = useMemo(
@@ -60,11 +61,12 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
     defaultRate, recoveryRate, opExRate, deployRate,
     companyReinvestPct, investorReinvestPct,
     investorCapitalPct, investorProfitShare,
+    profitSplitMode,
   }), [
     capital, horizon, dealCost, termMonths, downPct, markupPct,
     defaultRate, recoveryRate, opExRate, deployRate,
     companyReinvestPct, investorReinvestPct,
-    investorCapitalPct, investorProfitShare,
+    investorCapitalPct, investorProfitShare, profitSplitMode,
   ]);
 
   const allCohorts = useMemo(() => {
@@ -177,16 +179,80 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
       </Group>
 
       {/* ════════ Блок 4: Инвестор ════════ */}
-      <Group title="4. Инвестор-капитал и профит-шеринг" accent="#7c3aed">
+      <Group title="4. Инвестор-капитал и модель распределения" accent="#7c3aed">
+        {/* Toggle режима */}
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-[#6B7280]">
+              Модель распределения прибыли:
+            </span>
+          </div>
+          <div className="inline-flex rounded-lg border border-[#E5E7EB] p-0.5 bg-[#F9FAFB]">
+            <button
+              onClick={() => setProfitSplitMode("prorata")}
+              className="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors"
+              style={{
+                background: profitSplitMode === "prorata" ? "#7c3aed" : "transparent",
+                color: profitSplitMode === "prorata" ? "#fff" : "#0A1628",
+              }}
+            >
+              Pro-rata по балансу
+            </button>
+            <button
+              onClick={() => setProfitSplitMode("carried")}
+              className="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors"
+              style={{
+                background: profitSplitMode === "carried" ? "#7c3aed" : "transparent",
+                color: profitSplitMode === "carried" ? "#fff" : "#0A1628",
+              }}
+            >
+              Carried interest
+            </button>
+          </div>
+          <p className="text-[11px] text-[#6B7280] leading-relaxed mt-2">
+            {profitSplitMode === "prorata" ? (
+              <>
+                <b>Pro-rata:</b> прибыль каждый месяц делится пропорционально <b>текущему балансу</b> каждой стороны.
+                Реинвест растит ваш баланс → растёт ваша доля будущей прибыли. Решения сторон <b>изолированы</b>.
+                Изначальная доля = доля капитала.
+              </>
+            ) : (
+              <>
+                <b>Carried interest:</b> прибыль делится по <b>фиксированному контракту</b> (для VC/PE-моделей,
+                где инвестор пассивный, а оператор активный → получает carried). Балансы тоже отслеживаются для прозрачности.
+              </>
+            )}
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <SliderField label="Доля инвестора в капитале" value={investorCapitalPct}
             min={0} max={1} step={0.05}
             onChange={setInvestorCapitalPct} format={v => fmtPctInt(v)} />
-          <SliderField label="Доля инвестора в прибыли" value={investorProfitShare}
-            min={0} max={1} step={0.05}
-            onChange={setInvestorProfitShare}
-            format={v => `${fmtPctInt(v)} / ${fmtPctInt(1 - v)}`} />
+          {profitSplitMode === "carried" && (
+            <SliderField label="Контрактная доля инвестора в прибыли" value={investorProfitShare}
+              min={0} max={1} step={0.05}
+              onChange={setInvestorProfitShare}
+              format={v => `${fmtPctInt(v)} / ${fmtPctInt(1 - v)}`} />
+          )}
+          {profitSplitMode === "prorata" && hasInvestor && (
+            <div className="rounded-lg p-3 bg-[#F5F3FF] border border-[#C4B5FD] text-xs">
+              <div className="text-[10px] uppercase text-[#6B7280] mb-1">Изначальная доля инвестора в прибыли</div>
+              <div className="text-base font-extrabold text-[#5b21b6]">
+                = доле капитала ({fmtPctInt(investorCapitalPct)})
+              </div>
+              <div className="text-[10px] text-[#6B7280] mt-0.5">
+                Финальная: <b>{fmtPctInt(sim.investorShareFinal)}</b>
+                {Math.abs(sim.investorShareFinal - investorCapitalPct) > 0.001 && (
+                  <span className="ml-1" style={{ color: sim.investorShareFinal > investorCapitalPct ? "#0C7A58" : "#dc2626" }}>
+                    ({sim.investorShareFinal > investorCapitalPct ? "+" : ""}{((sim.investorShareFinal - investorCapitalPct) * 100).toFixed(1)}пп)
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
+
         {hasInvestor && (
           <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
             <div className="rounded-lg p-2.5" style={{ background: "#F5F3FF", border: "1px solid #C4B5FD" }}>
@@ -223,10 +289,10 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
             accent />
         </div>
 
-        {/* Компания: прибыль / извлечено / реинвестировано */}
+        {/* Компания: прибыль / извлечено / реинвестировано / баланс */}
         <div className="rounded-xl p-4 mb-3" style={{ background: "#F0FDF4", border: "1px solid #86EFAC" }}>
           <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#065F46] mb-2">🏢 Компания</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-2">
             <MetricCell label="Капитал внесён" value={fmtRubFull(sim.companyCapital) + " ₽"} />
             <MetricCell label="Полная прибыль" value={fmtRubFull(sim.companyProfit) + " ₽"} accent />
             <MetricCell label="Извлечено (cash)"
@@ -236,13 +302,24 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
               value={fmtRubFull(sim.companyReinvested) + " ₽"}
               subValue={`${fmtPctInt(companyReinvestPct)} от прибыли · ROI ${fmtPct(sim.companyRoiAnnual, 1)}/год`} accent />
           </div>
+          {hasInvestor && (
+            <div className="grid grid-cols-2 gap-3">
+              <MetricCell label="Финальный баланс капитала"
+                value={fmtRubFull(sim.companyBalanceFinal) + " ₽"}
+                subValue={`${fmtRubFull(sim.companyCapital)} → ${fmtRubFull(sim.companyBalanceFinal)} (рост ${fmtRub(sim.companyBalanceFinal - sim.companyCapital)} ₽)`}
+                accent />
+              <MetricCell label="Доля владения"
+                value={`${fmtPctInt(1 - sim.investorShareInitial)} → ${fmtPctInt(1 - sim.investorShareFinal)}`}
+                subValue={profitSplitMode === "prorata" ? "динамическая" : "контрактная (зафиксирована)"} />
+            </div>
+          )}
         </div>
 
-        {/* Инвестор: прибыль / извлечено / реинвестировано */}
+        {/* Инвестор: прибыль / извлечено / реинвестировано / баланс */}
         {hasInvestor && (
           <div className="rounded-xl p-4 mb-3" style={{ background: "#F5F3FF", border: "1px solid #C4B5FD" }}>
             <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#5b21b6] mb-2">💼 Инвестор</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-2">
               <MetricCell label="Капитал внесён" value={fmtRubFull(sim.investorCapital) + " ₽"} investor />
               <MetricCell label="Полная прибыль" value={fmtRubFull(sim.investorProfit) + " ₽"} investor />
               <MetricCell label="Извлечено (cash)"
@@ -251,6 +328,15 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
               <MetricCell label="В работе (reinvest)"
                 value={fmtRubFull(sim.investorReinvested) + " ₽"}
                 subValue={`${fmtPctInt(investorReinvestPct)} от прибыли · ROI ${fmtPct(sim.investorRoiAnnual, 1)}/год`} investor />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <MetricCell label="Финальный баланс капитала"
+                value={fmtRubFull(sim.investorBalanceFinal) + " ₽"}
+                subValue={`${fmtRubFull(sim.investorCapital)} → ${fmtRubFull(sim.investorBalanceFinal)} (рост ${fmtRub(sim.investorBalanceFinal - sim.investorCapital)} ₽)`}
+                investor />
+              <MetricCell label="Доля владения"
+                value={`${fmtPctInt(sim.investorShareInitial)} → ${fmtPctInt(sim.investorShareFinal)}`}
+                subValue={profitSplitMode === "prorata" ? "динамическая" : "контрактная (зафиксирована)"} />
             </div>
           </div>
         )}

@@ -39,8 +39,13 @@ export interface CohortSimParams {
   /* ── Инвестор ───────────────────────────────────── */
   /** Доля инвесторского капитала в стартовом капитале (0..1) */
   investorCapitalPct?:  number;
-  /** Доля прибыли, отдаваемая инвестору (0..1) */
+  /** Доля прибыли, отдаваемая инвестору (0..1) — применяется только в carried-режиме */
   investorProfitShare?: number;
+
+  /* ── Модель распределения прибыли ─────────────────
+     "prorata" — прибыль делится по текущему балансу (изоляция реинвестов)
+     "carried" — фиксированная контрактная доля (carried interest для оператора) */
+  profitSplitMode?: "prorata" | "carried";
 }
 
 export interface ActiveCohort {
@@ -84,6 +89,11 @@ export interface MonthSnapshot {
   cumulativeInvestorWithdrawn:  number;
   cumulativeInvestorReinvested: number;
 
+  /* Раздельные балансы и доля инвестора в этом месяце */
+  investorBalance:  number;
+  companyBalance:   number;
+  investorShareNow: number;
+
   activeDeals:      number;
   activeCohorts:    ActiveCohort[];
   capitalOccupied:  number;
@@ -125,6 +135,12 @@ export interface CohortSimResult {
   finalActiveDeals: number;
   finalEquity:      number;     // cash + receivables (face value, no haircut)
   steadyStateMonth: number | null;
+
+  /* Балансы — для отображения в UI */
+  investorBalanceFinal: number;
+  companyBalanceFinal:  number;
+  investorShareInitial: number;
+  investorShareFinal:   number;
 }
 
 export function simulateCohorts(params: CohortSimParams): CohortSimResult {
@@ -138,6 +154,7 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
     investorReinvestPct = 1,
     investorCapitalPct  = 0,
     investorProfitShare = 0.5,
+    profitSplitMode     = "prorata",
   } = params;
 
   const capitalPerDeal = dealCost * (1 - downPct);
@@ -156,6 +173,11 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
   const months: MonthSnapshot[] = [];
 
   let cash = capital;
+  /* Раздельные балансы капитала каждой стороны */
+  let investorBalance = capital * investorCapitalPct;
+  let companyBalance  = capital - investorBalance;
+  const investorShareInitial = investorCapitalPct;
+
   let cumulativeGrossProfit        = 0;
   let cumulativeNetProfit          = 0;
   let cumulativeInvestorProfit     = 0;
@@ -211,8 +233,12 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
     const opExCost = grossProfitThisMonth * opExRate;
     const netProfit = grossProfitThisMonth - defaultLossThisMonth - opExCost;
 
-    /* 4. Split между investor & company */
-    const investorPart = netProfit * investorProfitShare;
+    /* 4. Split между investor & company — зависит от режима */
+    const totalBalance = investorBalance + companyBalance;
+    const investorShareNow = profitSplitMode === "prorata"
+      ? (totalBalance > 0 ? investorBalance / totalBalance : 0)
+      : investorProfitShare;
+    const investorPart = netProfit * investorShareNow;
     const companyPart  = netProfit - investorPart;
 
     cumulativeGrossProfit    += grossProfitThisMonth;
@@ -242,6 +268,10 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
     cumulativeCompanyReinvested  += companyReinvestedThisMonth;
     cumulativeInvestorWithdrawn  += investorWithdrawnThisMonth;
     cumulativeInvestorReinvested += investorReinvestedThisMonth;
+
+    /* Реинвест растит баланс владельца */
+    investorBalance += investorReinvestedThisMonth;
+    companyBalance  += companyReinvestedThisMonth;
 
     const totalWithdrawnThisMonth = companyWithdrawnThisMonth + investorWithdrawnThisMonth;
     cash -= totalWithdrawnThisMonth;
@@ -290,6 +320,9 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
       cumulativeCompanyReinvested,
       cumulativeInvestorWithdrawn,
       cumulativeInvestorReinvested,
+      investorBalance,
+      companyBalance,
+      investorShareNow,
       activeDeals,
       activeCohorts: cohorts.map(c => ({ ...c })),
       capitalOccupied,
@@ -353,5 +386,12 @@ export function simulateCohorts(params: CohortSimParams): CohortSimResult {
     finalActiveDeals,
     finalEquity,
     steadyStateMonth,
+
+    investorBalanceFinal: investorBalance,
+    companyBalanceFinal:  companyBalance,
+    investorShareInitial,
+    investorShareFinal:   (investorBalance + companyBalance) > 0
+      ? investorBalance / (investorBalance + companyBalance)
+      : 0,
   };
 }
