@@ -74,6 +74,33 @@ input[type="range"]::-moz-range-thumb {
   cursor: pointer;
 }
 
+/* ─── Enhanced slider (для админ-симулятора и pricing matrix) ─── */
+input[type="range"].slider-enhanced {
+  height: 10px;
+  background: #E5E7EB;
+}
+input[type="range"].slider-enhanced::-webkit-slider-thumb {
+  width: 26px; height: 26px;
+  background: #fff;
+  border: 3px solid #0C7A58;
+  box-shadow: 0 2px 8px rgba(12,122,88,0.3);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+input[type="range"].slider-enhanced::-webkit-slider-thumb:hover {
+  transform: scale(1.12);
+  box-shadow: 0 3px 14px rgba(12,122,88,0.5);
+}
+input[type="range"].slider-enhanced::-webkit-slider-thumb:active {
+  background: #0C7A58;
+}
+input[type="range"].slider-enhanced::-moz-range-thumb {
+  width: 26px; height: 26px;
+  background: #fff;
+  border: 3px solid #0C7A58;
+  box-shadow: 0 2px 8px rgba(12,122,88,0.3);
+  cursor: pointer;
+}
+
 /* ─── Phone caret blink ──────────────────────────────────────── */
 @keyframes nf-caret { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 .nf-caret { animation: nf-caret 1s step-end infinite; }

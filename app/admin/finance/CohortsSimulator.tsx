@@ -27,27 +27,33 @@ interface Props {
 }
 
 export function CohortsSimulator({ inflationAnnual }: Props) {
-  /* ── Базовые ─────────────────────────────── */
-  const [capital, setCapital]     = useState(1_000_000);
-  const [dealCost, setDealCost]   = useState(100_000);
+  /* ── Базовые (новые дефолты по запросу) ──── */
+  const [capital, setCapital]     = useState(10_000_000);
+  const [dealCost, setDealCost]   = useState(50_000);
   const [termMonths, setTerm]     = useState(6);
   const [downPct, setDown]        = useState(0.25);
-  const [horizon, setHorizon]     = useState(18);
+  const [horizon, setHorizon]     = useState(12);
 
-  /* ── Стресс-тест ─────────────────────────── */
-  const [defaultRate, setDefaultRate]   = useState(0.03);
-  const [recoveryRate, setRecoveryRate] = useState(0.5);
+  /* ── Стресс-тест (новые дефолты) ─────────── */
+  const [defaultRate, setDefaultRate]   = useState(0.06);
+  const [recoveryRate, setRecoveryRate] = useState(0.25);
   const [opExRate, setOpExRate]         = useState(0.20);
-  const [deployRate, setDeployRate]     = useState(1.0);
+  const [deployRate, setDeployRate]     = useState(0.80);
 
-  /* ── Стратегия (раздельный реинвест) ─────── */
+  /* ── Стратегия (для pro-rata/carried) — 2 слайдера ─ */
   const [companyReinvestPct,  setCompanyReinvestPct]  = useState(1.0);
   const [investorReinvestPct, setInvestorReinvestPct] = useState(1.0);
 
+  /* ── Стратегия (для isolated) — 4 слайдера ─ */
+  const [companyReinvestPool1Pct, setCompanyReinvestPool1Pct]   = useState(1.0);
+  const [companyReinvestPool2Pct, setCompanyReinvestPool2Pct]   = useState(1.0);
+  const [investorReinvestPool2Pct, setInvestorReinvestPool2Pct] = useState(1.0);
+  const [investorReinvestPool3Pct, setInvestorReinvestPool3Pct] = useState(1.0);
+
   /* ── Инвестор ────────────────────────────── */
-  const [investorCapitalPct, setInvestorCapitalPct] = useState(0);
-  const [investorProfitShare, setInvestorProfitShare] = useState(0.5);
-  const [profitSplitMode, setProfitSplitMode] = useState<"prorata" | "carried">("prorata");
+  const [investorCapitalPct, setInvestorCapitalPct] = useState(0.8);
+  const [investorProfitShare, setInvestorProfitShare] = useState(0.4);
+  const [profitSplitMode, setProfitSplitMode] = useState<"prorata" | "carried" | "isolated">("isolated");
 
   /* Наценка — из iso-IRR матрицы (округлённая) */
   const markupPct = useMemo(
@@ -60,12 +66,16 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
     dealCost, termMonths, downPct, markupPct,
     defaultRate, recoveryRate, opExRate, deployRate,
     companyReinvestPct, investorReinvestPct,
+    companyReinvestPool1Pct, companyReinvestPool2Pct,
+    investorReinvestPool2Pct, investorReinvestPool3Pct,
     investorCapitalPct, investorProfitShare,
     profitSplitMode,
   }), [
     capital, horizon, dealCost, termMonths, downPct, markupPct,
     defaultRate, recoveryRate, opExRate, deployRate,
     companyReinvestPct, investorReinvestPct,
+    companyReinvestPool1Pct, companyReinvestPool2Pct,
+    investorReinvestPool2Pct, investorReinvestPool3Pct,
     investorCapitalPct, investorProfitShare, profitSplitMode,
   ]);
 
@@ -144,38 +154,88 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
 
       {/* ════════ Блок 3: Стратегия (раздельный реинвест) ════════ */}
       <Group title="3. Стратегия капитала — раздельный реинвест" accent="#0C7A58">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <SliderField label="Реинвест прибыли КОМПАНИИ"
-            value={companyReinvestPct}
-            min={0} max={1} step={0.05}
-            onChange={setCompanyReinvestPct}
-            format={v => fmtPctInt(v)} />
-          <SliderField label="Реинвест прибыли ИНВЕСТОРА"
-            value={investorReinvestPct}
-            min={0} max={1} step={0.05}
-            onChange={setInvestorReinvestPct}
-            format={v => fmtPctInt(v)} />
-        </div>
+        {profitSplitMode === "isolated" ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <SliderField label="🏢 Pool 1 (свой капитал) → реинвест компании"
+                value={companyReinvestPool1Pct}
+                min={0} max={1} step={0.05}
+                onChange={setCompanyReinvestPool1Pct}
+                format={v => fmtPctInt(v)}
+                parse={s => parseFloat(s) / 100} />
+              <SliderField label="🏢 Pool 2 → доля компании (60%) → реинвест в Pool 1"
+                value={companyReinvestPool2Pct}
+                min={0} max={1} step={0.05}
+                onChange={setCompanyReinvestPool2Pct}
+                format={v => fmtPctInt(v)}
+                parse={s => parseFloat(s) / 100} />
+              <SliderField label="💼 Pool 2 → доля инвестора (40%) → реинвест в Pool 3"
+                value={investorReinvestPool2Pct}
+                min={0} max={1} step={0.05}
+                onChange={setInvestorReinvestPool2Pct}
+                format={v => fmtPctInt(v)}
+                parse={s => parseFloat(s) / 100} />
+              <SliderField label="💼 Pool 3 (накопительный) → реинвест инвестора"
+                value={investorReinvestPool3Pct}
+                min={0} max={1} step={0.05}
+                onChange={setInvestorReinvestPool3Pct}
+                format={v => fmtPctInt(v)}
+                parse={s => parseFloat(s) / 100} />
+            </div>
 
-        {/* Пресеты */}
-        <div className="flex flex-wrap gap-2">
-          <PresetBtn label="🔁 Всё реинвест"
-            onClick={() => { setCompanyReinvestPct(1); setInvestorReinvestPct(1); }} />
-          <PresetBtn label="💵 Всё выводим"
-            onClick={() => { setCompanyReinvestPct(0); setInvestorReinvestPct(0); }} />
-          <PresetBtn label="🏢 Компания реинвест · 💸 Инвестор вывод"
-            onClick={() => { setCompanyReinvestPct(1); setInvestorReinvestPct(0); }} />
-          <PresetBtn label="🏢 Компания вывод · 💼 Инвестор реинвест"
-            onClick={() => { setCompanyReinvestPct(0); setInvestorReinvestPct(1); }} />
-          <PresetBtn label="½ ½"
-            onClick={() => { setCompanyReinvestPct(0.5); setInvestorReinvestPct(0.5); }} />
-        </div>
+            <div className="flex flex-wrap gap-2">
+              <PresetBtn label="🔁 Всё реинвест"
+                onClick={() => { setCompanyReinvestPool1Pct(1); setCompanyReinvestPool2Pct(1); setInvestorReinvestPool2Pct(1); setInvestorReinvestPool3Pct(1); }} />
+              <PresetBtn label="💵 Всё выводим"
+                onClick={() => { setCompanyReinvestPool1Pct(0); setCompanyReinvestPool2Pct(0); setInvestorReinvestPool2Pct(0); setInvestorReinvestPool3Pct(0); }} />
+              <PresetBtn label="🏢 Компания реинвест · 💸 Инвестор вывод"
+                onClick={() => { setCompanyReinvestPool1Pct(1); setCompanyReinvestPool2Pct(1); setInvestorReinvestPool2Pct(0); setInvestorReinvestPool3Pct(0); }} />
+              <PresetBtn label="🏢 Компания вывод · 💼 Инвестор реинвест"
+                onClick={() => { setCompanyReinvestPool1Pct(0); setCompanyReinvestPool2Pct(0); setInvestorReinvestPool2Pct(1); setInvestorReinvestPool3Pct(1); }} />
+            </div>
 
-        <p className="mt-3 text-[11px] text-[#6B7280] leading-relaxed">
-          <b>Реинвест 100%</b> — вся прибыль идёт в новые сделки → капитал растёт компаундом.
-          <b> Реинвест 0%</b> — прибыль извлекается → стабильный денежный поток.
-          Можно настроить независимо: например, инвестор получает прибыль каждый месяц на руки, а мы остаёмся в работе.
-        </p>
+            <p className="mt-3 text-[11px] text-[#6B7280] leading-relaxed">
+              <b>4 независимых слайдера</b> — каждый управляет реинвестом из своего пула.
+              При реинвесте Pool 2 деньги физически перемещаются: компания → в Pool 1, инвестор → в Pool 3.
+              Это даёт полную изоляцию: ваше решение реинвестировать вашу долю влияет только на ваш будущий профит.
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <SliderField label="Реинвест прибыли КОМПАНИИ"
+                value={companyReinvestPct}
+                min={0} max={1} step={0.05}
+                onChange={setCompanyReinvestPct}
+                format={v => fmtPctInt(v)}
+                parse={s => parseFloat(s) / 100} />
+              <SliderField label="Реинвест прибыли ИНВЕСТОРА"
+                value={investorReinvestPct}
+                min={0} max={1} step={0.05}
+                onChange={setInvestorReinvestPct}
+                format={v => fmtPctInt(v)}
+                parse={s => parseFloat(s) / 100} />
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <PresetBtn label="🔁 Всё реинвест"
+                onClick={() => { setCompanyReinvestPct(1); setInvestorReinvestPct(1); }} />
+              <PresetBtn label="💵 Всё выводим"
+                onClick={() => { setCompanyReinvestPct(0); setInvestorReinvestPct(0); }} />
+              <PresetBtn label="🏢 Компания реинвест · 💸 Инвестор вывод"
+                onClick={() => { setCompanyReinvestPct(1); setInvestorReinvestPct(0); }} />
+              <PresetBtn label="🏢 Компания вывод · 💼 Инвестор реинвест"
+                onClick={() => { setCompanyReinvestPct(0); setInvestorReinvestPct(1); }} />
+              <PresetBtn label="½ ½"
+                onClick={() => { setCompanyReinvestPct(0.5); setInvestorReinvestPct(0.5); }} />
+            </div>
+
+            <p className="mt-3 text-[11px] text-[#6B7280] leading-relaxed">
+              <b>Реинвест 100%</b> — вся прибыль идёт в новые сделки → капитал растёт компаундом.
+              <b> Реинвест 0%</b> — прибыль извлекается → стабильный денежный поток.
+            </p>
+          </>
+        )}
       </Group>
 
       {/* ════════ Блок 4: Инвестор ════════ */}
@@ -187,7 +247,17 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
               Модель распределения прибыли:
             </span>
           </div>
-          <div className="inline-flex rounded-lg border border-[#E5E7EB] p-0.5 bg-[#F9FAFB]">
+          <div className="inline-flex rounded-lg border border-[#E5E7EB] p-0.5 bg-[#F9FAFB] flex-wrap">
+            <button
+              onClick={() => setProfitSplitMode("isolated")}
+              className="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors"
+              style={{
+                background: profitSplitMode === "isolated" ? "#7c3aed" : "transparent",
+                color: profitSplitMode === "isolated" ? "#fff" : "#0A1628",
+              }}
+            >
+              🛡 Isolated Pools
+            </button>
             <button
               onClick={() => setProfitSplitMode("prorata")}
               className="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors"
@@ -210,16 +280,22 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
             </button>
           </div>
           <p className="text-[11px] text-[#6B7280] leading-relaxed mt-2">
-            {profitSplitMode === "prorata" ? (
+            {profitSplitMode === "isolated" ? (
+              <>
+                <b>Isolated Pools:</b> 3 независимых кошелька. Pool 1 — ваш собственный капитал (100% профит вам).
+                Pool 2 — инвесторские деньги, профит делится по контракту (например 60/40), при реинвесте перемещается в Pool 1 (компания) или Pool 3 (инвестор).
+                Pool 3 — инвесторский накопительный (100% его, генерирует профит только ему).
+                <b> Решения каждой стороны изолированы.</b>
+              </>
+            ) : profitSplitMode === "prorata" ? (
               <>
                 <b>Pro-rata:</b> прибыль каждый месяц делится пропорционально <b>текущему балансу</b> каждой стороны.
-                Реинвест растит ваш баланс → растёт ваша доля будущей прибыли. Решения сторон <b>изолированы</b>.
-                Изначальная доля = доля капитала.
+                Реинвест растит ваш баланс → растёт ваша доля будущей прибыли. Изначальная доля = доля капитала.
               </>
             ) : (
               <>
                 <b>Carried interest:</b> прибыль делится по <b>фиксированному контракту</b> (для VC/PE-моделей,
-                где инвестор пассивный, а оператор активный → получает carried). Балансы тоже отслеживаются для прозрачности.
+                где инвестор пассивный, а оператор активный → получает carried).
               </>
             )}
           </p>
@@ -360,6 +436,105 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
             Equity на конец: <b>{fmtRub(sim.finalEquity)} ₽</b>{annualizedEquity > 0 ? ` → equity-доходность ${fmtPct(annualizedEquity, 1)}/год` : ""}.
           </p>
         )}
+      </div>
+
+      {/* ════════ Isolated Pools — детальная декомпозиция ════════ */}
+      {sim.isolated && (
+        <div className="mb-6">
+          <h3 className="text-xs font-semibold uppercase text-[#6B7280] mb-3">
+            🛡 Декомпозиция по пулам (Isolated Mode)
+          </h3>
+
+          {/* Pool 1 */}
+          <div className="rounded-xl p-4 mb-3" style={{ background: "#F0FDF4", border: "1px solid #86EFAC" }}>
+            <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#065F46] mb-2">
+              🏢 Pool 1 · Капитал компании ({fmtRub(sim.isolated.pool1.capitalAtStart)} ₽) → 100% профит компании
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <MetricCell label="Прибыль с Pool 1"
+                value={fmtRubFull(sim.isolated.companyFromP1) + " ₽"} accent />
+              <MetricCell label="Реинвест Pool 1 → Pool 1"
+                value={fmtRubFull(sim.isolated.companyP1Reinvested) + " ₽"} />
+              <MetricCell label="Вывод из Pool 1"
+                value={fmtRubFull(sim.isolated.companyP1Withdrawn) + " ₽"} />
+              <MetricCell label="Cash в конце Pool 1"
+                value={fmtRubFull(sim.isolated.pool1.cash) + " ₽"} />
+            </div>
+            <div className="grid grid-cols-3 gap-3 mt-2">
+              <MetricCell label="Активных сделок"
+                value={sim.isolated.pool1.activeDeals.toString()} />
+              <MetricCell label="Сделок в работе на конец"
+                value={fmtRubFull(sim.isolated.pool1.receivables) + " ₽"} />
+              <MetricCell label="Всего выдано / закрыто"
+                value={`${sim.isolated.pool1.totalDeployed} / ${sim.isolated.pool1.closures}`} />
+            </div>
+          </div>
+
+          {/* Pool 2 */}
+          <div className="rounded-xl p-4 mb-3" style={{ background: "#FEF3C7", border: "1px solid #FCD34D" }}>
+            <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#92400E] mb-2">
+              💰 Pool 2 · Инвесторский оригинал ({fmtRub(sim.isolated.pool2.capitalAtStart)} ₽, заблокирован, возврат инвестору в конце срока)
+              — профит делится {fmtPctInt(1 - investorProfitShare)} / {fmtPctInt(investorProfitShare)} (компания / инвестор)
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <MetricCell label="Компании (60%)"
+                value={fmtRubFull(sim.isolated.companyFromP2) + " ₽"}
+                subValue={`из них ${fmtRubFull(sim.isolated.companyP2Reinvested)} → Pool 1, ${fmtRubFull(sim.isolated.companyP2Withdrawn)} вывод`} accent />
+              <MetricCell label="Инвестору (40%)"
+                value={fmtRubFull(sim.isolated.investorFromP2) + " ₽"}
+                subValue={`из них ${fmtRubFull(sim.isolated.investorP2Reinvested)} → Pool 3, ${fmtRubFull(sim.isolated.investorP2Withdrawn)} вывод`} investor />
+              <MetricCell label="Cash в Pool 2 в конце"
+                value={fmtRubFull(sim.isolated.pool2.cash) + " ₽"}
+                subValue="≈ исходные 8М (циклически работает)" />
+              <MetricCell label="Сделок в работе"
+                value={fmtRubFull(sim.isolated.pool2.receivables) + " ₽"}
+                subValue={`${sim.isolated.pool2.activeDeals} активных`} />
+            </div>
+          </div>
+
+          {/* Pool 3 */}
+          <div className="rounded-xl p-4 mb-3" style={{ background: "#F5F3FF", border: "1px solid #C4B5FD" }}>
+            <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#5b21b6] mb-2">
+              💼 Pool 3 · Инвестор-накопительный (стартует с 0, растёт из реинвестов Pool 2) → 100% профит инвестору
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <MetricCell label="Прибыль с Pool 3"
+                value={fmtRubFull(sim.isolated.investorFromP3) + " ₽"} investor />
+              <MetricCell label="Реинвест Pool 3 → Pool 3"
+                value={fmtRubFull(sim.isolated.investorP3Reinvested) + " ₽"} />
+              <MetricCell label="Вывод из Pool 3"
+                value={fmtRubFull(sim.isolated.investorP3Withdrawn) + " ₽"} />
+              <MetricCell label="Cash в конце Pool 3"
+                value={fmtRubFull(sim.isolated.pool3.cash) + " ₽"} investor />
+            </div>
+            <div className="grid grid-cols-3 gap-3 mt-2">
+              <MetricCell label="Активных сделок"
+                value={sim.isolated.pool3.activeDeals.toString()} />
+              <MetricCell label="Сделок в работе на конец"
+                value={fmtRubFull(sim.isolated.pool3.receivables) + " ₽"} />
+              <MetricCell label="Всего выдано / закрыто"
+                value={`${sim.isolated.pool3.totalDeployed} / ${sim.isolated.pool3.closures}`} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ════════ На конец периода — общая сводка ════════ */}
+      <div className="mb-6 rounded-xl p-4" style={{ background: "#F9FAFB", border: "1px solid #D1D5DB" }}>
+        <h3 className="text-xs font-semibold uppercase text-[#6B7280] mb-2">
+          📅 На конец периода ({horizon} мес)
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <MetricCell label="Cash на всех счетах"
+            value={fmtRubFull(sim.finalCash) + " ₽"} />
+          <MetricCell label="Активных сделок"
+            value={sim.finalActiveDeals.toString()} />
+          <MetricCell label="Сделок в работе (receivables)"
+            value={fmtRubFull(sim.finalEquity - sim.finalCash - sim.totalWithdrawn) + " ₽"}
+            subValue="face value (без дефолтов)" />
+          <MetricCell label="Total equity (cash + receivables + извлечено)"
+            value={fmtRubFull(sim.finalEquity) + " ₽"} accent />
+        </div>
       </div>
 
       {/* ════════ Лесенка когорт ════════ */}
@@ -582,21 +757,73 @@ function MetricCell({ label, value, subValue, accent, negative, investor }:
   );
 }
 
-function SliderField({ label, value, min, max, step, onChange, format }: {
+function SliderField({ label, value, min, max, step, onChange, format, parse }: {
   label: string; value: number;
   min: number; max: number; step: number;
   onChange: (v: number) => void;
   format: (v: number) => string;
+  parse?: (s: string) => number;   /* для парсинга введённого вручную значения */
 }) {
+  const [editing, setEditing] = useState(false);
+  const [raw, setRaw] = useState("");
+
+  const dec = () => onChange(Math.max(min, +(value - step).toFixed(6)));
+  const inc = () => onChange(Math.min(max, +(value + step).toFixed(6)));
+
+  const startEdit = () => {
+    setRaw(format(value).replace(/[^\d.,−-]/g, "").replace(",", "."));
+    setEditing(true);
+  };
+  const commitEdit = () => {
+    setEditing(false);
+    const n = parse ? parse(raw) : parseFloat(raw.replace(",", "."));
+    if (!isNaN(n) && isFinite(n)) onChange(Math.max(min, Math.min(max, n)));
+  };
+
   return (
     <div>
-      <label className="text-xs font-medium text-[#6B7280] flex justify-between mb-1">
-        <span>{label}</span>
-        <span className="font-mono text-[#0A1628] font-bold">{format(value)}</span>
+      <label className="text-xs font-medium text-[#6B7280] flex justify-between items-center mb-1.5">
+        <span className="leading-tight">{label}</span>
+        {editing ? (
+          <input
+            autoFocus
+            value={raw}
+            onChange={e => setRaw(e.target.value)}
+            onBlur={commitEdit}
+            onKeyDown={e => {
+              if (e.key === "Enter") commitEdit();
+              if (e.key === "Escape") setEditing(false);
+            }}
+            className="w-24 text-right border border-[#0C7A58] rounded px-1.5 py-0.5 text-xs font-mono outline-none"
+          />
+        ) : (
+          <button
+            onClick={startEdit}
+            className="font-mono text-xs font-bold text-[#0A1628] hover:bg-[#F3F4F6] px-1.5 py-0.5 rounded transition-colors"
+            title="Кликни чтобы ввести значение вручную"
+          >
+            {format(value)}
+          </button>
+        )}
       </label>
-      <input type="range" min={min} max={max} step={step} value={value}
-        onChange={e => onChange(Number(e.target.value))} className="w-full" />
-      <div className="flex justify-between text-[9px] text-[#9CA3AF] mt-0.5">
+      <div className="flex items-center gap-2">
+        <button
+          onClick={dec}
+          className="w-7 h-7 rounded-full bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#0A1628] font-bold text-base flex items-center justify-center shrink-0 transition-colors"
+          aria-label="Уменьшить"
+        >−</button>
+        <input
+          type="range" min={min} max={max} step={step} value={value}
+          onChange={e => onChange(Number(e.target.value))}
+          className="flex-1 slider-enhanced"
+        />
+        <button
+          onClick={inc}
+          className="w-7 h-7 rounded-full bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#0A1628] font-bold text-base flex items-center justify-center shrink-0 transition-colors"
+          aria-label="Увеличить"
+        >+</button>
+      </div>
+      <div className="flex justify-between text-[9px] text-[#9CA3AF] mt-0.5 px-1">
         <span>{format(min)}</span>
         <span>{format(max)}</span>
       </div>
