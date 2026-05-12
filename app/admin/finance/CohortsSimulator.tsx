@@ -115,19 +115,24 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <SliderField label="Стартовый капитал" value={capital}
             min={100_000} max={50_000_000} step={100_000}
-            onChange={setCapital} format={v => fmtRub(v) + " ₽"} />
+            onChange={setCapital} format={v => fmtRub(v) + " ₽"}
+            tooltip="Общая сумма денег, с которой стартует бизнес. Складывается из капитала компании и инвестора." />
           <SliderField label="Стоимость сделки" value={dealCost}
             min={10_000} max={500_000} step={5_000}
-            onChange={setDealCost} format={v => fmtRub(v) + " ₽"} />
+            onChange={setDealCost} format={v => fmtRub(v) + " ₽"}
+            tooltip="Цена товара у партнёра, которую мы оплачиваем поставщику. Потом возвращаем через платежи клиента." />
           <SliderField label="Срок" value={termMonths}
             min={3} max={24} step={1}
-            onChange={setTerm} format={v => `${v} мес`} />
+            onChange={setTerm} format={v => `${v} мес`}
+            tooltip="Количество ежемесячных платежей клиента после первоначального взноса. Чем больше срок — тем дольше наш капитал заморожен в одной сделке." />
           <SliderField label="Взнос" value={downPct}
             min={0} max={0.5} step={0.05}
-            onChange={setDown} format={v => fmtPctInt(v)} />
+            onChange={setDown} format={v => fmtPctInt(v)}
+            tooltip="Процент от стоимости товара, который клиент платит сразу. Чем больше взнос, тем меньше наших денег нужно вложить в одну сделку." />
           <SliderField label="Горизонт" value={horizon}
             min={6} max={36} step={1}
-            onChange={setHorizon} format={v => `${v} мес`} />
+            onChange={setHorizon} format={v => `${v} мес`}
+            tooltip="Сколько месяцев симулируем активную выдачу новых сделок. После окончания горизонта запускается wind-down — доплата по уже выданным сделкам без новых выдач." />
         </div>
       </Group>
 
@@ -137,23 +142,28 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
           <SliderField label="Доля дефолтов"
             value={defaultRate}
             min={0} max={0.15} step={0.005}
-            onChange={setDefaultRate} format={v => fmtPct(v, 1)} />
+            onChange={setDefaultRate} format={v => fmtPct(v, 1)}
+            tooltip="Процент клиентов, которые полностью перестали платить. Эти деньги не вернутся (за вычетом частичного возврата). Бенчмарк: 3-5% потребкредит РФ, 5-15% микрофинансы, 1-3% community-based." />
           <SliderField label="Возврат с дефолта"
             value={recoveryRate}
             min={0} max={1} step={0.05}
-            onChange={setRecoveryRate} format={v => fmtPctInt(v)} />
+            onChange={setRecoveryRate} format={v => fmtPctInt(v)}
+            tooltip="Какую долю запланированных платежей мы успели получить ДО дефолта клиента. Например, 25% значит клиент сделал 25% от всех платежей и перестал. Бенчмарк: 25-50% обычно для consumer-сегмента." />
           <SliderField label="Просрочка 30+ DPD"
             value={delayRate}
             min={0} max={0.30} step={0.01}
-            onChange={setDelayRate} format={v => fmtPctInt(v)} />
+            onChange={setDelayRate} format={v => fmtPctInt(v)}
+            tooltip="Процент платежей, приходящих с опозданием на 1 месяц (но всё-таки приходящих). Уменьшает оборачиваемость капитала и эффективную IRR, но не теряем деньги. Бенчмарк: РФ потребкредит 5-8%, BNPL 8-12%, community-based 8-15%." />
           <SliderField label="OpEx (% от gross)"
             value={opExRate}
             min={0} max={0.5} step={0.01}
-            onChange={setOpExRate} format={v => fmtPctInt(v)} />
+            onChange={setOpExRate} format={v => fmtPctInt(v)}
+            tooltip="Операционные расходы (зарплаты, маркетинг, аренда, эквайринг, налоги) как процент от валовой прибыли каждой сделки. Бенчмарк для финтеха: 15-30% от gross profit." />
           <SliderField label="Эффективность деплоя"
             value={deployRate}
             min={0.5} max={1.0} step={0.05}
-            onChange={setDeployRate} format={v => fmtPctInt(v)} />
+            onChange={setDeployRate} format={v => fmtPctInt(v)}
+            tooltip="Какой процент доступного кеша мы успеваем развернуть в новые сделки каждый месяц. Значения <100% — буфер ликвидности или задержка поиска клиентов. Идеал 100% бывает редко." />
         </div>
         <div className="text-[10px] text-[#9CA3AF] mt-2 leading-relaxed space-y-1">
           <p>
@@ -179,25 +189,29 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
                 min={0} max={1} step={0.05}
                 onChange={setCompanyReinvestPool1Pct}
                 format={v => fmtPctInt(v)}
-                parse={s => parseFloat(s) / 100} />
+                parse={s => parseFloat(s) / 100}
+                tooltip="Какой процент прибыли с Pool 1 (ваш собственный капитал, 100% ваш) остаётся работать в Pool 1. 100% = всё в работу для компаундинга, 0% = вся прибыль на руки сразу." />
               <SliderField label={`🏢 Pool 2 → доля компании (${fmtPctInt(1 - investorProfitShare)}) → реинвест в Pool 1`}
                 value={companyReinvestPool2Pct}
                 min={0} max={1} step={0.05}
                 onChange={setCompanyReinvestPool2Pct}
                 format={v => fmtPctInt(v)}
-                parse={s => parseFloat(s) / 100} />
+                parse={s => parseFloat(s) / 100}
+                tooltip="Полученную долю прибыли компании с Pool 2 можно реинвестировать. При реинвесте эти деньги ФИЗИЧЕСКИ переходят в Pool 1 (где работают на компанию 100%). При выводе — уходят на руки." />
               <SliderField label={`💼 Pool 2 → доля инвестора (${fmtPctInt(investorProfitShare)}) → реинвест в Pool 3`}
                 value={investorReinvestPool2Pct}
                 min={0} max={1} step={0.05}
                 onChange={setInvestorReinvestPool2Pct}
                 format={v => fmtPctInt(v)}
-                parse={s => parseFloat(s) / 100} />
+                parse={s => parseFloat(s) / 100}
+                tooltip="Полученную долю прибыли инвестора с Pool 2 можно реинвестировать. При реинвесте эти деньги ФИЗИЧЕСКИ переходят в Pool 3 (где работают на инвестора 100%). При выводе — уходят на руки инвестору." />
               <SliderField label="💼 Pool 3 (накопительный) → реинвест инвестора"
                 value={investorReinvestPool3Pct}
                 min={0} max={1} step={0.05}
                 onChange={setInvestorReinvestPool3Pct}
                 format={v => fmtPctInt(v)}
-                parse={s => parseFloat(s) / 100} />
+                parse={s => parseFloat(s) / 100}
+                tooltip="Какой процент прибыли с Pool 3 (накопления инвестора, 100% его) остаётся работать дальше. Аналог Pool 1, но для инвестора." />
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -225,13 +239,15 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
                 min={0} max={1} step={0.05}
                 onChange={setCompanyReinvestPct}
                 format={v => fmtPctInt(v)}
-                parse={s => parseFloat(s) / 100} />
+                parse={s => parseFloat(s) / 100}
+                tooltip="Какая часть прибыли, начисленной компании, остаётся в общем cash-пуле и снова идёт в новые сделки. 100% = всё работает, 0% = вся доля компании выводится на руки каждый месяц." />
               <SliderField label="Реинвест прибыли ИНВЕСТОРА"
                 value={investorReinvestPct}
                 min={0} max={1} step={0.05}
                 onChange={setInvestorReinvestPct}
                 format={v => fmtPctInt(v)}
-                parse={s => parseFloat(s) / 100} />
+                parse={s => parseFloat(s) / 100}
+                tooltip="Какая часть прибыли, начисленной инвестору, остаётся в общем cash-пуле для новых сделок. 100% = инвестор не снимает ничего и наращивает баланс, 0% = инвестор выводит всю свою долю прибыли каждый месяц." />
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -321,7 +337,8 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <SliderField label="Доля инвестора в капитале" value={investorCapitalPct}
             min={0} max={1} step={0.05}
-            onChange={setInvestorCapitalPct} format={v => fmtPctInt(v)} />
+            onChange={setInvestorCapitalPct} format={v => fmtPctInt(v)}
+            tooltip="Какую часть стартового капитала вносит инвестор, а какую — компания. Например, 80% — это 8 млн из 10 млн дал инвестор, 2 млн — собственные деньги компании. От этой доли отсчитываются балансы и (в pro-rata) пропорция деления прибыли." />
           {(profitSplitMode === "carried" || profitSplitMode === "isolated") && (
             <SliderField
               label={
@@ -336,7 +353,12 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
               parse={s => {
                 const n = parseFloat(s.replace(",", "."));
                 return isNaN(n) ? investorProfitShare : n / 100;
-              }} />
+              }}
+              tooltip={
+                profitSplitMode === "isolated"
+                  ? "Контрактная пропорция деления чистой прибыли с Pool 2 (деньги инвестора в работе) между инвестором и компанией. Pool 1 и Pool 3 делятся 100/0 в свою сторону — этот слайдер на них не влияет."
+                  : "Фиксированная контрактная доля инвестора в чистой прибыли (carried interest). Не зависит от текущего соотношения балансов — действует на протяжении всего срока договора."
+              } />
           )}
           {profitSplitMode === "prorata" && hasInvestor && (
             <div className="rounded-lg p-3 bg-[#F5F3FF] border border-[#C4B5FD] text-xs">
@@ -790,15 +812,17 @@ function MetricCell({ label, value, subValue, accent, negative, investor }:
   );
 }
 
-function SliderField({ label, value, min, max, step, onChange, format, parse }: {
+function SliderField({ label, value, min, max, step, onChange, format, parse, tooltip }: {
   label: string; value: number;
   min: number; max: number; step: number;
   onChange: (v: number) => void;
   format: (v: number) => string;
   parse?: (s: string) => number;   /* для парсинга введённого вручную значения */
+  tooltip?: string;                /* подсказка при наведении */
 }) {
   const [editing, setEditing] = useState(false);
   const [raw, setRaw] = useState("");
+  const [hover, setHover] = useState(false);
 
   const dec = () => onChange(Math.max(min, +(value - step).toFixed(6)));
   const inc = () => onChange(Math.min(max, +(value + step).toFixed(6)));
@@ -814,9 +838,45 @@ function SliderField({ label, value, min, max, step, onChange, format, parse }: 
   };
 
   return (
-    <div>
+    <div className="relative"
+         onMouseEnter={() => setHover(true)}
+         onMouseLeave={() => setHover(false)}>
+      {tooltip && hover && (
+        <div
+          className="absolute z-50 pointer-events-none"
+          style={{
+            bottom: "calc(100% + 8px)",
+            left: 0,
+            right: 0,
+            background: "#0A1628",
+            color: "#fff",
+            padding: "10px 12px",
+            borderRadius: "8px",
+            fontSize: "11px",
+            lineHeight: 1.45,
+            boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
+          }}
+        >
+          {tooltip}
+          <div
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: 14,
+              width: 0,
+              height: 0,
+              borderLeft: "6px solid transparent",
+              borderRight: "6px solid transparent",
+              borderTop: "6px solid #0A1628",
+            }}
+          />
+        </div>
+      )}
       <label className="text-xs font-medium text-[#6B7280] flex justify-between items-center mb-1.5">
-        <span className="leading-tight">{label}</span>
+        <span className="leading-tight inline-flex items-center gap-1 cursor-help">
+          {label}
+          {tooltip && <span className="text-[10px] text-[#9CA3AF]">ⓘ</span>}
+        </span>
         {editing ? (
           <input
             autoFocus

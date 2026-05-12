@@ -283,12 +283,18 @@ export function AdminClient({ isAdmin, role }: { isAdmin: boolean; role?: AdminR
             </h1>
             <p className="text-xs text-[#9CA3AF] mt-1">Управление заявками и пользователями</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button onClick={() => router.push("/admin/finance")}
                     className="px-4 py-2 text-sm font-semibold text-white rounded-full
                                transition-opacity hover:opacity-90 flex items-center gap-1.5"
                     style={{ background: "linear-gradient(135deg, #0C7A58, #0a6449)" }}>
-              💰 Финансы
+              🧪 Симуляция
+            </button>
+            <button onClick={() => router.push("/admin/finance/portfolio")}
+                    className="px-4 py-2 text-sm font-semibold text-white rounded-full
+                               transition-opacity hover:opacity-90 flex items-center gap-1.5"
+                    style={{ background: "linear-gradient(135deg, #1A3C6E, #0E2344)" }}>
+              📊 Портфель
             </button>
             <button onClick={() => router.push("/lk")}
                     className="px-4 py-2 text-sm font-semibold text-white border border-[#1A3C6E] rounded-full

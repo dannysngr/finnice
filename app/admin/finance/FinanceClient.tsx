@@ -143,7 +143,7 @@ export function FinanceClient({
                          transition-opacity hover:opacity-90 whitespace-nowrap"
               style={{ background: "linear-gradient(135deg, #0C7A58, #0a6449)" }}
             >
-              📊 Реальный портфель →
+              📊 Портфель →
             </Link>
             <Link
               href="/admin"

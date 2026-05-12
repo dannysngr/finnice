@@ -92,7 +92,7 @@ export function PortfolioClient({
             </button>
             <Link href="/admin/finance"
               className="px-4 py-2 text-sm font-semibold text-[#0A1628] border border-[#D1D5DB] rounded-lg hover:border-[#0A1628] transition-colors">
-              ← В Sandbox
+              ← В Симуляцию
             </Link>
           </div>
         </header>
