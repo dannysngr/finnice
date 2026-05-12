@@ -19,6 +19,7 @@ import {
   shouldBlockPhoneKeyDown,
   phoneToE164,
 } from "@/lib/phone-mask";
+import { InfoTooltip } from "@/components/InfoTooltip";
 
 const fmt = (n: number) =>
   Math.round(n).toLocaleString("ru-RU");
@@ -143,56 +144,78 @@ export function PortfolioClient({
         )}
 
         {/* Dashboard cards — ожидаемые показатели (по симулятору) */}
-        <h2 className="text-[11px] uppercase tracking-wider font-bold text-[#6B7280] mb-2">
+        <h2 className="text-[11px] uppercase tracking-wider font-bold text-[#6B7280] mb-2 inline-flex items-center gap-1.5">
           🧪 Ожидаемые показатели (по финмодели)
+          <InfoTooltip text="Расчётные значения по cohort-симулятору с текущей admin-policy (инфляция, дефолты, OpEx, recovery, deploy). Показывают, чего ждать при предположениях из админки." />
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-          <DashCard label="Инвесторов"        value={aggregate.totalInvestors.toString()} />
-          <DashCard label="Поднято всего"     value={fmt(aggregate.totalCapitalRaised) + " ₽"} accent />
-          <DashCard label="Тело в работе"     value={fmt(aggregate.totalActivePrincipal) + " ₽"} />
-          <DashCard label="Выведено"          value={fmt(aggregate.totalWithdrawnAll) + " ₽"} />
-          <DashCard label="Ожид. прибыль"     value={fmt(aggregate.totalExpectedProfit) + " ₽"} positive />
-          <DashCard label="Ожид. ROI/год"     value={fmtPct(aggregate.weightedAvgRoiAnnual, 1)} positive />
+          <DashCard label="Инвесторов" value={aggregate.totalInvestors.toString()}
+            tooltip="Сколько инвесторов заведено в системе (с любыми статусами депозитов)." />
+          <DashCard label="Поднято всего" value={fmt(aggregate.totalCapitalRaised) + " ₽"} accent
+            tooltip="Суммарная номинальная сумма ВСЕХ депозитов всех инвесторов с момента входа в проект (без учёта выводов)." />
+          <DashCard label="Тело в работе" value={fmt(aggregate.totalActivePrincipal) + " ₽"}
+            tooltip="Сумма депозитов, чей срок ещё не истёк. Именно эти деньги сейчас работают в сделках." />
+          <DashCard label="Выведено" value={fmt(aggregate.totalWithdrawnAll) + " ₽"}
+            tooltip="Сколько денег инвесторы уже забрали обратно (зафиксированные выводы)." />
+          <DashCard label="Ожид. прибыль" value={fmt(aggregate.totalExpectedProfit) + " ₽"} positive
+            tooltip="Прогноз чистой прибыли инвесторов за полный срок их депозитов — по cohort-симулятору с admin-policy. НЕ фактическая прибыль с реальных рассрочек." />
+          <DashCard label="Ожид. ROI/год" value={fmtPct(aggregate.weightedAvgRoiAnnual, 1)} positive
+            tooltip="Средневзвешенная по сумме депозитов годовая доходность по прогнозу. Удобно сравнивать с депозитом или другими инструментами." />
         </div>
 
         {/* Реальные показатели — атрибуция по фактическим сделкам */}
-        <h2 className="text-[11px] uppercase tracking-wider font-bold text-[#6B7280] mb-2">
+        <h2 className="text-[11px] uppercase tracking-wider font-bold text-[#6B7280] mb-2 inline-flex items-center gap-1.5">
           🏦 Реальные показатели (по факту рассрочек)
+          <InfoTooltip text="Считается из РЕАЛЬНЫХ рассрочек, выданных клиентам (одобренные заявки или ручное добавление в админке). Каждая сделка атрибутируется на активных в её дате инвесторов пропорционально (сумма депозита × profit-share) + капитал компании как противовес." />
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-2">
-          <DashCard label="Сделок всего"      value={loansSummary.totalDeals.toString()} />
-          <DashCard label="Активные · Закр."
-                    value={`${loansSummary.activeDeals} · ${loansSummary.completedDeals}`} />
-          <DashCard label="Просрочка (NPL)"
-                    value={fmtPct(loansSummary.nplRatio, 1)}
-                    {...(loansSummary.nplRatio > 0.05 ? { negative: true } : {})} />
-          <DashCard label="Капитал развёрнут"
-                    value={fmt(realAggregate.totalCapitalDeployed) + " ₽"} accent />
-          <DashCard label="Реализован. прибыль"
-                    value={fmt(realAggregate.realRealizedProfit) + " ₽"} positive />
-          <DashCard label="Net прибыль (real)"
-                    value={fmt(realAggregate.realNetProfit) + " ₽"} positive />
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-          <DashCard label="Ожидается с активных"
-                    value={fmt(realAggregate.realExpectedProfit - realAggregate.realRealizedProfit) + " ₽"} />
-          <DashCard label="Потери от просрочек"
-                    value={fmt(realAggregate.realDefaultLoss) + " ₽"} negative />
-          <DashCard label="OpEx начислен"
-                    value={fmt(realAggregate.realOpEx) + " ₽"} />
-          <DashCard label="Receivables"
-                    value={fmt(loansSummary.totalReceivables) + " ₽"} />
-          <DashCard label="Атрибутировано"
-                    value={`${realAggregate.loansAttributed} / ${loansSummary.totalDeals}`} />
-          <DashCard label="Planned IRR (взвеш.)"
-                    value={fmtPct(loansSummary.weightedPlannedIrr, 1)} positive />
-        </div>
+        {loansSummary.totalDeals === 0 ? (
+          <div className="mb-6 p-4 rounded-xl bg-[#FEF3C7] border border-[#FCD34D] text-sm text-[#78350F]">
+            <b>В системе пока нет ни одной рассрочки.</b> Чтобы реальная атрибуция начала
+            работать, одобрите заявку клиента или добавьте рассрочку вручную через
+            админ-панель → профиль клиента → блок «Рассрочки» → «+ Добавить».
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-2">
+              <DashCard label="Сделок всего" value={loansSummary.totalDeals.toString()}
+                tooltip="Все рассрочки, существующие в системе, независимо от того, атрибутированы они на инвесторов или нет." />
+              <DashCard label="Активные · Закр."
+                value={`${loansSummary.activeDeals} · ${loansSummary.completedDeals}`}
+                tooltip="Активные — клиент ещё платит. Закрытые — клиент полностью выплатил долг. Прибыль фиксируется только по закрытым." />
+              <DashCard label="Просрочка (NPL)" value={fmtPct(loansSummary.nplRatio, 1)}
+                {...(loansSummary.nplRatio > 0.05 ? { negative: true } : {})}
+                tooltip="Non-Performing Loans ratio = сделки с просрочкой ÷ активные сделки. Бенчмарк для финтеха: до 5% — норма, 5-10% — повышенный риск, >10% — критично." />
+              <DashCard label="Капитал развёрнут" value={fmt(realAggregate.totalCapitalDeployed) + " ₽"} accent
+                tooltip="Суммарный cost всех рассрочек — сколько денег было физически выдано клиентам (за вычетом их первоначальных взносов это и есть наш капитал в обороте)." />
+              <DashCard label="Реализован. прибыль" value={fmt(realAggregate.realRealizedProfit) + " ₽"} positive
+                tooltip="Markup со всех ЗАКРЫТЫХ сделок — клиенты выплатили полностью, прибыль материализовалась. До вычета OpEx и потерь." />
+              <DashCard label="Net прибыль (real)" value={fmt(realAggregate.realNetProfit) + " ₽"} positive
+                tooltip="Реальная чистая прибыль = realized − потери от просрочек × (1 − recovery) − OpEx (по rate из admin-policy)." />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+              <DashCard label="Ожидается с активных"
+                value={fmt(realAggregate.realExpectedProfit - realAggregate.realRealizedProfit) + " ₽"}
+                tooltip="Markup, который ещё не материализовался — по активным сделкам, если клиенты доплатят по графику." />
+              <DashCard label="Потери от просрочек" value={fmt(realAggregate.realDefaultLoss) + " ₽"} negative
+                tooltip="Оценка потерь от сделок со статусом overdue/default: outstanding principal × (1 − recovery_rate). Recovery берётся из admin-policy." />
+              <DashCard label="OpEx начислен" value={fmt(realAggregate.realOpEx) + " ₽"}
+                tooltip="Операционные расходы, отнесённые на realized прибыль (rate из admin-policy). Это синтетический расчёт — настоящий бухучёт OpEx не ведётся." />
+              <DashCard label="Receivables" value={fmt(loansSummary.totalReceivables) + " ₽"}
+                tooltip="Будущие поступления по всем активным сделкам — оставшиеся платежи клиентов (face value, без вычета возможных дефолтов)." />
+              <DashCard label="Атрибутировано"
+                value={`${realAggregate.loansAttributed} / ${loansSummary.totalDeals}`}
+                tooltip="Сколько сделок удалось привязать к инвесторам. Привязка возможна, если на дату выдачи был хотя бы один активный депозит. Остальные сделки относятся к компании." />
+              <DashCard label="Planned IRR (взвеш.)" value={fmtPct(loansSummary.weightedPlannedIrr, 1)} positive
+                tooltip="Средневзвешенная по капиталу годовая IRR всех рассрочек по плану выплат. Это потолок доходности на портфель если все клиенты заплатят по графику." />
+            </div>
 
-        {realAggregate.unattributedLoans > 0 && (
-          <p className="text-[11px] text-[#9CA3AF] -mt-3 mb-5 italic">
-            ℹ️ {realAggregate.unattributedLoans} {realAggregate.unattributedLoans === 1 ? "сделка отнесена" : "сделок отнесены"} к компании
-            — на момент их выдачи активных депозитов инвесторов не было.
-          </p>
+            {realAggregate.unattributedLoans > 0 && (
+              <p className="text-[11px] text-[#9CA3AF] -mt-3 mb-5 italic">
+                ℹ️ {realAggregate.unattributedLoans} {realAggregate.unattributedLoans === 1 ? "сделка отнесена" : "сделок отнесены"} к компании
+                — на момент их выдачи активных депозитов инвесторов не было.
+              </p>
+            )}
+          </>
         )}
 
         {/* Cash flow forecast */}
@@ -260,15 +283,15 @@ export function PortfolioClient({
               <thead className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
                 <tr>
                   <Th>ФИО</Th>
-                  <Th>Внесено</Th>
-                  <Th>Тело в работе</Th>
-                  <Th>Ожид. прибыль (мод.)</Th>
-                  <Th>Реализ. прибыль (факт)</Th>
-                  <Th>Сделок (факт)</Th>
-                  <Th>Оборачив.</Th>
-                  <Th>Баланс</Th>
-                  <Th>ROI ожид. / факт</Th>
-                  <Th>Maturity</Th>
+                  <Th tooltip="Суммарно внесено инвестором за всё время (с учётом нескольких траншей).">Внесено</Th>
+                  <Th tooltip="Сумма депозитов, чей срок ещё не истёк — деньги, которые сейчас работают.">Тело в работе</Th>
+                  <Th tooltip="Прогноз прибыли за весь срок депозитов — из cohort-симулятора с admin-policy.">Ожид. прибыль (мод.)</Th>
+                  <Th tooltip="Реализованная NET прибыль (gross − потери − OpEx) с РЕАЛЬНЫХ закрытых сделок, в финансировании которых участвовал этот инвестор.">Реализ. прибыль (факт)</Th>
+                  <Th tooltip="Сколько реальных рассрочек обслужил капитал этого инвестора (его депозит был активен на дату выдачи).">Сделок (факт)</Th>
+                  <Th tooltip="Capital turnover — во сколько раз капитал инвестора «перевернулся» через сделки. Чем выше — тем чаще работали деньги.">Оборачив.</Th>
+                  <Th tooltip="Чистое тело + накопленная прибыль (по модели) − выводы. Сколько денег номинально принадлежит инвестору на сегодня.">Баланс</Th>
+                  <Th tooltip="Ожидаемая годовая доходность (по модели) / фактическая годовая доходность (по реальным закрытым сделкам). Если факт = «—», то либо закрытых сделок ещё нет, либо инвестор недавно зашёл.">ROI ожид. / факт</Th>
+                  <Th tooltip="Ближайшая дата истечения срока одного из депозитов инвестора (maturity). После этой даты тело + накопленная прибыль возвращаются инвестору.">Maturity</Th>
                   <Th></Th>
                 </tr>
               </thead>
@@ -339,10 +362,13 @@ export function PortfolioClient({
 
 /* ─── small components ─────────────────────────────────────── */
 
-function Th({ children }: { children?: React.ReactNode }) {
+function Th({ children, tooltip }: { children?: React.ReactNode; tooltip?: string }) {
   return (
     <th className="text-left text-[10px] uppercase tracking-wide text-[#6B7280] font-semibold px-3 py-2.5">
-      {children}
+      <span className="inline-flex items-center gap-1.5">
+        {children}
+        {tooltip && <InfoTooltip text={tooltip} />}
+      </span>
     </th>
   );
 }
@@ -358,8 +384,9 @@ function Td({ children, bold, positive }: {
   );
 }
 
-function DashCard({ label, value, accent, positive, negative }: {
+function DashCard({ label, value, accent, positive, negative, tooltip, sub }: {
   label: string; value: string; accent?: boolean; positive?: boolean; negative?: boolean;
+  tooltip?: string; sub?: string;
 }) {
   let bg = "#fff", border = "#E5E7EB", fg = "#0A1628";
   if (accent)   { bg = "#ECFDF5"; border = "#A7F3D0"; fg = "#065F46"; }
@@ -367,8 +394,12 @@ function DashCard({ label, value, accent, positive, negative }: {
   if (negative) { bg = "#FEF2F2"; border = "#FCA5A5"; fg = "#991B1B"; }
   return (
     <div className="rounded-xl p-3" style={{ background: bg, border: `1px solid ${border}` }}>
-      <div className="text-[10px] uppercase tracking-wide text-[#6B7280]">{label}</div>
+      <div className="text-[10px] uppercase tracking-wide text-[#6B7280] inline-flex items-center gap-1.5">
+        {label}
+        {tooltip && <InfoTooltip text={tooltip} />}
+      </div>
       <div className="text-base font-extrabold mt-1" style={{ color: fg }}>{value}</div>
+      {sub && <div className="text-[10px] text-[#9CA3AF] mt-0.5 leading-tight">{sub}</div>}
     </div>
   );
 }
@@ -540,45 +571,71 @@ function InvestorDetailModal({
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-5 bg-[#F9FAFB]">
-          <DashCard label="Внесено"       value={fmt(projection.totalDeposited) + " ₽"} />
-          <DashCard label="Тело в работе" value={fmt(projection.activePrincipal) + " ₽"} />
-          <DashCard label="Накоплено (мод.)" value={fmt(projection.accruedProfitTotal) + " ₽"} positive />
-          <DashCard label="Баланс (мод.)" value={fmt(projection.currentBalance) + " ₽"} accent />
+          <DashCard label="Внесено" value={fmt(projection.totalDeposited) + " ₽"}
+            tooltip="Суммарно внесено инвестором за всё время (по всем траншам)." />
+          <DashCard label="Тело в работе" value={fmt(projection.activePrincipal) + " ₽"}
+            tooltip="Сумма депозитов, чей срок ещё не истёк." />
+          <DashCard label="Накоплено (мод.)" value={fmt(projection.accruedProfitTotal) + " ₽"} positive
+            tooltip="Расчётная прибыль инвестора на сегодня — линейная аппроксимация ожидаемой прибыли × (прошло мес / срок). Это МОДЕЛЬ, не факт." />
+          <DashCard label="Баланс (мод.)" value={fmt(projection.currentBalance) + " ₽"} accent
+            tooltip="Чистое тело + накопленная прибыль (по модели) − выводы. Сколько денег номинально на счёте инвестора." />
         </div>
 
-        {realMetrics && (
-          <div className="px-5 py-4 bg-white border-t border-[#E5E7EB]">
-            <h3 className="text-[11px] uppercase font-bold tracking-wider text-[#065F46] mb-2">
-              🏦 Фактическая атрибуция по рассрочкам
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-              <DashCard label="Сделок подписано" value={realMetrics.loansBacked.toString()} />
-              <DashCard label="Капитал в обороте" value={fmt(realMetrics.capitalDeployed) + " ₽"} accent />
-              <DashCard label="Оборачиваемость"
-                        value={`${realMetrics.capitalTurnover.toFixed(2)}× за ${realMetrics.monthsActive.toFixed(1)} мес`} />
-              <DashCard label="Срок активного капитала"
-                        value={`${realMetrics.monthsActive.toFixed(1)} мес`} />
+        <div className="px-5 py-4 bg-white border-t border-[#E5E7EB]">
+          <h3 className="text-[11px] uppercase font-bold tracking-wider text-[#065F46] mb-3 inline-flex items-center gap-1.5">
+            🏦 Фактическая атрибуция по рассрочкам
+            <InfoTooltip text="Реальные результаты: для каждой выданной рассрочки в системе берётся пропорциональная доля инвесторов, чьи депозиты активны на дату выдачи. Доля = (сумма депозита × profit-share) ÷ (∑ инвестор-claims + капитал компании × (1 − avg share))." />
+          </h3>
+          {!realMetrics || realMetrics.loansBacked === 0 ? (
+            <div className="p-4 rounded-xl bg-[#FEF3C7] border border-[#FCD34D] text-sm text-[#78350F]">
+              <b>Пока нет реальных сделок, привязанных к этому инвестору.</b>
+              <p className="text-xs mt-1 text-[#92400E]">
+                Привязка автоматическая: рассрочка приписывается инвестору, если на дату её выдачи
+                один из его депозитов был активен (внутри своего termMonths). Возможные причины пустого блока:
+                нет рассрочек в системе вообще, депозиты этого инвестора начались позже всех выданных
+                сделок, или сроки уже истекли.
+              </p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <DashCard label="Реализ. gross" value={fmt(realMetrics.realizedGrossProfit) + " ₽"} positive />
-              <DashCard label="Потери (просрочка)" value={fmt(realMetrics.defaultLossEstimate) + " ₽"} negative />
-              <DashCard label="OpEx" value={fmt(realMetrics.opExCharge) + " ₽"} />
-              <DashCard label="NET прибыль (факт)" value={fmt(realMetrics.realizedNetProfit) + " ₽"} positive />
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
-              <DashCard label="Ожид. с активных" value={fmt(realMetrics.expectedGrossProfit - realMetrics.realizedGrossProfit) + " ₽"} />
-              <DashCard label="Overdue exposure" value={fmt(realMetrics.overdueExposure) + " ₽"} negative />
-              <DashCard label="ROI факт/год" value={fmtPct(realMetrics.realRoiAnnual, 1)} positive />
-              <DashCard label="vs Ожид. ROI"
-                        value={`${fmtPct(realMetrics.realRoiAnnual - projection.weightedAvgRoiAnnual, 1)}`}
-                        {...(realMetrics.realRoiAnnual >= projection.weightedAvgRoiAnnual ? { positive: true } : { negative: true })} />
-            </div>
-            <p className="text-[10px] text-[#9CA3AF] mt-3 italic">
-              ℹ️ Атрибуция: для каждой сделки берётся пропорциональная доля инвесторов, чьи депозиты активны
-              на момент выдачи. Доля = (сумма депозита × profit-share) ÷ (∑ инвестор-claims + капитал компании × (1 − avg share)).
-            </p>
-          </div>
-        )}
+          ) : (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                <DashCard label="Сделок подписано" value={realMetrics.loansBacked.toString()}
+                  tooltip="Сколько реальных рассрочек обслужил капитал инвестора — для скольких сделок его депозит был активен на дату выдачи." />
+                <DashCard label="Капитал в обороте" value={fmt(realMetrics.capitalDeployed) + " ₽"} accent
+                  tooltip="Атрибутированная доля cost всех сделок. Грубо: cost каждой сделки × доля инвестора. Это сумма работы, которая прошла через капитал инвестора." />
+                <DashCard label="Оборачиваемость"
+                  value={`${realMetrics.capitalTurnover.toFixed(2)}×`}
+                  sub={`за ${realMetrics.monthsActive.toFixed(1)} мес`}
+                  tooltip="Capital turnover = атрибутированный capitalDeployed ÷ сумма депозитов инвестора. Показывает, во сколько раз перевернулись его деньги через сделки. Чем больше, тем интенсивнее работал капитал." />
+                <DashCard label="Срок активного капитала"
+                  value={`${realMetrics.monthsActive.toFixed(1)} мес`}
+                  tooltip="Средневзвешенный по сумме депозитов срок, в течение которого капитал инвестора реально работал (не превышает termMonths каждого депозита)." />
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <DashCard label="Реализ. gross" value={fmt(realMetrics.realizedGrossProfit) + " ₽"} positive
+                  tooltip="Markup от уже ЗАКРЫТЫХ сделок × доля инвестора. До вычета потерь и OpEx — это валовая фактическая прибыль." />
+                <DashCard label="Потери (просрочка)" value={fmt(realMetrics.defaultLossEstimate) + " ₽"} negative
+                  tooltip="Оценка потерь от overdue/default сделок × доля инвестора. Формула: outstanding principal × (1 − recovery_rate) из admin-policy." />
+                <DashCard label="OpEx" value={fmt(realMetrics.opExCharge) + " ₽"}
+                  tooltip="Операционные расходы, отнесённые на realized прибыль (по rate из admin-policy). Это синтетика — настоящий бухучёт OpEx не ведётся." />
+                <DashCard label="NET прибыль (факт)" value={fmt(realMetrics.realizedNetProfit) + " ₽"} positive
+                  tooltip="Реальная чистая прибыль инвестора = realized gross − потери − OpEx. Это то, что инвестор фактически заработал на сегодня." />
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+                <DashCard label="Ожид. с активных" value={fmt(realMetrics.expectedGrossProfit - realMetrics.realizedGrossProfit) + " ₽"}
+                  tooltip="Markup, который ещё не материализовался — с активных сделок, привязанных к инвестору, если клиенты доплатят по графику." />
+                <DashCard label="Overdue exposure" value={fmt(realMetrics.overdueExposure) + " ₽"} negative
+                  tooltip="Outstanding principal проблемных сделок (overdue/default) × доля инвестора. Это деньги, которые могут не вернуться вообще или вернуться частично через recovery." />
+                <DashCard label="ROI факт/год" value={fmtPct(realMetrics.realRoiAnnual, 1)} positive
+                  tooltip="Annualized real ROI = (realized NET прибыль ÷ сумма депозитов) × (12 ÷ monthsActive). Главная фактическая метрика — что инвестор реально получил годовых." />
+                <DashCard label="vs Ожид. ROI"
+                  value={`${fmtPct(realMetrics.realRoiAnnual - projection.weightedAvgRoiAnnual, 1)}`}
+                  {...(realMetrics.realRoiAnnual >= projection.weightedAvgRoiAnnual ? { positive: true } : { negative: true })}
+                  tooltip="Разница между фактической и ожидаемой (по модели) доходностью. Положительная — реальность лучше прогноза, отрицательная — хуже." />
+              </div>
+            </>
+          )}
+        </div>
 
         <div className="border-b border-[#E5E7EB] px-5 flex gap-2">
           {(["overview", "deposit", "withdraw"] as const).map(t => (
