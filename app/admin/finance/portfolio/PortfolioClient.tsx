@@ -8,6 +8,11 @@ import type {
   PortfolioAggregate,
   AdminPolicy,
 } from "@/lib/finance/investor-projections";
+import type {
+  InvestorRealMetrics,
+  RealAggregate,
+} from "@/lib/finance/investor-real-metrics";
+import type { PortfolioSummary } from "@/lib/finance/portfolio";
 import {
   formatPhone,
   phoneInputOnChange,
@@ -22,19 +27,28 @@ const fmtPct = (n: number, d = 1) =>
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
 interface Props {
-  initialInvestors:   Investor[];
-  initialAggregate:   PortfolioAggregate;
-  initialProjections: InvestorProjection[];
-  policy:             AdminPolicy;
+  initialInvestors:       Investor[];
+  initialAggregate:       PortfolioAggregate;
+  initialProjections:     InvestorProjection[];
+  policy:                 AdminPolicy;
+  realAggregate:          RealAggregate;
+  realMetricsByInvestor:  Record<string, InvestorRealMetrics | undefined>;
+  loansSummary:           PortfolioSummary;
 }
 
 export function PortfolioClient({
   initialInvestors, initialAggregate, initialProjections, policy,
+  realAggregate: initialRealAggregate,
+  realMetricsByInvestor: initialRealMetrics,
+  loansSummary: initialLoansSummary,
 }: Props) {
   const router = useRouter();
   const [investors,   setInvestors]   = useState(initialInvestors);
   const [aggregate,   setAggregate]   = useState(initialAggregate);
   const [projections, setProjections] = useState(initialProjections);
+  const [realAggregate, setRealAggregate] = useState(initialRealAggregate);
+  const [realMetrics, setRealMetrics] = useState(initialRealMetrics);
+  const [loansSummary, setLoansSummary] = useState(initialLoansSummary);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,6 +66,9 @@ export function PortfolioClient({
       setInvestors(data.investors);
       setAggregate(data.aggregate);
       setProjections(data.projections);
+      if (data.realAggregate)        setRealAggregate(data.realAggregate);
+      if (data.realMetricsByInvestor) setRealMetrics(data.realMetricsByInvestor);
+      if (data.loansSummary)          setLoansSummary(data.loansSummary);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Ошибка обновления");
     } finally {
@@ -125,15 +142,58 @@ export function PortfolioClient({
           </div>
         )}
 
-        {/* Dashboard cards */}
+        {/* Dashboard cards — ожидаемые показатели (по симулятору) */}
+        <h2 className="text-[11px] uppercase tracking-wider font-bold text-[#6B7280] mb-2">
+          🧪 Ожидаемые показатели (по финмодели)
+        </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
           <DashCard label="Инвесторов"        value={aggregate.totalInvestors.toString()} />
           <DashCard label="Поднято всего"     value={fmt(aggregate.totalCapitalRaised) + " ₽"} accent />
           <DashCard label="Тело в работе"     value={fmt(aggregate.totalActivePrincipal) + " ₽"} />
           <DashCard label="Выведено"          value={fmt(aggregate.totalWithdrawnAll) + " ₽"} />
           <DashCard label="Ожид. прибыль"     value={fmt(aggregate.totalExpectedProfit) + " ₽"} positive />
-          <DashCard label="Средний ROI/год"   value={fmtPct(aggregate.weightedAvgRoiAnnual, 1)} positive />
+          <DashCard label="Ожид. ROI/год"     value={fmtPct(aggregate.weightedAvgRoiAnnual, 1)} positive />
         </div>
+
+        {/* Реальные показатели — атрибуция по фактическим сделкам */}
+        <h2 className="text-[11px] uppercase tracking-wider font-bold text-[#6B7280] mb-2">
+          🏦 Реальные показатели (по факту рассрочек)
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-2">
+          <DashCard label="Сделок всего"      value={loansSummary.totalDeals.toString()} />
+          <DashCard label="Активные · Закр."
+                    value={`${loansSummary.activeDeals} · ${loansSummary.completedDeals}`} />
+          <DashCard label="Просрочка (NPL)"
+                    value={fmtPct(loansSummary.nplRatio, 1)}
+                    {...(loansSummary.nplRatio > 0.05 ? { negative: true } : {})} />
+          <DashCard label="Капитал развёрнут"
+                    value={fmt(realAggregate.totalCapitalDeployed) + " ₽"} accent />
+          <DashCard label="Реализован. прибыль"
+                    value={fmt(realAggregate.realRealizedProfit) + " ₽"} positive />
+          <DashCard label="Net прибыль (real)"
+                    value={fmt(realAggregate.realNetProfit) + " ₽"} positive />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+          <DashCard label="Ожидается с активных"
+                    value={fmt(realAggregate.realExpectedProfit - realAggregate.realRealizedProfit) + " ₽"} />
+          <DashCard label="Потери от просрочек"
+                    value={fmt(realAggregate.realDefaultLoss) + " ₽"} negative />
+          <DashCard label="OpEx начислен"
+                    value={fmt(realAggregate.realOpEx) + " ₽"} />
+          <DashCard label="Receivables"
+                    value={fmt(loansSummary.totalReceivables) + " ₽"} />
+          <DashCard label="Атрибутировано"
+                    value={`${realAggregate.loansAttributed} / ${loansSummary.totalDeals}`} />
+          <DashCard label="Planned IRR (взвеш.)"
+                    value={fmtPct(loansSummary.weightedPlannedIrr, 1)} positive />
+        </div>
+
+        {realAggregate.unattributedLoans > 0 && (
+          <p className="text-[11px] text-[#9CA3AF] -mt-3 mb-5 italic">
+            ℹ️ {realAggregate.unattributedLoans} {realAggregate.unattributedLoans === 1 ? "сделка отнесена" : "сделок отнесены"} к компании
+            — на момент их выдачи активных депозитов инвесторов не было.
+          </p>
+        )}
 
         {/* Cash flow forecast */}
         {aggregate.upcomingPayouts.length > 0 && (
@@ -201,14 +261,14 @@ export function PortfolioClient({
                 <tr>
                   <Th>ФИО</Th>
                   <Th>Внесено</Th>
-                  <Th>Выведено</Th>
                   <Th>Тело в работе</Th>
-                  <Th>Ожид. прибыль</Th>
-                  <Th>Накоплено</Th>
+                  <Th>Ожид. прибыль (мод.)</Th>
+                  <Th>Реализ. прибыль (факт)</Th>
+                  <Th>Сделок (факт)</Th>
+                  <Th>Оборачив.</Th>
                   <Th>Баланс</Th>
-                  <Th>ROI/год</Th>
-                  <Th>Депозитов</Th>
-                  <Th>Ближайший maturity</Th>
+                  <Th>ROI ожид. / факт</Th>
+                  <Th>Maturity</Th>
                   <Th></Th>
                 </tr>
               </thead>
@@ -221,19 +281,27 @@ export function PortfolioClient({
                         : "Ничего не найдено."}
                     </td>
                   </tr>
-                ) : filtered.map(p => (
+                ) : filtered.map(p => {
+                  const rm = realMetrics[p.investorId];
+                  return (
                   <tr key={p.investorId}
                       className="border-b border-[#F3F4F6] hover:bg-[#FAFAFA] cursor-pointer"
                       onClick={() => setOpenDetailId(p.investorId)}>
                     <Td bold>{p.fullName}</Td>
                     <Td>{fmt(p.totalDeposited)} ₽</Td>
-                    <Td>{fmt(p.totalWithdrawn)} ₽</Td>
                     <Td>{fmt(p.activePrincipal)} ₽</Td>
                     <Td positive>{fmt(p.expectedProfitTotal)} ₽</Td>
-                    <Td>{fmt(p.accruedProfitTotal)} ₽</Td>
+                    <Td positive>{rm ? fmt(rm.realizedNetProfit) + " ₽" : "—"}</Td>
+                    <Td>{rm ? rm.loansBacked : "—"}</Td>
+                    <Td>{rm ? `${rm.capitalTurnover.toFixed(2)}×` : "—"}</Td>
                     <Td bold>{fmt(p.currentBalance)} ₽</Td>
-                    <Td positive>{fmtPct(p.weightedAvgRoiAnnual, 1)}</Td>
-                    <Td>{p.deposits.length}</Td>
+                    <Td>
+                      <span className="text-[#5b21b6]">{fmtPct(p.weightedAvgRoiAnnual, 1)}</span>
+                      <span className="text-[#9CA3AF] mx-1">/</span>
+                      <span className="text-[#065F46] font-semibold">
+                        {rm && rm.realRoiAnnual ? fmtPct(rm.realRoiAnnual, 1) : "—"}
+                      </span>
+                    </Td>
                     <Td>{p.earliestMaturity ?? "—"}</Td>
                     <Td>
                       <button onClick={e => { e.stopPropagation(); setOpenDetailId(p.investorId); }}
@@ -242,7 +310,8 @@ export function PortfolioClient({
                       </button>
                     </Td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -258,6 +327,7 @@ export function PortfolioClient({
         <InvestorDetailModal
           investor={openInvestor}
           projection={openDetail}
+          realMetrics={realMetrics[openInvestor.id]}
           onClose={() => setOpenDetailId(null)}
           onAction={callApi}
           busy={busy}
@@ -288,12 +358,13 @@ function Td({ children, bold, positive }: {
   );
 }
 
-function DashCard({ label, value, accent, positive }: {
-  label: string; value: string; accent?: boolean; positive?: boolean;
+function DashCard({ label, value, accent, positive, negative }: {
+  label: string; value: string; accent?: boolean; positive?: boolean; negative?: boolean;
 }) {
   let bg = "#fff", border = "#E5E7EB", fg = "#0A1628";
   if (accent)   { bg = "#ECFDF5"; border = "#A7F3D0"; fg = "#065F46"; }
   if (positive) { bg = "#F5F3FF"; border = "#C4B5FD"; fg = "#5b21b6"; }
+  if (negative) { bg = "#FEF2F2"; border = "#FCA5A5"; fg = "#991B1B"; }
   return (
     <div className="rounded-xl p-3" style={{ background: bg, border: `1px solid ${border}` }}>
       <div className="text-[10px] uppercase tracking-wide text-[#6B7280]">{label}</div>
@@ -426,10 +497,11 @@ function AddInvestorForm({ onSubmit }: {
 /* ─── Detail modal ─────────────────────────────────────────── */
 
 function InvestorDetailModal({
-  investor, projection, onClose, onAction, busy,
+  investor, projection, realMetrics, onClose, onAction, busy,
 }: {
   investor: Investor;
   projection: InvestorProjection;
+  realMetrics?: InvestorRealMetrics;
   onClose: () => void;
   onAction: (action: string, payload: Record<string, unknown>) => Promise<unknown>;
   busy: boolean;
@@ -470,9 +542,43 @@ function InvestorDetailModal({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-5 bg-[#F9FAFB]">
           <DashCard label="Внесено"       value={fmt(projection.totalDeposited) + " ₽"} />
           <DashCard label="Тело в работе" value={fmt(projection.activePrincipal) + " ₽"} />
-          <DashCard label="Накоплено"     value={fmt(projection.accruedProfitTotal) + " ₽"} positive />
-          <DashCard label="Баланс"        value={fmt(projection.currentBalance) + " ₽"} accent />
+          <DashCard label="Накоплено (мод.)" value={fmt(projection.accruedProfitTotal) + " ₽"} positive />
+          <DashCard label="Баланс (мод.)" value={fmt(projection.currentBalance) + " ₽"} accent />
         </div>
+
+        {realMetrics && (
+          <div className="px-5 py-4 bg-white border-t border-[#E5E7EB]">
+            <h3 className="text-[11px] uppercase font-bold tracking-wider text-[#065F46] mb-2">
+              🏦 Фактическая атрибуция по рассрочкам
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+              <DashCard label="Сделок подписано" value={realMetrics.loansBacked.toString()} />
+              <DashCard label="Капитал в обороте" value={fmt(realMetrics.capitalDeployed) + " ₽"} accent />
+              <DashCard label="Оборачиваемость"
+                        value={`${realMetrics.capitalTurnover.toFixed(2)}× за ${realMetrics.monthsActive.toFixed(1)} мес`} />
+              <DashCard label="Срок активного капитала"
+                        value={`${realMetrics.monthsActive.toFixed(1)} мес`} />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <DashCard label="Реализ. gross" value={fmt(realMetrics.realizedGrossProfit) + " ₽"} positive />
+              <DashCard label="Потери (просрочка)" value={fmt(realMetrics.defaultLossEstimate) + " ₽"} negative />
+              <DashCard label="OpEx" value={fmt(realMetrics.opExCharge) + " ₽"} />
+              <DashCard label="NET прибыль (факт)" value={fmt(realMetrics.realizedNetProfit) + " ₽"} positive />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+              <DashCard label="Ожид. с активных" value={fmt(realMetrics.expectedGrossProfit - realMetrics.realizedGrossProfit) + " ₽"} />
+              <DashCard label="Overdue exposure" value={fmt(realMetrics.overdueExposure) + " ₽"} negative />
+              <DashCard label="ROI факт/год" value={fmtPct(realMetrics.realRoiAnnual, 1)} positive />
+              <DashCard label="vs Ожид. ROI"
+                        value={`${fmtPct(realMetrics.realRoiAnnual - projection.weightedAvgRoiAnnual, 1)}`}
+                        {...(realMetrics.realRoiAnnual >= projection.weightedAvgRoiAnnual ? { positive: true } : { negative: true })} />
+            </div>
+            <p className="text-[10px] text-[#9CA3AF] mt-3 italic">
+              ℹ️ Атрибуция: для каждой сделки берётся пропорциональная доля инвесторов, чьи депозиты активны
+              на момент выдачи. Доля = (сумма депозита × profit-share) ÷ (∑ инвестор-claims + капитал компании × (1 − avg share)).
+            </p>
+          </div>
+        )}
 
         <div className="border-b border-[#E5E7EB] px-5 flex gap-2">
           {(["overview", "deposit", "withdraw"] as const).map(t => (

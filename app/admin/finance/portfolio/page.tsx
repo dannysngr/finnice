@@ -7,6 +7,8 @@ import {
   type AdminPolicy,
 } from "@/lib/finance/investor-projections";
 import { readFinanceConfig } from "@/lib/finance/config-store";
+import { getAllLoans, computePortfolioSummary } from "@/lib/finance/portfolio";
+import { computeRealInvestorMetrics } from "@/lib/finance/investor-real-metrics";
 import { PortfolioClient } from "./PortfolioClient";
 
 export const metadata = {
@@ -29,7 +31,19 @@ export default async function PortfolioPage() {
     policy = { ...DEFAULT_POLICY, expectedInflationAnnual: cfg.expectedInflationAnnual };
   } catch {}
 
+  let loans: Awaited<ReturnType<typeof getAllLoans>> = [];
+  try { loans = await getAllLoans(); } catch (e) { console.error("getAllLoans:", e); }
+  const loansSummary = computePortfolioSummary(loans);
+
   const { aggregate, projections } = aggregatePortfolio(investors, policy);
+  const { perInvestor: realPerInvestor, aggregate: realAggregate } =
+    computeRealInvestorMetrics(investors, loans, policy);
+
+  /* Сериализуем Map → объект для передачи в client */
+  const realMetricsByInvestor: Record<string, ReturnType<typeof realPerInvestor.get>> = {};
+  for (const [id, m] of Array.from(realPerInvestor.entries())) {
+    realMetricsByInvestor[id] = m;
+  }
 
   return (
     <PortfolioClient
@@ -37,6 +51,9 @@ export default async function PortfolioPage() {
       initialAggregate={aggregate}
       initialProjections={projections}
       policy={policy}
+      realAggregate={realAggregate}
+      realMetricsByInvestor={realMetricsByInvestor}
+      loansSummary={loansSummary}
     />
   );
 }

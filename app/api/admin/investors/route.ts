@@ -25,6 +25,8 @@ import {
   type AdminPolicy,
 } from "@/lib/finance/investor-projections";
 import { readFinanceConfig } from "@/lib/finance/config-store";
+import { getAllLoans, computePortfolioSummary } from "@/lib/finance/portfolio";
+import { computeRealInvestorMetrics } from "@/lib/finance/investor-real-metrics";
 
 async function policyFromAdmin(): Promise<AdminPolicy> {
   try {
@@ -45,7 +47,21 @@ export async function GET() {
     const investors = await listInvestors();
     const policy    = await policyFromAdmin();
     const { aggregate, projections } = aggregatePortfolio(investors, policy);
-    return NextResponse.json({ investors, aggregate, projections, policy });
+
+    let loans: Awaited<ReturnType<typeof getAllLoans>> = [];
+    try { loans = await getAllLoans(); } catch (e) { console.error("getAllLoans:", e); }
+    const loansSummary = computePortfolioSummary(loans);
+    const { perInvestor, aggregate: realAggregate } =
+      computeRealInvestorMetrics(investors, loans, policy);
+    const realMetricsByInvestor: Record<string, unknown> = {};
+    for (const [id, m] of Array.from(perInvestor.entries())) {
+      realMetricsByInvestor[id] = m;
+    }
+
+    return NextResponse.json({
+      investors, aggregate, projections, policy,
+      realAggregate, realMetricsByInvestor, loansSummary,
+    });
   } catch (e) {
     console.error("investors GET error:", e);
     return NextResponse.json({ error: "internal" }, { status: 500 });
