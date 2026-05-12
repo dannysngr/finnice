@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { pluralPayment } from "@/lib/calculator-logic";
+import { pluralPayment, calcInstallment } from "@/lib/calculator-logic";
 import {
   markupRounded, irrMonthly, annualFromMonthly, baselineIrrAnnual,
 } from "@/lib/finance/iso-irr";
@@ -231,6 +231,23 @@ export function AdminClient({ isAdmin, role }: { isAdmin: boolean; role?: AdminR
     }
   };
 
+  const handleCreateLoan = async (phone: string, payload: Record<string, unknown>) => {
+    const res = await fetch("/api/admin/loans/create", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, ...payload }),
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({ error: "Ошибка" }));
+      throw new Error(d.error || "Не удалось создать");
+    }
+    const { loan } = await res.json();
+    setUserModal(prev => prev ? {
+      ...prev,
+      loans:      [...prev.loans, loan as LoanRecord],
+      loansCount: prev.loansCount + 1,
+    } : prev);
+  };
+
   const handleReject = async (appId: string) => {
     if (!confirm("Отклонить заявку?")) return;
     await fetch("/api/admin/reject-application", {
@@ -347,6 +364,7 @@ export function AdminClient({ isAdmin, role }: { isAdmin: boolean; role?: AdminR
           onMarkPaid={handleMarkPaid}
           onEditLoan={handleEditLoan}
           onDeleteLoan={handleDeleteLoan}
+          onCreateLoan={handleCreateLoan}
         />
       )}
       {approveApp && (
@@ -906,6 +924,151 @@ function TrustLevelSidebar({
 }
 
 /* ══════════════════════════════════════════════════════════════
+   ADMIN CREATE LOAN FORM — ручное добавление рассрочки клиенту
+   ══════════════════════════════════════════════════════════════ */
+function AdminCreateLoanForm({
+  onCancel, onCreate,
+}: {
+  onCancel: () => void;
+  onCreate: (payload: Record<string, unknown>) => Promise<void>;
+}) {
+  const [product,  setProduct]  = useState("");
+  const [price,    setPrice]    = useState(30_000);
+  const [down,     setDown]     = useState(0);
+  const [term,     setTerm]     = useState(6);
+  const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
+  const [notify,   setNotify]   = useState(false);
+  const [saving,   setSaving]   = useState(false);
+  const [error,    setError]    = useState<string | null>(null);
+
+  /* Авторасчёт по той же логике, что и публичный калькулятор */
+  const calc = calcInstallment({ price, down, term });
+  const monthly = calc.monthly;
+  const markup  = calc.markup;
+  const total   = calc.total;
+
+  const fmt = (n: number) => n.toLocaleString("ru-RU");
+
+  const canSubmit = product.trim().length > 0 && price > 0 && term >= 1 && monthly > 0 && !saving;
+
+  const handleSubmit = async () => {
+    setError(null);
+    setSaving(true);
+    try {
+      await onCreate({
+        product:      product.trim(),
+        price:        total,           // полная сумма к выплате клиентом
+        term,
+        monthly,
+        downAmount:   down,
+        costAmount:   price,           // что отдали поставщику (цена товара)
+        markupAmount: markup,
+        markupPct:    price > 0 ? markup / price : 0,
+        startDate,
+        notify,
+      });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Ошибка создания");
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mb-3 bg-[#0A1628] border border-[#C8972B]/40 rounded-xl p-4 space-y-3">
+      <h4 className="text-xs font-bold text-[#C8972B] uppercase tracking-wider">
+        + Создать рассрочку
+      </h4>
+
+      <div>
+        <p className="text-[10px] text-[#9CA3AF] mb-1 uppercase tracking-wider">Товар *</p>
+        <input
+          value={product}
+          onChange={e => setProduct(e.target.value)}
+          placeholder="iPhone 16 Pro 256GB"
+          className="w-full px-2.5 py-2 rounded-lg bg-[#0E2344] text-white text-sm
+                     border border-[#1A3C6E] focus:border-[#C8972B] outline-none transition-colors
+                     placeholder:text-[#9CA3AF]/40" />
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div>
+          <p className="text-[10px] text-[#9CA3AF] mb-1 uppercase tracking-wider">Цена (₽)</p>
+          <input type="number" value={price}
+                 onChange={e => setPrice(Math.max(0, Number(e.target.value) || 0))}
+                 className="w-full px-2.5 py-2 rounded-lg bg-[#0E2344] text-white text-sm
+                            border border-[#1A3C6E] focus:border-[#C8972B] outline-none" />
+        </div>
+        <div>
+          <p className="text-[10px] text-[#9CA3AF] mb-1 uppercase tracking-wider">Взнос (₽)</p>
+          <input type="number" value={down}
+                 onChange={e => setDown(Math.max(0, Number(e.target.value) || 0))}
+                 className="w-full px-2.5 py-2 rounded-lg bg-[#0E2344] text-white text-sm
+                            border border-[#1A3C6E] focus:border-[#C8972B] outline-none" />
+        </div>
+        <div>
+          <p className="text-[10px] text-[#9CA3AF] mb-1 uppercase tracking-wider">Срок (мес)</p>
+          <input type="number" value={term} min={1} max={24}
+                 onChange={e => setTerm(Math.max(1, Number(e.target.value) || 1))}
+                 className="w-full px-2.5 py-2 rounded-lg bg-[#0E2344] text-white text-sm
+                            border border-[#1A3C6E] focus:border-[#C8972B] outline-none" />
+        </div>
+        <div>
+          <p className="text-[10px] text-[#9CA3AF] mb-1 uppercase tracking-wider">Дата начала</p>
+          <input type="date" value={startDate}
+                 onChange={e => setStartDate(e.target.value)}
+                 className="w-full px-2.5 py-2 rounded-lg bg-[#0E2344] text-white text-sm
+                            border border-[#1A3C6E] focus:border-[#C8972B] outline-none" />
+        </div>
+      </div>
+
+      {/* Превью расчёта */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-[#1A3C6E]/20 rounded-lg p-2.5">
+        <CalcPreview label="Платёж/мес" value={fmt(monthly) + " ₽"} accent />
+        <CalcPreview label="Наценка"     value={fmt(markup) + " ₽"} />
+        <CalcPreview label="К возврату"  value={fmt(total) + " ₽"} />
+        <CalcPreview label="Ставка"      value={(calc.rate * 100).toFixed(2) + "%/мес"} />
+      </div>
+
+      <label className="inline-flex items-center gap-2 text-[11px] text-[#9CA3AF] cursor-pointer">
+        <input type="checkbox" checked={notify} onChange={e => setNotify(e.target.checked)}
+               className="accent-[#C8972B]" />
+        Отправить уведомление клиенту в Telegram
+      </label>
+
+      {error && (
+        <div className="text-xs text-red-400 bg-red-900/20 border border-red-500/30 rounded-lg px-3 py-2">
+          ⚠ {error}
+        </div>
+      )}
+
+      <div className="flex gap-2 pt-1">
+        <button onClick={onCancel} disabled={saving}
+                className="flex-1 py-2 rounded-full border border-[#9CA3AF]/30 text-white
+                           font-semibold text-xs hover:bg-[#1A3C6E]/40 transition-colors disabled:opacity-50">
+          Отмена
+        </button>
+        <button onClick={handleSubmit} disabled={!canSubmit}
+                className="flex-1 py-2 rounded-full font-bold text-xs transition-colors active:scale-95
+                           disabled:opacity-40 bg-[#C8972B] text-[#0A1628] hover:bg-[#E8B84B]">
+          {saving ? "Создаю..." : "Создать рассрочку"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CalcPreview({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div>
+      <p className="text-[9px] text-[#9CA3AF]/70 uppercase">{label}</p>
+      <p className={`text-[12px] font-bold mt-0.5 ${accent ? "text-[#C8972B]" : "text-white"}`}>
+        {value}
+      </p>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
    ADMIN LOAN CARD  — с редактированием и удалением
    ══════════════════════════════════════════════════════════════ */
 function AdminLoanCard({
@@ -1097,7 +1260,7 @@ function AdminLoanCard({
    USER PROFILE MODAL  — 2-column layout
    ══════════════════════════════════════════════════════════════ */
 function UserProfileModal({
-  user, onSave, onClose, onMarkPaid, onEditLoan, onDeleteLoan,
+  user, onSave, onClose, onMarkPaid, onEditLoan, onDeleteLoan, onCreateLoan,
 }: {
   user:          UserDetail;
   onSave:        (phone: string, data: Partial<UserDetail>) => Promise<void>;
@@ -1105,7 +1268,9 @@ function UserProfileModal({
   onMarkPaid:    (phone: string, loanId: string, idx: number) => Promise<void>;
   onEditLoan:    (phone: string, loanId: string, patch: Partial<LoanRecord>) => Promise<void>;
   onDeleteLoan:  (phone: string, loanId: string) => Promise<void>;
+  onCreateLoan:  (phone: string, payload: Record<string, unknown>) => Promise<void>;
 }) {
+  const [showAddLoan, setShowAddLoan] = useState(false);
   const [form, setForm] = useState({
     firstName:      user.firstName      ?? "",
     lastName:       user.lastName       ?? "",
@@ -1299,11 +1464,29 @@ function UserProfileModal({
             <h3 className="text-sm font-bold text-white">
               Рассрочки
             </h3>
-            <span className="text-[11px] text-[#9CA3AF]">
-              {user.loans?.filter(l => l.status === "active").length ?? 0} активных ·{" "}
-              {user.loans?.length ?? 0} всего
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-[#9CA3AF]">
+                {user.loans?.filter(l => l.status === "active").length ?? 0} активных ·{" "}
+                {user.loans?.length ?? 0} всего
+              </span>
+              <button
+                onClick={() => setShowAddLoan(s => !s)}
+                className="px-2.5 py-1 rounded-full text-[11px] font-bold transition-colors active:scale-95
+                           bg-[#C8972B] text-[#0A1628] hover:bg-[#E8B84B]">
+                {showAddLoan ? "✕ Отмена" : "+ Добавить"}
+              </button>
+            </div>
           </div>
+
+          {showAddLoan && (
+            <AdminCreateLoanForm
+              onCancel={() => setShowAddLoan(false)}
+              onCreate={async (payload) => {
+                await onCreateLoan(user.phone, payload);
+                setShowAddLoan(false);
+              }}
+            />
+          )}
 
           {user.loans?.length > 0 ? (
             <div className="space-y-3">
@@ -1319,7 +1502,7 @@ function UserProfileModal({
               ))}
             </div>
           ) : (
-            <p className="text-center text-xs text-[#9CA3AF] py-3">Нет рассрочек</p>
+            !showAddLoan && <p className="text-center text-xs text-[#9CA3AF] py-3">Нет рассрочек</p>
           )}
         </div>
       </div>
