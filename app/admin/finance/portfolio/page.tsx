@@ -1,12 +1,16 @@
 import { redirect } from "next/navigation";
 import { getAdminRole } from "@/lib/adminAuth";
-import { getAllLoans, groupByCohort, computePortfolioSummary } from "@/lib/finance/portfolio";
+import { listInvestors } from "@/lib/finance/investors-store";
+import {
+  aggregatePortfolio,
+  DEFAULT_POLICY,
+  type AdminPolicy,
+} from "@/lib/finance/investor-projections";
 import { readFinanceConfig } from "@/lib/finance/config-store";
-import { baselineIrrAnnual } from "@/lib/finance/iso-irr";
 import { PortfolioClient } from "./PortfolioClient";
 
 export const metadata = {
-  title: "Реальный портфель — ФинНайс",
+  title: "Портфель инвесторов — ФинНайс",
   robots: { index: false, follow: false },
 };
 
@@ -16,20 +20,23 @@ export default async function PortfolioPage() {
   const role = await getAdminRole();
   if (role === null) redirect("/admin");
 
-  const [loans, cfg] = await Promise.all([
-    getAllLoans(),
-    readFinanceConfig(),
-  ]);
-  const cohorts = groupByCohort(loans);
-  const summary = computePortfolioSummary(loans);
+  let investors: Awaited<ReturnType<typeof listInvestors>> = [];
+  try { investors = await listInvestors(); } catch (e) { console.error("listInvestors:", e); }
+
+  let policy: AdminPolicy = DEFAULT_POLICY;
+  try {
+    const cfg = await readFinanceConfig();
+    policy = { ...DEFAULT_POLICY, expectedInflationAnnual: cfg.expectedInflationAnnual };
+  } catch {}
+
+  const { aggregate, projections } = aggregatePortfolio(investors, policy);
 
   return (
     <PortfolioClient
-      initialLoans={loans}
-      initialCohorts={cohorts}
-      initialSummary={summary}
-      targetIrrAnnual={baselineIrrAnnual()}
-      inflationAnnual={cfg.expectedInflationAnnual}
+      initialInvestors={investors}
+      initialAggregate={aggregate}
+      initialProjections={projections}
+      policy={policy}
     />
   );
 }
