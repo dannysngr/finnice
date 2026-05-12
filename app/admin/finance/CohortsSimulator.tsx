@@ -400,42 +400,52 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
           <MetricCell label="Gross profit"
             value={fmtRubFull(sim.totalGrossProfit) + " ₽"}
-            subValue="до вычетов" />
+            subValue="до вычетов"
+            tooltip="Валовая прибыль за весь горизонт — сумма markup'ов по всем закрывшимся сделкам, без вычета дефолтов и OpEx. Это 'потолок' доходности." />
           <MetricCell label="− Дефолты"
             value={"−" + fmtRubFull(sim.totalDefaultLoss) + " ₽"}
             subValue={fmtPct(sim.totalGrossProfit > 0 ? sim.totalDefaultLoss / sim.totalGrossProfit : 0, 1) + " от gross"}
-            negative />
+            negative
+            tooltip="Совокупные потери от просроченных клиентов: доля дефолтов × (1 − recovery) × средний долг по сделке. Эти деньги не вернутся." />
           <MetricCell label="− OpEx"
             value={"−" + fmtRubFull(sim.totalOpEx) + " ₽"}
             subValue={fmtPct(opExRate, 0) + " от gross"}
-            negative />
+            negative
+            tooltip="Совокупные операционные расходы за горизонт: ФОТ, аренда, реклама, эквайринг, налоги. Считаются как процент от gross markup." />
           <MetricCell label="= Net profit"
             value={fmtRubFull(sim.totalNetProfit) + " ₽"}
-            accent />
+            accent
+            tooltip="Чистая прибыль = gross − дефолты − OpEx. Именно эта сумма делится между компанией и инвестором по выбранному режиму распределения." />
         </div>
 
         {/* Компания: прибыль / извлечено / реинвестировано / баланс */}
         <div className="rounded-xl p-4 mb-3" style={{ background: "#F0FDF4", border: "1px solid #86EFAC" }}>
           <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#065F46] mb-2">🏢 Компания</h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-2">
-            <MetricCell label="Капитал внесён" value={fmtRubFull(sim.companyCapital) + " ₽"} />
-            <MetricCell label="Полная прибыль" value={fmtRubFull(sim.companyProfit) + " ₽"} accent />
+            <MetricCell label="Капитал внесён" value={fmtRubFull(sim.companyCapital) + " ₽"}
+              tooltip="Стартовый капитал компании — её доля от общего капитала на момент старта симуляции." />
+            <MetricCell label="Полная прибыль" value={fmtRubFull(sim.companyProfit) + " ₽"} accent
+              tooltip="Net profit, который достался компании за весь горизонт. В режиме pro-rata = доля капитала × net profit, в carried = контрактная доля × net profit, в isolated = вся прибыль с Pool 1 + доля с Pool 2." />
             <MetricCell label="Извлечено (cash)"
               value={fmtRubFull(sim.companyWithdrawn) + " ₽"}
-              subValue={`${fmtPctInt(companyReinvestPct === 1 ? 0 : 1 - companyReinvestPct)} от прибыли`} />
+              subValue={`${fmtPctInt(companyReinvestPct === 1 ? 0 : 1 - companyReinvestPct)} от прибыли`}
+              tooltip="Сколько компания физически забрала на руки — зависит от слайдера реинвеста. То, что не реинвестируется, уходит как cash." />
             <MetricCell label="В работе (reinvest)"
               value={fmtRubFull(sim.companyReinvested) + " ₽"}
-              subValue={`${fmtPctInt(companyReinvestPct)} от прибыли · ROI ${fmtPct(sim.companyRoiAnnual, 1)}/год`} accent />
+              subValue={`${fmtPctInt(companyReinvestPct)} от прибыли · ROI ${fmtPct(sim.companyRoiAnnual, 1)}/год`} accent
+              tooltip="Реинвестированная прибыль компании. ROI — годовая доходность на её стартовый капитал. Создаёт компаунд-эффект." />
           </div>
           {hasInvestor && (
             <div className="grid grid-cols-2 gap-3">
               <MetricCell label="Финальный баланс капитала"
                 value={fmtRubFull(sim.companyBalanceFinal) + " ₽"}
                 subValue={`${fmtRubFull(sim.companyCapital)} → ${fmtRubFull(sim.companyBalanceFinal)} (рост ${fmtRub(sim.companyBalanceFinal - sim.companyCapital)} ₽)`}
-                accent />
+                accent
+                tooltip="Капитал компании в конце горизонта = стартовый + реинвестированная прибыль. Растёт за счёт компаундинга." />
               <MetricCell label="Доля владения"
                 value={`${fmtPctInt(1 - sim.investorShareInitial)} → ${fmtPctInt(1 - sim.investorShareFinal)}`}
-                subValue={profitSplitMode === "prorata" ? "динамическая" : "контрактная (зафиксирована)"} />
+                subValue={profitSplitMode === "prorata" ? "динамическая" : "контрактная (зафиксирована)"}
+                tooltip="Доля компании в общем капитале. В pro-rata меняется в зависимости от реинвестов сторон; в carried/isolated зафиксирована контрактом." />
             </div>
           )}
         </div>
@@ -445,38 +455,49 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
           <div className="rounded-xl p-4 mb-3" style={{ background: "#F5F3FF", border: "1px solid #C4B5FD" }}>
             <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#5b21b6] mb-2">💼 Инвестор</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-2">
-              <MetricCell label="Капитал внесён" value={fmtRubFull(sim.investorCapital) + " ₽"} investor />
-              <MetricCell label="Полная прибыль" value={fmtRubFull(sim.investorProfit) + " ₽"} investor />
+              <MetricCell label="Капитал внесён" value={fmtRubFull(sim.investorCapital) + " ₽"} investor
+                tooltip="Стартовый капитал инвестора — то, что он внёс при старте. Не путать с прибылью." />
+              <MetricCell label="Полная прибыль" value={fmtRubFull(sim.investorProfit) + " ₽"} investor
+                tooltip="Net profit инвестора за горизонт. Не включает возврат основного капитала — только заработок сверху." />
               <MetricCell label="Извлечено (cash)"
                 value={fmtRubFull(sim.investorWithdrawn) + " ₽"}
-                subValue={`${fmtPctInt(investorReinvestPct === 1 ? 0 : 1 - investorReinvestPct)} от прибыли`} />
+                subValue={`${fmtPctInt(investorReinvestPct === 1 ? 0 : 1 - investorReinvestPct)} от прибыли`}
+                tooltip="Сумма, которую инвестор забрал на руки. То, что не реинвестировано по слайдерам — выводится наличными." />
               <MetricCell label="В работе (reinvest)"
                 value={fmtRubFull(sim.investorReinvested) + " ₽"}
-                subValue={`${fmtPctInt(investorReinvestPct)} от прибыли · ROI ${fmtPct(sim.investorRoiAnnual, 1)}/год`} investor />
+                subValue={`${fmtPctInt(investorReinvestPct)} от прибыли · ROI ${fmtPct(sim.investorRoiAnnual, 1)}/год`} investor
+                tooltip="Реинвестированная прибыль инвестора. ROI — годовая доходность на стартовый капитал инвестора. Удобно сравнивать с депозитом." />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <MetricCell label="Финальный баланс капитала"
                 value={fmtRubFull(sim.investorBalanceFinal) + " ₽"}
                 subValue={`${fmtRubFull(sim.investorCapital)} → ${fmtRubFull(sim.investorBalanceFinal)} (рост ${fmtRub(sim.investorBalanceFinal - sim.investorCapital)} ₽)`}
-                investor />
+                investor
+                tooltip="Капитал инвестора в конце горизонта = стартовый + реинвестированная прибыль. Если выводил всё — баланс остаётся на стартовом." />
               <MetricCell label="Доля владения"
                 value={`${fmtPctInt(sim.investorShareInitial)} → ${fmtPctInt(sim.investorShareFinal)}`}
-                subValue={profitSplitMode === "prorata" ? "динамическая" : "контрактная (зафиксирована)"} />
+                subValue={profitSplitMode === "prorata" ? "динамическая" : "контрактная (зафиксирована)"}
+                tooltip="Доля инвестора в общем капитале. В pro-rata она меняется (если стороны реинвестируют по-разному); в carried/isolated — зафиксирована контрактом." />
             </div>
           </div>
         )}
 
         {/* Bottom row */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <MetricCell label="Закрыто сделок"      value={sim.totalDealsClosed.toString()} />
-          <MetricCell label="Steady state"         value={sim.steadyStateMonth !== null ? `M${sim.steadyStateMonth}` : "—"} />
-          <MetricCell label="Кеш в конце"          value={fmtRub(sim.finalCash) + " ₽"} />
-          <MetricCell label="Total извлечено"      value={fmtRub(sim.totalWithdrawn) + " ₽"} accent />
+          <MetricCell label="Закрыто сделок"      value={sim.totalDealsClosed.toString()}
+            tooltip="Сколько сделок дозрело за горизонт — клиенты полностью выплатили долг или ушли в дефолт. Только эти сделки реализовали профит." />
+          <MetricCell label="Steady state"         value={sim.steadyStateMonth !== null ? `M${sim.steadyStateMonth}` : "—"}
+            tooltip="Месяц, после которого месячный денежный поток стабилизировался (нет роста активных сделок). До этого — фаза разгона; после — стабильный режим. '—' = ещё не достигнут на горизонте." />
+          <MetricCell label="Кеш в конце"          value={fmtRub(sim.finalCash) + " ₽"}
+            tooltip="Свободный cash на всех пулах в последний месяц симуляции — деньги, которые не успели быть деплоены в новые сделки (например, потому что меньше стоимости одной сделки)." />
+          <MetricCell label="Total извлечено"      value={fmtRub(sim.totalWithdrawn) + " ₽"} accent
+            tooltip="Совокупный денежный поток на руки обеих сторон за горизонт. Показывает 'живые' деньги, выведенные из системы." />
           <MetricCell
             label={`Annualized ROI (${horizon}мес)`}
             value={fmtPct(annualizedRealized, 1)}
             subValue="by net profit"
-            accent />
+            accent
+            tooltip="Годовая доходность по net profit на весь капитал. Считается как (net profit / общий капитал) × (12 / горизонт). Главная метрика для сравнения с другими инвестициями." />
         </div>
 
         {sim.totalWithdrawn > 0 && (
@@ -501,21 +522,28 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <MetricCell label="Прибыль с Pool 1"
-                value={fmtRubFull(sim.isolated.companyFromP1) + " ₽"} accent />
+                value={fmtRubFull(sim.isolated.companyFromP1) + " ₽"} accent
+                tooltip="Net profit, заработанный на капитале Pool 1 (собственные деньги компании). Идёт компании 100% — здесь нет деления с инвестором." />
               <MetricCell label="Реинвест Pool 1 → Pool 1"
-                value={fmtRubFull(sim.isolated.companyP1Reinvested) + " ₽"} />
+                value={fmtRubFull(sim.isolated.companyP1Reinvested) + " ₽"}
+                tooltip="Прибыль с Pool 1, оставленная работать в самом Pool 1. Управляется слайдером 'Pool 1 → реинвест компании'." />
               <MetricCell label="Вывод из Pool 1"
-                value={fmtRubFull(sim.isolated.companyP1Withdrawn) + " ₽"} />
+                value={fmtRubFull(sim.isolated.companyP1Withdrawn) + " ₽"}
+                tooltip="Прибыль с Pool 1, выведенная на руки компании. Что не реинвестируется — выводится." />
               <MetricCell label="Cash в конце Pool 1"
-                value={fmtRubFull(sim.isolated.pool1.cash) + " ₽"} />
+                value={fmtRubFull(sim.isolated.pool1.cash) + " ₽"}
+                tooltip="Свободные деньги в Pool 1 на конец горизонта, ещё не вложенные в сделки. Если меньше стоимости одной сделки — копятся до следующего месяца." />
             </div>
             <div className="grid grid-cols-3 gap-3 mt-2">
               <MetricCell label="Активных сделок"
-                value={sim.isolated.pool1.activeDeals.toString()} />
+                value={sim.isolated.pool1.activeDeals.toString()}
+                tooltip="Количество сделок Pool 1, по которым клиенты ещё платят на конец горизонта." />
               <MetricCell label="Сделок в работе на конец"
-                value={fmtRubFull(sim.isolated.pool1.receivables) + " ₽"} />
+                value={fmtRubFull(sim.isolated.pool1.receivables) + " ₽"}
+                tooltip="Сумма будущих платежей по активным сделкам Pool 1 (принципал + markup). Эти деньги поступят после конца горизонта." />
               <MetricCell label="Всего выдано / закрыто"
-                value={`${sim.isolated.pool1.totalDeployed} / ${sim.isolated.pool1.closures}`} />
+                value={`${sim.isolated.pool1.totalDeployed} / ${sim.isolated.pool1.closures}`}
+                tooltip="Сколько сделок Pool 1 вообще было выдано за горизонт и сколько из них закрылось (полностью выплачено или ушло в дефолт)." />
             </div>
           </div>
 
@@ -526,18 +554,22 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
               — профит делится {fmtPctInt(1 - investorProfitShare)} / {fmtPctInt(investorProfitShare)} (компания / инвестор)
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <MetricCell label="Компании (60%)"
+              <MetricCell label={`Компании (${fmtPctInt(1 - investorProfitShare)})`}
                 value={fmtRubFull(sim.isolated.companyFromP2) + " ₽"}
-                subValue={`из них ${fmtRubFull(sim.isolated.companyP2Reinvested)} → Pool 1, ${fmtRubFull(sim.isolated.companyP2Withdrawn)} вывод`} accent />
-              <MetricCell label="Инвестору (40%)"
+                subValue={`из них ${fmtRubFull(sim.isolated.companyP2Reinvested)} → Pool 1, ${fmtRubFull(sim.isolated.companyP2Withdrawn)} вывод`} accent
+                tooltip="Доля компании в чистой прибыли с Pool 2 (контрактная пропорция). При реинвесте эти деньги физически перетекают в Pool 1 — становятся капиталом компании." />
+              <MetricCell label={`Инвестору (${fmtPctInt(investorProfitShare)})`}
                 value={fmtRubFull(sim.isolated.investorFromP2) + " ₽"}
-                subValue={`из них ${fmtRubFull(sim.isolated.investorP2Reinvested)} → Pool 3, ${fmtRubFull(sim.isolated.investorP2Withdrawn)} вывод`} investor />
+                subValue={`из них ${fmtRubFull(sim.isolated.investorP2Reinvested)} → Pool 3, ${fmtRubFull(sim.isolated.investorP2Withdrawn)} вывод`} investor
+                tooltip="Доля инвестора в чистой прибыли с Pool 2 (контрактная пропорция). При реинвесте эти деньги перетекают в Pool 3 — накопительный пул инвестора." />
               <MetricCell label="Cash в Pool 2 в конце"
                 value={fmtRubFull(sim.isolated.pool2.cash) + " ₽"}
-                subValue="≈ исходные 8М (циклически работает)" />
+                subValue="≈ исходный капитал (циклически работает)"
+                tooltip="Свободный cash в Pool 2 на конец. Стремится к нулю в режиме full deploy — деньги постоянно крутятся в новых сделках. Возвращается инвестору в wind-down." />
               <MetricCell label="Сделок в работе"
                 value={fmtRubFull(sim.isolated.pool2.receivables) + " ₽"}
-                subValue={`${sim.isolated.pool2.activeDeals} активных`} />
+                subValue={`${sim.isolated.pool2.activeDeals} активных`}
+                tooltip="Будущие поступления по активным сделкам Pool 2. Большая часть — возврат оригинального капитала инвестора, меньшая — будущий markup (делится с компанией)." />
             </div>
           </div>
 
@@ -548,21 +580,28 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <MetricCell label="Прибыль с Pool 3"
-                value={fmtRubFull(sim.isolated.investorFromP3) + " ₽"} investor />
+                value={fmtRubFull(sim.isolated.investorFromP3) + " ₽"} investor
+                tooltip="Net profit, заработанный на капитале Pool 3 (накопительный пул инвестора). Идёт инвестору 100% — здесь нет деления с компанией." />
               <MetricCell label="Реинвест Pool 3 → Pool 3"
-                value={fmtRubFull(sim.isolated.investorP3Reinvested) + " ₽"} />
+                value={fmtRubFull(sim.isolated.investorP3Reinvested) + " ₽"}
+                tooltip="Прибыль с Pool 3, оставленная работать в самом Pool 3. Управляется слайдером 'Pool 3 → реинвест инвестора'." />
               <MetricCell label="Вывод из Pool 3"
-                value={fmtRubFull(sim.isolated.investorP3Withdrawn) + " ₽"} />
+                value={fmtRubFull(sim.isolated.investorP3Withdrawn) + " ₽"}
+                tooltip="Прибыль с Pool 3, выведенная на руки инвестору. Накопительный пул удобен тем, что инвестор может выводить отсюда без касания оригинального капитала Pool 2." />
               <MetricCell label="Cash в конце Pool 3"
-                value={fmtRubFull(sim.isolated.pool3.cash) + " ₽"} investor />
+                value={fmtRubFull(sim.isolated.pool3.cash) + " ₽"} investor
+                tooltip="Свободный cash в Pool 3 на конец. Может быть выведен инвестору в любой момент — это его 'живые' деньги от реинвестов." />
             </div>
             <div className="grid grid-cols-3 gap-3 mt-2">
               <MetricCell label="Активных сделок"
-                value={sim.isolated.pool3.activeDeals.toString()} />
+                value={sim.isolated.pool3.activeDeals.toString()}
+                tooltip="Количество сделок Pool 3, по которым клиенты ещё платят. Сделки в Pool 3 выдаются только когда там накопится cash на полную сделку." />
               <MetricCell label="Сделок в работе на конец"
-                value={fmtRubFull(sim.isolated.pool3.receivables) + " ₽"} />
+                value={fmtRubFull(sim.isolated.pool3.receivables) + " ₽"}
+                tooltip="Будущие поступления по активным сделкам Pool 3. Эти деньги полностью принадлежат инвестору (включая markup)." />
               <MetricCell label="Всего выдано / закрыто"
-                value={`${sim.isolated.pool3.totalDeployed} / ${sim.isolated.pool3.closures}`} />
+                value={`${sim.isolated.pool3.totalDeployed} / ${sim.isolated.pool3.closures}`}
+                tooltip="Сколько сделок Pool 3 было выдано за горизонт / сколько уже закрылось. Pool 3 начинается с 0, поэтому первые сделки появляются только после первых реинвестов из Pool 2." />
             </div>
           </div>
         </div>
@@ -581,14 +620,18 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <MetricCell label="Cash на всех счетах"
-            value={fmtRubFull(sim.finalCash) + " ₽"} />
+            value={fmtRubFull(sim.finalCash) + " ₽"}
+            tooltip="Совокупный свободный cash в Pool 1 + Pool 2 + Pool 3 на последний месяц симуляции." />
           <MetricCell label="Активных сделок"
-            value={sim.finalActiveDeals.toString()} />
+            value={sim.finalActiveDeals.toString()}
+            tooltip="Общее количество сделок (по всем пулам), по которым клиенты ещё платят на конец горизонта." />
           <MetricCell label="Сделок в работе (receivables)"
             value={fmtRubFull(sim.finalEquity - sim.finalCash - sim.totalWithdrawn) + " ₽"}
-            subValue="face value (без дефолтов)" />
+            subValue="face value (без дефолтов)"
+            tooltip="Будущие поступления по всем активным сделкам — face value, то есть сумма как если бы все клиенты заплатили полностью. Реальный приход будет меньше на default loss." />
           <MetricCell label="Total equity (cash + receivables + извлечено)"
-            value={fmtRubFull(sim.finalEquity) + " ₽"} accent />
+            value={fmtRubFull(sim.finalEquity) + " ₽"} accent
+            tooltip="Полная стоимость бизнеса = свободный cash + ожидаемые поступления по сделкам + всё, что уже выведено на руки. Это total value created с момента старта." />
         </div>
       </div>
 
@@ -794,9 +837,9 @@ function MonthRow({
   );
 }
 
-function MetricCell({ label, value, subValue, accent, negative, investor }:
+function MetricCell({ label, value, subValue, accent, negative, investor, tooltip }:
   { label: string; value: string; subValue?: string;
-    accent?: boolean; negative?: boolean; investor?: boolean }) {
+    accent?: boolean; negative?: boolean; investor?: boolean; tooltip?: string }) {
   let bg = "#F9FAFB";
   let border = "#E5E7EB";
   let fg = "#0A1628";
@@ -805,7 +848,10 @@ function MetricCell({ label, value, subValue, accent, negative, investor }:
   if (investor) { bg = "#F5F3FF"; border = "#C4B5FD"; fg = "#5b21b6"; }
   return (
     <div className="rounded-lg p-3" style={{ background: bg, border: `1px solid ${border}` }}>
-      <div className="text-[10px] uppercase tracking-wide text-[#6B7280] leading-tight">{label}</div>
+      <div className="text-[10px] uppercase tracking-wide text-[#6B7280] leading-tight inline-flex items-center gap-1">
+        {label}
+        {tooltip && <InfoTooltip text={tooltip} />}
+      </div>
       <div className="text-sm font-extrabold mt-0.5 leading-tight" style={{ color: fg }}>{value}</div>
       {subValue && <div className="text-[10px] mt-0.5 leading-tight text-[#6B7280]">{subValue}</div>}
     </div>
