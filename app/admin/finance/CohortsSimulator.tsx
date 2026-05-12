@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { simulateCohorts, type MonthSnapshot, type CohortSimResult } from "@/lib/finance/cohort-simulator";
 import { markupRounded } from "@/lib/finance/iso-irr";
 
@@ -812,17 +812,90 @@ function MetricCell({ label, value, subValue, accent, negative, investor }:
   );
 }
 
+/**
+ * InfoTooltip — кликабельная иконка ⓘ, по нажатию показывает попап-подсказку.
+ * Используется и в слайдерах, и в карточках результата.
+ */
+function InfoTooltip({ text, align = "left" }: { text: string; align?: "left" | "right" }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLSpanElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onEsc = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onEsc);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onEsc);
+    };
+  }, [open]);
+
+  return (
+    <span ref={ref} className="relative inline-flex">
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}
+        className="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold text-[#6B7280] bg-[#E5E7EB] hover:bg-[#0A1628] hover:text-white transition-colors leading-none"
+        aria-label="Подсказка"
+        title="Подсказка"
+      >
+        i
+      </button>
+      {open && (
+        <span
+          className="absolute z-50"
+          style={{
+            bottom: "calc(100% + 8px)",
+            ...(align === "right" ? { right: 0 } : { left: 0 }),
+            minWidth: 240,
+            maxWidth: 320,
+            width: "max-content",
+            background: "#0A1628",
+            color: "#fff",
+            padding: "10px 12px",
+            borderRadius: "8px",
+            fontSize: "11px",
+            lineHeight: 1.5,
+            fontWeight: 400,
+            textTransform: "none",
+            letterSpacing: 0,
+            boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
+            whiteSpace: "normal",
+          }}
+        >
+          {text}
+          <span
+            style={{
+              position: "absolute",
+              top: "100%",
+              ...(align === "right" ? { right: 6 } : { left: 6 }),
+              width: 0,
+              height: 0,
+              borderLeft: "6px solid transparent",
+              borderRight: "6px solid transparent",
+              borderTop: "6px solid #0A1628",
+            }}
+          />
+        </span>
+      )}
+    </span>
+  );
+}
+
 function SliderField({ label, value, min, max, step, onChange, format, parse, tooltip }: {
   label: string; value: number;
   min: number; max: number; step: number;
   onChange: (v: number) => void;
   format: (v: number) => string;
   parse?: (s: string) => number;   /* для парсинга введённого вручную значения */
-  tooltip?: string;                /* подсказка при наведении */
+  tooltip?: string;                /* подсказка по клику на ⓘ */
 }) {
   const [editing, setEditing] = useState(false);
   const [raw, setRaw] = useState("");
-  const [hover, setHover] = useState(false);
 
   const dec = () => onChange(Math.max(min, +(value - step).toFixed(6)));
   const inc = () => onChange(Math.min(max, +(value + step).toFixed(6)));
@@ -838,44 +911,11 @@ function SliderField({ label, value, min, max, step, onChange, format, parse, to
   };
 
   return (
-    <div className="relative"
-         onMouseEnter={() => setHover(true)}
-         onMouseLeave={() => setHover(false)}>
-      {tooltip && hover && (
-        <div
-          className="absolute z-50 pointer-events-none"
-          style={{
-            bottom: "calc(100% + 8px)",
-            left: 0,
-            right: 0,
-            background: "#0A1628",
-            color: "#fff",
-            padding: "10px 12px",
-            borderRadius: "8px",
-            fontSize: "11px",
-            lineHeight: 1.45,
-            boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
-          }}
-        >
-          {tooltip}
-          <div
-            style={{
-              position: "absolute",
-              top: "100%",
-              left: 14,
-              width: 0,
-              height: 0,
-              borderLeft: "6px solid transparent",
-              borderRight: "6px solid transparent",
-              borderTop: "6px solid #0A1628",
-            }}
-          />
-        </div>
-      )}
+    <div className="relative">
       <label className="text-xs font-medium text-[#6B7280] flex justify-between items-center mb-1.5">
-        <span className="leading-tight inline-flex items-center gap-1 cursor-help">
+        <span className="leading-tight inline-flex items-center gap-1.5">
           {label}
-          {tooltip && <span className="text-[10px] text-[#9CA3AF]">ⓘ</span>}
+          {tooltip && <InfoTooltip text={tooltip} />}
         </span>
         {editing ? (
           <input
@@ -1014,18 +1054,19 @@ function SimulationSummary({
 
           <p className="text-sm text-[#0A1628] leading-relaxed mb-3">
             За <b>{horizon} {monthWord(horizon)}</b> компания заработала{" "}
-            <b className="text-[#065F46]">{fmtRubFull(companyTotal)} ₽</b> прибыли{" "}
+            <b className="text-[#065F46]">{fmtRubFull(companyTotal)} ₽</b>{" "}
+            <span className="inline-flex items-center gap-1">прибыли <InfoTooltip text="Чистая прибыль компании = её доля от gross markup минус потери от дефолтов и операционные расходы (OpEx). Это деньги, реально доступные для распределения." /></span>{" "}
             {isFinite(companyROI) && companyROI > 0 && (
-              <>(годовая доходность <b>{fmtPct(companyROI, 1)}</b>)</>
+              <>(<span className="inline-flex items-center gap-1">годовая доходность <InfoTooltip text="Annualized ROI на капитал компании. Считается как (прибыль / стартовый капитал компании) × (12 / горизонт). Показывает, сколько годовых приносит вложенный капитал." /></span> <b>{fmtPct(companyROI, 1)}</b>)</>
             )}.
           </p>
 
           {isolated && (
             <div className="text-[12px] text-[#374151] mb-3 space-y-1">
-              <div>📦 Источники прибыли:</div>
+              <div className="inline-flex items-center gap-1">📦 Источники прибыли: <InfoTooltip text="В режиме изолированных пулов компания зарабатывает из двух источников: Pool 1 (её собственный капитал, 100% прибыли её) и Pool 2 (инвесторский капитал, делится с инвестором по контрактной пропорции)." /></div>
               <ul className="list-none space-y-0.5 ml-3">
-                <li>• Pool 1 (свой капитал {fmtRubFull(isolated.pool1.capitalAtStart)} ₽): <b>{fmtRubFull(isolated.companyFromP1)} ₽</b></li>
-                <li>• Pool 2 (доля {fmtPctInt(1 - investorProfitShare)} от инвесторского пула): <b>{fmtRubFull(isolated.companyFromP2)} ₽</b></li>
+                <li>• <span className="inline-flex items-center gap-1">Pool 1 <InfoTooltip text="Pool 1 — деньги, принадлежащие компании. Сюда входят: её стартовый капитал и реинвестированная прибыль (как со своего пула, так и из доли в Pool 2). Вся прибыль с Pool 1 идёт компании 100%." /></span> (свой капитал {fmtRubFull(isolated.pool1.capitalAtStart)} ₽): <b>{fmtRubFull(isolated.companyFromP1)} ₽</b></li>
+                <li>• <span className="inline-flex items-center gap-1">Pool 2 <InfoTooltip text="Pool 2 — деньги инвестора в работе. Капитал заблокирован (не реинвестируется наружу), а прибыль с него делится в контрактной пропорции между компанией и инвестором." /></span> (доля {fmtPctInt(1 - investorProfitShare)} от инвесторского пула): <b>{fmtRubFull(isolated.companyFromP2)} ₽</b></li>
               </ul>
             </div>
           )}
@@ -1034,11 +1075,11 @@ function SimulationSummary({
             <div>💰 Что произошло с этими деньгами:</div>
             <ul className="list-none space-y-0.5 ml-3">
               <li>
-                • <b>На руки выведено:</b> {fmtRubFull(companyOnHand)} ₽{" "}
+                • <span className="inline-flex items-center gap-1"><b>На руки выведено:</b> <InfoTooltip text="Сумма, которую компания фактически забрала наличными за горизонт симуляции (не вернулась в работу). Зависит от слайдера реинвеста компании — что не реинвестируется, выводится." /></span> {fmtRubFull(companyOnHand)} ₽{" "}
                 {companyOnHand > 0 && <span className="text-[#9CA3AF]">(средне {fmtRub(companyOnHand / horizon)} ₽/мес)</span>}
               </li>
               <li>
-                • <b>Реинвестировано:</b> {fmtRubFull(companyReinvested)} ₽
+                • <span className="inline-flex items-center gap-1"><b>Реинвестировано:</b> <InfoTooltip text="Прибыль, которая осталась работать в пулах вместо вывода на руки. Создаёт эффект компаундинга — растёт капитал в работе, растут будущие сделки." /></span> {fmtRubFull(companyReinvested)} ₽
                 {isolated && (
                   <span className="text-[#9CA3AF]"> — {fmtRubFull(isolated.companyP1Reinvested)} в Pool 1, {fmtRubFull(isolated.companyP2Reinvested)} перемещено из Pool 2 в Pool 1</span>
                 )}
@@ -1050,9 +1091,9 @@ function SimulationSummary({
             <div className="text-[12px] text-[#374151] mb-3 space-y-0.5">
               <div>⏳ В работе на конец периода (Pool 1):</div>
               <ul className="list-none space-y-0.5 ml-3">
-                <li>• <b>{p1Active} {dealWord(p1Active)}</b> активны</li>
-                <li>• Ожидаемые поступления: <b>{fmtRubFull(p1Recv)} ₽</b></li>
-                <li>• Свободный cash в Pool 1: <b>{fmtRubFull(p1Cash)} ₽</b></li>
+                <li>• <span className="inline-flex items-center gap-1"><b>{p1Active} {dealWord(p1Active)}</b> активны <InfoTooltip text="Сделки, которые ещё не закрылись на момент конца горизонта. По ним продолжаются ежемесячные платежи клиентов, но они не успели дозреть до полного возврата капитала+маржи." /></span></li>
+                <li>• <span className="inline-flex items-center gap-1">Ожидаемые поступления: <InfoTooltip text="Receivables — сумма, которую ещё должны заплатить клиенты по активным сделкам (оставшийся принципал + markup). Это будущий cash, но не сегодняшняя прибыль." /></span> <b>{fmtRubFull(p1Recv)} ₽</b></li>
+                <li>• <span className="inline-flex items-center gap-1">Свободный cash в Pool 1: <InfoTooltip text="Деньги, которые не находятся в активных сделках и доступны для деплоя в новые. Если cash > стоимости сделки, можно выдать новую." /></span> <b>{fmtRubFull(p1Cash)} ₽</b></li>
               </ul>
             </div>
           )}
@@ -1074,18 +1115,19 @@ function SimulationSummary({
 
             <p className="text-sm text-[#0A1628] leading-relaxed mb-3">
               За <b>{horizon} {monthWord(horizon)}</b> инвестор заработал{" "}
-              <b className="text-[#5b21b6]">{fmtRubFull(investorTotal)} ₽</b> прибыли{" "}
+              <b className="text-[#5b21b6]">{fmtRubFull(investorTotal)} ₽</b>{" "}
+              <span className="inline-flex items-center gap-1">прибыли <InfoTooltip text="Чистая прибыль инвестора = его доля от gross markup минус доля в потерях от дефолтов и OpEx. Не путать с возвратом основного капитала — это именно заработок сверху." /></span>{" "}
               {isFinite(investorROI) && investorROI > 0 && (
-                <>(годовая доходность <b>{fmtPct(investorROI, 1)}</b>)</>
+                <>(<span className="inline-flex items-center gap-1">годовая доходность <InfoTooltip text="Annualized ROI на капитал инвестора. (прибыль / стартовый капитал инвестора) × (12 / горизонт). Удобно сравнивать с банковским депозитом или другими инструментами." /></span> <b>{fmtPct(investorROI, 1)}</b>)</>
               )}.
             </p>
 
             {isolated && (
               <div className="text-[12px] text-[#374151] mb-3 space-y-1">
-                <div>📦 Источники прибыли:</div>
+                <div className="inline-flex items-center gap-1">📦 Источники прибыли: <InfoTooltip text="В режиме изолированных пулов инвестор зарабатывает из двух источников: его доля прибыли с Pool 2 (контрактная) и весь профит с Pool 3 (накопительный пул реинвестов, 100% его)." /></div>
                 <ul className="list-none space-y-0.5 ml-3">
-                  <li>• Pool 2 (доля {fmtPctInt(investorProfitShare)} от инвесторского пула): <b>{fmtRubFull(isolated.investorFromP2)} ₽</b></li>
-                  <li>• Pool 3 (накопительный, его собственный): <b>{fmtRubFull(isolated.investorFromP3)} ₽</b></li>
+                  <li>• <span className="inline-flex items-center gap-1">Pool 2 <InfoTooltip text="Pool 2 — оригинальные деньги инвестора в работе. Капитал заблокирован, делится только прибыль по контракту. Возвращается инвестору только в wind-down." /></span> (доля {fmtPctInt(investorProfitShare)} от инвесторского пула): <b>{fmtRubFull(isolated.investorFromP2)} ₽</b></li>
+                  <li>• <span className="inline-flex items-center gap-1">Pool 3 <InfoTooltip text="Pool 3 — накопительный пул инвестора. Сюда переходит его реинвестированная прибыль из Pool 2. Этот пул работает на 100% инвестора (нет деления с компанией) и доступен для вывода." /></span> (накопительный, его собственный): <b>{fmtRubFull(isolated.investorFromP3)} ₽</b></li>
                 </ul>
               </div>
             )}
@@ -1094,11 +1136,11 @@ function SimulationSummary({
               <div>💰 Что произошло с этими деньгами:</div>
               <ul className="list-none space-y-0.5 ml-3">
                 <li>
-                  • <b>На руки выведено:</b> {fmtRubFull(investorOnHand)} ₽{" "}
+                  • <span className="inline-flex items-center gap-1"><b>На руки выведено:</b> <InfoTooltip text="Сумма, которую инвестор фактически забрал наличными за горизонт. Зависит от его слайдеров реинвеста (Pool 2 → Pool 3 и Pool 3 → реинвест). Что не реинвестируется — выводится сразу." /></span> {fmtRubFull(investorOnHand)} ₽{" "}
                   {investorOnHand > 0 && <span className="text-[#9CA3AF]">(средне {fmtRub(investorOnHand / horizon)} ₽/мес)</span>}
                 </li>
                 <li>
-                  • <b>Реинвестировано:</b> {fmtRubFull(investorReinvested)} ₽
+                  • <span className="inline-flex items-center gap-1"><b>Реинвестировано:</b> <InfoTooltip text="Прибыль инвестора, которая осталась в работе (главным образом в Pool 3). Растит его собственный накопительный капитал и приносит компаунд-эффект." /></span> {fmtRubFull(investorReinvested)} ₽
                   {isolated && (
                     <span className="text-[#9CA3AF]"> — {fmtRubFull(isolated.investorP2Reinvested)} перемещено в Pool 3, {fmtRubFull(isolated.investorP3Reinvested)} осталось в Pool 3</span>
                   )}
@@ -1146,19 +1188,20 @@ function SimulationSummary({
               return (
                 <div className="text-[12px] text-[#374151] mb-3 rounded-lg p-2.5"
                      style={{ background: "rgba(124, 58, 237, 0.08)", border: "1px solid rgba(124, 58, 237, 0.2)" }}>
-                  <div className="font-bold text-[#5b21b6] mb-1.5">
-                    🔍 Откуда возьмутся 11.5М в работе (Pool 2)?
+                  <div className="font-bold text-[#5b21b6] mb-1.5 inline-flex items-center gap-1">
+                    🔍 Откуда возьмутся {fmtRubFull(p2Recv)} в работе (Pool 2)?
+                    <InfoTooltip text="Эта декомпозиция показывает, что 'деньги в работе' Pool 2 — это не вся прибыль инвестора. Большая часть — возврат его собственного капитала (принципал), и только меньшая — будущая прибыль (markup), которая ещё делится с компанией." />
                   </div>
                   <div className="space-y-0.5 ml-1">
-                    <div>📦 <b>{fmtRubFull(p2Recv)} ₽</b> — это будущий cash от 414 активных сделок:</div>
+                    <div>📦 <b>{fmtRubFull(p2Recv)} ₽</b> — это будущий cash от {p2Active} активных сделок:</div>
                     <ul className="list-none space-y-0.5 ml-3 text-[11.5px]">
                       <li>
-                        ├─ <b>Принципал (~{fmtPct(principalShare, 0)}):</b> <b>{fmtRubFull(principalFromRecv)} ₽</b>
-                        {" "}<span className="text-[#6B7280]">→ оседает в Pool 2 cash → возвращается инвестору как часть его 8М</span>
+                        ├─ <span className="inline-flex items-center gap-1"><b>Принципал (~{fmtPct(principalShare, 0)}):</b> <InfoTooltip text="Принципал — оставшаяся часть капитала клиента, которую он ещё должен вернуть. Это НЕ прибыль, а возврат тела займа. Для инвестора это его собственные деньги, которые он получит обратно." /></span> <b>{fmtRubFull(principalFromRecv)} ₽</b>
+                        {" "}<span className="text-[#6B7280]">→ оседает в Pool 2 cash → возвращается инвестору как часть его капитала</span>
                       </li>
                       <li>
-                        └─ <b>Markup (~{fmtPct(markupShare, 0)}):</b> <b>{fmtRubFull(markupFromRecv)} ₽</b>
-                        {" "}<span className="text-[#6B7280]">— но это распределённый markup за оставшиеся платежи</span>
+                        └─ <span className="inline-flex items-center gap-1"><b>Markup (~{fmtPct(markupShare, 0)}):</b> <InfoTooltip text="Markup — наценка сверху капитала клиента (наша маржа по сделке). Это валовая прибыль, из которой ещё надо вычесть дефолты и OpEx. Делится между инвестором и компанией по контракту." /></span> <b>{fmtRubFull(markupFromRecv)} ₽</b>
+                        {" "}<span className="text-[#6B7280]">— это распределённый markup за оставшиеся платежи</span>
                       </li>
                     </ul>
                   </div>
@@ -1166,10 +1209,10 @@ function SimulationSummary({
                   <div className="mt-2 pt-2 border-t border-[#7c3aed]/20">
                     <div className="mb-1">📐 <b>Полный gross markup</b> для {p2Active} активных при закрытии (за вычетом дефолтов/opex):</div>
                     <ul className="list-none space-y-0.5 ml-3 text-[11.5px]">
-                      <li>Gross markup: <b>{fmtRubFull(grossFromActive)} ₽</b></li>
-                      <li>− Default loss ({fmtPct(dRate, 1)} × {fmtPct(1 - rRate, 0)}): <b>−{fmtRubFull(defaultLoss)} ₽</b></li>
-                      <li>− OpEx ({fmtPct(opRate, 0)}): <b>−{fmtRubFull(opex)} ₽</b></li>
-                      <li className="font-bold text-[#0A1628]">= Net markup для Pool 2: <b>{fmtRubFull(netFromActive)} ₽</b></li>
+                      <li><span className="inline-flex items-center gap-1">Gross markup: <InfoTooltip text="Валовая прибыль — суммарный markup по всем сделкам без вычета потерь. Это 'потолок' доходности; реальная прибыль будет меньше." /></span> <b>{fmtRubFull(grossFromActive)} ₽</b></li>
+                      <li><span className="inline-flex items-center gap-1">− Default loss <InfoTooltip text="Потери от дефолтов = доля дефолтов × (1 − recovery) × средний долг по сделке. Это деньги, которые мы не вернём с проблемных клиентов." /></span> ({fmtPct(dRate, 1)} × {fmtPct(1 - rRate, 0)}): <b>−{fmtRubFull(defaultLoss)} ₽</b></li>
+                      <li><span className="inline-flex items-center gap-1">− OpEx <InfoTooltip text="Операционные расходы — комиссии, ФОТ, эквайринг, реклама. Считаются как процент от gross markup и снижают чистую прибыль." /></span> ({fmtPct(opRate, 0)}): <b>−{fmtRubFull(opex)} ₽</b></li>
+                      <li className="font-bold text-[#0A1628]"><span className="inline-flex items-center gap-1">= Net markup <InfoTooltip text="Чистый markup для Pool 2 = gross − дефолты − OpEx. Именно эта сумма потом делится между инвестором и компанией в контрактной пропорции." /></span> для Pool 2: <b>{fmtRubFull(netFromActive)} ₽</b></li>
                       <li>
                         Распределяется {fmtPctInt(1 - investorProfitShare)} / {fmtPctInt(investorProfitShare)}:
                         <ul className="list-none ml-3">
@@ -1192,7 +1235,7 @@ function SimulationSummary({
             {/* Возврат основного капитала */}
             {isolated && (
               <div className="rounded-lg p-2.5 mt-3" style={{ background: "rgba(124, 58, 237, 0.1)", border: "1px dashed #7c3aed" }}>
-                <div className="text-[11px] font-bold text-[#5b21b6] mb-0.5">🏦 Возврат основного капитала инвестора</div>
+                <div className="text-[11px] font-bold text-[#5b21b6] mb-0.5 inline-flex items-center gap-1">🏦 Возврат основного капитала инвестора <InfoTooltip text="Это деньги, которые принадлежат инвестору изначально (его 8 млн из 10), но крутятся в активных сделках. Они НЕ являются прибылью — это возврат тела вклада. Полный возврат происходит, когда все сделки закрываются (wind-down)." /></div>
                 <p className="text-[12px] text-[#374151] leading-relaxed">
                   Pool 2 содержит <b>{fmtRubFull(p2Cash + p2Recv)} ₽</b> (cash + receivables) — это
                   оригинальные <b>{fmtRubFull(isolated.pool2.capitalAtStart)} ₽</b> инвестора, которые
@@ -1223,10 +1266,13 @@ function SimulationSummary({
 
       {/* Итоговая строка */}
       <div className="mt-5 pt-4 border-t border-[#E5E7EB] text-sm text-[#0A1628]">
-        <b>Итого за {horizon} {monthWord(horizon)}:</b> совокупная прибыль <b className="text-[#065F46]">{fmtRubFull(sim.totalNetProfit)} ₽</b>.
-        {" "}Извлечено наличными: <b>{fmtRubFull(sim.totalWithdrawn)} ₽</b>.
-        {" "}Реинвестировано в работу: <b>{fmtRubFull(sim.totalNetProfit - sim.totalWithdrawn)} ₽</b>.
-        {" "}В активных сделках: <b>{sim.finalActiveDeals} {dealWord(sim.finalActiveDeals)}</b>, ожидаемые поступления{" "}
+        <b>Итого за {horizon} {monthWord(horizon)}:</b>{" "}
+        <span className="inline-flex items-center gap-1">совокупная прибыль <InfoTooltip text="Сумма чистой прибыли компании и инвестора за весь горизонт. Net profit = gross markup − дефолты − OpEx. Не включает возврат основного капитала." /></span>{" "}
+        <b className="text-[#065F46]">{fmtRubFull(sim.totalNetProfit)} ₽</b>.
+        {" "}<span className="inline-flex items-center gap-1">Извлечено наличными: <InfoTooltip text="Total withdrawn — сколько денег физически ушло из системы на руки сторон. Остальная прибыль крутится в работе." /></span> <b>{fmtRubFull(sim.totalWithdrawn)} ₽</b>.
+        {" "}<span className="inline-flex items-center gap-1">Реинвестировано в работу: <InfoTooltip text="Часть прибыли, оставленная в пулах для новых сделок. Это создаёт компаунд-эффект — каждый месяц растёт капитал, и значит, объём бизнеса." /></span> <b>{fmtRubFull(sim.totalNetProfit - sim.totalWithdrawn)} ₽</b>.
+        {" "}<span className="inline-flex items-center gap-1">В активных сделках: <InfoTooltip text="Количество сделок, по которым клиенты ещё платят на конец горизонта. Они принесут будущий cash и прибыль за пределами симуляции." /></span> <b>{sim.finalActiveDeals} {dealWord(sim.finalActiveDeals)}</b>,{" "}
+        <span className="inline-flex items-center gap-1">ожидаемые поступления <InfoTooltip text="Receivables — сумма будущих платежей по всем активным сделкам. Складывается из остатка принципала и markup. Эти деньги придут после конца горизонта." /></span>{" "}
         <b>{fmtRubFull(sim.finalEquity - sim.finalCash - sim.totalWithdrawn)} ₽</b>.
       </div>
     </div>
