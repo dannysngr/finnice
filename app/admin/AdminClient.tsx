@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { pluralPayment, calcInstallment } from "@/lib/calculator-logic";
+import { formatPhone } from "@/lib/phone-mask";
 import {
   markupRounded, irrMonthly, annualFromMonthly, baselineIrrAnnual,
 } from "@/lib/finance/iso-irr";
@@ -400,7 +401,7 @@ function ApplicationsTab({
                         hover:border-[#C8972B]/50 transition-colors">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
             <Stat label="Имя"     value={app.name} />
-            <Stat label="Телефон" value={app.phone} mono />
+            <Stat label="Телефон" value={formatPhone(app.phone) || app.phone} mono />
             <Stat label="Товар"   value={app.product || "—"} />
             <Stat label="Сумма"   value={`${fmt(app.price)} ₽`} />
           </div>
@@ -530,7 +531,7 @@ function UsersTab({
                     {name || <span className="text-[#9CA3AF]/60 font-normal italic">Имя не указано</span>}
                   </p>
                   <p className="text-[#9CA3AF] font-mono text-xs mt-0.5">
-                    {user.phone}
+                    {formatPhone(user.phone) || user.phone}
                   </p>
                   <p className="text-xs text-[#9CA3AF] mt-1">
                     Рассрочек: {user.loansCount} · Присоединился:{" "}
@@ -672,7 +673,7 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading }: {
       <div className="w-full max-w-3xl bg-[#1A3C6E] rounded-2xl shadow-2xl p-6 border border-[#C8972B]/30 my-8">
         <h2 className="text-xl font-bold text-white mb-1">Подтверждение одобрения</h2>
         <p className="text-xs text-white/60 mb-5">
-          Клиент: <b>{app.name}</b> · {app.phone}
+          Клиент: <b>{app.name}</b> · {formatPhone(app.phone) || app.phone}
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -1298,7 +1299,7 @@ function UserProfileModal({
 
   const handleBlock = async () => {
     const nb = !form.blocked;
-    if (!confirm(`${nb ? "Заблокировать" : "Разблокировать"} ${user.phone}?`)) return;
+    if (!confirm(`${nb ? "Заблокировать" : "Разблокировать"} ${formatPhone(user.phone) || user.phone}?`)) return;
     setBlocking(true);
     const newForm = { ...form, blocked: nb };
     setForm(newForm);
@@ -1320,7 +1321,7 @@ function UserProfileModal({
                         flex items-center justify-between rounded-t-2xl z-10 shrink-0">
           <div>
             <h2 className="text-base font-bold text-white">Профиль пользователя</h2>
-            <p className="text-xs text-[#9CA3AF] font-mono">{user.phone}</p>
+            <p className="text-xs text-[#9CA3AF] font-mono">{formatPhone(user.phone) || user.phone}</p>
           </div>
           <button onClick={onClose}
                   className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center

@@ -8,6 +8,12 @@ import type {
   PortfolioAggregate,
   AdminPolicy,
 } from "@/lib/finance/investor-projections";
+import {
+  formatPhone,
+  phoneInputOnChange,
+  shouldBlockPhoneKeyDown,
+  phoneToE164,
+} from "@/lib/phone-mask";
 
 const fmt = (n: number) =>
   Math.round(n).toLocaleString("ru-RU");
@@ -337,7 +343,17 @@ function AddInvestorForm({ onSubmit }: {
                  className="w-full px-3 py-1.5 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#0C7A58]" />
         </Field>
         <Field label="Телефон">
-          <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+7..."
+          <input value={phone}
+                 onChange={e => setPhone(phoneInputOnChange(e.target.value))}
+                 onKeyDown={e => {
+                   if (shouldBlockPhoneKeyDown(e.key, e.currentTarget.selectionStart, e.currentTarget.selectionEnd)) {
+                     e.preventDefault();
+                   }
+                 }}
+                 onFocus={() => { if (!phone) setPhone("+7 "); }}
+                 onBlur={() => { if (phone === "+7 " || phone === "+7") setPhone(""); }}
+                 inputMode="tel"
+                 placeholder="+7 9XX XXX XX XX"
                  className="w-full px-3 py-1.5 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#0C7A58]" />
         </Field>
         <Field label="Email">
@@ -389,7 +405,7 @@ function AddInvestorForm({ onSubmit }: {
               onClick={() => onSubmit({
                 investor: {
                   fullName: fullName.trim(),
-                  phone: phone.trim() || undefined,
+                  phone: phoneToE164(phone) || undefined,
                   email: email.trim() || undefined,
                   notes: notes.trim() || undefined,
                 },
@@ -440,7 +456,7 @@ function InvestorDetailModal({
           <div>
             <h2 className="text-lg font-extrabold text-[#0A1628]">{investor.fullName}</h2>
             <div className="text-xs text-[#6B7280] mt-0.5">
-              {investor.phone && <span>📞 {investor.phone}</span>}
+              {investor.phone && <span>📞 {formatPhone(investor.phone) || investor.phone}</span>}
               {investor.phone && investor.email && <span className="mx-2">·</span>}
               {investor.email && <span>✉ {investor.email}</span>}
             </div>
