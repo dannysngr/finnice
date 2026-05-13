@@ -86,24 +86,41 @@ export async function POST(req: Request) {
       }
     }
 
-    // Уведомление клиенту об одобрении
+    // Уведомление клиенту об одобрении + график вторым сообщением
     try {
       const userRecord = await findByPhone(customerPhone);
       if (userRecord?.chatId) {
         const fmt = (n: number) => n.toLocaleString("ru-RU") + " ₽";
-        const downAmt  = price - (monthly ?? 0) * ((term ?? 1) - 1);
+        const downAmt = typeof downAmount === "number" ? downAmount
+          : Math.max(0, price - (monthly ?? 0) * ((term ?? 1) - 1));
         const paymentsLabel = pluralPayment(term ?? 0);
-        const msg = [
+        const msg1 = [
           `🎉 *Хорошие новости!* Ваша рассрочка одобрена.`,
           ``,
           `📦 *Товар:* ${product}`,
-          `💳 *Первый платёж (взнос):* ${fmt(Math.max(0, downAmt))}`,
+          `💳 *Первый платёж (взнос):* ${fmt(downAmt)}`,
           `📅 *Ежемесячный платёж:* ${fmt(monthly ?? 0)}`,
           `🔢 *Всего платежей:* ${paymentsLabel}`,
           ``,
-          `Детальный график уже доступен в вашем *Личном кабинете.*`,
+          `Детальный график также доступен в вашем *Личном кабинете.*`,
         ].join("\n");
-        await sendToChat(userRecord.chatId, msg);
+        await sendToChat(userRecord.chatId, msg1);
+
+        // Второе сообщение — график платежей
+        const scheduleLines: string[] = [`📅 *График платежей*`, ``];
+        const start = new Date(loan.startDate);
+        scheduleLines.push(
+          `• ${start.toLocaleDateString("ru-RU")} — *${fmt(downAmt)}* — первый взнос`,
+        );
+        for (let i = 1; i <= (term ?? 0); i++) {
+          const d = new Date(start);
+          d.setMonth(d.getMonth() + i);
+          scheduleLines.push(
+            `${i}. ${d.toLocaleDateString("ru-RU")} — *${fmt(monthly ?? 0)}* — ежемесячный платёж`,
+          );
+        }
+        scheduleLines.push(``, `💡 Мы напомним за 2 дня, за 1 день и в день каждого платежа.`);
+        await sendToChat(userRecord.chatId, scheduleLines.join("\n"));
       }
     } catch (notifyErr) {
       console.warn("[approve] Не удалось уведомить клиента:", notifyErr);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { pluralPayment, calcInstallment } from "@/lib/calculator-logic";
 import { formatPhone } from "@/lib/phone-mask";
@@ -290,7 +290,13 @@ export function AdminClient({ isAdmin, role }: { isAdmin: boolean; role?: AdminR
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ appId: approveApp.id, phone: approveApp.phone, ...finalData }),
       });
-      if (res.ok) { setApproveApp(null); loadData(); }
+      if (res.ok) {
+        const phone = approveApp.phone;
+        setApproveApp(null);
+        loadData();
+        /* Авто-переключение в карточку клиента для скачивания договора */
+        await handleOpenUserProfile(phone);
+      }
     } finally { setApproving(false); }
   };
 
@@ -637,16 +643,22 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
 
   /* ── Профиль клиента — для проверки заполненности ────── */
   const [clientProfile, setClientProfile] = useState<Record<string, unknown> | null>(null);
+  const [hasPassportDocApp, setHasPassportDocApp] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
   useEffect(() => {
     setProfileLoading(true);
-    fetch(`/api/admin/users/${encodeURIComponent(app.phone)}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(d => setClientProfile(d))
-      .catch(() => {})
-      .finally(() => setProfileLoading(false));
+    Promise.all([
+      fetch(`/api/admin/users/${encodeURIComponent(app.phone)}`).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch(`/api/admin/passport-doc/${encodeURIComponent(app.phone)}`).then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([profile, doc]) => {
+      setClientProfile(profile);
+      setHasPassportDocApp(Boolean(doc?.exists));
+    }).finally(() => setProfileLoading(false));
   }, [app.phone]);
-  const profileCompletion = computeProfileCompletion(clientProfile ?? {});
+  const profileCompletion = computeProfileCompletion(
+    { ...(clientProfile ?? {}), _passportDocUploaded: hasPassportDocApp },
+    { requirePassportScan: true },
+  );
 
   /* ── Входные данные (то, что админ видит/правит) ─────── */
   const [product, setProduct] = useState(app.product);
@@ -1121,6 +1133,113 @@ function AdminCreateLoanForm({
   );
 }
 
+/* ══════════════════════════════════════════════════════════════
+   ADMIN PASSPORT DOC UPLOADER
+   ══════════════════════════════════════════════════════════════ */
+function AdminPassportDocUploader({
+  phone, onChange,
+}: {
+  phone: string;
+  onChange: (hasDoc: boolean) => void;
+}) {
+  const [meta, setMeta] = useState<{ mime: string; filename: string; uploadedAt: string; size: number } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err,  setErr]  = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const url = `/api/admin/passport-doc/${encodeURIComponent(phone)}`;
+
+  const fetchMeta = useCallback(async () => {
+    try {
+      const r = await fetch(url, { cache: "no-store" });
+      const d = await r.json();
+      if (d?.exists) { setMeta(d); onChange(true); }
+      else { setMeta(null); onChange(false); }
+    } catch {}
+  }, [url, onChange]);
+  useEffect(() => { fetchMeta(); }, [fetchMeta]);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setErr(null);
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const r = await fetch(url, { method: "PUT", body: fd });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Ошибка загрузки");
+      setMeta(d);
+      onChange(true);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Ошибка");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Удалить загруженный скан паспорта?")) return;
+    setBusy(true);
+    try {
+      await fetch(url, { method: "DELETE" });
+      setMeta(null);
+      onChange(false);
+    } finally { setBusy(false); }
+  };
+
+  const dlUrl = `/api/lk/passport-doc/file?phone=${encodeURIComponent(phone)}`;
+  const sizeKb = meta ? (meta.size / 1024).toFixed(1) : "";
+  const uploadedStr = meta
+    ? new Date(meta.uploadedAt).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+    : "";
+
+  return (
+    <div className="mt-3 pt-3 border-t border-[#1A3C6E]/40">
+      <p className="text-[10px] text-[#9CA3AF] font-semibold uppercase tracking-wider mb-1.5">
+        Скан/фото паспорта <span className="text-red-400">*</span>
+        <span className="text-[#9CA3AF]/60 normal-case ml-1">(обязательно для одобрения)</span>
+      </p>
+
+      {meta ? (
+        <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-[#0A1628] border border-[#1A3C6E]">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-lg">{meta.mime === "application/pdf" ? "📄" : "🖼"}</span>
+            <div className="min-w-0">
+              <p className="text-xs text-white truncate font-semibold">{meta.filename}</p>
+              <p className="text-[10px] text-[#9CA3AF]">{sizeKb} КБ · {uploadedStr}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <a href={dlUrl} target="_blank" rel="noopener"
+               className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#C8972B] text-[#0A1628] hover:bg-[#E8B84B]">
+              Открыть
+            </a>
+            <button onClick={() => inputRef.current?.click()} disabled={busy}
+                    className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-[#1A3C6E]/60 text-white hover:bg-[#1A3C6E] disabled:opacity-50">
+              Заменить
+            </button>
+            <button onClick={handleDelete} disabled={busy}
+                    className="w-5 h-5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-400 hover:bg-red-500/30 disabled:opacity-50">
+              ×
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => inputRef.current?.click()} disabled={busy}
+                className="w-full p-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 border border-dashed border-[#C8972B]/40 text-[#C8972B] hover:bg-[#C8972B]/10">
+          {busy ? "Загружаю..." : "📎 Загрузить (PDF / JPG / PNG, до 5 МБ)"}
+        </button>
+      )}
+      <input ref={inputRef} type="file" hidden
+             accept="application/pdf,image/jpeg,image/jpg,image/png,image/webp,image/heic"
+             onChange={handleFile} />
+      {err && <p className="text-[11px] text-red-400 mt-1.5">⚠ {err}</p>}
+    </div>
+  );
+}
+
 function CalcPreview({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div>
@@ -1392,7 +1511,11 @@ function UserProfileModal({
   const createdStr  = user.createdAt  ? new Date(user.createdAt).toLocaleDateString("ru-RU") : "—";
   const lastLoginStr = user.lastLogin ? new Date(user.lastLogin).toLocaleString("ru-RU")     : "—";
 
-  const completion = computeProfileCompletion(form);
+  const [hasPassportDoc, setHasPassportDoc] = useState(false);
+  const completion = computeProfileCompletion(
+    { ...form, _passportDocUploaded: hasPassportDoc },
+    { requirePassportScan: true },
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/70 backdrop-blur-sm"
@@ -1563,6 +1686,12 @@ function UserProfileModal({
                                      border border-[#1A3C6E] focus:border-[#C8972B] outline-none transition-colors
                                      placeholder:text-[#9CA3AF]/50" />
               </div>
+
+              {/* Скан/фото паспорта — обязательно для админа */}
+              <AdminPassportDocUploader
+                phone={user.phone}
+                onChange={u => setHasPassportDoc(u)}
+              />
             </div>
 
             {/* Адрес проживания */}

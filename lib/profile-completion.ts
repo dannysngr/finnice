@@ -65,14 +65,22 @@ export interface CompletionReport {
   isComplete:   boolean;
 }
 
-export function computeProfileCompletion(profile: ProfileLike | null | undefined): CompletionReport {
+export function computeProfileCompletion(
+  profile: ProfileLike | null | undefined,
+  opts: { requirePassportScan?: boolean } = {},
+): CompletionReport {
   const p = profile ?? {};
 
   /* Если адрес проживания совпадает с регистрацией — поля проживания не нужны */
   const includeLiving = !p.livingSameAsRegister;
-  const required = includeLiving
+  let required = includeLiving
     ? [...BASE_REQUIRED, ...LIVING_REQUIRED]
-    : BASE_REQUIRED;
+    : [...BASE_REQUIRED];
+
+  /* Скан паспорта обязателен только в админском контексте (для одобрения) */
+  if (opts.requirePassportScan) {
+    required = [...required, { key: "_passportDocUploaded", label: "Скан/фото паспорта", group: "Паспорт" }];
+  }
 
   const missing: RequiredFieldSpec[] = [];
   let filled = 0;

@@ -434,7 +434,7 @@ function AuthGate() {
                         <span style={{ color: C.dark }}>{phoneFormatted}</span>
                       </>
                     ) : (
-                      <span style={{ color: C.muted }}>+7 928 000 00 00</span>
+                      <span style={{ color: C.muted }}>+7 928 491 08 08</span>
                     )}
                     {phoneFocused && (
                       <span className="nf-caret inline-block w-px rounded-sm ml-px"
@@ -777,6 +777,127 @@ function LoanCard({ loan }: { loan: LoanRecord }) {
         )}
       </AnimatePresence>
     </motion.div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PASSPORT DOC UPLOADER — общий компонент для ЛК и админки
+   ═══════════════════════════════════════════════════════════════ */
+function PassportDocUploader({
+  uploadUrl, downloadUrl, hint,
+}: {
+  uploadUrl:   string;       // PUT / DELETE / GET (meta)
+  downloadUrl: string;       // GET file
+  hint?:       string;
+}) {
+  const [meta, setMeta] = useState<{
+    mime: string; filename: string; uploadedAt: string; size: number;
+  } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err,  setErr]  = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const fetchMeta = useCallback(async () => {
+    try {
+      const r = await fetch(uploadUrl, { cache: "no-store" });
+      const d = await r.json();
+      if (d?.exists) setMeta(d);
+      else setMeta(null);
+    } catch {}
+  }, [uploadUrl]);
+
+  useEffect(() => { fetchMeta(); }, [fetchMeta]);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setErr(null);
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const r = await fetch(uploadUrl, { method: "PUT", body: fd });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Ошибка загрузки");
+      setMeta({ mime: d.mime, filename: d.filename, uploadedAt: d.uploadedAt, size: d.size });
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Ошибка");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Удалить загруженный документ?")) return;
+    setBusy(true);
+    try {
+      await fetch(uploadUrl, { method: "DELETE" });
+      setMeta(null);
+    } finally { setBusy(false); }
+  };
+
+  const sizeKb = meta ? (meta.size / 1024).toFixed(1) : "";
+  const uploadedStr = meta
+    ? new Date(meta.uploadedAt).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+    : "";
+
+  return (
+    <div className="border-t pt-5" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
+      <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+             style={{ color: C.mid }}>Скан или фото паспорта</label>
+
+      {meta ? (
+        <div className="flex items-center justify-between gap-3 p-3 rounded-[12px]"
+             style={{ background: C.brandLight, border: `1px solid ${C.brand}33` }}>
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="text-2xl">{meta.mime === "application/pdf" ? "📄" : "🖼"}</div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold truncate" style={{ color: C.dark }}>{meta.filename}</p>
+              <p className="text-[11px]" style={{ color: C.mid }}>{sizeKb} КБ · загружен {uploadedStr}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <a href={downloadUrl} target="_blank" rel="noopener"
+               className="px-3 py-1.5 rounded-full text-xs font-semibold transition-colors"
+               style={{ background: C.brand, color: "#fff" }}>
+              Открыть
+            </a>
+            <button onClick={() => inputRef.current?.click()} disabled={busy}
+                    className="px-3 py-1.5 rounded-full text-xs font-semibold transition-colors disabled:opacity-50"
+                    style={{ background: "rgba(0,0,0,0.08)", color: C.dark }}>
+              Заменить
+            </button>
+            <button onClick={handleDelete} disabled={busy}
+                    className="w-7 h-7 rounded-full text-xs font-bold transition-colors disabled:opacity-50"
+                    style={{ background: "rgba(239,68,68,0.10)", color: "#EF4444" }}>
+              ×
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => inputRef.current?.click()} disabled={busy}
+                className="w-full p-4 rounded-[12px] text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                style={{
+                  background: "rgba(255,255,255,0.65)",
+                  color: C.brand,
+                  border: `1.5px dashed ${C.brand}66`,
+                }}>
+          {busy ? "Загружаю..." : "📎 Загрузить скан/фото паспорта"}
+        </button>
+      )}
+
+      <input ref={inputRef} type="file" hidden
+             accept="application/pdf,image/jpeg,image/jpg,image/png,image/webp,image/heic"
+             onChange={handleFile} />
+
+      {err && (
+        <p className="text-xs mt-2" style={{ color: "#EF4444" }}>⚠ {err}</p>
+      )}
+      {hint && !err && (
+        <p className="text-[11px] mt-2" style={{ color: C.muted }}>{hint}</p>
+      )}
+    </div>
   );
 }
 
@@ -1161,7 +1282,7 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
                                    boxShadow: `inset 0 0 0 1.5px ${C.brand}44` }} />
               </div>
 
-              <div>
+              <div className="mb-5">
                 <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
                        style={{ color: C.mid }}>Код подразделения *</label>
                 <input
@@ -1174,6 +1295,13 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
                            boxShadow: `inset 0 0 0 1.5px ${C.brand}44` }}
                 />
               </div>
+
+              {/* Скан / фото паспорта — опционально для клиента */}
+              <PassportDocUploader
+                uploadUrl="/api/lk/passport-doc"
+                downloadUrl="/api/lk/passport-doc/file"
+                hint="PDF или фото (jpg, png, webp, heic), до 5 МБ. Не обязательно — можно принести оригинал на встрече."
+              />
             </div>
 
             {/* ━━━ БЛОК 5: АДРЕС ПРОЖИВАНИЯ ━━━━━━━━━━━━━━━━━ */}

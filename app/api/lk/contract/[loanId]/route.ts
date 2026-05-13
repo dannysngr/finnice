@@ -13,6 +13,7 @@ import { getRedis }        from "@/lib/redis";
 import { findByPhone }     from "@/lib/user-store";
 import type { LoanRecord, ProfileRecord } from "@/app/api/lk/me/route";
 import { buildContract, buildSchedule, type ContractData } from "@/lib/contract/build-contract";
+import { buildContractPdf } from "@/lib/contract/build-contract-pdf";
 import { formatPhone } from "@/lib/phone-mask";
 
 type Params = { params: Promise<{ loanId: string }> };
@@ -134,14 +135,29 @@ export async function GET(req: NextRequest, { params }: Params) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _u = userRecord;
 
+  /* Формат: клиент всегда PDF; админ может ?format=docx */
+  const format = (adminRole && url.searchParams.get("format") === "docx") ? "docx" : "pdf";
+
   try {
-    const docx = await buildContract(data);
     const lastName = profile.lastName || "client";
-    const filename = `dogovor-${lastName}-${contractNumber}.docx`;
-    return new NextResponse(docx as BodyInit, {
+    if (format === "docx") {
+      const docx = await buildContract(data);
+      const filename = `dogovor-${lastName}-${contractNumber}.docx`;
+      return new NextResponse(docx as BodyInit, {
+        status: 200,
+        headers: {
+          "Content-Type":        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "Content-Disposition": `attachment; filename="${encodeURIComponent(filename)}"`,
+          "Cache-Control":       "no-store",
+        },
+      });
+    }
+    const pdf = await buildContractPdf(data);
+    const filename = `dogovor-${lastName}-${contractNumber}.pdf`;
+    return new NextResponse(pdf as unknown as BodyInit, {
       status: 200,
       headers: {
-        "Content-Type":        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "Content-Type":        "application/pdf",
         "Content-Disposition": `attachment; filename="${encodeURIComponent(filename)}"`,
         "Cache-Control":       "no-store",
       },
