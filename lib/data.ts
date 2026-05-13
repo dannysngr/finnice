@@ -10,6 +10,8 @@ export const COMPANY = {
   slogan:      "Без риба. Без скрытых платежей. Без пени и штрафов.",
   phone:       "+7 (928) 491-08-08",
   phoneTel:    "tel:+79284910808",
+  whatsapp:    "https://wa.me/79284910808",
+  telegram:    "https://t.me/+79284910808",
   email:       "info@finnice.ru",
   address:     "г. Грозный, ул. Орзамиева, 8",
   hours:       "Пн – Пт, 9:00–19:00",
