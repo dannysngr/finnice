@@ -233,7 +233,13 @@ export function SiteHeader() {
             </div>
 
             {TOP_NAV.map((l) => {
-              const isActive = pathname === l.href || pathname?.startsWith(l.href);
+              /* Нормализуем оба пути (убираем trailing slash), затем сравниваем
+                 точно или по префиксу + "/" — чтобы /company матчилось,
+                 а /companion НЕ матчилось */
+              const norm    = (s: string) => s.replace(/\/+$/, "") || "/";
+              const cur     = norm(pathname || "");
+              const target  = norm(l.href);
+              const isActive = cur === target || cur.startsWith(target + "/");
               return (
                 <Link
                   key={l.href}
