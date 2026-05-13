@@ -21,6 +21,20 @@ function parseName(full: string): { lastName: string; firstName: string; patrony
   return { lastName: "", firstName: parts[0] ?? "", patronymic: "" };
 }
 
+export interface ApplicationItem {
+  productName:   string;
+  qty:           number;
+  /* На уровне товара храним cost (что отдаём поставщику) и markup,
+     посчитанные модалом по той же iso-IRR политике, что и аггрегаты ниже. */
+  costAmount:    number;
+  markupAmount:  number;
+  markupPct:     number;
+  /* Полная цена клиенту по этому товару (с учётом qty) и взнос */
+  totalAmount:   number;
+  downAmount:    number;
+  monthly:       number;
+}
+
 interface ApplicationPayload {
   name:          string;
   phone:         string;
@@ -36,6 +50,10 @@ interface ApplicationPayload {
   markupPct?:           number;
   downAmount?:          number;
   targetIrrAtCreation?: number;
+
+  /** Многотоварная заявка (опционально). Если задано — price/down/monthly
+   *  должны быть АГГРЕГАТАМИ по items. */
+  items?:        ApplicationItem[];
 }
 
 function escapeMarkdown(text: string): string {
@@ -52,6 +70,7 @@ export async function POST(req: Request) {
     const {
       name, phone, product, price, down, term, monthly,
       costAmount, markupAmount, markupPct, downAmount, targetIrrAtCreation,
+      items,
     } = body;
 
     // Валидация
@@ -87,6 +106,7 @@ export async function POST(req: Request) {
       ...(typeof markupPct === "number"           ? { markupPct } : {}),
       ...(typeof downAmount === "number"          ? { downAmount } : {}),
       ...(typeof targetIrrAtCreation === "number" ? { targetIrrAtCreation } : {}),
+      ...(Array.isArray(items) && items.length > 0 ? { items } : {}),
     };
     const redis = getRedis();
     await redis.set(`application:${appId}`, application);
@@ -140,12 +160,19 @@ export async function POST(req: Request) {
       minute:      "2-digit",
     });
 
+    const hasItems = Array.isArray(items) && items.length > 0;
+    const productLines = hasItems
+      ? items!.map(i => `  • ${escapeMarkdown(i.productName)}${i.qty > 1 ? ` × ${i.qty}` : ""} — ${escapeMarkdown(formatMoney(i.totalAmount))}`).join("\n")
+      : null;
+
     const text = [
       "🛍 *Новая заявка на рассрочку*",
       "",
       `👤 *Имя:* ${escapeMarkdown(name.trim())}`,
       `📞 *Телефон:* ${escapeMarkdown(phone.trim())}`,
-      product ? `📦 *Товар:* ${escapeMarkdown(product)}` : null,
+      hasItems
+        ? `📦 *Товары* \\(${items!.length}\\):\n${productLines}`
+        : (product ? `📦 *Товар:* ${escapeMarkdown(product)}` : null),
       price   ? `💰 *Сумма:* ${escapeMarkdown(formatMoney(price))}` : null,
       down    ? `💳 *Первый взнос:* ${escapeMarkdown(formatMoney(down))}` : null,
       term    ? `📅 *Срок:* ${term} мес → ${escapeMarkdown(formatMoney(monthly))}/мес` : null,

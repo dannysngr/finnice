@@ -17,6 +17,17 @@ import type { LoanRecord } from "@/app/api/lk/me/route";
 /* ══════════════════════════════════════════════════════════════
    TYPES
    ══════════════════════════════════════════════════════════════ */
+interface ApplicationItem {
+  productName:  string;
+  qty:          number;
+  costAmount:   number;
+  markupAmount: number;
+  markupPct:    number;
+  totalAmount:  number;
+  downAmount:   number;
+  monthly:      number;
+}
+
 interface Application {
   id: string;
   name: string;
@@ -35,6 +46,9 @@ interface Application {
   markupPct?:           number;
   downAmount?:          number;
   targetIrrAtCreation?: number;
+
+  /** Многотоварная заявка */
+  items?:               ApplicationItem[];
 }
 
 interface User {
@@ -429,9 +443,30 @@ function ApplicationsTab({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
             <Stat label="Имя"     value={app.name} />
             <Stat label="Телефон" value={formatPhone(app.phone) || app.phone} mono />
-            <Stat label="Товар"   value={app.product || "—"} />
+            <Stat
+              label={app.items && app.items.length > 0 ? `Товаров: ${app.items.length}` : "Товар"}
+              value={app.items && app.items.length > 0
+                ? app.items.map(i => i.qty > 1 ? `${i.productName} × ${i.qty}` : i.productName).join("; ")
+                : (app.product || "—")} />
             <Stat label="Сумма"   value={`${fmt(app.price)} ₽`} />
           </div>
+          {app.items && app.items.length > 0 && (
+            <div className="mb-4 -mt-2 px-3 py-2 rounded-lg bg-[#0A1628]/40 border border-[#1A3C6E]/40">
+              <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF] mb-1.5">Состав заявки</p>
+              <ul className="text-xs text-white/90 space-y-0.5">
+                {app.items.map((it, i) => (
+                  <li key={i} className="flex justify-between gap-3">
+                    <span className="truncate">
+                      • {it.productName}{it.qty > 1 && ` × ${it.qty}`}
+                    </span>
+                    <span className="shrink-0 text-[#9CA3AF] tabular-nums">
+                      cost {fmt(it.costAmount)} · total {fmt(it.totalAmount)} ₽
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
             <Stat label="Взнос"    value={`${fmt(app.down)} ₽`} />
             <Stat label="Платежей" value={pluralPayment(app.term)} />
@@ -661,11 +696,18 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
   );
 
   /* ── Входные данные (то, что админ видит/правит) ─────── */
-  const [product, setProduct] = useState(app.product);
-  /* Стоимость у партнёра — приоритет: из заявки (iso-IRR meta), иначе из price */
-  const defaultCost = app.costAmount && app.costAmount > 0
-    ? app.costAmount
-    : Math.round(app.price / 1.25);
+  const isMulti = Array.isArray(app.items) && app.items.length > 0;
+  const itemsLabel = isMulti
+    ? app.items!.map(i => i.qty > 1 ? `${i.productName} × ${i.qty}` : i.productName).join("; ")
+    : app.product;
+  const [product, setProduct] = useState(itemsLabel);
+  /* Стоимость у партнёра — для multi-заявки сумма costAmount по всем items;
+     для одиночной — приоритет iso-IRR meta, иначе price / 1.25 */
+  const defaultCost = isMulti
+    ? Math.round(app.items!.reduce((s, i) => s + i.costAmount, 0))
+    : (app.costAmount && app.costAmount > 0
+        ? app.costAmount
+        : Math.round(app.price / 1.25));
   const [cost, setCost]   = useState<number>(defaultCost);
   const [term, setTerm]   = useState<number>(app.term);
   /* Взнос как доля от cost */
@@ -712,6 +754,8 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
       markupPct,
       downAmount:          Math.round(downAmount),
       targetIrrAtCreation: targetIrr,
+      /* Передаём состав заявки целиком — это будет частью loanRecord */
+      ...(isMulti ? { items: app.items } : {}),
     });
   };
 
@@ -719,9 +763,34 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
       <div className="w-full max-w-3xl bg-[#1A3C6E] rounded-2xl shadow-2xl p-6 border border-[#C8972B]/30 my-8">
         <h2 className="text-xl font-bold text-white mb-1">Подтверждение одобрения</h2>
-        <p className="text-xs text-white/60 mb-5">
+        <p className="text-xs text-white/60 mb-3">
           Клиент: <b>{app.name}</b> · {formatPhone(app.phone) || app.phone}
         </p>
+
+        {isMulti && (
+          <div className="mb-4 px-3 py-2.5 rounded-lg bg-[#0A1628]/60 border border-[#1A3C6E]/60">
+            <p className="text-[10px] uppercase tracking-wider text-[#C8972B] mb-1.5">
+              Состав заявки — {app.items!.length} {app.items!.length === 1 ? "товар" : "товаров"}
+              <span className="text-white/40 normal-case ml-2">
+                (всё оформляется одним договором)
+              </span>
+            </p>
+            <ul className="text-xs text-white/90 space-y-0.5">
+              {app.items!.map((it, i) => (
+                <li key={i} className="flex justify-between gap-3">
+                  <span className="truncate">• {it.productName}{it.qty > 1 && ` × ${it.qty}`}</span>
+                  <span className="shrink-0 text-white/50 tabular-nums">
+                    cost {fmt(it.costAmount)} · total {fmt(it.totalAmount)} ₽
+                  </span>
+                </li>
+              ))}
+              <li className="flex justify-between gap-3 pt-1.5 mt-1.5 border-t border-white/10 font-bold text-[#C8972B]">
+                <span>Итого cost</span>
+                <span className="tabular-nums">{fmt(defaultCost)} ₽</span>
+              </li>
+            </ul>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* ── Левая часть: входные данные ──────────────── */}

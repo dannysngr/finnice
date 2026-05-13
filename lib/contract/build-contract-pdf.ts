@@ -263,10 +263,23 @@ export async function buildContractPdf(data: ContractData): Promise<Uint8Array> 
   /* ── 1. ПРЕДМЕТ ─────────────────────────────────── */
   drawHeader(ctx, "1. ПРЕДМЕТ ДОГОВОРА");
   drawParagraph(ctx, "1.1. Продавец, являясь собственником товара, указанного в пункте 1.2 настоящего Договора (далее — «Товар»), обязуется передать Товар в собственность Покупателя, а Покупатель обязуется принять Товар и уплатить за него установленную настоящим Договором цену в соответствии с Графиком платежей (Приложение № 1, являющееся неотъемлемой частью).");
-  drawParagraph(ctx, "1.2. Характеристики Товара:");
-  drawMixed(ctx, [{ text: "•  Наименование: " }, { text: data.productName, bold: true }]);
-  drawMixed(ctx, [{ text: "•  Модель / артикул: " }, { text: data.productModel || "—", bold: true }]);
-  drawMixed(ctx, [{ text: "•  Количество: " }, { text: `${data.productQuantity} шт.`, bold: true }]);
+  if (data.productItems && data.productItems.length > 0) {
+    drawParagraph(ctx, data.productItems.length > 1
+      ? "1.2. Характеристики Товаров (Товар представляет собой набор позиций ниже):"
+      : "1.2. Характеристики Товара:");
+    for (const it of data.productItems) {
+      drawMixed(ctx, [
+        { text: "•  Наименование: " }, { text: it.name, bold: true },
+        { text: "  ·  Количество: " }, { text: `${it.qty} шт.`, bold: true },
+        { text: "  ·  Цена позиции: " }, { text: `${Math.round(it.totalAmount).toLocaleString("ru-RU")} ₽`, bold: true },
+      ]);
+    }
+  } else {
+    drawParagraph(ctx, "1.2. Характеристики Товара:");
+    drawMixed(ctx, [{ text: "•  Наименование: " }, { text: data.productName, bold: true }]);
+    drawMixed(ctx, [{ text: "•  Модель / артикул: " }, { text: data.productModel || "—", bold: true }]);
+    drawMixed(ctx, [{ text: "•  Количество: " }, { text: `${data.productQuantity} шт.`, bold: true }]);
+  }
   drawParagraph(ctx, "1.3. Продавец заявляет и гарантирует, что на момент заключения настоящего Договора Товар принадлежит Продавцу на праве собственности, приобретён им у поставщика на возмездной основе, свободен от прав и притязаний третьих лиц.");
 
   /* ── 2. ПРИРОДА ─────────────────────────────────── */

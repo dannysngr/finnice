@@ -17,6 +17,7 @@ export async function POST(req: Request) {
     const {
       appId, phone: customerPhone, product, price, term, monthly,
       costAmount, markupAmount, markupPct, downAmount, targetIrrAtCreation,
+      items,
     } = body;
 
     if (!customerPhone || !product || typeof price !== "number") {
@@ -44,6 +45,7 @@ export async function POST(req: Request) {
       ...(typeof markupPct === "number"           ? { markupPct } : {}),
       ...(typeof downAmount === "number"          ? { downAmount } : {}),
       ...(typeof targetIrrAtCreation === "number" ? { targetIrrAtCreation } : {}),
+      ...(Array.isArray(items) && items.length > 0 ? { items } : {}),
     };
 
     // Save loan keyed by loanId (primary store, used by /lk)
@@ -94,10 +96,17 @@ export async function POST(req: Request) {
         const downAmt = typeof downAmount === "number" ? downAmount
           : Math.max(0, price - (monthly ?? 0) * ((term ?? 1) - 1));
         const paymentsLabel = pluralPayment(term ?? 0);
+        const hasItems = Array.isArray(items) && items.length > 0;
+        const productBlock = hasItems
+          ? [`📦 *Товары* (${items.length}):`, ...items.map((it: { productName: string; qty: number; totalAmount: number }) =>
+              `   • ${it.productName}${it.qty > 1 ? ` × ${it.qty}` : ""} — ${fmt(it.totalAmount)}`)].join("\n")
+          : `📦 *Товар:* ${product}`;
         const msg1 = [
           `🎉 *Хорошие новости!* Ваша рассрочка одобрена.`,
           ``,
-          `📦 *Товар:* ${product}`,
+          productBlock,
+          ``,
+          `💰 *Общая сумма:* ${fmt(price)}`,
           `💳 *Первый платёж (взнос):* ${fmt(downAmt)}`,
           `📅 *Ежемесячный платёж:* ${fmt(monthly ?? 0)}`,
           `🔢 *Всего платежей:* ${paymentsLabel}`,

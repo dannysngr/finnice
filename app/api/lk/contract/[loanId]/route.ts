@@ -121,6 +121,9 @@ export async function GET(req: NextRequest, { params }: Params) {
     buyerEmail:           profile.email || undefined,
     productName:          loan.product || "Товар",
     productQuantity:      1,
+    productItems:         Array.isArray(loan.items) && loan.items.length > 0
+      ? loan.items.map(it => ({ name: it.productName, qty: it.qty, totalAmount: it.totalAmount }))
+      : undefined,
     totalPrice:           totalAmount,
     downPayment:          downAmount,
     remainingPay:         remaining,

@@ -145,53 +145,67 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
     setSending(true);
     setSendErr("");
     try {
-      /* Пакетный режим: одна заявка на каждый item × qty */
+      /* Пакетный режим из корзины — одна заявка, items[] внутри */
       if (preset?.cart && preset.cart.length > 0) {
-        const errors: string[] = [];
-        let sentCount = 0;
-        for (const item of preset.cart) {
+        const items = preset.cart.map(item => {
           const itemDown = Math.ceil(item.price * getMinDownPct(item.price));
           const itemRes  = policy.loaded
             ? calcInstallmentIsoIRR(item.price, itemDown, term, policy.inflation, policy.overrides)
             : calcInstallment({ price: item.price, down: itemDown, term });
           const itemMarkupPct = item.price > 0 ? itemRes.markup / item.price : 0;
           const itemTotalPrice = item.price + itemRes.markup;
-          const itemTargetIrr  = itemRes.rate > 0 ? impliedAnnualIrr(itemRes.rate) : 0;
+          return {
+            productName: item.productName,
+            qty:         item.qty,
+            costAmount:  item.price * item.qty,
+            markupAmount: itemRes.markup * item.qty,
+            markupPct:   itemMarkupPct,
+            totalAmount: itemTotalPrice * item.qty,
+            downAmount:  itemDown * item.qty,
+            monthly:     itemRes.monthly * item.qty,
+          };
+        });
 
-          for (let copy = 0; copy < item.qty; copy++) {
-            try {
-              const r = await fetch("/api/applications", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  name:    submitName,
-                  phone:   submitPhone,
-                  product: item.qty > 1 ? `${item.productName} (${copy + 1}/${item.qty})` : item.productName,
-                  price:   itemTotalPrice,
-                  down:    itemDown,
-                  term,
-                  monthly: itemRes.monthly,
-                  costAmount:   item.price,
-                  markupAmount: itemRes.markup,
-                  markupPct:    itemMarkupPct,
-                  downAmount:   itemDown,
-                  targetIrrAtCreation: itemTargetIrr,
-                }),
-              });
-              const d = await r.json();
-              if (d.ok) sentCount++;
-              else errors.push(`${item.productName}: ${d.error || "ошибка"}`);
-            } catch {
-              errors.push(`${item.productName}: сетевая ошибка`);
-            }
+        /* Аггрегаты по всей заявке */
+        const aggCost   = items.reduce((s, i) => s + i.costAmount, 0);
+        const aggMarkup = items.reduce((s, i) => s + i.markupAmount, 0);
+        const aggTotal  = items.reduce((s, i) => s + i.totalAmount, 0);
+        const aggDown   = items.reduce((s, i) => s + i.downAmount, 0);
+        const aggMonthly = items.reduce((s, i) => s + i.monthly, 0);
+        const aggMarkupPct = aggCost > 0 ? aggMarkup / aggCost : 0;
+        const summaryName = items.length === 1
+          ? items[0].productName
+          : items.map(i => i.qty > 1 ? `${i.productName} × ${i.qty}` : i.productName).join("; ");
+
+        try {
+          const r = await fetch("/api/applications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name:    submitName,
+              phone:   submitPhone,
+              product: summaryName,
+              price:   aggTotal,
+              down:    aggDown,
+              term,
+              monthly: aggMonthly,
+              costAmount:   aggCost,
+              markupAmount: aggMarkup,
+              markupPct:    aggMarkupPct,
+              downAmount:   aggDown,
+              targetIrrAtCreation: 0,
+              items,
+            }),
+          });
+          const d = await r.json();
+          if (d.ok) {
+            setSent(true);
+            preset.onAllSent?.();
+          } else {
+            setSendErr(d.error || "Ошибка отправки. Попробуйте ещё раз.");
           }
-        }
-        if (sentCount > 0) {
-          setSent(true);
-          preset.onAllSent?.();
-        }
-        if (errors.length > 0) {
-          setSendErr(`Отправлено ${sentCount}. Ошибки: ${errors.join("; ")}`);
+        } catch {
+          setSendErr("Сетевая ошибка");
         }
         return;
       }
@@ -299,7 +313,7 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
             {preset?.cart && preset.cart.length > 0 && (
               <div className="bg-[#F4F7FC] rounded-xl px-3 py-2.5 border border-[#D8E2F0]">
                 <p className="text-[10px] uppercase tracking-wider text-[#6B7280] font-bold mb-1.5">
-                  Заявок будет создано: {preset.cart.reduce((s, i) => s + i.qty, 0)}
+                  Одна заявка, {preset.cart.length} {preset.cart.length === 1 ? "товар" : "товаров"}
                 </p>
                 <ul className="text-xs text-[#0A1628] space-y-1">
                   {preset.cart.map((it, i) => (
@@ -314,8 +328,8 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
                   ))}
                 </ul>
                 <p className="text-[10px] text-[#6B7280] mt-2 leading-snug">
-                  По каждому товару создаётся отдельная заявка со своим взносом и платежом.
-                  Срок ниже применится ко всем.
+                  Все товары оформляются единой рассрочкой с общим графиком платежей
+                  и одним договором. Срок ниже применится ко всей покупке.
                 </p>
               </div>
             )}

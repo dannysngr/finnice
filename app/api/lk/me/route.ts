@@ -9,6 +9,17 @@ import { getRedis }        from "@/lib/redis";
 import { findByPhone }     from "@/lib/user-store";
 import { getAdminRole }    from "@/lib/adminAuth";
 
+export interface LoanItem {
+  productName:  string;
+  qty:          number;
+  costAmount:   number;
+  markupAmount: number;
+  markupPct:    number;
+  totalAmount:  number;
+  downAmount:   number;
+  monthly:      number;
+}
+
 export interface LoanRecord {
   id:             string;
   product:        string;
@@ -26,6 +37,9 @@ export interface LoanRecord {
   markupPct?:         number;   // наценка как доля cost (0..1)
   downAmount?:        number;   // первоначальный взнос
   targetIrrAtCreation?: number; // целевая annual IRR на момент выдачи
+
+  /** Многотоварная рассрочка — состав сделки */
+  items?:        LoanItem[];
 }
 
 export interface ProfileRecord {

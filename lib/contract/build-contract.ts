@@ -38,6 +38,8 @@ export interface ContractData {
   productName: string;
   productModel?:   string;
   productQuantity: number;
+  /** Многотоварная рассрочка — массив строк для п. 1.2 */
+  productItems?: Array<{ name: string; qty: number; totalAmount: number }>;
   /* Деньги */
   totalPrice:    number;
   downPayment:   number;
@@ -179,10 +181,22 @@ export async function buildContract(data: ContractData): Promise<Uint8Array> {
         /* 1. ПРЕДМЕТ */
         header("1. ПРЕДМЕТ ДОГОВОРА"),
         p("1.1. Продавец, являясь собственником товара, указанного в пункте 1.2 настоящего Договора (далее — «Товар»), обязуется передать Товар в собственность Покупателя, а Покупатель обязуется принять Товар и уплатить за него установленную настоящим Договором цену в соответствии с Графиком платежей (Приложение № 1 к настоящему Договору, являющееся его неотъемлемой частью)."),
-        p("1.2. Характеристики Товара:"),
-        pRuns([r("•  Наименование: "), r(data.productName, { bold: true })]),
-        pRuns([r("•  Модель / артикул: "), r(data.productModel || "—", { bold: true })]),
-        pRuns([r("•  Количество: "), r(`${data.productQuantity} шт.`, { bold: true })]),
+        p(data.productItems && data.productItems.length > 1
+          ? "1.2. Характеристики Товаров (Товар представляет собой набор позиций ниже):"
+          : "1.2. Характеристики Товара:"),
+        ...(data.productItems && data.productItems.length > 0
+          ? data.productItems.flatMap((it) => [
+              pRuns([
+                r("•  Наименование: "), r(it.name, { bold: true }),
+                r("  ·  Количество: "), r(`${it.qty} шт.`, { bold: true }),
+                r("  ·  Цена позиции: "), r(`${Math.round(it.totalAmount).toLocaleString("ru-RU")} ₽`, { bold: true }),
+              ]),
+            ])
+          : [
+              pRuns([r("•  Наименование: "), r(data.productName, { bold: true })]),
+              pRuns([r("•  Модель / артикул: "), r(data.productModel || "—", { bold: true })]),
+              pRuns([r("•  Количество: "), r(`${data.productQuantity} шт.`, { bold: true })]),
+            ]),
         p("1.3. Продавец заявляет и гарантирует, что на момент заключения настоящего Договора Товар принадлежит Продавцу на праве собственности, приобретён им у поставщика на возмездной основе, свободен от прав и притязаний третьих лиц, не находится под арестом, в залоге или ином обременении."),
 
         /* 2. ПРИРОДА */
