@@ -361,6 +361,66 @@ export function SiteHeader() {
             </button>
           </div>
         </div>
+
+        {/* ════════ MOBILE CONTACTS ROW ════════
+            Виден только на mobile (lg:hidden). Содержит:
+            телефон (звонок), WhatsApp, Telegram и кнопку Войти/ЛК.
+            Это вынос топ-инфо-бара (который скрыт на mobile) — чтобы
+            ключевые контакты были на виду без burger-меню. */}
+        <div className="lg:hidden border-t border-[#EBEBEB] bg-[#F9FAFB]">
+          <div className="section flex items-center justify-between gap-2 h-11">
+            <a
+              href={COMPANY.phoneTel}
+              className="flex items-center gap-1.5 text-[12px] font-bold text-[#0A1628]"
+            >
+              <PhoneIcon /> {COMPANY.phone}
+            </a>
+            <div className="flex items-center gap-1.5">
+              <a
+                href={COMPANY.whatsapp}
+                target="_blank"
+                rel="noopener"
+                aria-label="WhatsApp"
+                className="w-7 h-7 flex items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95"
+                style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}
+              >
+                <WhatsAppIcon />
+              </a>
+              <a
+                href={COMPANY.telegram}
+                target="_blank"
+                rel="noopener"
+                aria-label="Telegram"
+                className="w-7 h-7 flex items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95"
+                style={{ background: "linear-gradient(135deg, #2AABEE, #229ED9)" }}
+              >
+                <TelegramIcon />
+              </a>
+              {session.authed ? (
+                <Link
+                  href="/lk"
+                  className="flex items-center gap-1 ml-1 px-3 h-7 text-[11px] font-bold text-white rounded-full"
+                  style={{ background: "linear-gradient(135deg, #0C7A58, #0a6449)" }}
+                >
+                  <span
+                    className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-extrabold text-[#0C7A58] bg-white"
+                  >
+                    {getInitials(session.firstName, session.lastName) ?? "К"}
+                  </span>
+                  {session.firstName ?? "Кабинет"}
+                </Link>
+              ) : (
+                <button
+                  onClick={() => setAuthOpen(true)}
+                  className="ml-1 px-3 h-7 text-[11px] font-bold text-white rounded-full transition-opacity hover:opacity-90 active:scale-95"
+                  style={{ background: "linear-gradient(135deg, #0C7A58, #0a6449)" }}
+                >
+                  Войти
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ── Mobile slide-down ──────────────────────────── */}

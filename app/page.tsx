@@ -53,7 +53,7 @@ function PhoneIllustration() {
 function BannerCard() {
   return (
     <div
-      className="rounded-2xl relative overflow-hidden banner-card"
+      className="rounded-2xl relative overflow-hidden banner-card banner-card-responsive"
       style={{
         background:     "linear-gradient(145deg, #EFE5FF 0%, #FFD6EC 100%)",
         height:         "100%",
@@ -86,7 +86,7 @@ function BannerCard() {
       />
 
       {/* Badge */}
-      <div className="relative z-10">
+      <div className="relative z-10 banner-text-block">
         <span
           className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold mb-4 banner-badge"
           style={{ background: "rgba(0,0,0,0.08)", color: "#2d1a4a" }}
@@ -95,7 +95,7 @@ function BannerCard() {
           Халяль · Без риба · Мурабаха
         </span>
         <h2 className="text-xl sm:text-2xl font-bold text-[#0A0A0A] leading-tight mb-1.5">
-          Бери сегодня —<br />плати по графику
+          Бери сегодня —<br />плати потом
         </h2>
         <p className="text-[#5a4a6a] text-xs leading-relaxed max-w-[230px]">
           Халяльная рассрочка без скрытых платежей, штрафов и пени
@@ -103,7 +103,7 @@ function BannerCard() {
       </div>
 
       {/* Phone + floating chips */}
-      <div className="relative z-10 flex items-center justify-center py-1">
+      <div className="relative z-10 flex items-center justify-center py-1 banner-phone-block">
         <div className="relative banner-phone">
           <PhoneIllustration />
           {/* Floating price chip */}
@@ -135,7 +135,7 @@ function BannerCard() {
       </div>
 
       {/* CTA */}
-      <div className="relative z-10">
+      <div className="relative z-10 banner-cta-block">
         <Link
           href="/catalog/"
           className="flex items-center justify-center w-full py-2.5 rounded-full font-bold
@@ -208,6 +208,54 @@ function BannerCard() {
           .banner-sheen, .banner-blob-1, .banner-blob-2, .banner-chip-1,
           .banner-chip-2, .banner-phone, .banner-glow, .banner-pulse,
           .banner-arrow { animation: none; }
+        }
+
+        /* ━━━ Mobile: компактный вариант — текст слева, телефон справа,
+               меньше padding, меньшие шрифты, минимум вертикального места ━━━ */
+        @media (max-width: 767px) {
+          .banner-card-responsive {
+            padding: 14px !important;
+            min-height: auto !important;
+            display: grid !important;
+            grid-template-columns: 1fr auto;
+            grid-template-areas:
+              "text  phone"
+              "cta   cta";
+            align-items: center;
+            gap: 12px !important;
+          }
+          .banner-text-block  { grid-area: text;  }
+          .banner-phone-block { grid-area: phone; padding: 0 !important; }
+          .banner-cta-block   { grid-area: cta;   }
+
+          .banner-card-responsive .banner-badge {
+            margin-bottom: 6px !important;
+            font-size: 9px !important;
+            padding: 2px 7px !important;
+          }
+          .banner-card-responsive h2 {
+            font-size: 17px !important;
+            line-height: 1.15 !important;
+            margin-bottom: 4px !important;
+          }
+          .banner-card-responsive h2 br { display: none; }
+          .banner-card-responsive p {
+            font-size: 11px !important;
+            max-width: 100% !important;
+          }
+          .banner-card-responsive .banner-phone {
+            transform: scale(0.6);
+            transform-origin: center;
+          }
+          /* Скрываем боковые чипы на мобильном (тесно) */
+          .banner-card-responsive .banner-chip-1,
+          .banner-card-responsive .banner-chip-2 {
+            display: none !important;
+          }
+          .banner-card-responsive .banner-cta {
+            padding-top: 9px !important;
+            padding-bottom: 9px !important;
+          }
         }
       `}</style>
     </div>
