@@ -47,7 +47,7 @@ export default function VacancyPage() {
       </div>
 
       <section className="relative py-14 lg:py-20 overflow-hidden"
-               style={{ background: "linear-gradient(135deg, #062E22 0%, #0a6449 50%, #0C7A58 100%)" }}>
+               style={{ background: "#0A1628" }}>
         <div className="absolute inset-0 opacity-30"
              style={{
                background: "radial-gradient(circle at 20% 80%, #3FCFA5 0%, transparent 50%), radial-gradient(circle at 80% 20%, #1A3C6E 0%, transparent 55%)",

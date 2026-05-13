@@ -41,7 +41,7 @@ export default function OtzyvyPage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden"
-               style={{ background: "linear-gradient(135deg, #062E22 0%, #0a6449 50%, #0C7A58 100%)" }}>
+               style={{ background: "#0A1628" }}>
         <div className="absolute inset-0 opacity-25"
              style={{
                background: "radial-gradient(circle at 80% 20%, #3FCFA5 0%, transparent 55%), radial-gradient(circle at 15% 80%, #C8972B 0%, transparent 50%)",
