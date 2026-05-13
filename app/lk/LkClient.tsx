@@ -993,13 +993,46 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
     livingSameAsRegister, livingCity, livingStreet, livingHouse,
   });
 
-  // Загрузка аватара — конвертируем в base64
+  /* Загрузка аватара — принимаем до 5 МБ, потом сжимаем на canvas до
+     512×512 jpeg(0.85). Это держит размер base64 ~50–150 КБ и не раздувает
+     профиль в Redis. */
   const handleAvatarFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 200_000) { alert("Файл слишком большой. Максимум 200 КБ."); return; }
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Файл слишком большой. Максимум 5 МБ.");
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      alert("Загрузите изображение (JPG, PNG, WEBP или HEIC).");
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onload = ev => setAvatarUrl(ev.target?.result as string ?? "");
+    reader.onload = ev => {
+      const src = ev.target?.result as string;
+      if (!src) return;
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 512;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        const w = Math.round(img.width  * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { setAvatarUrl(src); return; }
+        ctx.drawImage(img, 0, 0, w, h);
+        try {
+          setAvatarUrl(canvas.toDataURL("image/jpeg", 0.85));
+        } catch {
+          /* fallback на исходник, если canvas не справился */
+          setAvatarUrl(src);
+        }
+      };
+      img.onerror = () => setAvatarUrl(src);
+      img.src = src;
+    };
     reader.readAsDataURL(file);
   };
 

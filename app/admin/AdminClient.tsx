@@ -543,6 +543,9 @@ function UsersTab({
   onRefresh:     () => void;
 }) {
   const [query,       setQuery]       = useState("");
+  const [sortBy,      setSortBy]      = useState<
+    "newest" | "oldest" | "name_asc" | "name_desc" | "loans_desc" | "loans_asc"
+  >("newest");
   const [showCreate,  setShowCreate]  = useState(false);
   const [createBusy,  setCreateBusy]  = useState(false);
   const [createForm,  setCreateForm]  = useState({
@@ -554,11 +557,23 @@ function UsersTab({
     [u.lastName, u.firstName, u.patronymic].filter(Boolean).join(" ");
 
   const q = query.toLowerCase().trim();
-  const filtered = q
+  const filtered = (q
     ? users.filter(u =>
         u.phone.includes(q) || fullName(u).toLowerCase().includes(q)
       )
-    : users;
+    : users
+  ).slice().sort((a, b) => {
+    const ts = (s?: string) => s ? new Date(s).getTime() || 0 : 0;
+    switch (sortBy) {
+      case "newest":     return ts(b.createdAt) - ts(a.createdAt);
+      case "oldest":     return ts(a.createdAt) - ts(b.createdAt);
+      case "name_asc":   return fullName(a).localeCompare(fullName(b), "ru");
+      case "name_desc":  return fullName(b).localeCompare(fullName(a), "ru");
+      case "loans_desc": return (b.loansCount ?? 0) - (a.loansCount ?? 0);
+      case "loans_asc":  return (a.loansCount ?? 0) - (b.loansCount ?? 0);
+      default:           return 0;
+    }
+  });
 
   const handleCreate = async () => {
     setCreateBusy(true); setCreateError("");
@@ -581,7 +596,7 @@ function UsersTab({
   return (
     <div>
       {/* ── Панель управления ─────────────────────────────── */}
-      <div className="flex gap-3 mb-4">
+      <div className="flex flex-wrap gap-3 mb-4 items-center">
         {/* Поиск */}
         <div className="relative flex-1 max-w-sm">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] text-sm select-none">🔍</span>
@@ -595,11 +610,38 @@ function UsersTab({
                        focus:border-[#C8972B]/60 transition-colors"
           />
         </div>
+
+        {/* Сортировка */}
+        <div className="relative shrink-0">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] text-[10px] uppercase tracking-wider font-bold pointer-events-none select-none">
+            Сортировка
+          </span>
+          <select
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value as typeof sortBy)}
+            className="appearance-none pl-[5.5rem] pr-9 py-2 rounded-full bg-[#1A3C6E]/30 border border-[#1A3C6E]/50
+                       text-white text-sm font-semibold outline-none cursor-pointer
+                       focus:border-[#C8972B]/60 transition-colors"
+          >
+            <option value="newest"     style={{ background: "#0A1628" }}>сначала новые</option>
+            <option value="oldest"     style={{ background: "#0A1628" }}>сначала старые</option>
+            <option value="name_asc"   style={{ background: "#0A1628" }}>ФИО А → Я</option>
+            <option value="name_desc"  style={{ background: "#0A1628" }}>ФИО Я → А</option>
+            <option value="loans_desc" style={{ background: "#0A1628" }}>больше рассрочек</option>
+            <option value="loans_asc"  style={{ background: "#0A1628" }}>меньше рассрочек</option>
+          </select>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+              <path d="M3 4.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span>
+        </div>
+
         {/* Кнопка создания */}
         <button
           onClick={() => setShowCreate(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#C8972B] text-[#0A1628]
-                     font-semibold text-sm hover:bg-[#E8B84B] transition-colors active:scale-95 shrink-0"
+                     font-semibold text-sm hover:bg-[#E8B84B] transition-colors active:scale-95 shrink-0 ml-auto"
         >
           + Новый пользователь
         </button>
