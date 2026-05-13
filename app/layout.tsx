@@ -14,11 +14,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: `${COMPANY.name} — Рассрочка без процентов в ${COMPANY.region}`,
-  description: `${COMPANY.legalName} предоставляет жителям ${COMPANY.region} товарную рассрочку по нормам Ислама. ${COMPANY.slogan}`,
-  keywords:    `рассрочка, ${COMPANY.city}, ${COMPANY.region}, исламская рассрочка, без процентов`,
+  title: `${COMPANY.name} — Честная рассрочка в Грозном`,
+  description: `${COMPANY.legalName} предоставляет жителям Чеченской Республики товарную рассрочку по нормам Ислама. ${COMPANY.slogan}`,
+  keywords:    `рассрочка, ${COMPANY.city}, ${COMPANY.region}, исламская рассрочка, без процентов, халяль`,
   openGraph: {
-    title:       `${COMPANY.name} — Исламская рассрочка в Чечне`,
+    title:       `${COMPANY.name} — Честная рассрочка в Грозном`,
     description: COMPANY.slogan,
     locale:      "ru_RU",
     type:        "website",
