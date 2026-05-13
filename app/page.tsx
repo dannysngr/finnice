@@ -53,7 +53,7 @@ function PhoneIllustration() {
 function BannerCard() {
   return (
     <div
-      className="rounded-2xl relative overflow-hidden"
+      className="rounded-2xl relative overflow-hidden banner-card"
       style={{
         background:     "linear-gradient(145deg, #EFE5FF 0%, #FFD6EC 100%)",
         height:         "100%",
@@ -67,40 +67,48 @@ function BannerCard() {
         alignSelf:      "stretch",
       }}
     >
-      {/* Decorative blobs */}
+      {/* Animated gradient sheen overlay */}
       <div
-        className="absolute -top-10 -right-10 w-48 h-48 rounded-full pointer-events-none"
+        className="absolute inset-0 pointer-events-none banner-sheen"
+        style={{
+          background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.45) 50%, transparent 70%)",
+        }}
+      />
+
+      {/* Decorative blobs — теперь медленно «дышат» */}
+      <div
+        className="absolute -top-10 -right-10 w-48 h-48 rounded-full pointer-events-none banner-blob-1"
         style={{ background: "radial-gradient(circle, #C084FC55, transparent 70%)" }}
       />
       <div
-        className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full pointer-events-none"
+        className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full pointer-events-none banner-blob-2"
         style={{ background: "radial-gradient(circle, #F472B640, transparent 70%)" }}
       />
 
       {/* Badge */}
       <div className="relative z-10">
         <span
-          className="inline-block px-3 py-1 rounded-full text-[11px] font-semibold mb-4"
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold mb-4 banner-badge"
           style={{ background: "rgba(0,0,0,0.08)", color: "#2d1a4a" }}
         >
+          <span className="banner-pulse" />
           Халяль · Без риба · Мурабаха
         </span>
         <h2 className="text-xl sm:text-2xl font-bold text-[#0A0A0A] leading-tight mb-1.5">
-          Покупай сейчас —<br />плати потом
+          Бери сегодня —<br />плати по графику
         </h2>
-        <p className="text-[#5a4a6a] text-xs leading-relaxed max-w-[220px]">
-          Телефоны, техника и услуги — в рассрочку без процентов
+        <p className="text-[#5a4a6a] text-xs leading-relaxed max-w-[230px]">
+          Халяльная рассрочка без скрытых платежей, штрафов и пени
         </p>
       </div>
 
       {/* Phone + floating chips */}
       <div className="relative z-10 flex items-center justify-center py-1">
-        <div className="relative">
+        <div className="relative banner-phone">
           <PhoneIllustration />
           {/* Floating price chip */}
           <div
-            className="absolute -right-10 top-2 px-2 py-1 rounded-lg text-[9px] font-bold
-                         whitespace-nowrap shadow-md"
+            className="absolute -right-10 top-2 px-2 py-1 rounded-lg text-[9px] font-bold whitespace-nowrap shadow-md banner-chip-1"
             style={{
               background: "#fff",
               color: "#0A1628",
@@ -111,8 +119,7 @@ function BannerCard() {
           </div>
           {/* Floating months chip */}
           <div
-            className="absolute -left-8 bottom-4 px-2 py-1 rounded-lg text-[9px] font-bold
-                         whitespace-nowrap shadow-md"
+            className="absolute -left-8 bottom-4 px-2 py-1 rounded-lg text-[9px] font-bold whitespace-nowrap shadow-md banner-chip-2"
             style={{
               background: "#0C7A58",
               color: "#fff",
@@ -121,6 +128,9 @@ function BannerCard() {
           >
             до 12 мес
           </div>
+          {/* Subtle radial glow за телефоном */}
+          <div className="absolute inset-0 -z-10 banner-glow pointer-events-none"
+               style={{ background: "radial-gradient(circle, rgba(12,122,88,0.22), transparent 65%)" }} />
         </div>
       </div>
 
@@ -129,12 +139,77 @@ function BannerCard() {
         <Link
           href="/catalog/"
           className="flex items-center justify-center w-full py-2.5 rounded-full font-bold
-                     text-xs text-white transition-all hover:opacity-85 active:scale-[.98]"
+                     text-xs text-white transition-all hover:opacity-85 active:scale-[.98] banner-cta"
           style={{ background: "#0A0A0A" }}
         >
-          В каталог →
+          В каталог
+          <span className="banner-arrow">→</span>
         </Link>
       </div>
+
+      {/* Keyframes & animations — scoped to .banner-card */}
+      <style>{`
+        @keyframes bannerSheen {
+          0%   { transform: translateX(-120%); }
+          60%  { transform: translateX(120%);  }
+          100% { transform: translateX(120%);  }
+        }
+        @keyframes bannerBlob1 {
+          0%, 100% { transform: translate(0, 0)    scale(1);    }
+          50%      { transform: translate(-12px, 14px) scale(1.07); }
+        }
+        @keyframes bannerBlob2 {
+          0%, 100% { transform: translate(0, 0)    scale(1);    }
+          50%      { transform: translate(14px, -10px) scale(1.10); }
+        }
+        @keyframes bannerFloatA {
+          0%, 100% { transform: translateY(0) rotate(-2deg);  }
+          50%      { transform: translateY(-6px) rotate(2deg); }
+        }
+        @keyframes bannerFloatB {
+          0%, 100% { transform: translateY(0) rotate(3deg);   }
+          50%      { transform: translateY(5px) rotate(-3deg); }
+        }
+        @keyframes bannerPhone {
+          0%, 100% { transform: translateY(0); }
+          50%      { transform: translateY(-4px); }
+        }
+        @keyframes bannerGlow {
+          0%, 100% { opacity: 0.85; transform: scale(1);   }
+          50%      { opacity: 1;    transform: scale(1.12);}
+        }
+        @keyframes bannerPulseDot {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(12,122,88,0.55); }
+          70%      { box-shadow: 0 0 0 6px rgba(12,122,88,0);  }
+        }
+        @keyframes bannerArrow {
+          0%, 100% { transform: translateX(0);  }
+          50%      { transform: translateX(3px); }
+        }
+
+        .banner-sheen   { animation: bannerSheen  6s cubic-bezier(.6,0,.4,1) infinite; }
+        .banner-blob-1  { animation: bannerBlob1  8s ease-in-out infinite; }
+        .banner-blob-2  { animation: bannerBlob2  9s ease-in-out infinite; }
+        .banner-chip-1  { animation: bannerFloatA 4.5s ease-in-out infinite; }
+        .banner-chip-2  { animation: bannerFloatB 5.2s ease-in-out infinite; }
+        .banner-phone   { animation: bannerPhone  4.8s ease-in-out infinite; }
+        .banner-glow    { animation: bannerGlow   5s ease-in-out infinite; }
+        .banner-pulse {
+          width: 6px; height: 6px; border-radius: 9999px;
+          background: #0C7A58;
+          animation: bannerPulseDot 1.8s ease-out infinite;
+        }
+        .banner-arrow {
+          display: inline-block;
+          margin-left: 6px;
+          animation: bannerArrow 1.8s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .banner-sheen, .banner-blob-1, .banner-blob-2, .banner-chip-1,
+          .banner-chip-2, .banner-phone, .banner-glow, .banner-pulse,
+          .banner-arrow { animation: none; }
+        }
+      `}</style>
     </div>
   );
 }

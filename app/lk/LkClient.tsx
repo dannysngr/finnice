@@ -127,10 +127,10 @@ interface TrustLevel {
   nextScore: number;
 }
 const TRUST_LEVELS: TrustLevel[] = [
-  { label: "Новичок",  minScore: 0, color: "#9CA3AF", discount: "",       next: "Надёжный", nextScore: 1 },
-  { label: "Надёжный", minScore: 1, color: "#10B981", discount: "−0.2%", next: "Партнёр",  nextScore: 3 },
-  { label: "Партнёр",  minScore: 3, color: "#3B82F6", discount: "−0.5%", next: "Эталон",   nextScore: 5 },
-  { label: "Эталон",   minScore: 5, color: "#C8972B", discount: "−1%",   next: null,        nextScore: 5 },
+  { label: "Гость",     minScore: 0, color: "#9CA3AF", discount: "",       next: "Друг",      nextScore: 1 },
+  { label: "Друг",      minScore: 1, color: "#10B981", discount: "−0.2%", next: "Соратник",  nextScore: 3 },
+  { label: "Соратник",  minScore: 3, color: "#3B82F6", discount: "−0.5%", next: "Аманат",    nextScore: 5 },
+  { label: "Аманат",    minScore: 5, color: "#C8972B", discount: "−1%",   next: null,         nextScore: 5 },
 ];
 function getTrustLevel(score: number): TrustLevel {
   return [...TRUST_LEVELS].reverse().find(l => score >= l.minScore) ?? TRUST_LEVELS[0];
@@ -138,10 +138,10 @@ function getTrustLevel(score: number): TrustLevel {
 
 /* Подсказки для sidebar */
 const TRUST_TOOLTIPS: Record<string, string> = {
-  "Новичок":  "Базовый уровень после регистрации. Стандартные условия рассрочки.",
-  "Надёжный": "1 закрытая рассрочка без просрочек. Скидка −0.2% на наценку.",
-  "Партнёр":  "3 закрытых рассрочки. Лимит до 150 000 ₽ без поручителей. Скидка −0.5%.",
-  "Эталон":   "5+ закрытых рассрочек. Персональная скидка −1% на наценку.",
+  "Гость":     "Добро пожаловать! Базовый уровень после регистрации — стандартные условия рассрочки.",
+  "Друг":      "Закрыли 1 рассрочку без просрочек. Получаете скидку −0.2% на наценку.",
+  "Соратник":  "3 закрытых рассрочки. Лимит до 150 000 ₽ без поручителей. Скидка −0.5% на наценку.",
+  "Аманат":    "5+ закрытых рассрочек — высший уровень доверия. На арабском «аманат» — священное доверенное. Персональная скидка −1% и приоритетная обработка заявок.",
 };
 
 /* Города Чеченской Республики */
