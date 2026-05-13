@@ -43,12 +43,25 @@ export async function GET(_req: NextRequest, { params }: Params) {
     lastLogin:      userRecord?.lastLogin   ?? null,
     loansCount:     loanKeys.length,
     loans,
-    // Адрес
+    // Адрес регистрации
     birthPlaceCity: profile?.birthPlaceCity ?? null,
     addrCity:       profile?.addrCity       ?? null,
     addrStreet:     profile?.addrStreet     ?? null,
     addrHouse:      profile?.addrHouse      ?? null,
     addrApt:        profile?.addrApt        ?? null,
+    // Паспорт
+    passportSeries:         profile?.passportSeries         ?? null,
+    passportNumber:         profile?.passportNumber         ?? null,
+    passportIssueDate:      profile?.passportIssueDate      ?? null,
+    passportIssuedBy:       profile?.passportIssuedBy       ?? null,
+    passportDepartmentCode: profile?.passportDepartmentCode ?? null,
+    // Адрес проживания
+    livingSameAsRegister: profile?.livingSameAsRegister ?? false,
+    livingCity:   profile?.livingCity   ?? null,
+    livingStreet: profile?.livingStreet ?? null,
+    livingHouse:  profile?.livingHouse  ?? null,
+    livingApt:    profile?.livingApt    ?? null,
+    email:        profile?.email        ?? null,
   });
 }
 
@@ -75,12 +88,25 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     trustScore: typeof body.trustScore === "number" ? body.trustScore : (existing.trustScore ?? 0),
     blocked:    typeof body.blocked    === "boolean" ? body.blocked    : (existing.blocked    ?? false),
     avatarUrl:  existing.avatarUrl ?? "",
-    // Адрес
+    // Адрес регистрации
     birthPlaceCity: body.birthPlaceCity !== undefined ? str(body.birthPlaceCity, "", 100) : (existing.birthPlaceCity ?? ""),
     addrCity:       body.addrCity       !== undefined ? str(body.addrCity,       "", 100) : (existing.addrCity       ?? ""),
     addrStreet:     body.addrStreet     !== undefined ? str(body.addrStreet,     "", 150) : (existing.addrStreet     ?? ""),
     addrHouse:      body.addrHouse      !== undefined ? str(body.addrHouse,      "",  20) : (existing.addrHouse      ?? ""),
     addrApt:        body.addrApt        !== undefined ? str(body.addrApt,        "",  20) : (existing.addrApt        ?? ""),
+    // Паспорт
+    passportSeries:         body.passportSeries         !== undefined ? str(body.passportSeries,         "",  5) : (existing.passportSeries         ?? ""),
+    passportNumber:         body.passportNumber         !== undefined ? str(body.passportNumber,         "",  6) : (existing.passportNumber         ?? ""),
+    passportIssueDate:      body.passportIssueDate      !== undefined ? str(body.passportIssueDate,      "", 10) : (existing.passportIssueDate      ?? ""),
+    passportIssuedBy:       body.passportIssuedBy       !== undefined ? str(body.passportIssuedBy,       "", 300) : (existing.passportIssuedBy       ?? ""),
+    passportDepartmentCode: body.passportDepartmentCode !== undefined ? str(body.passportDepartmentCode, "",  7) : (existing.passportDepartmentCode ?? ""),
+    // Адрес проживания
+    livingSameAsRegister: typeof body.livingSameAsRegister === "boolean" ? body.livingSameAsRegister : (existing.livingSameAsRegister ?? false),
+    livingCity:   body.livingCity   !== undefined ? str(body.livingCity,   "", 100) : (existing.livingCity   ?? ""),
+    livingStreet: body.livingStreet !== undefined ? str(body.livingStreet, "", 150) : (existing.livingStreet ?? ""),
+    livingHouse:  body.livingHouse  !== undefined ? str(body.livingHouse,  "",  20) : (existing.livingHouse  ?? ""),
+    livingApt:    body.livingApt    !== undefined ? str(body.livingApt,    "",  20) : (existing.livingApt    ?? ""),
+    email:        body.email        !== undefined ? str(body.email,        "", 120) : (existing.email        ?? ""),
   };
 
   await redis.set(`profile:${phone}`, updated);

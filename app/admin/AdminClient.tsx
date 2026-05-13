@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { pluralPayment, calcInstallment } from "@/lib/calculator-logic";
 import { formatPhone } from "@/lib/phone-mask";
+import { computeProfileCompletion } from "@/lib/profile-completion";
+import {
+  maskPassportSeries, maskPassportNumber, maskDepartmentCode,
+  PASSPORT_SERIES_PLACEHOLDER, PASSPORT_NUMBER_PLACEHOLDER, DEPT_CODE_PLACEHOLDER,
+} from "@/lib/passport-mask";
 import {
   markupRounded, irrMonthly, annualFromMonthly, baselineIrrAnnual,
 } from "@/lib/finance/iso-irr";
@@ -59,6 +64,17 @@ interface UserDetail {
   addrStreet:     string | null;
   addrHouse:      string | null;
   addrApt:        string | null;
+  passportSeries?:         string | null;
+  passportNumber?:         string | null;
+  passportIssueDate?:      string | null;
+  passportIssuedBy?:       string | null;
+  passportDepartmentCode?: string | null;
+  livingSameAsRegister?: boolean;
+  livingCity?:   string | null;
+  livingStreet?: string | null;
+  livingHouse?:  string | null;
+  livingApt?:    string | null;
+  email?:        string | null;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -613,6 +629,19 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading }: {
       .catch(() => {});
   }, []);
 
+  /* ── Профиль клиента — для проверки заполненности ────── */
+  const [clientProfile, setClientProfile] = useState<Record<string, unknown> | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  useEffect(() => {
+    setProfileLoading(true);
+    fetch(`/api/admin/users/${encodeURIComponent(app.phone)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => setClientProfile(d))
+      .catch(() => {})
+      .finally(() => setProfileLoading(false));
+  }, [app.phone]);
+  const profileCompletion = computeProfileCompletion(clientProfile ?? {});
+
   /* ── Входные данные (то, что админ видит/правит) ─────── */
   const [product, setProduct] = useState(app.product);
   /* Стоимость у партнёра — приоритет: из заявки (iso-IRR meta), иначе из price */
@@ -805,12 +834,29 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading }: {
                        hover:bg-white/10 transition-colors disabled:opacity-60">
             Отмена
           </button>
-          <button onClick={handleSubmit} disabled={isLoading || cost <= 0}
+          <button onClick={handleSubmit}
+                  disabled={isLoading || cost <= 0 || !profileCompletion.isComplete || profileLoading}
+                  title={!profileCompletion.isComplete
+                    ? `Профиль клиента заполнен на ${profileCompletion.percent}%. Заполните недостающие поля в карточке клиента, чтобы одобрить рассрочку.`
+                    : ""}
             className="flex-1 py-2.5 rounded-full bg-[#C8972B] text-[#0A1628] font-bold
                        hover:bg-[#E8B84B] transition-colors disabled:opacity-60 active:scale-95">
-            {isLoading ? "Сохраняю..." : `Одобрить · клиент платит ${fmtR(totalPrice)} ₽`}
+            {isLoading ? "Сохраняю..."
+              : profileLoading ? "Проверка профиля..."
+              : !profileCompletion.isComplete ? `Профиль ${profileCompletion.percent}% — заполните данные`
+              : `Одобрить · клиент платит ${fmtR(totalPrice)} ₽`}
           </button>
         </div>
+
+        {!profileCompletion.isComplete && !profileLoading && (
+          <div className="mt-3 p-3 rounded-xl bg-red-900/20 border border-red-500/40 text-xs text-red-200 leading-snug">
+            ⚠ <b>Невозможно одобрить:</b> профиль клиента заполнен на {profileCompletion.percent}%
+            ({profileCompletion.filled} из {profileCompletion.total} обязательных полей).
+            Откройте карточку клиента и заполните: {Object.entries(profileCompletion.missingByGroup)
+              .map(([g, fs]) => `${g} (${fs.map(f => f.label.toLowerCase()).join(", ")})`)
+              .join("; ")}.
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1165,6 +1211,14 @@ function AdminLoanCard({
                   {loan.status === "completed" ? "✓ Закрыта" : "Активна"}
                 </span>
                 {/* Кнопки управления */}
+                <a
+                  href={`/api/lk/contract/${loan.id}?phone=${encodeURIComponent(phone)}`}
+                  title="Скачать договор"
+                  className="w-6 h-6 rounded-md flex items-center justify-center text-[#9CA3AF]
+                             hover:bg-[#C8972B]/20 hover:text-[#C8972B] transition-colors text-xs"
+                >
+                  📄
+                </a>
                 <button
                   onClick={() => { setEditing(true); setOpen(false); }}
                   title="Редактировать"
@@ -1284,6 +1338,17 @@ function UserProfileModal({
     addrStreet:     user.addrStreet     ?? "",
     addrHouse:      user.addrHouse      ?? "",
     addrApt:        user.addrApt        ?? "",
+    passportSeries:         user.passportSeries         ?? "",
+    passportNumber:         user.passportNumber         ?? "",
+    passportIssueDate:      user.passportIssueDate      ?? "",
+    passportIssuedBy:       user.passportIssuedBy       ?? "",
+    passportDepartmentCode: user.passportDepartmentCode ?? "",
+    livingSameAsRegister: user.livingSameAsRegister ?? false,
+    livingCity:   user.livingCity   ?? "",
+    livingStreet: user.livingStreet ?? "",
+    livingHouse:  user.livingHouse  ?? "",
+    livingApt:    user.livingApt    ?? "",
+    email:        user.email        ?? "",
   });
   const [saving,   setSaving]   = useState(false);
   const [blocking, setBlocking] = useState(false);
@@ -1309,6 +1374,8 @@ function UserProfileModal({
 
   const createdStr  = user.createdAt  ? new Date(user.createdAt).toLocaleDateString("ru-RU") : "—";
   const lastLoginStr = user.lastLogin ? new Date(user.lastLogin).toLocaleString("ru-RU")     : "—";
+
+  const completion = computeProfileCompletion(form);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/70 backdrop-blur-sm"
@@ -1420,10 +1487,136 @@ function UserProfileModal({
                 </div>
               </div>
               <div className="grid grid-cols-[1fr_5rem_5rem] gap-2">
-                <FieldRow placeholder="Улица"    value={form.addrStreet} onChange={v => setForm(f => ({ ...f, addrStreet: v }))} />
-                <FieldRow placeholder="Дом"      value={form.addrHouse}  onChange={v => setForm(f => ({ ...f, addrHouse: v }))} />
-                <FieldRow placeholder="Квартира" value={form.addrApt}    onChange={v => setForm(f => ({ ...f, addrApt: v }))} />
+                <FieldRow placeholder="Улица *"   value={form.addrStreet} onChange={v => setForm(f => ({ ...f, addrStreet: v }))} />
+                <FieldRow placeholder="Дом *"     value={form.addrHouse}  onChange={v => setForm(f => ({ ...f, addrHouse: v }))} />
+                <FieldRow placeholder="Квартира"  value={form.addrApt}    onChange={v => setForm(f => ({ ...f, addrApt: v }))} />
               </div>
+            </div>
+
+            {/* Паспорт */}
+            <div>
+              <p className="text-[10px] text-[#9CA3AF] font-semibold uppercase tracking-wider mb-1.5">
+                Паспортные данные <span className="text-red-400">*</span>
+              </p>
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <div>
+                  <p className="text-[9px] text-[#9CA3AF]/60 mb-1">Серия *</p>
+                  <input value={form.passportSeries}
+                         onChange={e => setForm(f => ({ ...f, passportSeries: maskPassportSeries(e.target.value) }))}
+                         inputMode="numeric" placeholder={PASSPORT_SERIES_PLACEHOLDER}
+                         className="w-full px-2.5 py-2 rounded-lg bg-[#0A1628] text-white text-sm font-mono
+                                    border border-[#1A3C6E] focus:border-[#C8972B] outline-none transition-colors
+                                    placeholder:text-[#9CA3AF]/50" />
+                </div>
+                <div>
+                  <p className="text-[9px] text-[#9CA3AF]/60 mb-1">Номер *</p>
+                  <input value={form.passportNumber}
+                         onChange={e => setForm(f => ({ ...f, passportNumber: maskPassportNumber(e.target.value) }))}
+                         inputMode="numeric" placeholder={PASSPORT_NUMBER_PLACEHOLDER}
+                         className="w-full px-2.5 py-2 rounded-lg bg-[#0A1628] text-white text-sm font-mono
+                                    border border-[#1A3C6E] focus:border-[#C8972B] outline-none transition-colors
+                                    placeholder:text-[#9CA3AF]/50" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <div>
+                  <p className="text-[9px] text-[#9CA3AF]/60 mb-1">Дата выдачи *</p>
+                  <input type="date" value={form.passportIssueDate}
+                         onChange={e => setForm(f => ({ ...f, passportIssueDate: e.target.value }))}
+                         className="w-full px-2.5 py-2 rounded-lg bg-[#0A1628] text-white text-sm
+                                    border border-[#1A3C6E] focus:border-[#C8972B] outline-none transition-colors" />
+                </div>
+                <div>
+                  <p className="text-[9px] text-[#9CA3AF]/60 mb-1">Код подразделения *</p>
+                  <input value={form.passportDepartmentCode}
+                         onChange={e => setForm(f => ({ ...f, passportDepartmentCode: maskDepartmentCode(e.target.value) }))}
+                         inputMode="numeric" placeholder={DEPT_CODE_PLACEHOLDER}
+                         className="w-full px-2.5 py-2 rounded-lg bg-[#0A1628] text-white text-sm font-mono
+                                    border border-[#1A3C6E] focus:border-[#C8972B] outline-none transition-colors
+                                    placeholder:text-[#9CA3AF]/50" />
+                </div>
+              </div>
+              <div>
+                <p className="text-[9px] text-[#9CA3AF]/60 mb-1">Кем выдан *</p>
+                <textarea value={form.passportIssuedBy}
+                          onChange={e => setForm(f => ({ ...f, passportIssuedBy: e.target.value }))}
+                          rows={2}
+                          placeholder="Например: ОУФМС России по г. Москве по району Якиманка"
+                          className="w-full px-2.5 py-2 rounded-lg bg-[#0A1628] text-white text-sm resize-none
+                                     border border-[#1A3C6E] focus:border-[#C8972B] outline-none transition-colors
+                                     placeholder:text-[#9CA3AF]/50" />
+              </div>
+            </div>
+
+            {/* Адрес проживания */}
+            <div>
+              <p className="text-[10px] text-[#9CA3AF] font-semibold uppercase tracking-wider mb-1.5">
+                Адрес проживания <span className="text-red-400">*</span>
+              </p>
+              <label className="inline-flex items-center gap-2 mb-2 cursor-pointer select-none">
+                <input type="checkbox" checked={form.livingSameAsRegister}
+                       onChange={e => setForm(f => ({ ...f, livingSameAsRegister: e.target.checked }))}
+                       className="accent-[#C8972B]" />
+                <span className="text-xs text-white">Совпадает с адресом регистрации</span>
+              </label>
+              {!form.livingSameAsRegister && (
+                <>
+                  <div className="mb-2">
+                    <input value={form.livingCity}
+                           onChange={e => setForm(f => ({ ...f, livingCity: e.target.value }))}
+                           placeholder="Город *"
+                           className="w-full px-2.5 py-2 rounded-lg bg-[#0A1628] text-white text-sm
+                                      border border-[#1A3C6E] focus:border-[#C8972B] outline-none transition-colors
+                                      placeholder:text-[#9CA3AF]/50" />
+                  </div>
+                  <div className="grid grid-cols-[1fr_5rem_5rem] gap-2">
+                    <FieldRow placeholder="Улица *"   value={form.livingStreet} onChange={v => setForm(f => ({ ...f, livingStreet: v }))} />
+                    <FieldRow placeholder="Дом *"     value={form.livingHouse}  onChange={v => setForm(f => ({ ...f, livingHouse: v }))} />
+                    <FieldRow placeholder="Квартира"  value={form.livingApt}    onChange={v => setForm(f => ({ ...f, livingApt: v }))} />
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Email */}
+            <div>
+              <p className="text-[10px] text-[#9CA3AF] font-semibold uppercase tracking-wider mb-1.5">
+                Email <span className="text-[#9CA3AF]/60 normal-case">(необязательно)</span>
+              </p>
+              <FieldRow placeholder="name@example.com" type="email"
+                        value={form.email} onChange={v => setForm(f => ({ ...f, email: v }))} />
+            </div>
+
+            {/* Заполненность профиля */}
+            <div className="rounded-xl p-3"
+                 style={{
+                   background: completion.isComplete ? "rgba(34,197,94,0.10)" : (completion.percent >= 75 ? "rgba(245,158,11,0.10)" : "rgba(239,68,68,0.10)"),
+                   border: `1px solid ${completion.isComplete ? "rgba(34,197,94,0.30)" : (completion.percent >= 75 ? "rgba(245,158,11,0.30)" : "rgba(239,68,68,0.30)")}`,
+                 }}>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-bold text-white">
+                  📋 Профиль заполнен на {completion.percent}%
+                </span>
+                <span className="text-[10px] text-white/60">{completion.filled} / {completion.total}</span>
+              </div>
+              <div className="h-1.5 rounded-full overflow-hidden mb-2" style={{ background: "rgba(255,255,255,0.10)" }}>
+                <div className="h-full rounded-full transition-all"
+                     style={{
+                       width: `${completion.percent}%`,
+                       background: completion.isComplete ? "#22C55E" : (completion.percent >= 75 ? "#F59E0B" : "#EF4444"),
+                     }} />
+              </div>
+              {completion.isComplete ? (
+                <p className="text-[10px] text-green-400">
+                  ✓ Все обязательные поля заполнены — рассрочка может быть одобрена.
+                </p>
+              ) : (
+                <p className="text-[10px] text-white/70 leading-snug">
+                  Не хватает для одобрения: {Object.entries(completion.missingByGroup)
+                    .map(([g, fs]) => `${g} (${fs.map(f => f.label.toLowerCase()).join(", ")})`)
+                    .join("; ")}.
+                </p>
+              )}
             </div>
 
             {/* Статус аккаунта */}

@@ -42,6 +42,20 @@ export interface ProfileRecord {
   addrStreet: string;
   addrHouse:  string;
   addrApt:    string;
+  // Паспортные данные (для договора)
+  passportSeries?:   string;   // 4 цифры "XX XX"
+  passportNumber?:   string;   // 6 цифр
+  passportIssueDate?: string;  // YYYY-MM-DD
+  passportIssuedBy?: string;   // кем выдан (свободный текст)
+  passportDepartmentCode?: string;  // XXX-XXX
+  // Адрес проживания
+  livingSameAsRegister?: boolean;
+  livingCity?:   string;
+  livingStreet?: string;
+  livingHouse?:  string;
+  livingApt?:    string;
+  // Email опционально
+  email?: string;
 }
 
 export async function GET() {
@@ -68,6 +82,17 @@ export async function GET() {
     addrStreet:     profile?.addrStreet     ?? null,
     addrHouse:      profile?.addrHouse      ?? null,
     addrApt:        profile?.addrApt        ?? null,
+    passportSeries:         profile?.passportSeries         ?? null,
+    passportNumber:         profile?.passportNumber         ?? null,
+    passportIssueDate:      profile?.passportIssueDate      ?? null,
+    passportIssuedBy:       profile?.passportIssuedBy       ?? null,
+    passportDepartmentCode: profile?.passportDepartmentCode ?? null,
+    livingSameAsRegister:   profile?.livingSameAsRegister   ?? false,
+    livingCity:   profile?.livingCity   ?? null,
+    livingStreet: profile?.livingStreet ?? null,
+    livingHouse:  profile?.livingHouse  ?? null,
+    livingApt:    profile?.livingApt    ?? null,
+    email:        profile?.email        ?? null,
     loans,
   });
 }

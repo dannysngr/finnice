@@ -11,6 +11,11 @@ import {
 import Link from "next/link";
 import type { LoanRecord } from "@/app/api/lk/me/route";
 import { pluralPayment } from "@/lib/calculator-logic";
+import { computeProfileCompletion } from "@/lib/profile-completion";
+import {
+  maskPassportSeries, maskPassportNumber, maskDepartmentCode,
+  PASSPORT_SERIES_PLACEHOLDER, PASSPORT_NUMBER_PLACEHOLDER, DEPT_CODE_PLACEHOLDER,
+} from "@/lib/passport-mask";
 
 /* ─────────────────────────────────────────────────────────────
    TYPES
@@ -29,6 +34,19 @@ interface MeData {
   addrStreet:     string | null;
   addrHouse:      string | null;
   addrApt:        string | null;
+  // Паспорт
+  passportSeries?:         string | null;
+  passportNumber?:         string | null;
+  passportIssueDate?:      string | null;
+  passportIssuedBy?:       string | null;
+  passportDepartmentCode?: string | null;
+  // Адрес проживания
+  livingSameAsRegister?: boolean;
+  livingCity?:   string | null;
+  livingStreet?: string | null;
+  livingHouse?:  string | null;
+  livingApt?:    string | null;
+  email?:        string | null;
   adminRole?:     "root" | "admin" | "moderator" | null;
 }
 
@@ -684,19 +702,29 @@ function LoanCard({ loan }: { loan: LoanRecord }) {
           </div>
         ) : <span />}
 
-        {schedule.length > 0 && (
-          <button
-            onClick={() => setScheduleOpen(v => !v)}
-            className="flex items-center gap-1 text-xs font-semibold transition-colors shrink-0 ml-2"
-            style={{ color: scheduleOpen ? C.brand : C.mid }}
+        <div className="flex items-center gap-2 shrink-0 ml-2">
+          <a
+            href={`/api/lk/contract/${loan.id}`}
+            className="flex items-center gap-1 text-xs font-semibold transition-colors px-2 py-1 rounded"
+            style={{ color: C.brand, background: C.brandLight }}
+            title="Скачать готовый договор"
           >
-            График
-            <ChevronRight
-              className="w-3.5 h-3.5 transition-transform"
-              style={{ transform: scheduleOpen ? "rotate(90deg)" : "rotate(0deg)" }}
-            />
-          </button>
-        )}
+            📄 Договор
+          </a>
+          {schedule.length > 0 && (
+            <button
+              onClick={() => setScheduleOpen(v => !v)}
+              className="flex items-center gap-1 text-xs font-semibold transition-colors"
+              style={{ color: scheduleOpen ? C.brand : C.mid }}
+            >
+              График
+              <ChevronRight
+                className="w-3.5 h-3.5 transition-transform"
+                style={{ transform: scheduleOpen ? "rotate(90deg)" : "rotate(0deg)" }}
+              />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* График платежей — аккордеон */}
@@ -767,6 +795,19 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
   const [addrStreet,     setAddrStreet]     = useState(data.addrStreet     ?? "");
   const [addrHouse,      setAddrHouse]      = useState(data.addrHouse      ?? "");
   const [addrApt,        setAddrApt]        = useState(data.addrApt        ?? "");
+  /* Паспорт */
+  const [passportSeries,         setPassportSeries]         = useState(data.passportSeries         ?? "");
+  const [passportNumber,         setPassportNumber]         = useState(data.passportNumber         ?? "");
+  const [passportIssueDate,      setPassportIssueDate]      = useState(data.passportIssueDate      ?? "");
+  const [passportIssuedBy,       setPassportIssuedBy]       = useState(data.passportIssuedBy       ?? "");
+  const [passportDepartmentCode, setPassportDepartmentCode] = useState(data.passportDepartmentCode ?? "");
+  /* Адрес проживания */
+  const [livingSameAsRegister, setLivingSameAsRegister] = useState(data.livingSameAsRegister ?? false);
+  const [livingCity,   setLivingCity]   = useState(data.livingCity   ?? "");
+  const [livingStreet, setLivingStreet] = useState(data.livingStreet ?? "");
+  const [livingHouse,  setLivingHouse]  = useState(data.livingHouse  ?? "");
+  const [livingApt,    setLivingApt]    = useState(data.livingApt    ?? "");
+  const [email,        setEmail]        = useState(data.email        ?? "");
   const [saving,         setSaving]         = useState(false);
   const [tooltip,        setTooltip]        = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -787,17 +828,18 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
   const activeCnt = data.loans.filter(l => l.status === "active").length;
 
   const save = async () => {
-    if (!birthDate) return;           // дата рождения обязательна
     setSaving(true);
     try {
+      const payload = { lastName, firstName, patronymic, birthDate, avatarUrl,
+        birthPlaceCity, addrCity, addrStreet, addrHouse, addrApt,
+        passportSeries, passportNumber, passportIssueDate, passportIssuedBy, passportDepartmentCode,
+        livingSameAsRegister, livingCity, livingStreet, livingHouse, livingApt, email };
       const r = await fetch("/api/lk/profile", {
         method: "PUT", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lastName, firstName, patronymic, birthDate, avatarUrl,
-          birthPlaceCity, addrCity, addrStreet, addrHouse, addrApt }),
+        body: JSON.stringify(payload),
       });
       if (r.ok) {
-        onUpdate({ lastName, firstName, patronymic, birthDate, avatarUrl,
-          birthPlaceCity, addrCity, addrStreet, addrHouse, addrApt });
+        onUpdate(payload);
         setEditing(false);
       }
     } finally { setSaving(false); }
@@ -809,8 +851,23 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
     setAvatarUrl(data.avatarUrl ?? "");
     setBirthPlaceCity(data.birthPlaceCity ?? ""); setAddrCity(data.addrCity ?? "");
     setAddrStreet(data.addrStreet ?? ""); setAddrHouse(data.addrHouse ?? ""); setAddrApt(data.addrApt ?? "");
+    setPassportSeries(data.passportSeries ?? ""); setPassportNumber(data.passportNumber ?? "");
+    setPassportIssueDate(data.passportIssueDate ?? ""); setPassportIssuedBy(data.passportIssuedBy ?? "");
+    setPassportDepartmentCode(data.passportDepartmentCode ?? "");
+    setLivingSameAsRegister(data.livingSameAsRegister ?? false);
+    setLivingCity(data.livingCity ?? ""); setLivingStreet(data.livingStreet ?? "");
+    setLivingHouse(data.livingHouse ?? ""); setLivingApt(data.livingApt ?? "");
+    setEmail(data.email ?? "");
     setEditing(false);
   };
+
+  /* Profile completion */
+  const completion = computeProfileCompletion({
+    lastName, firstName, patronymic, birthDate, birthPlaceCity,
+    addrCity, addrStreet, addrHouse,
+    passportSeries, passportNumber, passportIssueDate, passportIssuedBy, passportDepartmentCode,
+    livingSameAsRegister, livingCity, livingStreet, livingHouse,
+  });
 
   // Загрузка аватара — конвертируем в base64
   const handleAvatarFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -904,9 +961,9 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
 
             <div className="space-y-5">
               {[
-                { label: "Фамилия",   val: lastName,   set: setLastName   },
-                { label: "Имя",       val: firstName,  set: setFirstName  },
-                { label: "Отчество",  val: patronymic, set: setPatronymic },
+                { label: "Фамилия *",   val: lastName,   set: setLastName   },
+                { label: "Имя *",       val: firstName,  set: setFirstName  },
+                { label: "Отчество *",  val: patronymic, set: setPatronymic },
               ].map(({ label, val, set }) => (
                 <div key={label}>
                   <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
@@ -914,7 +971,7 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
                   <input
                     value={val}
                     onChange={e => set(e.target.value)}
-                    placeholder={label}
+                    placeholder={label.replace(" *", "")}
                     className="w-full px-4 py-4 rounded-[12px] text-base font-medium outline-none
                                transition-all"
                     style={{
@@ -947,7 +1004,7 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
             {/* ━━━ БЛОК 2: МЕСТО РОЖДЕНИЯ ━━━━━━━━━━━━━━━━━━━━ */}
             <div className="border-t mt-8 pt-6" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
               <p className="text-[10px] font-black uppercase tracking-[0.12em] mb-5"
-                 style={{ color: C.mid }}>Место рождения</p>
+                 style={{ color: C.mid }}>Место рождения <span style={{ color: "#EF4444" }}>*</span></p>
               <input
                 value={birthPlaceCity}
                 onChange={e => setBirthPlaceCity(e.target.value)}
@@ -964,7 +1021,7 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
             {/* ━━━ БЛОК 3: АДРЕС РЕГИСТРАЦИИ ━━━━━━━━━━━━━━━━━ */}
             <div className="border-t mt-8 pt-6" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
               <p className="text-[10px] font-black uppercase tracking-[0.12em] mb-5"
-                 style={{ color: C.mid }}>Адрес регистрации по паспорту</p>
+                 style={{ color: C.mid }}>Адрес регистрации по паспорту <span style={{ color: "#EF4444" }}>*</span></p>
 
               <div className="space-y-5">
                 {/* Регион — фиксирован */}
@@ -984,7 +1041,7 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
                 {/* Населённый пункт — datalist */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-                         style={{ color: C.mid }}>Населённый пункт</label>
+                         style={{ color: C.mid }}>Населённый пункт *</label>
                   <input
                     list="lk-chechen-cities"
                     value={addrCity}
@@ -1002,7 +1059,7 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
                 {/* Улица */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-                         style={{ color: C.mid }}>Улица</label>
+                         style={{ color: C.mid }}>Улица *</label>
                   <input
                     value={addrStreet}
                     onChange={e => setAddrStreet(e.target.value)}
@@ -1016,10 +1073,10 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
                   />
                 </div>
 
-                {/* Дом + Квартира */}
+                {/* Дом + Квартира — Дом обязательный */}
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { label: "Дом",      val: addrHouse, set: setAddrHouse },
+                    { label: "Дом *",      val: addrHouse, set: setAddrHouse },
                     { label: "Квартира", val: addrApt,   set: setAddrApt   },
                   ].map(({ label, val, set }) => (
                     <div key={label}>
@@ -1028,7 +1085,7 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
                       <input
                         value={val}
                         onChange={e => set(e.target.value)}
-                        placeholder={label}
+                        placeholder={label.replace(" *", "")}
                         className="w-full px-4 py-4 rounded-[12px] text-base font-medium outline-none transition-all"
                         style={{
                           background: "rgba(255,255,255,0.85)",
@@ -1041,9 +1098,190 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
                 </div>
               </div>
             </div>
+
+            {/* ━━━ БЛОК 4: ПАСПОРТ ━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+            <div className="border-t mt-8 pt-6" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
+              <p className="text-[10px] font-black uppercase tracking-[0.12em] mb-2"
+                 style={{ color: C.mid }}>
+                Паспортные данные
+                <span style={{ color: "#EF4444", marginLeft: 4 }}>*</span>
+              </p>
+              <p className="text-[11px] mb-5" style={{ color: C.muted }}>
+                Нужны для оформления договора при одобрении рассрочки.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4 mb-5">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+                         style={{ color: C.mid }}>Серия *</label>
+                  <input
+                    value={passportSeries}
+                    onChange={e => setPassportSeries(maskPassportSeries(e.target.value))}
+                    inputMode="numeric"
+                    placeholder={PASSPORT_SERIES_PLACEHOLDER}
+                    className="w-full px-4 py-4 rounded-[12px] text-base font-medium outline-none transition-all font-mono"
+                    style={{ background: "rgba(255,255,255,0.85)", color: C.dark,
+                             boxShadow: `inset 0 0 0 1.5px ${C.brand}44` }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+                         style={{ color: C.mid }}>Номер *</label>
+                  <input
+                    value={passportNumber}
+                    onChange={e => setPassportNumber(maskPassportNumber(e.target.value))}
+                    inputMode="numeric"
+                    placeholder={PASSPORT_NUMBER_PLACEHOLDER}
+                    className="w-full px-4 py-4 rounded-[12px] text-base font-medium outline-none transition-all font-mono"
+                    style={{ background: "rgba(255,255,255,0.85)", color: C.dark,
+                             boxShadow: `inset 0 0 0 1.5px ${C.brand}44` }}
+                  />
+                </div>
+              </div>
+
+              <div className="mb-5">
+                <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+                       style={{ color: C.mid }}>Дата выдачи *</label>
+                <input type="date" value={passportIssueDate}
+                       onChange={e => setPassportIssueDate(e.target.value)}
+                       className="w-full px-4 py-4 rounded-[12px] text-base font-medium outline-none transition-all"
+                       style={{ background: "rgba(255,255,255,0.85)", color: C.dark,
+                                boxShadow: `inset 0 0 0 1.5px ${C.brand}44` }} />
+              </div>
+
+              <div className="mb-5">
+                <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+                       style={{ color: C.mid }}>Кем выдан *</label>
+                <textarea value={passportIssuedBy}
+                          onChange={e => setPassportIssuedBy(e.target.value)}
+                          rows={2}
+                          placeholder="Например: ОУФМС России по г. Москве по району Якиманка"
+                          className="w-full px-4 py-3 rounded-[12px] text-sm font-medium outline-none transition-all resize-none"
+                          style={{ background: "rgba(255,255,255,0.85)", color: C.dark,
+                                   boxShadow: `inset 0 0 0 1.5px ${C.brand}44` }} />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+                       style={{ color: C.mid }}>Код подразделения *</label>
+                <input
+                  value={passportDepartmentCode}
+                  onChange={e => setPassportDepartmentCode(maskDepartmentCode(e.target.value))}
+                  inputMode="numeric"
+                  placeholder={DEPT_CODE_PLACEHOLDER}
+                  className="w-44 px-4 py-4 rounded-[12px] text-base font-medium outline-none transition-all font-mono"
+                  style={{ background: "rgba(255,255,255,0.85)", color: C.dark,
+                           boxShadow: `inset 0 0 0 1.5px ${C.brand}44` }}
+                />
+              </div>
+            </div>
+
+            {/* ━━━ БЛОК 5: АДРЕС ПРОЖИВАНИЯ ━━━━━━━━━━━━━━━━━ */}
+            <div className="border-t mt-8 pt-6" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
+              <p className="text-[10px] font-black uppercase tracking-[0.12em] mb-3"
+                 style={{ color: C.mid }}>
+                Адрес проживания
+                <span style={{ color: "#EF4444", marginLeft: 4 }}>*</span>
+              </p>
+
+              <label className="flex items-center gap-2 mb-5 cursor-pointer select-none">
+                <input type="checkbox" checked={livingSameAsRegister}
+                       onChange={e => setLivingSameAsRegister(e.target.checked)}
+                       className="w-4 h-4 accent-[#0C7A58]" />
+                <span className="text-sm" style={{ color: C.dark }}>
+                  Совпадает с адресом регистрации
+                </span>
+              </label>
+
+              {!livingSameAsRegister && (
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+                           style={{ color: C.mid }}>Город *</label>
+                    <input value={livingCity} onChange={e => setLivingCity(e.target.value)}
+                           placeholder="Город или населённый пункт"
+                           className="w-full px-4 py-4 rounded-[12px] text-base font-medium outline-none transition-all"
+                           style={{ background: "rgba(255,255,255,0.85)", color: C.dark,
+                                    boxShadow: `inset 0 0 0 1.5px ${C.brand}44` }} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+                           style={{ color: C.mid }}>Улица *</label>
+                    <input value={livingStreet} onChange={e => setLivingStreet(e.target.value)}
+                           placeholder="Название улицы"
+                           className="w-full px-4 py-4 rounded-[12px] text-base font-medium outline-none transition-all"
+                           style={{ background: "rgba(255,255,255,0.85)", color: C.dark,
+                                    boxShadow: `inset 0 0 0 1.5px ${C.brand}44` }} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {[
+                      { label: "Дом *",   val: livingHouse, set: setLivingHouse },
+                      { label: "Квартира", val: livingApt,  set: setLivingApt   },
+                    ].map(({ label, val, set }) => (
+                      <div key={label}>
+                        <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+                               style={{ color: C.mid }}>{label}</label>
+                        <input value={val} onChange={e => set(e.target.value)}
+                               placeholder={label.replace(" *", "")}
+                               className="w-full px-4 py-4 rounded-[12px] text-base font-medium outline-none transition-all"
+                               style={{ background: "rgba(255,255,255,0.85)", color: C.dark,
+                                        boxShadow: `inset 0 0 0 1.5px ${C.brand}44` }} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* ━━━ БЛОК 6: EMAIL (опционально) ━━━━━━━━━━━━━━━ */}
+            <div className="border-t mt-8 pt-6" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
+              <p className="text-[10px] font-black uppercase tracking-[0.12em] mb-3"
+                 style={{ color: C.mid }}>Email <span className="text-[#9CA3AF] normal-case">(необязательно)</span></p>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                     placeholder="name@example.com"
+                     className="w-full px-4 py-4 rounded-[12px] text-base font-medium outline-none transition-all"
+                     style={{ background: "rgba(255,255,255,0.85)", color: C.dark,
+                              boxShadow: `inset 0 0 0 1.5px ${C.brand}44` }} />
+            </div>
           </div>
         )}
       </div>
+
+      {/* ── Заполненность профиля ─────────────────────────────── */}
+      {!completion.isComplete && (
+        <div className="rounded-[12px] p-3 mb-3"
+             style={{ background: completion.percent >= 75 ? "#FEF3C7" : "#FEE2E2",
+                      border: `1px solid ${completion.percent >= 75 ? "#FCD34D" : "#FCA5A5"}` }}>
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs font-bold" style={{ color: completion.percent >= 75 ? "#78350F" : "#991B1B" }}>
+              📋 Профиль заполнен на {completion.percent}%
+            </span>
+            <span className="text-[10px]" style={{ color: completion.percent >= 75 ? "#92400E" : "#7F1D1D" }}>
+              {completion.filled} / {completion.total}
+            </span>
+          </div>
+          <div className="h-1.5 rounded-full overflow-hidden mb-2"
+               style={{ background: "rgba(0,0,0,0.10)" }}>
+            <div className="h-full rounded-full transition-all"
+                 style={{ width: `${completion.percent}%`,
+                          background: completion.percent >= 75 ? "#F59E0B" : "#EF4444" }} />
+          </div>
+          <p className="text-[10px] leading-snug" style={{ color: completion.percent >= 75 ? "#92400E" : "#7F1D1D" }}>
+            Для одобрения рассрочки нужно заполнить все обязательные поля (отмечены красной звёздочкой).
+            Не хватает: {Object.entries(completion.missingByGroup)
+              .map(([g, fs]) => `${g} (${fs.map(f => f.label.toLowerCase()).join(", ")})`)
+              .join("; ")}.
+          </p>
+        </div>
+      )}
+      {completion.isComplete && (
+        <div className="rounded-[12px] p-2.5 mb-3"
+             style={{ background: "#ECFDF5", border: "1px solid #A7F3D0" }}>
+          <p className="text-xs font-bold" style={{ color: "#065F46" }}>
+            ✓ Профиль заполнен полностью — рассрочка может быть одобрена
+          </p>
+        </div>
+      )}
 
       {/* ── Индекс доверия ─────────────────────────────────────── */}
       <div className="rounded-[12px] p-3 mb-3 relative"
@@ -1129,7 +1367,7 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
                   style={{ background: "rgba(0,0,0,0.06)", color: C.mid }}>
             <X className="w-3.5 h-3.5" />Отмена
           </button>
-          <motion.button onClick={save} disabled={saving || !birthDate} whileTap={{ scale: 0.97 }}
+          <motion.button onClick={save} disabled={saving} whileTap={{ scale: 0.97 }}
                          className="flex-1 py-2 rounded-[10px] font-bold text-xs text-white flex items-center justify-center gap-1.5 disabled:opacity-50"
                          style={{ background: `linear-gradient(135deg, ${C.brand}, ${C.brandMid})` }}>
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}

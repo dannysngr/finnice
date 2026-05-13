@@ -29,12 +29,27 @@ export async function PUT(req: NextRequest) {
     birthDate:      str(body.birthDate  ?? existing.birthDate,  "", 10),
     avatarUrl:      str(body.avatarUrl  ?? existing.avatarUrl,  "", 500),
     trustScore:     typeof body.trustScore === "number" ? body.trustScore : (existing.trustScore ?? 0),
-    // Адрес
+    // Адрес регистрации
     birthPlaceCity: str(body.birthPlaceCity ?? existing.birthPlaceCity, "", 100),
     addrCity:       str(body.addrCity       ?? existing.addrCity,       "", 100),
     addrStreet:     str(body.addrStreet     ?? existing.addrStreet,     "", 150),
     addrHouse:      str(body.addrHouse      ?? existing.addrHouse,      "", 20),
     addrApt:        str(body.addrApt        ?? existing.addrApt,        "", 20),
+    // Паспорт
+    passportSeries:         str(body.passportSeries         ?? existing.passportSeries,         "", 5),
+    passportNumber:         str(body.passportNumber         ?? existing.passportNumber,         "", 6),
+    passportIssueDate:      str(body.passportIssueDate      ?? existing.passportIssueDate,      "", 10),
+    passportIssuedBy:       str(body.passportIssuedBy       ?? existing.passportIssuedBy,       "", 300),
+    passportDepartmentCode: str(body.passportDepartmentCode ?? existing.passportDepartmentCode, "", 7),
+    // Адрес проживания
+    livingSameAsRegister: body.livingSameAsRegister === true || body.livingSameAsRegister === false
+      ? body.livingSameAsRegister
+      : (existing.livingSameAsRegister ?? false),
+    livingCity:   str(body.livingCity   ?? existing.livingCity,   "", 100),
+    livingStreet: str(body.livingStreet ?? existing.livingStreet, "", 150),
+    livingHouse:  str(body.livingHouse  ?? existing.livingHouse,  "", 20),
+    livingApt:    str(body.livingApt    ?? existing.livingApt,    "", 20),
+    email:        str(body.email        ?? existing.email,        "", 120),
   };
 
   await redis.set(`profile:${phone}`, updated);
