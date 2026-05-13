@@ -12,25 +12,25 @@ export const metadata: Metadata = {
 const DNA = [
   {
     icon: "☽",
-    accent: "#C9A84C",
+    accent: "#C8972B",
     label: "100% Халяль",
     desc: "Мурабаха — договор купли-продажи, одобренный Шариатом. Ни одного процента.",
   },
   {
     icon: "🛡",
-    accent: "#4ADE80",
+    accent: "#0C7A58",
     label: "0% скрытых комиссий",
     desc: "Цена фиксируется в момент сделки. Никаких дополнительных сборов и мелкого шрифта.",
   },
   {
     icon: "⚡",
-    accent: "#60A5FA",
+    accent: "#1A3C6E",
     label: "Технологии",
     desc: "Заявка за 5 минут — полностью онлайн. Никаких очередей и лишних документов.",
   },
   {
     icon: "📋",
-    accent: "#A78BFA",
+    accent: "#7C3AED",
     label: "Прозрачность",
     desc: "Один договор, одна сумма. Вы знаете итоговую цену до подписания.",
   },
@@ -38,171 +38,138 @@ const DNA = [
 
 export default function CompanyPage() {
   return (
-    <main className="bg-[#0f172a]">
-
-      {/* ── Breadcrumb ─────────────────────────────────────────── */}
-      <div className="border-b border-white/8">
-        <div className="section py-3 text-xs text-white/35 flex items-center gap-1.5">
-          <Link href="/" className="hover:text-white/70 transition-colors">Главная</Link>
+    <main className="bg-white">
+      <div className="bg-[#F4F7FC] border-b border-[#D8E2F0]">
+        <div className="section py-3 text-xs text-[#9CA3AF] flex items-center gap-1.5">
+          <Link href="/" className="hover:text-[#1A3C6E] transition-colors">Главная</Link>
           <span>/</span>
-          <span className="text-white/55">О компании</span>
+          <span className="text-[#0A1628]">О компании</span>
         </div>
       </div>
 
-      {/* ── Hero ───────────────────────────────────────────────── */}
-      <section className="py-24 text-center relative overflow-hidden">
-        {/* subtle radial glow */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(12,122,88,0.18) 0%, transparent 70%)",
-          }}
-        />
+      {/* Hero */}
+      <section className="relative overflow-hidden"
+               style={{ background: "linear-gradient(135deg, #062E22 0%, #0a6449 50%, #0C7A58 100%)" }}>
+        <div className="absolute inset-0 opacity-30"
+             style={{
+               background: "radial-gradient(circle at 20% 80%, #3FCFA5 0%, transparent 50%), radial-gradient(circle at 80% 20%, #1A3C6E 0%, transparent 55%)",
+             }} />
+        <div className="absolute top-20 left-[8%] w-32 h-32 rounded-full opacity-25"
+             style={{ background: "radial-gradient(circle, #3FCFA5, transparent)", filter: "blur(50px)" }} />
+        <div className="absolute bottom-10 right-[10%] w-48 h-48 rounded-full opacity-20"
+             style={{ background: "radial-gradient(circle, #C8972B, transparent)", filter: "blur(60px)" }} />
 
-        <div className="section max-w-2xl mx-auto relative">
-          {/* Logo */}
-          <div className="mx-auto mb-8 w-fit"
-               style={{ filter: "drop-shadow(0 8px 32px rgba(12,122,88,0.3))" }}>
-            <FinniceLogo size={64} variant="mark" />
+        <div className="section relative py-16 lg:py-24">
+          <div className="max-w-3xl">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-[11px] uppercase tracking-widest font-bold text-[#3FCFA5] mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#3FCFA5] animate-pulse"></span>
+              {COMPANY.city} · {COMPANY.region}
+            </span>
+            <div className="mb-5" style={{ filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.25))" }}>
+              <FinniceLogo size={56} variant="mark" />
+            </div>
+            <h1 className="text-4xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.1] mb-5">
+              Честная рассрочка<br/>
+              <span style={{ background: "linear-gradient(90deg, #3FCFA5, #ffffff)",
+                             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                нового поколения
+              </span>
+            </h1>
+            <p className="text-white/75 text-lg lg:text-xl leading-relaxed max-w-2xl">
+              {COMPANY.legalName} — исламский финтех, который делает современные товары
+              доступными без нарушения религиозных норм. Без банков, без процентов, без штрафов.
+            </p>
           </div>
-
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-5 leading-tight tracking-tight">
-            Finnice — честная рассрочка<br className="hidden sm:block" /> нового поколения
-          </h1>
-
-          <p className="text-white/55 text-lg leading-relaxed max-w-xl mx-auto mb-8">
-            Мы запускаем сервис, чтобы сделать современные гаджеты и услуги
-            доступными без нарушения религиозных норм.
-          </p>
-
-          <p className="text-white/35 text-sm font-medium tracking-widest uppercase">
-            Честно · Быстро · По Шариату
-          </p>
         </div>
       </section>
 
-      {/* ── DNA Grid ───────────────────────────────────────────── */}
-      <section className="py-16">
-        <div className="section">
-          <p className="text-white/35 text-xs font-semibold uppercase tracking-widest text-center mb-12">
-            Наш ДНК
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
+      {/* DNA */}
+      <section className="py-14 lg:py-20">
+        <div className="section max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-[11px] uppercase tracking-widest font-bold text-[#0C7A58] mb-3">
+              Наш ДНК
+            </p>
+            <h2 className="text-3xl font-extrabold text-[#0A1628] mb-3">
+              На чём построен ФинНайс
+            </h2>
+            <p className="text-[#6B7280] max-w-xl mx-auto">
+              Четыре принципа, которые определяют, как мы работаем с каждым клиентом.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {DNA.map((card) => (
-              <div
-                key={card.label}
-                className="rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300
-                           hover:-translate-y-1 cursor-default"
-                style={{
-                  background:   "rgba(255,255,255,0.04)",
-                  border:       "1px solid rgba(255,255,255,0.08)",
-                  backdropFilter: "blur(12px)",
-                }}
-              >
-                <span
-                  className="text-2xl w-10 h-10 rounded-xl flex items-center justify-center
-                             font-semibold shrink-0"
-                  style={{
-                    background: `${card.accent}18`,
-                    color: card.accent,
-                    border: `1px solid ${card.accent}30`,
-                  }}
-                >
+              <div key={card.label}
+                   className="bg-white rounded-2xl border border-[#E5E7EB] p-6 transition-all hover:border-[#0C7A58]/30 hover:shadow-md hover:-translate-y-0.5">
+                <div className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center text-2xl"
+                     style={{
+                       background: `linear-gradient(135deg, ${card.accent}18, ${card.accent}08)`,
+                       border: `1px solid ${card.accent}30`,
+                       color: card.accent,
+                     }}>
                   {card.icon}
-                </span>
-                <div>
-                  <p className="font-bold text-white text-sm mb-1.5">{card.label}</p>
-                  <p className="text-white/45 text-xs leading-relaxed">{card.desc}</p>
                 </div>
+                <h3 className="font-extrabold text-[#0A1628] text-base mb-1.5">{card.label}</h3>
+                <p className="text-sm text-[#6B7280] leading-relaxed">{card.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Rep slim banner ────────────────────────────────────── */}
-      <section className="py-12">
-        <div className="section">
-          <div
-            className="max-w-3xl mx-auto flex items-center gap-6 rounded-2xl px-8 py-6"
-            style={{
-              background: "rgba(255,255,255,0.04)",
-              border:     "1px solid rgba(255,255,255,0.08)",
-            }}
-          >
-            {/* Avatar */}
-            <div
-              className="w-12 h-12 rounded-full shrink-0 flex items-center justify-center"
-              style={{ background: "rgba(26,60,110,0.5)", border: "1px solid rgba(255,255,255,0.15)" }}
-            >
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                <circle cx="11" cy="8" r="4.5" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5"/>
-                <path d="M2 21c0-4.97 4.03-9 9-9s9 4.03 9 9"
-                      stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
+      {/* Rep banner */}
+      <section className="py-8 bg-[#F4F7FC]">
+        <div className="section max-w-4xl mx-auto">
+          <div className="bg-white rounded-3xl border border-[#E5E7EB] p-6 lg:p-8 flex items-center gap-6 flex-wrap">
+            <div className="w-14 h-14 rounded-full shrink-0 flex items-center justify-center text-white text-xl font-extrabold"
+                 style={{ background: "linear-gradient(135deg, #0C7A58, #0a6449)" }}>
+              {(REP.name?.[0] ?? "Д")}
             </div>
-
-            {/* Quote */}
-            <div className="flex-1 min-w-0">
-              <p className="text-white font-semibold text-sm leading-snug">
-                «Без риба. Без процентов. Без штрафов.»
+            <div className="flex-1 min-w-[200px]">
+              <p className="text-[#0A1628] font-semibold text-base leading-snug">
+                «{REP.quote}»
               </p>
-              <p className="text-white/35 text-xs mt-1">
+              <p className="text-[#6B7280] text-sm mt-1">
                 {REP.name} — {REP.title}
               </p>
             </div>
-
-            {/* Accent line */}
-            <div
-              className="hidden sm:block w-px h-12 shrink-0"
-              style={{ background: "linear-gradient(to bottom, transparent, #0C7A58, transparent)" }}
-            />
-            <Link
-              href="/contacts/"
-              className="hidden sm:block text-xs font-semibold shrink-0 transition-colors"
-              style={{ color: "#4ADE80" }}
-            >
+            <Link href="/contacts/"
+                  className="px-5 py-2.5 rounded-full text-sm font-bold text-white transition-opacity hover:opacity-90 active:scale-95"
+                  style={{ background: "linear-gradient(135deg, #0C7A58, #0a6449)" }}>
               Связаться →
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── Launch CTA ─────────────────────────────────────────── */}
-      <section className="py-20 text-center">
-        <div className="section max-w-xl mx-auto">
-          <p className="text-white/30 text-xs font-medium uppercase tracking-widest mb-4">
+      {/* Final CTA */}
+      <section className="py-16 bg-[#0A1628] relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20"
+             style={{ background: "radial-gradient(circle at 50% 50%, #0C7A58 0%, transparent 60%)" }} />
+        <div className="section relative max-w-2xl mx-auto text-center">
+          <p className="text-[#3FCFA5] text-[11px] uppercase tracking-widest font-bold mb-3">
             {COMPANY.city} · {COMPANY.region}
           </p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 leading-tight">
-            Станьте одним из первых<br className="hidden sm:block" /> клиентов Finnice
+          <h2 className="text-3xl font-extrabold text-white mb-3">
+            Станьте одним из первых клиентов
           </h2>
-          <p className="text-white/40 text-sm mb-10 leading-relaxed">
-            Мы только открылись — и рады каждому, кто выбирает честную рассрочку.<br />
-            Без банков. Без риба. Без лишних вопросов.
+          <p className="text-white/65 text-base mb-8 leading-relaxed">
+            Мы только открылись — и рады каждому, кто выбирает честную рассрочку.
+            Без банков, без риба, без лишних вопросов.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/catalog/"
-              className="px-8 py-3.5 font-extrabold text-sm rounded-full transition-all
-                         text-[#0f172a] hover:opacity-90 shadow-lg"
-              style={{ background: "linear-gradient(135deg, #4ADE80, #0C7A58)" }}
-            >
-              Открыть каталог
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <Link href="/catalog/"
+                  className="px-6 py-3 rounded-full font-bold inline-flex items-center gap-2 bg-white text-[#0A1628] hover:bg-white/90 transition-colors">
+              🛍 Открыть каталог
             </Link>
-            <Link
-              href="/#calculator"
-              className="px-8 py-3.5 font-semibold text-sm rounded-full transition-all
-                         text-white hover:bg-white/15"
-              style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)" }}
-            >
-              Рассчитать рассрочку
+            <Link href="/#calculator"
+                  className="px-6 py-3 rounded-full font-bold text-white border border-white/30 hover:bg-white/10 transition-colors inline-flex items-center gap-2">
+              🧮 Рассчитать рассрочку
             </Link>
           </div>
         </div>
       </section>
-
     </main>
   );
 }

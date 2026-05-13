@@ -166,18 +166,27 @@ export function SiteHeader() {
           <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center">
             {/* Каталог dropdown */}
             <div className="relative" ref={catalogRef}>
-              <button
-                onClick={() => setCatalogOpen(v => !v)}
-                aria-expanded={catalogOpen}
-                className={`flex items-center gap-1 px-4 py-2 rounded-full text-[14px] font-medium transition-colors ${
-                  catalogOpen
-                    ? "bg-[#0A1628] text-white"
-                    : "text-[#0A1628] hover:bg-[#F4F7FC]"
-                }`}
-              >
-                Каталог
-                <ChevronIcon open={catalogOpen} />
-              </button>
+              {(() => {
+                const isCatalogActive = pathname?.startsWith("/catalog") || pathname?.startsWith("/product");
+                const isHighlighted = catalogOpen || isCatalogActive;
+                return (
+                  <button
+                    onClick={() => setCatalogOpen(v => !v)}
+                    aria-expanded={catalogOpen}
+                    className={`flex items-center gap-1 px-4 py-2 rounded-full text-[14px] font-semibold transition-all ${
+                      isHighlighted
+                        ? "text-white shadow-md"
+                        : "text-[#374151] hover:text-[#0A1628] hover:bg-[#F4F7FC]"
+                    }`}
+                    style={isHighlighted
+                      ? { background: "linear-gradient(135deg, #0C7A58, #0a6449)", boxShadow: "0 2px 8px rgba(12,122,88,0.25)" }
+                      : undefined}
+                  >
+                    Каталог
+                    <ChevronIcon open={catalogOpen} />
+                  </button>
+                );
+              })()}
 
               {catalogOpen && (
                 <div
@@ -229,11 +238,14 @@ export function SiteHeader() {
                 <Link
                   key={l.href}
                   href={l.href}
-                  className={`px-4 py-2 rounded-full text-[14px] font-medium transition-colors whitespace-nowrap ${
+                  className={`px-4 py-2 rounded-full text-[14px] font-semibold transition-all whitespace-nowrap ${
                     isActive
-                      ? "bg-[#F4F7FC] text-[#0A1628]"
+                      ? "text-white shadow-md"
                       : "text-[#374151] hover:text-[#0A1628] hover:bg-[#F4F7FC]"
                   }`}
+                  style={isActive
+                    ? { background: "linear-gradient(135deg, #0C7A58, #0a6449)", boxShadow: "0 2px 8px rgba(12,122,88,0.25)" }
+                    : undefined}
                 >
                   {l.label}
                 </Link>

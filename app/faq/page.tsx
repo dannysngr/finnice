@@ -161,11 +161,15 @@ export default function FaqPage() {
 
       {/* Hero */}
       <section className="relative py-14 lg:py-20 overflow-hidden"
-               style={{ background: "linear-gradient(135deg, #062E22 0%, #0C7A58 100%)" }}>
-        <div className="absolute inset-0 opacity-20"
+               style={{ background: "linear-gradient(135deg, #062E22 0%, #0a6449 50%, #0C7A58 100%)" }}>
+        <div className="absolute inset-0 opacity-30"
              style={{
-               background: "radial-gradient(circle at 80% 30%, #3FCFA5 0%, transparent 50%)",
+               background: "radial-gradient(circle at 20% 80%, #3FCFA5 0%, transparent 50%), radial-gradient(circle at 80% 20%, #1A3C6E 0%, transparent 55%)",
              }} />
+        <div className="absolute top-20 left-[8%] w-32 h-32 rounded-full opacity-25"
+             style={{ background: "radial-gradient(circle, #3FCFA5, transparent)", filter: "blur(50px)" }} />
+        <div className="absolute bottom-10 right-[10%] w-48 h-48 rounded-full opacity-20"
+             style={{ background: "radial-gradient(circle, #C8972B, transparent)", filter: "blur(60px)" }} />
         <div className="section relative">
           <div className="max-w-2xl">
             <span className="inline-block text-[11px] uppercase tracking-widest font-bold text-[#3FCFA5] mb-3">
