@@ -12,6 +12,7 @@ import Link from "next/link";
 import type { LoanRecord } from "@/app/api/lk/me/route";
 import { pluralPayment } from "@/lib/calculator-logic";
 import { computeProfileCompletion } from "@/lib/profile-completion";
+import { FinniceLogo } from "@/components/FinniceLogo";
 import {
   maskPassportSeries, maskPassportNumber, maskDepartmentCode,
   PASSPORT_SERIES_PLACEHOLDER, PASSPORT_NUMBER_PLACEHOLDER, DEPT_CODE_PLACEHOLDER,
@@ -367,14 +368,16 @@ function AuthGate() {
       <div className="w-full max-w-sm relative z-10">
         <motion.div variants={fadeUp} initial="hidden" animate="visible"
                     className="flex flex-col items-center mb-8">
-          <Link href="/" className="flex flex-col items-center group">
+          <Link href="/" className="flex flex-col items-center group mb-3">
             <div className="w-16 h-16 rounded-[20px] flex items-center justify-center mb-4 shadow-lg"
                  style={{ background: "rgba(255,255,255,0.15)", backdropFilter: "blur(12px)",
                    border: "1px solid rgba(255,255,255,0.25)" }}>
-              <span className="text-white font-black text-xl tracking-tight">FN</span>
+              <FinniceLogo size={40} variant="mark" />
             </div>
           </Link>
-          <h1 className="text-2xl font-black tracking-tight text-white">FinNice</h1>
+          <h1 className="text-2xl font-black tracking-tight text-white" style={{ fontFamily: "system-ui" }}>
+            finnice
+          </h1>
           <p className="text-sm mt-1 text-white/60">Рассрочка по Шариату</p>
         </motion.div>
 
@@ -1616,10 +1619,11 @@ function Dashboard({ initialData }: { initialData: MeData }) {
             <div className="w-9 h-9 rounded-[10px] flex items-center justify-center"
                  style={{ background: "rgba(255,255,255,0.15)", backdropFilter: "blur(8px)",
                    border: "1px solid rgba(255,255,255,0.2)" }}>
-              <span className="text-white font-black text-sm">FN</span>
+              <FinniceLogo size={22} variant="mark" />
             </div>
-            <span className="text-white font-black tracking-tight text-base group-hover:text-white/80 transition-colors">
-              FinNice
+            <span className="text-white font-black tracking-tight text-base group-hover:text-white/80 transition-colors"
+                  style={{ fontFamily: "system-ui" }}>
+              finnice
             </span>
           </Link>
 
@@ -1745,7 +1749,7 @@ function LoadingScreen() {
         <div className="w-14 h-14 rounded-[18px] flex items-center justify-center"
              style={{ background: "rgba(255,255,255,0.15)", backdropFilter: "blur(12px)",
                border: "1px solid rgba(255,255,255,0.25)" }}>
-          <span className="text-white font-black text-xl">FN</span>
+          <FinniceLogo size={36} variant="mark" />
         </div>
         <Loader2 className="w-5 h-5 animate-spin text-white/60" />
       </motion.div>

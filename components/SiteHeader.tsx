@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { COMPANY, CATALOG_CATS } from "@/lib/data";
 import { AuthModal } from "@/components/AuthModal";
 import { CalculatorModal } from "@/components/CalculatorModal";
+import { FinniceLogo } from "@/components/FinniceLogo";
 
 /* ── Session ────────────────────────────────────────────────── */
 interface SessionInfo {
@@ -157,16 +158,8 @@ export function SiteHeader() {
         <div className="section flex items-center h-16 gap-5">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0 group">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-105"
-              style={{ background: "linear-gradient(135deg, #0E2344 0%, #1A3C6E 55%, #0C7A58 100%)" }}
-            >
-              <span className="text-white font-extrabold text-[12px] leading-none tracking-tight">NF</span>
-            </div>
-            <span className="font-extrabold text-[#0A1628] text-[18px] tracking-tight leading-none">
-              {COMPANY.name}
-            </span>
+          <Link href="/" className="flex items-center shrink-0 group transition-transform">
+            <FinniceLogo size={34} variant="wordmark" className="group-hover:opacity-90 transition-opacity" />
           </Link>
 
           {/* Center nav (desktop) */}

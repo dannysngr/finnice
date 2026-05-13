@@ -12,6 +12,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, type Variants }   from "framer-motion";
+import { FinniceLogo } from "@/components/FinniceLogo";
 import {
   ArrowRight, Edit2, Phone, AlertCircle,
   X, MessageCircle, CheckCircle, Loader2,
@@ -73,10 +74,7 @@ function ModalHeader({
           </button>
         ) : (
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-[14px] bg-[#0C7A58] flex items-center justify-center
-                            shadow-md shadow-[#0C7A58]/30">
-              <span className="text-white font-black text-base tracking-tight">NF</span>
-            </div>
+            <FinniceLogo size={36} variant="mark" />
             <div>
               <p className="font-black text-[#0A1628] text-base leading-none tracking-tight">
                 ФинНайс

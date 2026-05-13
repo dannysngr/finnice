@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { COMPANY } from "@/lib/data";
+import { FinniceLogo } from "@/components/FinniceLogo";
 
 const NAV = [
   { label: "О компании",  href: "/company/" },
@@ -18,17 +19,8 @@ export function SiteFooter() {
         <div className="flex flex-col lg:flex-row items-center gap-6 justify-between">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center
-                         font-extrabold text-xs text-white"
-              style={{
-                background: "linear-gradient(135deg, #0E2344 0%, #1A3C6E 55%, #0C7A58 100%)",
-              }}
-            >
-              NF
-            </div>
-            <span className="font-extrabold text-white text-base">{COMPANY.name}</span>
+          <Link href="/" className="flex items-center shrink-0">
+            <FinniceLogo size={30} variant="wordmark" color="white" />
           </Link>
 
           {/* Nav */}

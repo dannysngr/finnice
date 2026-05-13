@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { FinniceLogo } from "@/components/FinniceLogo";
 import {
   fmtRub, pluralPayment, calcInstallment, calcInstallmentIsoIRR, impliedAnnualIrr,
   getMinDownPct, MIN_TERM, MAX_TERM,
@@ -262,9 +263,7 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
 
         {/* Шапка */}
         <div className="flex items-center gap-2.5 px-4 pt-4 pb-3 border-b border-[#D8E2F0]">
-          <div className="w-8 h-8 rounded-lg grad-main flex items-center justify-center shrink-0">
-            <span className="text-white font-extrabold text-xs">NF</span>
-          </div>
+          <FinniceLogo size={30} variant="mark" />
           <div className="flex-1 min-w-0">
             <h2 className="text-sm font-extrabold text-[#0A1628] leading-tight">Заявка на рассрочку</h2>
             <p className="text-[10px] text-[#9CA3AF]">ФинНайс · без риба и скрытых платежей</p>

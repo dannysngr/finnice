@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { COMPANY, REP } from "@/lib/data";
+import { FinniceLogo } from "@/components/FinniceLogo";
 
 export const metadata: Metadata = {
   title:       `О компании — ${COMPANY.name} | ${COMPANY.city}`,
@@ -61,16 +62,9 @@ export default function CompanyPage() {
 
         <div className="section max-w-2xl mx-auto relative">
           {/* Logo */}
-          <div
-            className="w-16 h-16 rounded-2xl mx-auto mb-8 flex items-center justify-center
-                       font-extrabold text-xl text-white select-none"
-            style={{
-              background:
-                "linear-gradient(135deg, #0E2344 0%, #1A3C6E 55%, #0C7A58 100%)",
-              boxShadow: "0 0 0 1px rgba(255,255,255,0.1), 0 8px 32px rgba(12,122,88,0.3)",
-            }}
-          >
-            NF
+          <div className="mx-auto mb-8 w-fit"
+               style={{ filter: "drop-shadow(0 8px 32px rgba(12,122,88,0.3))" }}>
+            <FinniceLogo size={64} variant="mark" />
           </div>
 
           <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-5 leading-tight tracking-tight">
