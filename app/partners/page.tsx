@@ -49,7 +49,7 @@ export default function PartnersPage() {
 
             <p className="text-white/75 text-lg lg:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
               Мы запускаем партнёрскую программу для магазинов электроники, мебели и бытовой техники
-              в {COMPANY.region}. Цель — дать вашим клиентам халяльную рассрочку и расширить
+              в Чеченской Республике. Цель — дать вашим клиентам халяльную рассрочку и расширить
               средний чек без комиссий с продавца.
             </p>
 
@@ -143,7 +143,7 @@ export default function PartnersPage() {
             Готовы к диалогу первым?
           </h2>
           <p className="text-white/65 text-base mb-8 leading-relaxed">
-            Если у вас есть магазин в {COMPANY.region} и вы хотите быть среди первых партнёров —
+            Если у вас есть магазин в Чеченской Республике и вы хотите быть среди первых партнёров —
             напишите нам сегодня. Зафиксируем самые выгодные условия для пилотной группы.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
