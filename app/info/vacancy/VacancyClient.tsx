@@ -12,6 +12,8 @@ export interface Vacancy {
   salary:  string;
   type:    string;
   skills?: string[];
+  /** Если true — отклик невозможен (вакансия закрыта/набор приостановлен) */
+  closed?: boolean;
 }
 
 export function VacancyClient({ vacancies }: { vacancies: Vacancy[] }) {
@@ -49,14 +51,30 @@ export function VacancyClient({ vacancies }: { vacancies: Vacancy[] }) {
 
               <div className="pt-4 border-t border-[#F3F4F6] flex items-center justify-between gap-3 flex-wrap">
                 <p className="text-[11px] text-[#9CA3AF]">
-                  Грозный · оформление по ТК РФ · обучение за счёт компании
+                  {v.closed
+                    ? "Набор временно приостановлен"
+                    : "Грозный · оформление по ТК РФ · обучение за счёт компании"}
                 </p>
-                <button
-                  onClick={() => setOpenVac(v)}
-                  className="px-5 py-2.5 rounded-full text-sm font-bold text-white transition-opacity hover:opacity-90 active:scale-95"
-                  style={{ background: "linear-gradient(135deg, #0C7A58, #0a6449)" }}>
-                  Откликнуться →
-                </button>
+                {v.closed ? (
+                  <button
+                    disabled
+                    title="Набор по этой вакансии временно приостановлен"
+                    className="px-5 py-2.5 rounded-full text-sm font-bold cursor-not-allowed"
+                    style={{
+                      background: "#F3F4F6",
+                      color:      "#9CA3AF",
+                      border:     "1px dashed #D8E2F0",
+                    }}>
+                    Набор приостановлен
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setOpenVac(v)}
+                    className="px-5 py-2.5 rounded-full text-sm font-bold text-white transition-opacity hover:opacity-90 active:scale-95"
+                    style={{ background: "linear-gradient(135deg, #0C7A58, #0a6449)" }}>
+                    Откликнуться →
+                  </button>
+                )}
               </div>
             </div>
           ))}

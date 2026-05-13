@@ -132,10 +132,10 @@ interface TrustLevel {
   nextScore: number;
 }
 const TRUST_LEVELS: TrustLevel[] = [
-  { label: "Standart", minScore: 0, color: "#9CA3AF", discount: "",      next: "Bronze", nextScore: 1 },
-  { label: "Bronze",   minScore: 1, color: "#B45309", discount: "−0.2%", next: "Silver", nextScore: 3 },
-  { label: "Silver",   minScore: 3, color: "#94A3B8", discount: "−0.5%", next: "Gold",   nextScore: 5 },
-  { label: "Gold",     minScore: 5, color: "#C8972B", discount: "−1%",   next: null,     nextScore: 5 },
+  { label: "Standard", minScore: 0, color: "#0C7A58", discount: "",      next: "Bronze", nextScore: 1 },
+  { label: "Bronze",   minScore: 1, color: "#D97706", discount: "−0.2%", next: "Silver", nextScore: 3 },
+  { label: "Silver",   minScore: 3, color: "#475569", discount: "−0.5%", next: "Gold",   nextScore: 5 },
+  { label: "Gold",     minScore: 5, color: "#EAB308", discount: "−1%",   next: null,     nextScore: 5 },
 ];
 function getTrustLevel(score: number): TrustLevel {
   return [...TRUST_LEVELS].reverse().find(l => score >= l.minScore) ?? TRUST_LEVELS[0];
@@ -143,7 +143,7 @@ function getTrustLevel(score: number): TrustLevel {
 
 /* Подсказки для sidebar */
 const TRUST_TOOLTIPS: Record<string, string> = {
-  "Standart": "Базовый уровень после регистрации. Стандартные условия рассрочки.",
+  "Standard": "Базовый уровень после регистрации. Стандартные условия рассрочки.",
   "Bronze":   "1 закрытая рассрочка без просрочек. Скидка −0.2% на наценку.",
   "Silver":   "3 закрытых рассрочки. Лимит до 150 000 ₽ без поручителей. Скидка −0.5% на наценку.",
   "Gold":     "5+ закрытых рассрочек — высший уровень. Персональная скидка −1% и приоритетная обработка заявок.",
@@ -186,25 +186,27 @@ function TrustSidebar({ score }: { score: number }) {
             <button
               onMouseEnter={() => setTip(lvl.label)}
               onMouseLeave={() => setTip(null)}
-              className="relative z-10 flex items-center gap-2.5 px-2.5 py-2 rounded-[10px] border
-                         text-left transition-all duration-200 cursor-default mb-[22px] last:mb-0"
+              className={`relative z-10 flex items-center gap-2.5 px-2.5 py-2 rounded-[10px] border
+                         text-left transition-all duration-200 cursor-default mb-[22px] last:mb-0
+                         ${isActive ? "trust-level-active" : ""}`}
               style={{
-                borderColor: isActive ? lvl.color + "90" : isPassed ? lvl.color + "35" : "rgba(0,0,0,0.07)",
-                background:  isActive ? lvl.color + "18" : "transparent",
-                boxShadow:   isActive ? `0 2px 10px ${lvl.color}25` : "none",
+                borderColor: isActive ? lvl.color : isPassed ? lvl.color + "60" : "rgba(0,0,0,0.07)",
+                background:  isActive ? lvl.color + "20" : "transparent",
+                ["--trust-color" as string]: lvl.color,
               }}
             >
               {/* Кружок-иконка */}
               <span
-                className="w-[22px] h-[22px] rounded-full shrink-0 flex items-center justify-center text-[11px] font-black"
+                className={`w-[22px] h-[22px] rounded-full shrink-0 flex items-center justify-center text-[11px] font-black
+                           ${isActive ? "trust-dot-active" : ""}`}
                 style={{
                   background: isActive ? lvl.color
-                            : isPassed ? lvl.color + "25"
+                            : isPassed ? lvl.color + "30"
                             : "rgba(0,0,0,0.08)",
                   color:      isActive ? "#fff"
                             : isPassed ? lvl.color
                             : C.muted,
-                  boxShadow:  isActive ? `0 0 8px ${lvl.color}70` : "none",
+                  ["--trust-color" as string]: lvl.color,
                 }}
               >
                 {isPassed || isActive ? "✓" : "·"}
@@ -246,6 +248,30 @@ function TrustSidebar({ score }: { score: number }) {
           </div>
         );
       })}
+
+      <style>{`
+        @keyframes trustPulse {
+          0%, 100% {
+            box-shadow:
+              0 0 0 0   var(--trust-color, #0C7A58)55,
+              0 2px 12px var(--trust-color, #0C7A58)40;
+          }
+          50% {
+            box-shadow:
+              0 0 0 6px var(--trust-color, #0C7A58)00,
+              0 4px 18px var(--trust-color, #0C7A58)60;
+          }
+        }
+        @keyframes trustDotPulse {
+          0%, 100% { box-shadow: 0 0 8px  var(--trust-color, #0C7A58)80, 0 0 0 0  var(--trust-color, #0C7A58)55; }
+          50%      { box-shadow: 0 0 14px var(--trust-color, #0C7A58)c0, 0 0 0 5px var(--trust-color, #0C7A58)00; }
+        }
+        .trust-level-active { animation: trustPulse    2.2s ease-in-out infinite; }
+        .trust-dot-active   { animation: trustDotPulse 2.2s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .trust-level-active, .trust-dot-active { animation: none; }
+        }
+      `}</style>
     </div>
   );
 }

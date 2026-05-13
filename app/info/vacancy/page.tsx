@@ -24,6 +24,7 @@ const VACANCIES: Vacancy[] = [
     salary: "от 50 000 ₽",
     type:   "Полная / частичная",
     skills: ["Опыт с WB Seller или Ozon Seller", "Excel / Google Sheets", "Внимание к деталям"],
+    closed: true,
   },
   {
     dept:   "Финансы",
@@ -32,6 +33,7 @@ const VACANCIES: Vacancy[] = [
     salary: "от 60 000 ₽",
     type:   "Полная занятость",
     skills: ["Финансовое или экономическое образование", "1С / Excel на продвинутом уровне", "Опыт от 1 года"],
+    closed: true,
   },
 ];
 
@@ -65,7 +67,7 @@ export default function VacancyPage() {
               Работа в ФинНайс
             </h1>
             <p className="text-white/75 text-lg leading-relaxed">
-              Мы строим первый в России исламский финтех. Без риба, без штрафов, без серых схем —
+              Мы строим первый на Кавказе исламский финтех. Без риба, без штрафов, без серых схем —
               честная работа в команде, которая создаёт новый рынок.
             </p>
           </div>
