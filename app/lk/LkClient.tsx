@@ -1267,8 +1267,8 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
                           background: completion.percent >= 75 ? "#F59E0B" : "#EF4444" }} />
           </div>
           <p className="text-[10px] leading-snug" style={{ color: completion.percent >= 75 ? "#92400E" : "#7F1D1D" }}>
-            Для одобрения рассрочки нужно заполнить все обязательные поля (отмечены красной звёздочкой).
-            Не хватает: {Object.entries(completion.missingByGroup)
+            Не хватает для одобрения рассрочки:{" "}
+            {Object.entries(completion.missingByGroup)
               .map(([g, fs]) => `${g} (${fs.map(f => f.label.toLowerCase()).join(", ")})`)
               .join("; ")}.
           </p>

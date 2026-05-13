@@ -21,7 +21,9 @@ export interface RequiredFieldSpec {
   group: "ФИО" | "Личные" | "Паспорт" | "Адрес регистрации" | "Адрес проживания";
 }
 
-/** Базовый список обязательных полей (без email). */
+/** Базовый список обязательных полей (без email).
+ *  Лейблы пишутся коротко, без повтора имени группы, — чтобы
+ *  describeMissing давал "Паспорт (серия, номер, ...)" без тавтологии. */
 const BASE_REQUIRED: RequiredFieldSpec[] = [
   { key: "lastName",   label: "Фамилия",  group: "ФИО" },
   { key: "firstName",  label: "Имя",      group: "ФИО" },
@@ -30,21 +32,21 @@ const BASE_REQUIRED: RequiredFieldSpec[] = [
   { key: "birthDate",      label: "Дата рождения",  group: "Личные" },
   { key: "birthPlaceCity", label: "Место рождения", group: "Личные" },
 
-  { key: "passportSeries",         label: "Серия паспорта",      group: "Паспорт" },
-  { key: "passportNumber",         label: "Номер паспорта",      group: "Паспорт" },
-  { key: "passportIssueDate",      label: "Дата выдачи",         group: "Паспорт" },
-  { key: "passportIssuedBy",       label: "Кем выдан",           group: "Паспорт" },
-  { key: "passportDepartmentCode", label: "Код подразделения",   group: "Паспорт" },
+  { key: "passportSeries",         label: "Серия",              group: "Паспорт" },
+  { key: "passportNumber",         label: "Номер",              group: "Паспорт" },
+  { key: "passportIssueDate",      label: "Дата выдачи",        group: "Паспорт" },
+  { key: "passportIssuedBy",       label: "Кем выдан",          group: "Паспорт" },
+  { key: "passportDepartmentCode", label: "Код подразделения",  group: "Паспорт" },
 
-  { key: "addrCity",   label: "Город регистрации",  group: "Адрес регистрации" },
-  { key: "addrStreet", label: "Улица регистрации",  group: "Адрес регистрации" },
-  { key: "addrHouse",  label: "Дом регистрации",    group: "Адрес регистрации" },
+  { key: "addrCity",   label: "Город",  group: "Адрес регистрации" },
+  { key: "addrStreet", label: "Улица",  group: "Адрес регистрации" },
+  { key: "addrHouse",  label: "Дом",    group: "Адрес регистрации" },
 ];
 
 const LIVING_REQUIRED: RequiredFieldSpec[] = [
-  { key: "livingCity",   label: "Город проживания", group: "Адрес проживания" },
-  { key: "livingStreet", label: "Улица проживания", group: "Адрес проживания" },
-  { key: "livingHouse",  label: "Дом проживания",   group: "Адрес проживания" },
+  { key: "livingCity",   label: "Город", group: "Адрес проживания" },
+  { key: "livingStreet", label: "Улица", group: "Адрес проживания" },
+  { key: "livingHouse",  label: "Дом",   group: "Адрес проживания" },
 ];
 
 function isFilled(v: unknown): boolean {

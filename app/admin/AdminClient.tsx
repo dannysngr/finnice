@@ -385,7 +385,12 @@ export function AdminClient({ isAdmin, role }: { isAdmin: boolean; role?: AdminR
         />
       )}
       {approveApp && (
-        <ApproveModal app={approveApp} onConfirm={handleConfirmApprove}
+        <ApproveModal app={approveApp}
+                      onConfirm={handleConfirmApprove}
+                      onOpenClientProfile={async (phone) => {
+                        setApproveApp(null);
+                        await handleOpenUserProfile(phone);
+                      }}
                       onCancel={() => setApproveApp(null)} isLoading={approving} />
       )}
     </div>
@@ -610,7 +615,7 @@ function UsersTab({
 /* ══════════════════════════════════════════════════════════════
    APPROVE MODAL
    ══════════════════════════════════════════════════════════════ */
-function ApproveModal({ app, onConfirm, onCancel, isLoading }: {
+function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile }: {
   app: Application;
   onConfirm: (data: Partial<Application> & {
     costAmount: number; markupAmount: number; markupPct: number;
@@ -618,6 +623,7 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading }: {
   }) => void;
   onCancel: () => void;
   isLoading: boolean;
+  onOpenClientProfile: (phone: string) => void;
 }) {
   /* ── Финансовая политика ─────────────────────────────── */
   const [inflation, setInflation] = useState(0.12);
@@ -850,11 +856,22 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading }: {
 
         {!profileCompletion.isComplete && !profileLoading && (
           <div className="mt-3 p-3 rounded-xl bg-red-900/20 border border-red-500/40 text-xs text-red-200 leading-snug">
-            ⚠ <b>Невозможно одобрить:</b> профиль клиента заполнен на {profileCompletion.percent}%
-            ({profileCompletion.filled} из {profileCompletion.total} обязательных полей).
-            Откройте карточку клиента и заполните: {Object.entries(profileCompletion.missingByGroup)
-              .map(([g, fs]) => `${g} (${fs.map(f => f.label.toLowerCase()).join(", ")})`)
-              .join("; ")}.
+            <div className="flex items-start justify-between gap-3 mb-1.5">
+              <div>
+                <b>Профиль заполнен на {profileCompletion.percent}%</b>{" "}
+                ({profileCompletion.filled} из {profileCompletion.total}).
+                Не хватает:{" "}
+                {Object.entries(profileCompletion.missingByGroup)
+                  .map(([g, fs]) => `${g} (${fs.map(f => f.label.toLowerCase()).join(", ")})`)
+                  .join("; ")}.
+              </div>
+              <button
+                onClick={() => onOpenClientProfile(app.phone)}
+                className="shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-[#C8972B] text-[#0A1628] hover:bg-[#E8B84B] transition-colors active:scale-95"
+              >
+                Открыть карточку →
+              </button>
+            </div>
           </div>
         )}
       </div>
