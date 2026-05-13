@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { readFinanceConfig } from "@/lib/finance/config-store";
 import { baselineIrrAnnual, baselineIrrMonthly } from "@/lib/finance/iso-irr";
-import { getAdminRole } from "@/lib/adminAuth";
+import { canViewFinance } from "@/lib/adminAuth";
 import { FinanceClient } from "./FinanceClient";
 
 export const metadata = {
@@ -10,8 +10,7 @@ export const metadata = {
 };
 
 export default async function FinanceAdminPage() {
-  const role = await getAdminRole();
-  if (role === null) redirect("/admin");
+  if (!(await canViewFinance())) redirect("/admin");
 
   const cfg = await readFinanceConfig();
 

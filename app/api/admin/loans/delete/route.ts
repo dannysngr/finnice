@@ -5,13 +5,13 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { isAdminRequest }            from "@/lib/adminAuth";
+import { canDeleteRecords }          from "@/lib/adminAuth";
 import { getRedis }                  from "@/lib/redis";
 import type { LoanRecord }           from "@/app/api/lk/me/route";
 
 export async function POST(req: NextRequest) {
-  if (!(await isAdminRequest()))
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!(await canDeleteRecords()))
+    return NextResponse.json({ error: "Удаление рассрочек доступно только администраторам" }, { status: 403 });
 
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Bad request" }, { status: 400 });

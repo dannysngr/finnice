@@ -1,10 +1,11 @@
 /**
- * GET   /api/admin/users/[phone]  — полные данные пользователя
- * PATCH /api/admin/users/[phone]  — обновить профиль пользователя
+ * GET    /api/admin/users/[phone]  — полные данные пользователя
+ * PATCH  /api/admin/users/[phone]  — обновить профиль пользователя
+ * DELETE /api/admin/users/[phone]  — полностью удалить пользователя (root only)
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { isAdminRequest }            from "@/lib/adminAuth";
+import { isAdminRequest, canDeleteUser, getAdminPhone } from "@/lib/adminAuth";
 import { getRedis }                  from "@/lib/redis";
 import { findByPhone }               from "@/lib/user-store";
 import type { ProfileRecord, LoanRecord } from "@/app/api/lk/me/route";
@@ -118,4 +119,63 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 
   return NextResponse.json({ ok: true, ...updated });
+}
+
+/* ════════ DELETE — полное удаление пользователя (root only) ════════ */
+export async function DELETE(_req: NextRequest, { params }: Params) {
+  if (!(await canDeleteUser())) {
+    return NextResponse.json(
+      { error: "Удаление пользователей доступно только root-администратору." },
+      { status: 403 },
+    );
+  }
+
+  const { phone: rawPhone } = await params;
+  const phone = decodeURIComponent(rawPhone);
+
+  /* Защита: нельзя удалить самого себя */
+  const myPhone = await getAdminPhone();
+  if (myPhone && myPhone.replace(/\D/g, "") === phone.replace(/\D/g, "")) {
+    return NextResponse.json({ error: "Нельзя удалить самого себя." }, { status: 400 });
+  }
+
+  const redis = getRedis();
+
+  /* Все рассрочки клиента — и индивидуальные ключи, и legacy список */
+  const loans = await redis.get<LoanRecord[]>(`loans:${phone}`);
+  if (Array.isArray(loans)) {
+    for (const l of loans) {
+      await redis.del(`loans:${phone}:${l.id}`);
+      /* Ledger для каждой рассрочки */
+      await redis.del(`ledger:${phone}:${l.id}`);
+    }
+  }
+  await redis.del(`loans:${phone}`);
+  /* На всякий случай зачищаем все loans:<phone>:* ключи через scan */
+  let cursor = "0";
+  do {
+    const [next, batch] = await redis.scan(cursor, { match: `loans:${phone}:*`, count: 100 });
+    cursor = next;
+    for (const k of batch) await redis.del(k);
+  } while (cursor !== "0");
+
+  /* Очищаем напоминания, паспорт, корзину, профиль, user */
+  cursor = "0";
+  do {
+    const [next, batch] = await redis.scan(cursor, { match: `reminder_sent:*`, count: 200 });
+    cursor = next;
+    /* reminder_sent:{loanId}:* — loanId не совпадает с phone, поэтому не чистим
+       здесь по фильтру. Дедуп-флаги протухнут сами за 30 дней. */
+    void batch;
+  } while (cursor !== "0");
+
+  await redis.del(`passport_doc:${phone}`);
+  await redis.del(`cart:${phone}`);
+  await redis.del(`profile:${phone}`);
+  await redis.del(`user:${phone}`);
+  /* Сессионные коды auth — для надёжности тоже удаляем */
+  await redis.del(`code:${phone}`);
+  await redis.del(`tg:${phone}`);
+
+  return NextResponse.json({ ok: true });
 }

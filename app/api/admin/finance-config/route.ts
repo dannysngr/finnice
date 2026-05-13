@@ -6,7 +6,8 @@ import { appendPolicyHistory, readPolicyHistory } from "@/lib/finance/policy-his
 
 async function requireAdmin() {
   const role = await getAdminRole();
-  if (role === null) return null;
+  /* Финансы — только root + admin, не модератор */
+  if (role !== "root" && role !== "admin") return null;
   const phone = await getAdminPhone();
   return { phone: phone ?? "", role };
 }

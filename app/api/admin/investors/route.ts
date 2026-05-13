@@ -8,7 +8,7 @@
  */
 
 import { NextResponse, type NextRequest } from "next/server";
-import { getAdminRole } from "@/lib/adminAuth";
+import { canViewFinance } from "@/lib/adminAuth";
 import {
   listInvestors,
   createInvestor,
@@ -41,8 +41,9 @@ async function policyFromAdmin(): Promise<AdminPolicy> {
 }
 
 export async function GET() {
-  const role = await getAdminRole();
-  if (role === null) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (!(await canViewFinance())) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
   try {
     const investors = await listInvestors();
     const policy    = await policyFromAdmin();
@@ -69,8 +70,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const role = await getAdminRole();
-  if (role === null) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (!(await canViewFinance())) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
 
   const body = await req.json().catch(() => null) as
     | { action: string; [k: string]: unknown }

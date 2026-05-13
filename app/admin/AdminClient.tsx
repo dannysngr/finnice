@@ -180,6 +180,8 @@ type AdminRole = "root" | "admin" | "moderator" | null;
 
 export function AdminClient({ isAdmin, role }: { isAdmin: boolean; role?: AdminRole }) {
   const canManageStaff = role === "root" || role === "admin";
+  const canDeleteRecords = role === "root" || role === "admin";
+  const canDeleteUser    = role === "root";
   const router = useRouter();
   const [activeTab,    setActiveTab]    = useState<"applications" | "users" | "staff">("applications");
   const [applications, setApplications] = useState<Application[]>([]);
@@ -262,6 +264,19 @@ export function AdminClient({ isAdmin, role }: { isAdmin: boolean; role?: AdminR
     }
   };
 
+  const handleDeleteUser = async (phone: string) => {
+    const res = await fetch(`/api/admin/users/${encodeURIComponent(phone)}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({ error: "Ошибка" }));
+      alert(d.error || "Не удалось удалить пользователя");
+      return;
+    }
+    setUserModal(null);
+    loadData();
+  };
+
   const handleCreateLoan = async (phone: string, payload: Record<string, unknown>) => {
     const res = await fetch("/api/admin/loans/create", {
       method: "POST", headers: { "Content-Type": "application/json" },
@@ -326,30 +341,44 @@ export function AdminClient({ isAdmin, role }: { isAdmin: boolean; role?: AdminR
       <div className="sticky top-0 z-40 border-b border-[#1A3C6E]/30 bg-[#0A1628]/95 backdrop-blur">
         <div className="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-white flex items-center flex-wrap gap-x-3">
               ФинНайс Admin
-              {role && role !== "root" && (
-                <span className="ml-3 text-[11px] font-semibold uppercase px-2 py-1 rounded-md align-middle"
-                      style={{ background: role === "admin" ? "#C8972B" : "#1A3C6E", color: "#fff" }}>
-                  {role === "admin" ? "admin" : "moderator"}
+              {role && (
+                <span className="text-[11px] font-bold uppercase px-2.5 py-1 rounded-md"
+                      style={{
+                        background: role === "root"  ? "#C8972B"
+                                  : role === "admin" ? "#0C7A58"
+                                  : "#1A3C6E",
+                        color: "#fff",
+                      }}>
+                  {role}
                 </span>
               )}
             </h1>
-            <p className="text-xs text-[#9CA3AF] mt-1">Управление заявками и пользователями</p>
+            <p className="text-xs text-[#9CA3AF] mt-1">
+              {role === "moderator"
+                ? "Управление заявками и клиентами"
+                : "Управление заявками, клиентами и финансами"}
+            </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <button onClick={() => router.push("/admin/finance")}
-                    className="px-4 py-2 text-sm font-semibold text-white rounded-full
-                               transition-opacity hover:opacity-90 flex items-center gap-1.5"
-                    style={{ background: "linear-gradient(135deg, #0C7A58, #0a6449)" }}>
-              🧪 Симуляция
-            </button>
-            <button onClick={() => router.push("/admin/finance/portfolio")}
-                    className="px-4 py-2 text-sm font-semibold text-white rounded-full
-                               transition-opacity hover:opacity-90 flex items-center gap-1.5"
-                    style={{ background: "linear-gradient(135deg, #1A3C6E, #0E2344)" }}>
-              📊 Портфель
-            </button>
+            {/* Финансы и Портфель — только root + admin */}
+            {(role === "root" || role === "admin") && (
+              <>
+                <button onClick={() => router.push("/admin/finance")}
+                        className="px-4 py-2 text-sm font-semibold text-white rounded-full
+                                   transition-opacity hover:opacity-90 flex items-center gap-1.5"
+                        style={{ background: "linear-gradient(135deg, #0C7A58, #0a6449)" }}>
+                  🧪 Симуляция
+                </button>
+                <button onClick={() => router.push("/admin/finance/portfolio")}
+                        className="px-4 py-2 text-sm font-semibold text-white rounded-full
+                                   transition-opacity hover:opacity-90 flex items-center gap-1.5"
+                        style={{ background: "linear-gradient(135deg, #1A3C6E, #0E2344)" }}>
+                  📊 Портфель
+                </button>
+              </>
+            )}
             <button onClick={() => router.push("/lk")}
                     className="px-4 py-2 text-sm font-semibold text-white border border-[#1A3C6E] rounded-full
                                hover:bg-[#1A3C6E]/30 transition-colors">
@@ -402,6 +431,9 @@ export function AdminClient({ isAdmin, role }: { isAdmin: boolean; role?: AdminR
           onEditLoan={handleEditLoan}
           onDeleteLoan={handleDeleteLoan}
           onCreateLoan={handleCreateLoan}
+          canDeleteLoans={canDeleteRecords}
+          canDeleteUser={canDeleteUser}
+          onDeleteUser={handleDeleteUser}
         />
       )}
       {approveApp && (
@@ -1324,13 +1356,14 @@ function CalcPreview({ label, value, accent }: { label: string; value: string; a
    ADMIN LOAN CARD  — с редактированием и удалением
    ══════════════════════════════════════════════════════════════ */
 function AdminLoanCard({
-  loan, phone, onMarkPaid, onEdit, onDelete,
+  loan, phone, onMarkPaid, onEdit, onDelete, canDelete,
 }: {
   loan:       LoanRecord;
   phone:      string;
   onMarkPaid: (phone: string, loanId: string, idx: number) => Promise<void>;
   onEdit:     (phone: string, loanId: string, patch: Partial<LoanRecord>) => Promise<void>;
   onDelete:   (phone: string, loanId: string) => Promise<void>;
+  canDelete:  boolean;
 }) {
   const [open,    setOpen]    = useState(false);
   const [editing, setEditing] = useState(false);
@@ -1432,14 +1465,16 @@ function AdminLoanCard({
                 >
                   ✏️
                 </button>
-                <button
-                  onClick={() => onDelete(phone, loan.id)}
-                  title="Удалить рассрочку"
-                  className="w-6 h-6 rounded-md flex items-center justify-center text-[#9CA3AF]
-                             hover:bg-red-500/20 hover:text-red-400 transition-colors text-xs"
-                >
-                  🗑
-                </button>
+                {canDelete && (
+                  <button
+                    onClick={() => onDelete(phone, loan.id)}
+                    title="Удалить рассрочку"
+                    className="w-6 h-6 rounded-md flex items-center justify-center text-[#9CA3AF]
+                               hover:bg-red-500/20 hover:text-red-400 transition-colors text-xs"
+                  >
+                    🗑
+                  </button>
+                )}
               </div>
             </div>
 
@@ -1521,6 +1556,7 @@ function AdminLoanCard({
    ══════════════════════════════════════════════════════════════ */
 function UserProfileModal({
   user, onSave, onClose, onMarkPaid, onEditLoan, onDeleteLoan, onCreateLoan,
+  canDeleteLoans, canDeleteUser, onDeleteUser,
 }: {
   user:          UserDetail;
   onSave:        (phone: string, data: Partial<UserDetail>) => Promise<void>;
@@ -1529,6 +1565,9 @@ function UserProfileModal({
   onEditLoan:    (phone: string, loanId: string, patch: Partial<LoanRecord>) => Promise<void>;
   onDeleteLoan:  (phone: string, loanId: string) => Promise<void>;
   onCreateLoan:  (phone: string, payload: Record<string, unknown>) => Promise<void>;
+  canDeleteLoans: boolean;
+  canDeleteUser:  boolean;
+  onDeleteUser:   (phone: string) => Promise<void>;
 }) {
   const [showAddLoan, setShowAddLoan] = useState(false);
   const [form, setForm] = useState({
@@ -1851,6 +1890,29 @@ function UserProfileModal({
               </button>
             </div>
 
+            {/* Удаление пользователя — только root */}
+            {canDeleteUser && (
+              <div className="bg-red-900/20 border border-red-500/40 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-red-300">Удалить пользователя</p>
+                  <p className="text-[11px] text-red-400/80 leading-snug">
+                    Полностью удалит профиль, все рассрочки, корзину, ledger и связанные данные.
+                    Действие необратимо.
+                  </p>
+                </div>
+                <button
+                  onClick={async () => {
+                    const ph = formatPhone(user.phone) || user.phone;
+                    if (!confirm(`Полностью удалить пользователя ${ph}?\nЭто действие необратимо.`)) return;
+                    if (!confirm("Точно? Все данные будут стёрты.")) return;
+                    await onDeleteUser(user.phone);
+                  }}
+                  className="px-3 py-1.5 rounded-full text-xs font-bold transition-colors active:scale-95 bg-red-600 text-white hover:bg-red-700">
+                  🗑 Удалить
+                </button>
+              </div>
+            )}
+
             {/* Кнопки */}
             <div className="flex gap-3">
               <button onClick={onClose}
@@ -1907,6 +1969,7 @@ function UserProfileModal({
                   onMarkPaid={onMarkPaid}
                   onEdit={onEditLoan}
                   onDelete={onDeleteLoan}
+                  canDelete={canDeleteLoans}
                 />
               ))}
             </div>

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { getAdminRole, canManageStaff } from "@/lib/adminAuth";
+import {
+  getAdminRole, canManageStaff, canAssignAdminRole, getAdminPhone,
+} from "@/lib/adminAuth";
 import {
   listStaff, setUserRole, findByPhone, normalizePhoneStrict,
 } from "@/lib/user-store";
@@ -38,15 +40,43 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "role must be admin/moderator/null" }, { status: 400 });
   }
 
+  /* Только root может назначать admin-роль */
+  if (role === "admin" && !(await canAssignAdminRole())) {
+    return NextResponse.json(
+      { error: "Только root-администратор может назначать роль admin." },
+      { status: 403 },
+    );
+  }
+
   let phone: string;
   try { phone = normalizePhoneStrict(rawPhone); }
   catch (e) { return NextResponse.json({ error: String(e) }, { status: 400 }); }
+
+  /* Запрет на изменение собственной роли (для всех, кроме root) */
+  const myPhone = await getAdminPhone();
+  if (myPhone && normalizePhoneStrict(myPhone) === phone) {
+    const me = await getAdminRole();
+    if (me !== "root") {
+      return NextResponse.json(
+        { error: "Нельзя изменить собственную роль. Попросите root-администратора." },
+        { status: 403 },
+      );
+    }
+  }
 
   const user = await findByPhone(phone);
   if (!user) {
     return NextResponse.json(
       { error: "Пользователь не найден — он должен сначала зарегистрироваться через /lk" },
       { status: 404 },
+    );
+  }
+
+  /* Запрет admin'у снимать роль у другого admin'а */
+  if (user.role === "admin" && !(await canAssignAdminRole())) {
+    return NextResponse.json(
+      { error: "Только root может снимать роль с admin. Вы можете управлять только модераторами." },
+      { status: 403 },
     );
   }
 
@@ -67,6 +97,27 @@ export async function DELETE(req: Request) {
   let phone: string;
   try { phone = normalizePhoneStrict(rawPhone); }
   catch (e) { return NextResponse.json({ error: String(e) }, { status: 400 }); }
+
+  /* Запрет на снятие роли с себя (кроме root) */
+  const myPhone = await getAdminPhone();
+  if (myPhone && normalizePhoneStrict(myPhone) === phone) {
+    const me = await getAdminRole();
+    if (me !== "root") {
+      return NextResponse.json(
+        { error: "Нельзя снять роль с самого себя." },
+        { status: 403 },
+      );
+    }
+  }
+
+  /* Только root может снимать роль с admin */
+  const user = await findByPhone(phone);
+  if (user?.role === "admin" && !(await canAssignAdminRole())) {
+    return NextResponse.json(
+      { error: "Только root может снимать роль с admin." },
+      { status: 403 },
+    );
+  }
 
   const updated = await setUserRole(phone, null);
   return NextResponse.json({ ok: true, user: updated });

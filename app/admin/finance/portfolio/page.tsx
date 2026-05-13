@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getAdminRole } from "@/lib/adminAuth";
+import { canViewFinance } from "@/lib/adminAuth";
 import { listInvestors } from "@/lib/finance/investors-store";
 import {
   aggregatePortfolio,
@@ -19,8 +19,7 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function PortfolioPage() {
-  const role = await getAdminRole();
-  if (role === null) redirect("/admin");
+  if (!(await canViewFinance())) redirect("/admin");
 
   let investors: Awaited<ReturnType<typeof listInvestors>> = [];
   try { investors = await listInvestors(); } catch (e) { console.error("listInvestors:", e); }

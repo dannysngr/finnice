@@ -52,10 +52,36 @@ export async function isAdminRequest(): Promise<boolean> {
   return r !== null;
 }
 
-/** Может ли управлять модераторами (только root + admin) */
+/** Может ли управлять модераторами (root + admin могут назначать moderator).
+ *  Назначение admin-роли ограничено отдельно — см. canAssignAdminRole. */
 export async function canManageStaff(): Promise<boolean> {
   const r = await getAdminRole();
   return r === "root" || r === "admin";
+}
+
+/** Только root может назначать/снимать admin-роль другим пользователям. */
+export async function canAssignAdminRole(): Promise<boolean> {
+  const r = await getAdminRole();
+  return r === "root";
+}
+
+/** Доступ к финансовой модели (Симулятор когорт, Портфель инвесторов).
+ *  Модератор работает с клиентами; финансы — только для root и admin. */
+export async function canViewFinance(): Promise<boolean> {
+  const r = await getAdminRole();
+  return r === "root" || r === "admin";
+}
+
+/** Удаление данных (loans, investors, withdrawals) — только root + admin. */
+export async function canDeleteRecords(): Promise<boolean> {
+  const r = await getAdminRole();
+  return r === "root" || r === "admin";
+}
+
+/** Полное удаление пользователя из системы — только root. */
+export async function canDeleteUser(): Promise<boolean> {
+  const r = await getAdminRole();
+  return r === "root";
 }
 
 /** Возвращает телефон текущего пользователя (если авторизован) */

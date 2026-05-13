@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { getAdminRole } from "@/lib/adminAuth";
+import { canViewFinance } from "@/lib/adminAuth";
 import { getAllLoans, groupByCohort, computePortfolioSummary } from "@/lib/finance/portfolio";
 
 export async function GET() {
-  const role = await getAdminRole();
-  if (role === null) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (!(await canViewFinance())) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
 
   try {
     const loans   = await getAllLoans();
