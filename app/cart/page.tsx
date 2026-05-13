@@ -185,12 +185,37 @@ export default function CartPage() {
               </div>
               <button
                 onClick={() => {
-                  // Открываем модал для первого товара
+                  if (cartProducts.length === 0) return;
+                  /* Используем первый товар для превью; для каждого товара модал
+                     сам пересчитает down/monthly при отправке. */
                   const first = cartProducts[0];
                   if (!first?.product) return;
                   const down = Math.ceil(first.product.price * getMinDownPct(first.product.price));
                   const res  = calcInstallment({ price: first.product.price, down, term: 6 });
-                  openModal({ productName: first.product.name, price: first.product.price, down, term: 6, monthly: res.monthly });
+                  openModal({
+                    productName: cartProducts.length === 1
+                      ? first.product.name
+                      : `${first.product.name} и ещё ${cartProducts.length - 1}`,
+                    price: first.product.price,
+                    down,
+                    term: 6,
+                    monthly: res.monthly,
+                    /* Пакетный режим: одна заявка на каждый товар × qty */
+                    cart: cartProducts.map(({ product, qty }) => ({
+                      productName: product!.name,
+                      price:       product!.price,
+                      qty,
+                    })),
+                    onAllSent: async () => {
+                      /* Очищаем корзину после успешной отправки */
+                      await fetch("/api/cart", {
+                        method: "DELETE",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ all: true }),
+                      });
+                      setItems([]);
+                    },
+                  });
                 }}
                 className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#0C7A58] text-white font-bold
                            hover:bg-[#0a6449] transition-colors active:scale-95"

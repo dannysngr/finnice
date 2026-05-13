@@ -50,6 +50,14 @@ export async function DELETE(req: NextRequest) {
   if (!phone) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json().catch(() => null);
+
+  /* Полная очистка корзины */
+  if (body?.all === true) {
+    const redis = getRedis();
+    await redis.del(key(phone));
+    return NextResponse.json({ items: [] });
+  }
+
   if (!body?.productId) return NextResponse.json({ error: "Bad request" }, { status: 400 });
 
   const redis   = getRedis();

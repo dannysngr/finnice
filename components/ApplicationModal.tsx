@@ -15,6 +15,11 @@ export interface ModalPreset {
   productName?: string;
   memory?:      string;
   sim?:         string;
+  /** Если задано — пакетное оформление из корзины: модал отправит
+   *  по одной заявке на каждый item (с qty). После успешной отправки
+   *  всех заявок вызывается onAllSent (например, для очистки корзины). */
+  cart?: Array<{ productName: string; price: number; qty: number }>;
+  onAllSent?: () => void;
 }
 
 interface Props {
@@ -140,7 +145,58 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
     setSending(true);
     setSendErr("");
     try {
-      /* Финансовые поля для последующей аналитики */
+      /* Пакетный режим: одна заявка на каждый item × qty */
+      if (preset?.cart && preset.cart.length > 0) {
+        const errors: string[] = [];
+        let sentCount = 0;
+        for (const item of preset.cart) {
+          const itemDown = Math.ceil(item.price * getMinDownPct(item.price));
+          const itemRes  = policy.loaded
+            ? calcInstallmentIsoIRR(item.price, itemDown, term, policy.inflation, policy.overrides)
+            : calcInstallment({ price: item.price, down: itemDown, term });
+          const itemMarkupPct = item.price > 0 ? itemRes.markup / item.price : 0;
+          const itemTotalPrice = item.price + itemRes.markup;
+          const itemTargetIrr  = itemRes.rate > 0 ? impliedAnnualIrr(itemRes.rate) : 0;
+
+          for (let copy = 0; copy < item.qty; copy++) {
+            try {
+              const r = await fetch("/api/applications", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  name:    submitName,
+                  phone:   submitPhone,
+                  product: item.qty > 1 ? `${item.productName} (${copy + 1}/${item.qty})` : item.productName,
+                  price:   itemTotalPrice,
+                  down:    itemDown,
+                  term,
+                  monthly: itemRes.monthly,
+                  costAmount:   item.price,
+                  markupAmount: itemRes.markup,
+                  markupPct:    itemMarkupPct,
+                  downAmount:   itemDown,
+                  targetIrrAtCreation: itemTargetIrr,
+                }),
+              });
+              const d = await r.json();
+              if (d.ok) sentCount++;
+              else errors.push(`${item.productName}: ${d.error || "ошибка"}`);
+            } catch {
+              errors.push(`${item.productName}: сетевая ошибка`);
+            }
+          }
+        }
+        if (sentCount > 0) {
+          setSent(true);
+          preset.onAllSent?.();
+        }
+        if (errors.length > 0) {
+          setSendErr(`Отправлено ${sentCount}. Ошибки: ${errors.join("; ")}`);
+        }
+        return;
+      }
+
+      /* Обычный режим — одна заявка */
       const markupPct = price > 0 ? res.markup / price : 0;
       const totalPrice = price + res.markup;
       const targetIrrAtCreation = res.rate > 0 ? impliedAnnualIrr(res.rate) : 0;
@@ -239,6 +295,30 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="px-4 pt-3 pb-4 space-y-3">
+
+            {preset?.cart && preset.cart.length > 0 && (
+              <div className="bg-[#F4F7FC] rounded-xl px-3 py-2.5 border border-[#D8E2F0]">
+                <p className="text-[10px] uppercase tracking-wider text-[#6B7280] font-bold mb-1.5">
+                  Заявок будет создано: {preset.cart.reduce((s, i) => s + i.qty, 0)}
+                </p>
+                <ul className="text-xs text-[#0A1628] space-y-1">
+                  {preset.cart.map((it, i) => (
+                    <li key={i} className="flex justify-between gap-2">
+                      <span className="truncate">
+                        {it.productName}{it.qty > 1 && ` × ${it.qty}`}
+                      </span>
+                      <span className="text-[#6B7280] shrink-0 tabular-nums">
+                        {fmtRub(it.price * it.qty)} ₽
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-[10px] text-[#6B7280] mt-2 leading-snug">
+                  По каждому товару создаётся отдельная заявка со своим взносом и платежом.
+                  Срок ниже применится ко всем.
+                </p>
+              </div>
+            )}
 
             {preset && (
               <>
