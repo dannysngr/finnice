@@ -13,6 +13,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, type Variants }   from "framer-motion";
 import { FinniceLogo } from "@/components/FinniceLogo";
+import { extractPhoneDigits } from "@/lib/phone-mask";
 import {
   ArrowRight, Edit2, Phone, AlertCircle,
   X, MessageCircle, CheckCircle, Loader2,
@@ -171,7 +172,10 @@ function PhoneScreen({
           value={phoneDigits}
           maxLength={10}
           onChange={e => {
-            setPhoneDigits(e.target.value.replace(/\D/g, "").slice(0, 10));
+            /* extractPhoneDigits сначала убирает страновой код 7/8
+               в начале (важно для автозаполнения вида "8 (926) ..."),
+               затем обрезает до 10 цифр. */
+            setPhoneDigits(extractPhoneDigits(e.target.value));
             setApiError("");
           }}
           onFocus={() => setPhoneFocused(true)}
