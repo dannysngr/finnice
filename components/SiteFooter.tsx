@@ -42,10 +42,10 @@ export function SiteFooter() {
             </Link>
           </nav>
 
-          {/* App badges */}
+          {/* App badges — приложения в разработке */}
           <div className="flex items-center gap-2.5 shrink-0">
-            <StoreBadge label="App Store"   sub="Загрузить в" icon={<AppleIcon />} />
-            <StoreBadge label="Google Play" sub="Загрузить в" icon={<PlayIcon />}  />
+            <StoreBadge label="App Store"   sub="Скоро в" icon={<AppleIcon />} />
+            <StoreBadge label="Google Play" sub="Скоро в" icon={<PlayIcon />}  />
           </div>
         </div>
 
@@ -122,19 +122,31 @@ function StoreBadge({
   sub: string;
   icon: React.ReactNode;
 }) {
+  /* Приложения пока в разработке — бейдж выключен (cursor-not-allowed,
+     приглушённый, с лейблом «В разработке»). При появлении замените на <a>. */
   return (
-    <a
-      href="#"
-      className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl transition-colors
-                 hover:bg-white/10"
-      style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)" }}
+    <div
+      className="relative flex items-center gap-2 px-3.5 py-2.5 rounded-xl select-none"
+      title="Мобильное приложение в разработке — ожидайте"
+      style={{
+        background: "rgba(255,255,255,0.05)",
+        border:     "1px dashed rgba(255,255,255,0.18)",
+        cursor:     "not-allowed",
+        opacity:    0.7,
+      }}
     >
       {icon}
       <div>
         <p className="text-[9px] text-white/40 leading-none">{sub}</p>
-        <p className="text-xs font-semibold text-white leading-tight">{label}</p>
+        <p className="text-xs font-semibold text-white/85 leading-tight">{label}</p>
       </div>
-    </a>
+      <span
+        className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-wider text-[#0A1628]"
+        style={{ background: "#C8972B" }}
+      >
+        В разработке
+      </span>
+    </div>
   );
 }
 
