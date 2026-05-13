@@ -50,6 +50,11 @@ export async function PUT(req: NextRequest) {
     livingHouse:  str(body.livingHouse  ?? existing.livingHouse,  "", 20),
     livingApt:    str(body.livingApt    ?? existing.livingApt,    "", 20),
     email:        str(body.email        ?? existing.email,        "", 120),
+    // Поручители
+    guarantor1FullName: str(body.guarantor1FullName ?? existing.guarantor1FullName, "", 200),
+    guarantor1Phone:    str(body.guarantor1Phone    ?? existing.guarantor1Phone,    "", 30),
+    guarantor2FullName: str(body.guarantor2FullName ?? existing.guarantor2FullName, "", 200),
+    guarantor2Phone:    str(body.guarantor2Phone    ?? existing.guarantor2Phone,    "", 30),
   };
 
   await redis.set(`profile:${phone}`, updated);

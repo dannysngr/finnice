@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { pluralPayment, calcInstallment } from "@/lib/calculator-logic";
-import { formatPhone } from "@/lib/phone-mask";
+import { pluralPayment, calcInstallment, getGuarantors } from "@/lib/calculator-logic";
+import { formatPhone, phoneInputOnChange, shouldBlockPhoneKeyDown } from "@/lib/phone-mask";
 import { computeProfileCompletion } from "@/lib/profile-completion";
 import {
   maskPassportSeries, maskPassportNumber, maskDepartmentCode,
@@ -89,6 +89,10 @@ interface UserDetail {
   livingHouse?:  string | null;
   livingApt?:    string | null;
   email?:        string | null;
+  guarantor1FullName?: string | null;
+  guarantor1Phone?:    string | null;
+  guarantor2FullName?: string | null;
+  guarantor2Phone?:    string | null;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -96,32 +100,32 @@ interface UserDetail {
    ══════════════════════════════════════════════════════════════ */
 const TRUST_OPTIONS = [
   {
-    label:   "Гость",
+    label:   "Standart",
     score:   0,
     color:   "#9CA3AF",
     icon:    "○",
-    tooltip: "Добро пожаловать! Базовый уровень после регистрации — стандартные условия рассрочки.",
+    tooltip: "Базовый уровень после регистрации. Стандартные условия рассрочки.",
   },
   {
-    label:   "Друг",
+    label:   "Bronze",
     score:   1,
-    color:   "#10B981",
+    color:   "#B45309",
     icon:    "◆",
-    tooltip: "Закрыл 1 рассрочку без просрочек. Скидка −0.2% на наценку.",
+    tooltip: "1 закрытая рассрочка без просрочек. Скидка −0.2% на наценку.",
   },
   {
-    label:   "Соратник",
+    label:   "Silver",
     score:   3,
-    color:   "#3B82F6",
+    color:   "#94A3B8",
     icon:    "★",
     tooltip: "3 закрытых рассрочки. Лимит до 150 000 ₽ без поручителей. Скидка −0.5% на наценку.",
   },
   {
-    label:   "Аманат",
+    label:   "Gold",
     score:   5,
     color:   "#C8972B",
     icon:    "⬡",
-    tooltip: "5+ закрытых рассрочек — высший уровень доверия (с араб. «аманат» — священное доверенное). Скидка −1% и приоритетная обработка заявок.",
+    tooltip: "5+ закрытых рассрочек — высший уровень. Скидка −1% и приоритетная обработка заявок.",
   },
 ] as const;
 
@@ -753,15 +757,21 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
   /* ── Профиль клиента — для проверки заполненности ────── */
   const [clientProfile, setClientProfile] = useState<Record<string, unknown> | null>(null);
   const [hasPassportDocApp, setHasPassportDocApp] = useState(false);
+  const [hasG1Doc, setHasG1Doc] = useState(false);
+  const [hasG2Doc, setHasG2Doc] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
   useEffect(() => {
     setProfileLoading(true);
     Promise.all([
       fetch(`/api/admin/users/${encodeURIComponent(app.phone)}`).then(r => r.ok ? r.json() : null).catch(() => null),
       fetch(`/api/admin/passport-doc/${encodeURIComponent(app.phone)}`).then(r => r.ok ? r.json() : null).catch(() => null),
-    ]).then(([profile, doc]) => {
+      fetch(`/api/admin/guarantor-doc/${encodeURIComponent(app.phone)}/1`).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch(`/api/admin/guarantor-doc/${encodeURIComponent(app.phone)}/2`).then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([profile, doc, g1, g2]) => {
       setClientProfile(profile);
       setHasPassportDocApp(Boolean(doc?.exists));
+      setHasG1Doc(Boolean(g1?.exists));
+      setHasG2Doc(Boolean(g2?.exists));
     }).finally(() => setProfileLoading(false));
   }, [app.phone]);
   const profileCompletion = computeProfileCompletion(
@@ -802,6 +812,34 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
   const remainingPay  = totalPrice - downAmount;
   const monthlyPayment = remainingPay / term;
   const capitalT0     = cost - downAmount;
+
+  /* Сколько поручителей нужно при данной сумме (totalPrice — цена для клиента).
+     0..2. Используется ту же логику, что в публичном калькуляторе. */
+  const requiredGuarantors = getGuarantors(totalPrice);
+  const p = clientProfile ?? {};
+  const g1Ready = Boolean(p.guarantor1FullName && p.guarantor1Phone && hasG1Doc);
+  const g2Ready = Boolean(p.guarantor2FullName && p.guarantor2Phone && hasG2Doc);
+  const guarantorsOk =
+    requiredGuarantors === 0
+      ? true
+      : requiredGuarantors === 1
+        ? g1Ready
+        : g1Ready && g2Ready;
+  const missingGuarantorParts: string[] = [];
+  if (requiredGuarantors >= 1 && !g1Ready) {
+    const miss: string[] = [];
+    if (!p.guarantor1FullName) miss.push("ФИО");
+    if (!p.guarantor1Phone)    miss.push("телефон");
+    if (!hasG1Doc)             miss.push("скан паспорта");
+    missingGuarantorParts.push(`Поручитель № 1 (${miss.join(", ")})`);
+  }
+  if (requiredGuarantors >= 2 && !g2Ready) {
+    const miss: string[] = [];
+    if (!p.guarantor2FullName) miss.push("ФИО");
+    if (!p.guarantor2Phone)    miss.push("телефон");
+    if (!hasG2Doc)             miss.push("скан паспорта");
+    missingGuarantorParts.push(`Поручитель № 2 (${miss.join(", ")})`);
+  }
 
   /* Фактический IRR этой сделки */
   const flows: number[] = [-capitalT0];
@@ -996,15 +1034,20 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
             Отмена
           </button>
           <button onClick={handleSubmit}
-                  disabled={isLoading || cost <= 0 || !profileCompletion.isComplete || profileLoading}
-                  title={!profileCompletion.isComplete
-                    ? `Профиль клиента заполнен на ${profileCompletion.percent}%. Заполните недостающие поля в карточке клиента, чтобы одобрить рассрочку.`
-                    : ""}
+                  disabled={isLoading || cost <= 0 || !profileCompletion.isComplete || !guarantorsOk || profileLoading}
+                  title={
+                    !profileCompletion.isComplete
+                      ? `Профиль клиента заполнен на ${profileCompletion.percent}%. Заполните недостающие поля.`
+                      : !guarantorsOk
+                        ? `Требуется ${requiredGuarantors} ${requiredGuarantors === 1 ? "поручитель" : "поручителя"} при сумме от ${fmtR(getGuarantors(totalPrice) === 1 ? 80000 : 200000)} ₽. ${missingGuarantorParts.join("; ")}.`
+                        : ""
+                  }
             className="flex-1 py-2.5 rounded-full bg-[#C8972B] text-[#0A1628] font-bold
                        hover:bg-[#E8B84B] transition-colors disabled:opacity-60 active:scale-95">
             {isLoading ? "Сохраняю..."
               : profileLoading ? "Проверка профиля..."
               : !profileCompletion.isComplete ? `Профиль ${profileCompletion.percent}% — заполните данные`
+              : !guarantorsOk ? `Нужно ${requiredGuarantors} ${requiredGuarantors === 1 ? "поручитель" : "поручителя"}`
               : `Одобрить · клиент платит ${fmtR(totalPrice)} ₽`}
           </button>
         </div>
@@ -1019,6 +1062,24 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
                 {Object.entries(profileCompletion.missingByGroup)
                   .map(([g, fs]) => `${g} (${fs.map(f => f.label.toLowerCase()).join(", ")})`)
                   .join("; ")}.
+              </div>
+              <button
+                onClick={() => onOpenClientProfile(app.phone)}
+                className="shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-[#C8972B] text-[#0A1628] hover:bg-[#E8B84B] transition-colors active:scale-95"
+              >
+                Открыть карточку →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {profileCompletion.isComplete && !guarantorsOk && !profileLoading && (
+          <div className="mt-3 p-3 rounded-xl bg-orange-900/20 border border-orange-500/40 text-xs text-orange-200 leading-snug">
+            <div className="flex items-start justify-between gap-3 mb-1.5">
+              <div>
+                <b>Требуется {requiredGuarantors} {requiredGuarantors === 1 ? "поручитель" : "поручителя"}</b> при сумме рассрочки от{" "}
+                {requiredGuarantors === 1 ? "80 000" : "200 000"} ₽.
+                Заполните: {missingGuarantorParts.join("; ")}.
               </div>
               <button
                 onClick={() => onOpenClientProfile(app.phone)}
@@ -1383,6 +1444,88 @@ function AdminPassportDocUploader({
   );
 }
 
+/* ══════════════════════════════════════════════════════════════
+   ADMIN GUARANTOR DOC UPLOADER (компактный)
+   ══════════════════════════════════════════════════════════════ */
+function AdminGuarantorDocUploader({ phone, idx }: { phone: string; idx: 1 | 2 }) {
+  const [meta, setMeta] = useState<{ mime: string; filename: string; size: number } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err,  setErr]  = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const url = `/api/admin/guarantor-doc/${encodeURIComponent(phone)}/${idx}`;
+
+  useEffect(() => {
+    fetch(url, { cache: "no-store" })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => setMeta(d?.exists ? d : null))
+      .catch(() => {});
+  }, [url]);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setErr(null); setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const r = await fetch(url, { method: "PUT", body: fd });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Ошибка загрузки");
+      setMeta(d);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Ошибка");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm(`Удалить скан паспорта поручителя ${idx}?`)) return;
+    setBusy(true);
+    try { await fetch(url, { method: "DELETE" }); setMeta(null); } finally { setBusy(false); }
+  };
+
+  const dlUrl = `/api/lk/guarantor-doc/${idx}/file?phone=${encodeURIComponent(phone)}`;
+
+  return (
+    <div>
+      <p className="text-[10px] text-[#9CA3AF]/80 mb-1.5">Скан/фото паспорта поручителя</p>
+      {meta ? (
+        <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-[#0A1628] border border-[#1A3C6E]">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-base">{meta.mime === "application/pdf" ? "📄" : "🖼"}</span>
+            <span className="text-xs text-white truncate">{meta.filename}</span>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <a href={dlUrl} target="_blank" rel="noopener"
+               className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#C8972B] text-[#0A1628] hover:bg-[#E8B84B]">
+              Открыть
+            </a>
+            <button onClick={() => inputRef.current?.click()} disabled={busy}
+                    className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#1A3C6E]/60 text-white hover:bg-[#1A3C6E] disabled:opacity-50">
+              Заменить
+            </button>
+            <button onClick={handleDelete} disabled={busy}
+                    className="w-5 h-5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-400 hover:bg-red-500/30 disabled:opacity-50">
+              ×
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => inputRef.current?.click()} disabled={busy}
+                className="w-full p-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 border border-dashed border-[#C8972B]/40 text-[#C8972B] hover:bg-[#C8972B]/10">
+          {busy ? "Загружаю..." : "📎 Загрузить скан паспорта"}
+        </button>
+      )}
+      <input ref={inputRef} type="file" hidden
+             accept="application/pdf,image/jpeg,image/jpg,image/png,image/webp,image/heic"
+             onChange={handleFile} />
+      {err && <p className="text-[11px] text-red-400 mt-1">⚠ {err}</p>}
+    </div>
+  );
+}
+
 function CalcPreview({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div>
@@ -1635,6 +1778,10 @@ function UserProfileModal({
     livingHouse:  user.livingHouse  ?? "",
     livingApt:    user.livingApt    ?? "",
     email:        user.email        ?? "",
+    guarantor1FullName: user.guarantor1FullName ?? "",
+    guarantor1Phone:    user.guarantor1Phone    ?? "",
+    guarantor2FullName: user.guarantor2FullName ?? "",
+    guarantor2Phone:    user.guarantor2Phone    ?? "",
   });
   const [saving,   setSaving]   = useState(false);
   const [blocking, setBlocking] = useState(false);
@@ -1881,6 +2028,47 @@ function UserProfileModal({
               </p>
               <FieldRow placeholder="name@example.com" type="email"
                         value={form.email} onChange={v => setForm(f => ({ ...f, email: v }))} />
+            </div>
+
+            {/* Поручители */}
+            <div>
+              <p className="text-[10px] text-[#9CA3AF] font-semibold uppercase tracking-wider mb-1.5">
+                Поручители
+                <span className="text-[#9CA3AF]/60 normal-case ml-1">
+                  (1 — от 80 000 ₽, 2 — от 200 000 ₽)
+                </span>
+              </p>
+              <div className="space-y-4">
+                {([1, 2] as const).map(idx => {
+                  const nameKey  = `guarantor${idx}FullName` as const;
+                  const phoneKey = `guarantor${idx}Phone`    as const;
+                  return (
+                    <div key={idx} className="rounded-lg bg-[#0A1628]/40 border border-[#1A3C6E]/40 p-3 space-y-2">
+                      <p className="text-[10px] uppercase tracking-wider text-[#C8972B] font-bold">
+                        Поручитель № {idx}
+                      </p>
+                      <FieldRow placeholder="ФИО полностью"
+                                value={form[nameKey]}
+                                onChange={v => setForm(f => ({ ...f, [nameKey]: v }))} />
+                      <input
+                        value={form[phoneKey]}
+                        onChange={e => setForm(f => ({ ...f, [phoneKey]: phoneInputOnChange(e.target.value) }))}
+                        onKeyDown={e => {
+                          if (shouldBlockPhoneKeyDown(e.key, e.currentTarget.selectionStart, e.currentTarget.selectionEnd)) {
+                            e.preventDefault();
+                          }
+                        }}
+                        inputMode="tel"
+                        placeholder="+7 9XX XXX XX XX"
+                        className="w-full px-2.5 py-2 rounded-lg bg-[#0A1628] text-white text-sm
+                                   border border-[#1A3C6E] focus:border-[#C8972B] outline-none transition-colors
+                                   placeholder:text-[#9CA3AF]/50"
+                      />
+                      <AdminGuarantorDocUploader phone={user.phone} idx={idx} />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Заполненность профиля */}

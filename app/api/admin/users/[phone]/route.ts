@@ -63,6 +63,10 @@ export async function GET(_req: NextRequest, { params }: Params) {
     livingHouse:  profile?.livingHouse  ?? null,
     livingApt:    profile?.livingApt    ?? null,
     email:        profile?.email        ?? null,
+    guarantor1FullName: profile?.guarantor1FullName ?? null,
+    guarantor1Phone:    profile?.guarantor1Phone    ?? null,
+    guarantor2FullName: profile?.guarantor2FullName ?? null,
+    guarantor2Phone:    profile?.guarantor2Phone    ?? null,
   });
 }
 
@@ -108,6 +112,11 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     livingHouse:  body.livingHouse  !== undefined ? str(body.livingHouse,  "",  20) : (existing.livingHouse  ?? ""),
     livingApt:    body.livingApt    !== undefined ? str(body.livingApt,    "",  20) : (existing.livingApt    ?? ""),
     email:        body.email        !== undefined ? str(body.email,        "", 120) : (existing.email        ?? ""),
+    // Поручители
+    guarantor1FullName: body.guarantor1FullName !== undefined ? str(body.guarantor1FullName, "", 200) : (existing.guarantor1FullName ?? ""),
+    guarantor1Phone:    body.guarantor1Phone    !== undefined ? str(body.guarantor1Phone,    "",  30) : (existing.guarantor1Phone    ?? ""),
+    guarantor2FullName: body.guarantor2FullName !== undefined ? str(body.guarantor2FullName, "", 200) : (existing.guarantor2FullName ?? ""),
+    guarantor2Phone:    body.guarantor2Phone    !== undefined ? str(body.guarantor2Phone,    "",  30) : (existing.guarantor2Phone    ?? ""),
   };
 
   await redis.set(`profile:${phone}`, updated);

@@ -17,6 +17,7 @@ import {
   maskPassportSeries, maskPassportNumber, maskDepartmentCode,
   PASSPORT_SERIES_PLACEHOLDER, PASSPORT_NUMBER_PLACEHOLDER, DEPT_CODE_PLACEHOLDER,
 } from "@/lib/passport-mask";
+import { phoneInputOnChange, shouldBlockPhoneKeyDown } from "@/lib/phone-mask";
 
 /* ─────────────────────────────────────────────────────────────
    TYPES
@@ -48,6 +49,10 @@ interface MeData {
   livingHouse?:  string | null;
   livingApt?:    string | null;
   email?:        string | null;
+  guarantor1FullName?: string | null;
+  guarantor1Phone?:    string | null;
+  guarantor2FullName?: string | null;
+  guarantor2Phone?:    string | null;
   adminRole?:     "root" | "admin" | "moderator" | null;
 }
 
@@ -127,10 +132,10 @@ interface TrustLevel {
   nextScore: number;
 }
 const TRUST_LEVELS: TrustLevel[] = [
-  { label: "Гость",     minScore: 0, color: "#9CA3AF", discount: "",       next: "Друг",      nextScore: 1 },
-  { label: "Друг",      minScore: 1, color: "#10B981", discount: "−0.2%", next: "Соратник",  nextScore: 3 },
-  { label: "Соратник",  minScore: 3, color: "#3B82F6", discount: "−0.5%", next: "Аманат",    nextScore: 5 },
-  { label: "Аманат",    minScore: 5, color: "#C8972B", discount: "−1%",   next: null,         nextScore: 5 },
+  { label: "Standart", minScore: 0, color: "#9CA3AF", discount: "",      next: "Bronze", nextScore: 1 },
+  { label: "Bronze",   minScore: 1, color: "#B45309", discount: "−0.2%", next: "Silver", nextScore: 3 },
+  { label: "Silver",   minScore: 3, color: "#94A3B8", discount: "−0.5%", next: "Gold",   nextScore: 5 },
+  { label: "Gold",     minScore: 5, color: "#C8972B", discount: "−1%",   next: null,     nextScore: 5 },
 ];
 function getTrustLevel(score: number): TrustLevel {
   return [...TRUST_LEVELS].reverse().find(l => score >= l.minScore) ?? TRUST_LEVELS[0];
@@ -138,10 +143,10 @@ function getTrustLevel(score: number): TrustLevel {
 
 /* Подсказки для sidebar */
 const TRUST_TOOLTIPS: Record<string, string> = {
-  "Гость":     "Добро пожаловать! Базовый уровень после регистрации — стандартные условия рассрочки.",
-  "Друг":      "Закрыли 1 рассрочку без просрочек. Получаете скидку −0.2% на наценку.",
-  "Соратник":  "3 закрытых рассрочки. Лимит до 150 000 ₽ без поручителей. Скидка −0.5% на наценку.",
-  "Аманат":    "5+ закрытых рассрочек — высший уровень доверия. На арабском «аманат» — священное доверенное. Персональная скидка −1% и приоритетная обработка заявок.",
+  "Standart": "Базовый уровень после регистрации. Стандартные условия рассрочки.",
+  "Bronze":   "1 закрытая рассрочка без просрочек. Скидка −0.2% на наценку.",
+  "Silver":   "3 закрытых рассрочки. Лимит до 150 000 ₽ без поручителей. Скидка −0.5% на наценку.",
+  "Gold":     "5+ закрытых рассрочек — высший уровень. Персональная скидка −1% и приоритетная обработка заявок.",
 };
 
 /* Города Чеченской Республики */
@@ -932,6 +937,11 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
   const [livingHouse,  setLivingHouse]  = useState(data.livingHouse  ?? "");
   const [livingApt,    setLivingApt]    = useState(data.livingApt    ?? "");
   const [email,        setEmail]        = useState(data.email        ?? "");
+  /* Поручители */
+  const [g1Name, setG1Name] = useState(data.guarantor1FullName ?? "");
+  const [g1Phone, setG1Phone] = useState(data.guarantor1Phone   ?? "");
+  const [g2Name, setG2Name] = useState(data.guarantor2FullName ?? "");
+  const [g2Phone, setG2Phone] = useState(data.guarantor2Phone   ?? "");
   const [saving,         setSaving]         = useState(false);
   const [tooltip,        setTooltip]        = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -957,7 +967,10 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
       const payload = { lastName, firstName, patronymic, birthDate, avatarUrl,
         birthPlaceCity, addrCity, addrStreet, addrHouse, addrApt,
         passportSeries, passportNumber, passportIssueDate, passportIssuedBy, passportDepartmentCode,
-        livingSameAsRegister, livingCity, livingStreet, livingHouse, livingApt, email };
+        livingSameAsRegister, livingCity, livingStreet, livingHouse, livingApt, email,
+        guarantor1FullName: g1Name, guarantor1Phone: g1Phone,
+        guarantor2FullName: g2Name, guarantor2Phone: g2Phone,
+      };
       const r = await fetch("/api/lk/profile", {
         method: "PUT", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -982,6 +995,8 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
     setLivingCity(data.livingCity ?? ""); setLivingStreet(data.livingStreet ?? "");
     setLivingHouse(data.livingHouse ?? ""); setLivingApt(data.livingApt ?? "");
     setEmail(data.email ?? "");
+    setG1Name(data.guarantor1FullName ?? ""); setG1Phone(data.guarantor1Phone ?? "");
+    setG2Name(data.guarantor2FullName ?? ""); setG2Phone(data.guarantor2Phone ?? "");
     setEditing(false);
   };
 
@@ -1406,6 +1421,57 @@ function ProfileCard({ data, onUpdate }: { data: MeData; onUpdate: (patch: Parti
                      className="w-full px-4 py-4 rounded-[12px] text-base font-medium outline-none transition-all"
                      style={{ background: "rgba(255,255,255,0.85)", color: C.dark,
                               boxShadow: `inset 0 0 0 1.5px ${C.brand}44` }} />
+            </div>
+
+            {/* ━━━ БЛОК 7: ПОРУЧИТЕЛИ ━━━━━━━━━━━━━━━━━━━━━━━ */}
+            <div className="border-t mt-8 pt-6" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
+              <p className="text-[10px] font-black uppercase tracking-[0.12em] mb-2"
+                 style={{ color: C.mid }}>
+                Поручители <span className="text-[#9CA3AF] normal-case">(необязательно)</span>
+              </p>
+              <p className="text-[11px] mb-5" style={{ color: C.muted }}>
+                Поручительство может потребоваться при оформлении рассрочки от 80 000 ₽.
+                Заполнить можно сейчас, чтобы ускорить одобрение.
+              </p>
+
+              <div className="space-y-6">
+                {[
+                  { idx: 1 as const, name: g1Name, setName: setG1Name, phone: g1Phone, setPhone: setG1Phone },
+                  { idx: 2 as const, name: g2Name, setName: setG2Name, phone: g2Phone, setPhone: setG2Phone },
+                ].map(g => (
+                  <div key={g.idx} className="rounded-[14px] p-4"
+                       style={{ background: "rgba(255,255,255,0.45)", border: "1px solid rgba(0,0,0,0.06)" }}>
+                    <p className="text-[11px] font-extrabold mb-3" style={{ color: C.dark }}>
+                      Поручитель № {g.idx}
+                    </p>
+                    <div className="space-y-3 mb-3">
+                      <input value={g.name}
+                             onChange={e => g.setName(e.target.value)}
+                             placeholder="ФИО полностью"
+                             className="w-full px-4 py-3 rounded-[12px] text-sm font-medium outline-none transition-all"
+                             style={{ background: "rgba(255,255,255,0.85)", color: C.dark,
+                                      boxShadow: `inset 0 0 0 1.5px ${C.brand}44` }} />
+                      <input value={g.phone}
+                             onChange={e => g.setPhone(phoneInputOnChange(e.target.value))}
+                             onKeyDown={e => {
+                               if (shouldBlockPhoneKeyDown(e.key, e.currentTarget.selectionStart, e.currentTarget.selectionEnd)) {
+                                 e.preventDefault();
+                               }
+                             }}
+                             inputMode="tel"
+                             placeholder="+7 9XX XXX XX XX"
+                             className="w-full px-4 py-3 rounded-[12px] text-sm font-medium outline-none transition-all"
+                             style={{ background: "rgba(255,255,255,0.85)", color: C.dark,
+                                      boxShadow: `inset 0 0 0 1.5px ${C.brand}44` }} />
+                    </div>
+                    <PassportDocUploader
+                      uploadUrl={`/api/lk/guarantor-doc/${g.idx}`}
+                      downloadUrl={`/api/lk/guarantor-doc/${g.idx}/file`}
+                      hint="Скан/фото паспорта поручителя. PDF или изображение, до 5 МБ."
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}

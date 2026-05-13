@@ -70,6 +70,12 @@ export interface ProfileRecord {
   livingApt?:    string;
   // Email опционально
   email?: string;
+  // Поручители — обязательны для админа при рассрочке >= 80 000 ₽
+  // (для клиента всегда опционально, заполняется при оформлении сделки)
+  guarantor1FullName?: string;
+  guarantor1Phone?:    string;
+  guarantor2FullName?: string;
+  guarantor2Phone?:    string;
 }
 
 export async function GET() {
@@ -107,6 +113,10 @@ export async function GET() {
     livingHouse:  profile?.livingHouse  ?? null,
     livingApt:    profile?.livingApt    ?? null,
     email:        profile?.email        ?? null,
+    guarantor1FullName: profile?.guarantor1FullName ?? null,
+    guarantor1Phone:    profile?.guarantor1Phone    ?? null,
+    guarantor2FullName: profile?.guarantor2FullName ?? null,
+    guarantor2Phone:    profile?.guarantor2Phone    ?? null,
     loans,
   });
 }
