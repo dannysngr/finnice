@@ -278,7 +278,7 @@ def main():
                 products_total += 1
                 actual_brand = detect_brand(p["name"], brand)
                 all_products.append({
-                    "id":        slug[:60],
+                    "id":        slug,   # full slug — обрезка до 60 ломала уникальность
                     "name":      p["name"],
                     "slug":      slug,
                     "category":  category,
