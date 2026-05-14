@@ -112,6 +112,7 @@ export interface PhoneItem {
 // Манифест содержит { "iphone-17-pro-max": 3, ... } — сколько цветов скачано
 import phonesManifest from "@/public/images/phones/manifest.json";
 import { BIGGEEK_PRODUCTS } from "./biggeek-products";
+import { TG_PRICES } from "./tg-prices";
 const MANIFEST: Record<string, number> = phonesManifest as Record<string, number>;
 
 /** Возвращает массив URL картинок товара (по числу скачанных цветов).
@@ -756,7 +757,7 @@ export interface Product {
   specs:        { key: string; val: string }[];
 }
 
-export const PRODUCTS: Product[] = [
+const RAW_PRODUCTS: Product[] = [
   /* ── Телефоны ── */
   {
     id: "iphone-16-pro-256",
@@ -1380,6 +1381,12 @@ export const PRODUCTS: Product[] = [
   /* ── Импорт с biggeek.ru (Mac, iPad, Apple Watch, Apple TV, AirTag) ── */
   ...BIGGEEK_PRODUCTS,
 ];
+
+/** Цены из партнёрского TG-канала перезаписывают базовые при матче по id.
+ *  Управление — в lib/tg-prices.ts. */
+export const PRODUCTS: Product[] = RAW_PRODUCTS.map(p =>
+  TG_PRICES[p.id] != null ? { ...p, price: TG_PRICES[p.id] } : p
+);
 
 // ─── Footer links ─────────────────────────────────────────────
 export const FOOTER_COL1 = [
