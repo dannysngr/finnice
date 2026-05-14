@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FinniceLogo } from "@/components/FinniceLogo";
 import {
-  fmtRub, pluralPayment, calcInstallment, calcInstallmentIsoIRR, impliedAnnualIrr,
+  fmtRub, fmtRubApprox, pluralPayment, calcInstallment, calcInstallmentIsoIRR, impliedAnnualIrr,
   getMinDownPct, MIN_TERM, MAX_TERM,
 } from "@/lib/calculator-logic";
 
@@ -321,7 +321,7 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
                         {it.productName}{it.qty > 1 && ` × ${it.qty}`}
                       </span>
                       <span className="text-[#6B7280] shrink-0 tabular-nums">
-                        {fmtRub(it.price * it.qty)} ₽
+                        {fmtRubApprox(it.price * it.qty)} ₽
                       </span>
                     </li>
                   ))}
@@ -355,7 +355,7 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
                         </span>
                       )}
                       <span className="px-1.5 py-0.5 bg-white rounded-full text-[9px] text-[#9CA3AF] border border-[#D8E2F0]">
-                        {fmtRub(price)} ₽
+                        {fmtRubApprox(price)} ₽
                       </span>
                     </div>
                   </div>

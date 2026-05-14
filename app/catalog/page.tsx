@@ -6,7 +6,7 @@ import {
   CATALOG_CATS, PRODUCTS, PHONES_CATALOG,
   type Product,
 } from "@/lib/data";
-import { fmtRub, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
+import { fmtRub, fmtRubApprox, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
 import { useAppModal } from "@/lib/modal-context";
 import { ProductSlideshow } from "@/components/ProductSlideshow";
 
@@ -845,7 +845,7 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         )}
         {/* Цена */}
         <p className="font-bold text-[#0A1628] mt-1.5 leading-none" style={{ fontSize: "15px" }}>
-          {fmtRub(p.price)} ₽
+          {fmtRubApprox(p.price)} ₽
           {p.oldPrice && (
             <span className="ml-1.5 text-[11px] text-[#C4C9D4] line-through font-normal">
               {fmtRub(p.oldPrice)} ₽

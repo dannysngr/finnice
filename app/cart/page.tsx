@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { PHONES_CATALOG, PRODUCTS } from "@/lib/data";
-import { fmtRub, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
+import { fmtRub, fmtRubApprox, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
 import { useAppModal } from "@/lib/modal-context";
 
 /** Берёт первую картинку — для карточки в корзине/избранном достаточно */
@@ -147,7 +147,7 @@ export default function CartPage() {
                         </span>
                       )}
                       <div className="mt-1.5 flex items-center gap-2">
-                        <p className="font-extrabold text-[#0A1628] text-sm">{fmtRub(p.price * qty)} ₽</p>
+                        <p className="font-extrabold text-[#0A1628] text-sm">{fmtRubApprox(p.price * qty)} ₽</p>
                         <p className="text-[10px] text-[#0C7A58] font-semibold">от {fmtRub(res.monthly)} ₽/мес.</p>
                       </div>
                     </div>
@@ -185,7 +185,7 @@ export default function CartPage() {
             <div className="card p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <p className="text-sm text-[#6B7280] mb-0.5">Итого ({cartProducts.length} товара)</p>
-                <p className="text-2xl font-extrabold text-[#0A1628]">{fmtRub(totalPrice)} ₽</p>
+                <p className="text-2xl font-extrabold text-[#0A1628]">{fmtRubApprox(totalPrice)} ₽</p>
               </div>
               <button
                 onClick={() => {

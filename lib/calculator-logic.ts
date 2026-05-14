@@ -169,6 +169,12 @@ export function fmtRub(n: number): string {
   return n.toLocaleString("ru-RU");
 }
 
+/** То же самое, но с префиксом «≈ » — цены товаров приблизительные,
+ *  потому что синхронизируются с TG-каналом партнёра (mistore095). */
+export function fmtRubApprox(n: number): string {
+  return `≈ ${n.toLocaleString("ru-RU")}`;
+}
+
 /** 1 платёж, 2 платежа, 5 платежей */
 export function pluralPayment(n: number): string {
   const mod10  = n % 10;

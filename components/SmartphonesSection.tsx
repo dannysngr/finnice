@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { PHONES_CATALOG, type PhoneItem, type SimType } from "@/lib/data";
-import { calcInstallment, fmtRub, getMinDownPct } from "@/lib/calculator-logic";
+import { calcInstallment, fmtRub, fmtRubApprox, getMinDownPct } from "@/lib/calculator-logic";
 import { COMPANY } from "@/lib/data";
 import { useAppModal } from "@/lib/modal-context";
 import { ProductSlideshow } from "@/components/ProductSlideshow";
@@ -243,7 +243,7 @@ function PhoneCard({ phone, authed, inFavs, inCart, onToggleFav, onAddCart }: Ph
         </p>
         {/* Цена */}
         <p className="font-bold text-[#0A1628] mt-1.5 leading-none" style={{ fontSize: "15px" }}>
-          {fmtRub(phone.price)} ₽
+          {fmtRubApprox(phone.price)} ₽
         </p>
         <p className="text-[10px] text-[#9CA3AF] mt-0.5">
           от {fmtRub(perMonth)} ₽/мес.

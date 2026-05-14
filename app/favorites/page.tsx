@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { PHONES_CATALOG, PRODUCTS } from "@/lib/data";
-import { fmtRub, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
+import { fmtRub, fmtRubApprox, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
 import { useAppModal } from "@/lib/modal-context";
 
 // Объединённый список всех товаров для поиска по id
@@ -231,7 +231,7 @@ function FavCard({
       </div>
 
       <div className="mt-auto">
-        <p className="font-extrabold text-[#0A1628] text-sm">{fmtRub(p.price)} ₽</p>
+        <p className="font-extrabold text-[#0A1628] text-sm">{fmtRubApprox(p.price)} ₽</p>
         <p className="text-[10px] text-[#0C7A58] font-semibold mt-0.5">от {fmtRub(res.monthly)} ₽/мес.</p>
       </div>
 
