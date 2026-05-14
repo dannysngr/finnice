@@ -1009,14 +1009,6 @@ export const PRODUCTS: Product[] = [
     description:"iMac 24\" M4 Silver — классический цвет, современный чип M4 и 4.5K-дисплей.",
     specs:[{key:"Дисплей",val:'24" 4.5K Retina'},{key:"Процессор",val:"Apple M4"},{key:"ОЗУ",val:"16 ГБ"},{key:"Накопитель",val:"256 ГБ SSD"}] },
 
-  // ── Lenovo (not Apple, sorts by price) ───────────────────────
-  { id:"lenovo-ideapad-5-512", name:'Lenovo IdeaPad 5 15" i5/16/512', slug:"lenovo-ideapad-5-15-i5",
-    category:"noutbuki", brand:"Lenovo", price:74990, emoji:"💻",
-    memories:["512 ГБ"], colors:["Серый","Синий"],
-    inStock:true, rating:4, reviewCount:33,
-    description:"Надёжный ноутбук для работы и учёбы с Intel Core i5, 16 ГБ RAM и быстрым SSD.",
-    specs:[{key:"Дисплей",val:'15.6" IPS FullHD'},{key:"Процессор",val:"Intel Core i5-1335U"},{key:"ОЗУ",val:"16 ГБ"},{key:"Накопитель",val:"512 ГБ SSD"},{key:"Автономность",val:"до 9 ч"}] },
-
   /* ── Телевизоры ── */
   {
     id: "samsung-qled-55",
@@ -1329,149 +1321,19 @@ export const PRODUCTS: Product[] = [
     specs:[{key:"Чип",val:"Apple H2"},{key:"ANC",val:"Нет"},{key:"Автономность",val:"до 5 ч + 30 ч (кейс)"},{key:"Кейс",val:"USB-C"}] },
 
   // ── Sony WH-1000XM6  (2025) ────────────────────────────────────
-  { id:"sony-wh1000xm6",  name:"Sony WH-1000XM6", slug:"sony-wh1000xm6",
-    category:"aksessuary", brand:"Sony", price:34990, badge:"Новинка", year:2025, emoji:"🎧",
-    colors:["Black (Чёрный)","Platinum Silver (Платиновое серебро)"],
-    inStock:true, rating:5, reviewCount:63,
-    description:"Sony WH-1000XM6 — флагманские беспроводные наушники с лучшим в классе шумоподавлением Auto NC Optimizer, LDAC и 40 ч автономности.",
-    specs:[{key:"ANC",val:"Auto NC Optimizer (AI)"},{key:"Кодеки",val:"LDAC, AAC, SBC"},{key:"Автономность",val:"до 40 ч"},{key:"Вес",val:"250 г"},{key:"Разъём",val:"USB-C"},{key:"Bluetooth",val:"5.3"}] },
-
   // ── Bose QuietComfort Ultra  (2023) ────────────────────────────
-  { id:"bose-qc-ultra",   name:"Bose QuietComfort Ultra", slug:"bose-qc-ultra",
-    category:"aksessuary", brand:"Bose", price:29990, year:2023, emoji:"🎧",
-    colors:["Black (Чёрный)","White Smoke (Белый дым)"],
-    inStock:true, rating:5, reviewCount:49,
-    description:"Bose QuietComfort Ultra — лучшие наушники с иммерсивным звуком Bose Immersive Audio, высококлассным ANC и до 24 ч работы.",
-    specs:[{key:"ANC",val:"CustomTune"},{key:"Звук",val:"Bose Immersive Audio"},{key:"Автономность",val:"до 24 ч"},{key:"Вес",val:"250 г"},{key:"Разъём",val:"USB-C"},{key:"Bluetooth",val:"5.3"}] },
-
   // ── Чехлы Apple Silicone  (2025/26) ────────────────────────────
-  { id:"case-apple-sil-17pro-black",   name:"Apple Silicone Case iPhone 17 Pro Black",   slug:"case-apple-sil-17pro-black",
-    category:"aksessuary", brand:"Apple", price:7490, year:2025, emoji:"📦",
-    colors:["Black (Чёрный)"],
-    inStock:true, rating:5, reviewCount:34,
-    description:"Оригинальный силиконовый чехол Apple для iPhone 17 Pro с встроенным магнитом MagSafe. Мягкий микроволокнистый подклад.",
-    specs:[{key:"Совместимость",val:"iPhone 17 Pro"},{key:"Материал",val:"Силикон"},{key:"MagSafe",val:"Да"},{key:"Кнопка",val:"Action Button совместим"}] },
-  { id:"case-apple-sil-17pro-natural",name:"Apple Silicone Case iPhone 17 Pro Natural",  slug:"case-apple-sil-17pro-natural",
-    category:"aksessuary", brand:"Apple", price:7490, year:2025, emoji:"📦",
-    colors:["Natural (Натуральный)"],
-    inStock:true, rating:5, reviewCount:28,
-    description:"Оригинальный силиконовый чехол Apple для iPhone 17 Pro в цвете Natural с MagSafe.",
-    specs:[{key:"Совместимость",val:"iPhone 17 Pro"},{key:"Материал",val:"Силикон"},{key:"MagSafe",val:"Да"}] },
-  { id:"case-apple-sil-17promax-black",name:"Apple Silicone Case iPhone 17 Pro Max Black",slug:"case-apple-sil-17promax-black",
-    category:"aksessuary", brand:"Apple", price:7490, year:2025, emoji:"📦",
-    colors:["Black (Чёрный)"],
-    inStock:true, rating:5, reviewCount:41,
-    description:"Оригинальный силиконовый чехол Apple для iPhone 17 Pro Max с MagSafe.",
-    specs:[{key:"Совместимость",val:"iPhone 17 Pro Max"},{key:"Материал",val:"Силикон"},{key:"MagSafe",val:"Да"}] },
-
   // ── Pitaka MagEZ Case  (2025) ──────────────────────────────────
-  { id:"pitaka-magez5-17promax", name:"Pitaka MagEZ Case 5 iPhone 17 Pro Max", slug:"pitaka-magez5-17promax",
-    category:"aksessuary", brand:"Pitaka", price:9990, badge:"Хит", year:2025, emoji:"📦",
-    colors:["Black/Grey Twill","Black/Blue Twill","Sunset"],
-    inStock:true, rating:5, reviewCount:53,
-    description:"Pitaka MagEZ Case 5 для iPhone 17 Pro Max — чехол из арамидного волокна (кевлар). Толщина 0.95 мм, вес 19 г, совместим с MagSafe.",
-    specs:[{key:"Совместимость",val:"iPhone 17 Pro Max"},{key:"Материал",val:"Арамидное волокно (кевлар)"},{key:"Толщина",val:"0.95 мм"},{key:"Вес",val:"19 г"},{key:"MagSafe",val:"Да (1500 г+)"}] },
-  { id:"pitaka-magez5-17pro",    name:"Pitaka MagEZ Case 5 iPhone 17 Pro",     slug:"pitaka-magez5-17pro",
-    category:"aksessuary", brand:"Pitaka", price:9990, year:2025, emoji:"📦",
-    colors:["Black/Grey Twill","Black/Blue Twill","Sunset"],
-    inStock:true, rating:5, reviewCount:44,
-    description:"Pitaka MagEZ Case 5 для iPhone 17 Pro — ультратонкий арамидный чехол с MagSafe для нового Pro.",
-    specs:[{key:"Совместимость",val:"iPhone 17 Pro"},{key:"Материал",val:"Арамидное волокно"},{key:"Толщина",val:"0.95 мм"},{key:"MagSafe",val:"Да"}] },
-  { id:"pitaka-magez5-17",       name:"Pitaka MagEZ Case 5 iPhone 17",         slug:"pitaka-magez5-17",
-    category:"aksessuary", brand:"Pitaka", price:7990, year:2025, emoji:"📦",
-    colors:["Black/Grey Twill","Black/Blue Twill"],
-    inStock:true, rating:5, reviewCount:38,
-    description:"Pitaka MagEZ Case 5 для iPhone 17 — кевларовый чехол весом 14 г с MagSafe.",
-    specs:[{key:"Совместимость",val:"iPhone 17"},{key:"Материал",val:"Арамидное волокно"},{key:"Толщина",val:"0.95 мм"},{key:"MagSafe",val:"Да"}] },
-  { id:"pitaka-magez5-16promax", name:"Pitaka MagEZ Case 5 iPhone 16 Pro Max", slug:"pitaka-magez5-16promax",
-    category:"aksessuary", brand:"Pitaka", price:8990, year:2024, emoji:"📦",
-    colors:["Black/Grey Twill","Black/Blue Twill","Overture"],
-    inStock:true, rating:5, reviewCount:67,
-    description:"Pitaka MagEZ Case 5 для iPhone 16 Pro Max — ультратонкая защита из кевлара с поддержкой MagSafe.",
-    specs:[{key:"Совместимость",val:"iPhone 16 Pro Max"},{key:"Материал",val:"Арамидное волокно"},{key:"Толщина",val:"0.95 мм"},{key:"MagSafe",val:"Да"}] },
-  { id:"pitaka-magez5-16pro",    name:"Pitaka MagEZ Case 5 iPhone 16 Pro",     slug:"pitaka-magez5-16pro",
-    category:"aksessuary", brand:"Pitaka", price:8990, year:2024, emoji:"📦",
-    colors:["Black/Grey Twill","Black/Blue Twill"],
-    inStock:true, rating:5, reviewCount:59,
-    description:"Pitaka MagEZ Case 5 для iPhone 16 Pro — кевлар 0.95 мм с MagSafe.",
-    specs:[{key:"Совместимость",val:"iPhone 16 Pro"},{key:"Материал",val:"Арамидное волокно"},{key:"Толщина",val:"0.95 мм"},{key:"MagSafe",val:"Да"}] },
-
   /* ══════════════════════════════════════════════════════════════
      СМАРТ-ЧАСЫ — GARMIN  (год ↓, цена ↓)
   ══════════════════════════════════════════════════════════════ */
 
   // ── Garmin Fenix 8  (2024) ─────────────────────────────────────
-  { id:"garmin-fenix8-sap-51", name:"Garmin Fenix 8 Sapphire Solar 51mm", slug:"garmin-fenix8-sap-51",
-    category:"smart_chasy", brand:"Garmin", price:109990, badge:"Флагман", year:2024, emoji:"⌚",
-    colors:["Titanium/Carbon Gray DLC","Silver/Black","Ember Orange"],
-    inStock:true, rating:5, reviewCount:14,
-    description:"Garmin Fenix 8 Sapphire Solar 51mm — многоспортивные часы с сапфировым стеклом, солнечной зарядкой, встроенным динамиком и до 29 дней автономности.",
-    specs:[{key:"Корпус",val:"51 мм, титан"},{key:"Дисплей",val:"AMOLED 1.4\""},{key:"GPS",val:"MultiGNSS + SatIQ"},{key:"Автономность",val:"до 29 дней (смарт), до 150 ч (GPS)"},{key:"Защита",val:"100 м WR, MIL-STD-810"},{key:"Динамик",val:"Есть"},{key:"ОС",val:"Garmin OS"}] },
-  { id:"garmin-fenix8-sap-47", name:"Garmin Fenix 8 Sapphire Solar 47mm", slug:"garmin-fenix8-sap-47",
-    category:"smart_chasy", brand:"Garmin", price:94990, year:2024, emoji:"⌚",
-    colors:["Titanium/Carbon Gray DLC","Silver/Black"],
-    inStock:true, rating:5, reviewCount:19,
-    description:"Garmin Fenix 8 Sapphire Solar 47mm — компактный флагман Garmin с AMOLED, сапфировым стеклом и встроенным динамиком.",
-    specs:[{key:"Корпус",val:"47 мм, титан"},{key:"Дисплей",val:"AMOLED 1.3\""},{key:"Автономность",val:"до 21 дня (смарт), до 110 ч (GPS)"},{key:"GPS",val:"MultiGNSS"},{key:"Защита",val:"100 м WR"}] },
-  { id:"garmin-fenix8-std-51", name:"Garmin Fenix 8 Standard 51mm",       slug:"garmin-fenix8-std-51",
-    category:"smart_chasy", brand:"Garmin", price:74990, year:2024, emoji:"⌚",
-    colors:["Carbon Gray DLC Titanium","Slate Grey Nylon","Vapor"],
-    inStock:true, rating:5, reviewCount:24,
-    description:"Garmin Fenix 8 Standard 51mm — AMOLED-дисплей, встроенный динамик и микрофон для функции SOS и голосового ассистента.",
-    specs:[{key:"Корпус",val:"51 мм, алюминий"},{key:"Дисплей",val:"AMOLED 1.4\""},{key:"GPS",val:"MultiGNSS"},{key:"Автономность",val:"до 16 дней (смарт)"},{key:"Защита",val:"100 м WR"}] },
-
   // ── Garmin Epix Gen 3  (2024) ──────────────────────────────────
-  { id:"garmin-epix3-47", name:"Garmin Epix Gen 3 47mm", slug:"garmin-epix3-47",
-    category:"smart_chasy", brand:"Garmin", price:74990, badge:"Новинка", year:2024, emoji:"⌚",
-    colors:["Carbon Gray DLC","Whitestone"],
-    inStock:true, rating:5, reviewCount:22,
-    description:"Garmin Epix Gen 3 47mm — премиальные часы с AMOLED Always-On дисплеем, динамиком, автономностью 31 день и продвинутыми спортивными метриками.",
-    specs:[{key:"Корпус",val:"47 мм, алюминий"},{key:"Дисплей",val:"AMOLED 1.3\" Always-On"},{key:"GPS",val:"MultiGNSS"},{key:"Автономность",val:"до 31 дня (смарт)"},{key:"Защита",val:"100 м WR"},{key:"Динамик",val:"Есть"}] },
-  { id:"garmin-epix3-42", name:"Garmin Epix Gen 3 42mm", slug:"garmin-epix3-42",
-    category:"smart_chasy", brand:"Garmin", price:64990, year:2024, emoji:"⌚",
-    colors:["Carbon Gray DLC","Whitestone"],
-    inStock:true, rating:5, reviewCount:17,
-    description:"Garmin Epix Gen 3 42mm — компактная версия флагмана с AMOLED Always-On и автономностью до 24 дней.",
-    specs:[{key:"Корпус",val:"42 мм, алюминий"},{key:"Дисплей",val:"AMOLED 1.2\" Always-On"},{key:"GPS",val:"MultiGNSS"},{key:"Автономность",val:"до 24 дней (смарт)"},{key:"Защита",val:"100 м WR"}] },
-
   // ── Garmin Forerunner 965  (2023) ──────────────────────────────
-  { id:"garmin-fr965", name:"Garmin Forerunner 965", slug:"garmin-fr965",
-    category:"smart_chasy", brand:"Garmin", price:54990, year:2023, emoji:"⌚",
-    colors:["Black/Powder Gray","Carbon Gray DLC/Titanium"],
-    inStock:true, rating:5, reviewCount:38,
-    description:"Garmin Forerunner 965 — беговые часы с AMOLED-дисплеем, детальной картой, Training Readiness и до 31 дня автономности в режиме смарт-часов.",
-    specs:[{key:"Корпус",val:"47 мм, алюминий"},{key:"Дисплей",val:"AMOLED 1.4\""},{key:"GPS",val:"MultiGNSS"},{key:"Автономность",val:"до 31 дня (смарт), до 31 ч (GPS)"},{key:"Карты",val:"Топографические"},{key:"Защита",val:"50 м WR"}] },
-
   // ── Garmin Venu 3  (2023) ─────────────────────────────────────
-  { id:"garmin-venu3-45",  name:"Garmin Venu 3 45mm",  slug:"garmin-venu3-45",
-    category:"smart_chasy", brand:"Garmin", price:44990, year:2023, emoji:"⌚",
-    colors:["Slate/Black","French Gray/Ivory"],
-    inStock:true, rating:5, reviewCount:47,
-    description:"Garmin Venu 3 — стильные часы для здорового образа жизни с AMOLED, мониторингом сна, стресса и голосовым ассистентом.",
-    specs:[{key:"Корпус",val:"45 мм, алюминий"},{key:"Дисплей",val:"AMOLED 1.4\""},{key:"GPS",val:"GNSS"},{key:"Автономность",val:"до 14 дней (смарт)"},{key:"Защита",val:"50 м WR"},{key:"Здоровье",val:"ЭКГ, пульс, стресс, сон"}] },
-  { id:"garmin-venu3s-40", name:"Garmin Venu 3S 40mm", slug:"garmin-venu3s-40",
-    category:"smart_chasy", brand:"Garmin", price:39990, year:2023, emoji:"⌚",
-    colors:["Sage Gray/Ivory","Peach Gold/Ivory","Dust Rose/Ivory"],
-    inStock:true, rating:5, reviewCount:54,
-    description:"Garmin Venu 3S 40mm — компактные женские часы с AMOLED, детальным мониторингом здоровья и до 10 дней автономности.",
-    specs:[{key:"Корпус",val:"40 мм, алюминий"},{key:"Дисплей",val:"AMOLED 1.2\""},{key:"GPS",val:"GNSS"},{key:"Автономность",val:"до 10 дней (смарт)"},{key:"Защита",val:"50 м WR"}] },
-
   // ── Garmin Instinct 3  (2025) ──────────────────────────────────
-  { id:"garmin-instinct3-solar", name:"Garmin Instinct 3 Solar 50mm", slug:"garmin-instinct3-solar",
-    category:"smart_chasy", brand:"Garmin", price:39990, badge:"Новинка", year:2025, emoji:"⌚",
-    colors:["Camo","Graphite","Stone Gray"],
-    inStock:true, rating:5, reviewCount:31,
-    description:"Garmin Instinct 3 Solar 50mm — защищённые часы MIL-STD-810 с AMOLED, солнечной зарядкой и практически неограниченной автономностью.",
-    specs:[{key:"Корпус",val:"50 мм, стеклонаполненный полимер"},{key:"Дисплей",val:"AMOLED 1.27\""},{key:"GPS",val:"MultiGNSS"},{key:"Автономность",val:"до 28 дней + безгран. от солнца"},{key:"Защита",val:"100 м WR, MIL-STD-810"}] },
-
   // ── Garmin Vivoactive 5  (2023) ────────────────────────────────
-  { id:"garmin-vivoactive5", name:"Garmin Vivoactive 5", slug:"garmin-vivoactive5",
-    category:"smart_chasy", brand:"Garmin", price:29990, year:2023, emoji:"⌚",
-    colors:["Metallic Orchid","Ivory Gold","Slate Aluminum"],
-    inStock:true, rating:4, reviewCount:72,
-    description:"Garmin Vivoactive 5 — стильные часы для фитнеса с AMOLED, NFC-оплатой Garmin Pay и до 11 дней автономности.",
-    specs:[{key:"Корпус",val:"42 мм, алюминий"},{key:"Дисплей",val:"AMOLED 1.2\""},{key:"GPS",val:"GNSS"},{key:"Автономность",val:"до 11 дней (смарт)"},{key:"NFC",val:"Garmin Pay"},{key:"Защита",val:"50 м WR"}] },
-
   /* ══════════════════════════════════════════════════════════════
      ГАДЖЕТЫ И КОНСОЛИ  (год ↓, цена ↓)
   ══════════════════════════════════════════════════════════════ */
@@ -1482,12 +1344,14 @@ export const PRODUCTS: Product[] = [
   // ── Ray-Ban Meta Glasses  (2023/2025) ─────────────────────────
   { id:"rayban-meta-gen4",  name:"Ray-Ban Meta Glasses (2025)", slug:"rayban-meta-gen4",
     category:"gadzety_i_konsoli", brand:"Meta", price:49990, badge:"Новинка", year:2025, emoji:"🕶️",
+    img:"/images/products/rayban-meta-gen4.jpg",
     colors:["Shiny Black","Matte Jett","Shiny Brown"],
     inStock:true, rating:4, reviewCount:16,
     description:"Ray-Ban Meta 2025 — смарт-очки с ИИ-ассистентом Meta AI, камерой 12 Мп, аудио с открытыми динамиками и до 8 ч работы. Выглядят как обычные очки.",
     specs:[{key:"Камера",val:"12 Мп, 3K видео"},{key:"Звук",val:"Открытые динамики"},{key:"ИИ",val:"Meta AI"},{key:"Автономность",val:"до 8 ч"},{key:"Подключение",val:"Bluetooth 5.3"},{key:"Вес",val:"~50 г"}] },
   { id:"rayban-meta-gen3",  name:"Ray-Ban Meta Smart Glasses", slug:"rayban-meta-gen3",
     category:"gadzety_i_konsoli", brand:"Meta", price:34990, year:2023, emoji:"🕶️",
+    img:"/images/products/rayban-meta-gen3.jpg",
     colors:["Shiny Black","Shiny Havana","Shiny Caramel"],
     inStock:true, rating:4, reviewCount:29,
     description:"Ray-Ban Meta Smart Glasses 2023 — смарт-очки с камерой 12 Мп, встроенным звуком и Meta AI (голосовой ассистент). Первые умные очки, которые выглядят модно.",
