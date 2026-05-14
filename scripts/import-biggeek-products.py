@@ -74,6 +74,13 @@ CATEGORIES = [
     ("magic-mouse",                             "aksessuary",    "Apple",   "Magic Mouse"),
     ("magic-trackpad",                          "aksessuary",    "Apple",   "Magic Trackpad"),
 
+    # ── Apple-аксессуары: куратированная подборка с biggeek ─────
+    ("aksessuary-apple",                        "aksessuary",    "Apple",   "Apple-аксессуар"),
+    ("adaptery-i-perekhodniki-apple",           "aksessuary",    "Apple",   "Адаптер Apple"),
+    ("aksessuary-magsafe",                      "aksessuary",    "Apple",   "MagSafe"),
+    ("aksessuary-dlya-apple-airpods",           "aksessuary",    "Apple",   "Аксессуар AirPods"),
+    ("aksessuary-dlya--apple-watch",            "aksessuary",    "Apple",   "Ремешок Apple Watch"),
+
     # ── Гаджеты и консоли ────────────────────────────────────────
     ("sony-playstation",                        "gadzety_i_konsoli", "Sony",      "PlayStation"),
     ("microsoft-xbox",                          "gadzety_i_konsoli", "Microsoft", "Xbox"),
@@ -251,19 +258,37 @@ def download_image(url: str, out_path: Path, referer: str) -> bool:
 def main():
     all_products = []
 
+    # Категории-аксессуары: брать только топ-15 первой страницы (популярные),
+    # иначе наберём 600+ кейсов/кабелей и засрём каталог.
+    ACCESSORY_LIMIT = 15
+    ACCESSORY_PATHS = {
+        "aksessuary-apple", "adaptery-i-perekhodniki-apple",
+        "aksessuary-magsafe", "aksessuary-dlya-apple-airpods",
+        "aksessuary-dlya--apple-watch",
+    }
+
     seen_slugs = set()
     for path, category, brand, type_label in CATEGORIES:
         print(f"▶ {path}")
         htmls, base_url = fetch_all_pages(path)
         if not htmls:
             continue
+        # Для аксессуарных подборок — только первая страница
+        if path in ACCESSORY_PATHS:
+            htmls = htmls[:1]
 
         products_total = 0
+        limit_hit = False
         for html in htmls:
+            if limit_hit:
+                break
             products = parse_products(html)
             if not products:
                 continue
             for p in products:
+                if path in ACCESSORY_PATHS and products_total >= ACCESSORY_LIMIT:
+                    limit_hit = True
+                    break
                 slug = p["href"].rstrip("/").split("/")[-1]
                 if slug in seen_slugs:
                     continue
