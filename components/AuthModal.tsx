@@ -151,9 +151,21 @@ function PhoneScreen({
     <motion.div key="phone" variants={slide} initial="hidden" animate="visible" exit="exit">
       <ModalHeader onClose={onClose} />
 
-      <h2 className="text-[22px] font-black text-[#0A1628] leading-tight tracking-tight mb-6">
+      <h2 className="text-[22px] font-black text-[#0A1628] leading-tight tracking-tight mb-4">
         Войти в кабинет
       </h2>
+
+      {/* Информер про VPN — вход и регистрация требуют действий в Telegram */}
+      <div className="mb-5 flex items-start gap-2.5 px-3 py-2.5 rounded-[12px]"
+           style={{ background: "rgba(0,136,204,0.08)",
+                    border: "1px solid rgba(0,136,204,0.22)" }}>
+        <span className="text-base leading-none mt-0.5">🛡️</span>
+        <div className="text-[12px] leading-snug text-[#4B5563]">
+          <b className="text-[#0A1628]">Включите VPN.</b> Для регистрации нужно
+          открыть нашего бота в&nbsp;Telegram и&nbsp;поделиться контактом,
+          для входа&nbsp;— получить пароль в&nbsp;этом же боте.
+        </div>
+      </div>
 
       <label className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-widest mb-2 block">
         Номер телефона
