@@ -24,6 +24,8 @@ declare -a MAP=(
   "iphone-17-pro-max|catalog/apple-iphone-17-pro-max"
   "iphone-17-pro|catalog/apple-iphone-17-pro"
   "iphone-17|catalog/apple-iphone-17"
+  "iphone-17e|catalog/iphone-17e"
+  "iphone-16e|catalog/iphone-16e"
   "iphone-air|catalog/apple-iphone-air"
   "iphone-16-pro-max|catalog/iphone-16-pro-max"
   "iphone-16-pro|catalog/iphone-16-pro"

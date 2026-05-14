@@ -79,7 +79,7 @@ export const TG_NEW_PHONES: PhoneItem[] = [
     sim:     "SIM + eSIM",
     price:   46_000,
     colors:  ["White (Белый)", "Black (Чёрный)"],
-    img:     [],           // плейсхолдер — эмодзи fallback в PhoneCard
+    img:     ["/images/phones/iphone-16e-1.jpg", "/images/phones/iphone-16e-2.jpg"],
     tgSynced: true,
   },
   {
@@ -90,7 +90,7 @@ export const TG_NEW_PHONES: PhoneItem[] = [
     sim:     "SIM + eSIM",
     price:   53_000,
     colors:  ["White (Белый)", "Pink (Розовый)", "Black (Чёрный)"],
-    img:     [],
+    img:     ["/images/phones/iphone-17e-1.jpg", "/images/phones/iphone-17e-2.jpg", "/images/phones/iphone-17e-3.jpg"],
     tgSynced: true,
   },
 ];
