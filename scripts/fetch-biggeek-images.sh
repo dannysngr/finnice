@@ -122,8 +122,12 @@ for entry in "${MAP[@]}"; do
     [ ${#unique[@]} -ge $MAX_COLORS ] && break
   done <<< "$raw_urls"
 
-  # Удаляем старые версии (всё что начинается с этого имени)
-  rm -f "$DEST/$name.jpg" "$DEST/$name"-*.jpg "$DEST/$name"-*.jpeg "$DEST/$name"-*.png 2>/dev/null
+  # Удаляем старые версии — только точные совпадения по индексу 1..9
+  # (иначе "iphone-17-*" удалит "iphone-17-pro-*" и "iphone-17-pro-max-*")
+  rm -f "$DEST/$name.jpg" "$DEST/$name.jpeg" "$DEST/$name.png" 2>/dev/null
+  for j in 1 2 3 4 5 6 7 8 9; do
+    rm -f "$DEST/$name-$j.jpg" "$DEST/$name-$j.jpeg" "$DEST/$name-$j.png" 2>/dev/null
+  done
 
   ok_count=0
   i=0

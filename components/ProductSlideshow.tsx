@@ -29,15 +29,17 @@ interface Props {
   imgClassName?: string;
   /** Стиль контейнера */
   style?:     React.CSSProperties;
-  /** Интервал цикла, ms (default 2500) */
+  /** Интервал цикла, ms (default 4500 — спокойный) */
   intervalMs?: number;
+  /** Длительность fade-перехода, ms (default 1200 — мягкий crossfade) */
+  fadeMs?:    number;
   /** Случайный offset чтобы соседи не моргали синхронно (default true) */
   stagger?:   boolean;
 }
 
 export function ProductSlideshow({
   images, alt, fallback, className, imgClassName, style,
-  intervalMs = 2500, stagger = true,
+  intervalMs = 4500, fadeMs = 1200, stagger = true,
 }: Props) {
   const list = Array.isArray(images) ? images : images ? [images] : [];
   const [idx, setIdx] = useState(0);
@@ -105,7 +107,7 @@ export function ProductSlideshow({
             height:     "100%",
             objectFit:  "contain",
             opacity:    i === idx && !broken.has(i) ? 1 : 0,
-            transition: "opacity 600ms ease",
+            transition: `opacity ${fadeMs}ms cubic-bezier(0.4, 0, 0.2, 1)`,
             pointerEvents: "none",
           }}
         />
