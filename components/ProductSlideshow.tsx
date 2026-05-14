@@ -45,7 +45,21 @@ export function ProductSlideshow({
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
   const [broken, setBroken] = useState<Set<number>>(new Set());
+  /** Индексы, которые УЖЕ грузили (или сейчас активны). Не грузим всё сразу —
+   *  только текущий и следующий, чтобы каталог не делал N×4 запросов за раз. */
+  const [seen, setSeen] = useState<Set<number>>(() => new Set([0]));
   const offset = useRef<number>(stagger ? Math.random() * intervalMs : 0);
+
+  // Когда idx меняется, добавляем его в seen + предзагружаем следующий
+  useEffect(() => {
+    setSeen(prev => {
+      if (prev.has(idx) && prev.has((idx + 1) % Math.max(1, list.length))) return prev;
+      const next = new Set(prev);
+      next.add(idx);
+      if (list.length > 1) next.add((idx + 1) % list.length);
+      return next;
+    });
+  }, [idx, list.length]);
 
   useEffect(() => {
     if (list.length <= 1 || paused) return;
@@ -91,27 +105,34 @@ export function ProductSlideshow({
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {list.map((src, i) => (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          key={src + i}
-          src={src}
-          alt={alt}
-          loading="lazy"
-          onError={() => setBroken(b => new Set(b).add(i))}
-          className={imgClassName}
-          style={{
-            position:   list.length > 1 ? "absolute" : "static",
-            inset:      0,
-            width:      "100%",
-            height:     "100%",
-            objectFit:  "contain",
-            opacity:    i === idx && !broken.has(i) ? 1 : 0,
-            transition: `opacity ${fadeMs}ms cubic-bezier(0.4, 0, 0.2, 1)`,
-            pointerEvents: "none",
-          }}
-        />
-      ))}
+      {list.map((src, i) => {
+        // Не монтируем img в DOM, пока этот цвет не «увиден» (тогда браузер
+        // не запрашивает все 4 фото сразу). После первого показа оставляем
+        // в DOM — fade-out перехода продолжает работать.
+        if (!seen.has(i)) return null;
+        return (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={src + i}
+            src={src}
+            alt={alt}
+            loading="lazy"
+            decoding="async"
+            onError={() => setBroken(b => new Set(b).add(i))}
+            className={imgClassName}
+            style={{
+              position:   list.length > 1 ? "absolute" : "static",
+              inset:      0,
+              width:      "100%",
+              height:     "100%",
+              objectFit:  "contain",
+              opacity:    i === idx && !broken.has(i) ? 1 : 0,
+              transition: `opacity ${fadeMs}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+              pointerEvents: "none",
+            }}
+          />
+        );
+      })}
 
       {list.length > 1 && (
         <div
