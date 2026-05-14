@@ -419,7 +419,20 @@ function AuthGate() {
                         style={{ background: C.glass, backdropFilter: "blur(24px) saturate(1.5)",
                           border: `1px solid ${C.border}`, boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
               <h2 className="text-[20px] font-black mb-1" style={{ color: C.dark }}>Войти в кабинет</h2>
-              <p className="text-sm mb-6" style={{ color: C.mid }}>Введите ваш номер телефона</p>
+              <p className="text-sm mb-4" style={{ color: C.mid }}>Введите ваш номер телефона</p>
+
+              {/* Информер про VPN — вход и регистрация требуют действий в Telegram */}
+              <div className="mb-5 flex items-start gap-2.5 px-3 py-2.5 rounded-[12px]"
+                   style={{ background: "rgba(0,136,204,0.08)",
+                            border: "1px solid rgba(0,136,204,0.22)" }}>
+                <span className="text-base leading-none mt-0.5">🛡️</span>
+                <div className="text-[12px] leading-snug" style={{ color: C.mid }}>
+                  <b style={{ color: C.dark }}>Включите VPN.</b> Для регистрации нужно
+                  открыть нашего бота в&nbsp;Telegram и&nbsp;поделиться контактом,
+                  для входа&nbsp;— получить пароль в&nbsp;этом же боте.
+                </div>
+              </div>
+
               <label className="block text-xs font-semibold uppercase tracking-widest mb-2"
                      style={{ color: C.mid }}>Телефон</label>
 
