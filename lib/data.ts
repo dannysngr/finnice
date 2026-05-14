@@ -1476,43 +1476,8 @@ export const PRODUCTS: Product[] = [
      ГАДЖЕТЫ И КОНСОЛИ  (год ↓, цена ↓)
   ══════════════════════════════════════════════════════════════ */
 
-  // ── PlayStation 5 Pro  (2024) ──────────────────────────────────
-  { id:"ps5-pro", name:"PlayStation 5 Pro", slug:"ps5-pro",
-    category:"gadzety_i_konsoli", brand:"Sony", price:89990, badge:"Хит", year:2024, emoji:"🎮",
-    colors:["White"],
-    inStock:true, rating:5, reviewCount:38,
-    description:"PlayStation 5 Pro — улучшенная PS5 с GPU 67% быстрее, трассировкой лучей в реальном времени (PSSR) и частотой кадров до 120 fps. Без дисковода, 2 ТБ SSD.",
-    specs:[{key:"CPU",val:"AMD Zen 2, 8 ядер × 3.85 ГГц"},{key:"GPU",val:"AMD RDNA 4 custom, ~33 TFLOPS"},{key:"ОЗУ",val:"16 ГБ GDDR6"},{key:"Накопитель",val:"2 ТБ Custom SSD"},{key:"Разрешение",val:"до 8K / 60 fps"},{key:"ОС",val:"PS OS"}] },
-
-  // ── PlayStation 5 (Slim)  (2023) ──────────────────────────────
-  { id:"ps5-slim-disc",   name:"PlayStation 5 Slim (с дисководом)",  slug:"ps5-slim-disc",
-    category:"gadzety_i_konsoli", brand:"Sony", price:64990, year:2023, emoji:"🎮",
-    colors:["White"],
-    inStock:true, rating:5, reviewCount:71,
-    description:"PlayStation 5 Slim с дисководом — компактная PS5: на 30% меньше, 1 ТБ SSD и поддержка дисков Blu-Ray.",
-    specs:[{key:"CPU",val:"AMD Zen 2, 8 ядер × 3.5 ГГц"},{key:"GPU",val:"AMD RDNA 2, 10.28 TFLOPS"},{key:"ОЗУ",val:"16 ГБ GDDR6"},{key:"Накопитель",val:"1 ТБ Custom SSD"},{key:"Оптика",val:"Ultra HD Blu-Ray"},{key:"ОС",val:"PS OS"}] },
-  { id:"ps5-slim-digital",name:"PlayStation 5 Slim Digital Edition", slug:"ps5-slim-digital",
-    category:"gadzety_i_konsoli", brand:"Sony", price:54990, year:2023, emoji:"🎮",
-    colors:["White"],
-    inStock:true, rating:5, reviewCount:59,
-    description:"PlayStation 5 Slim Digital Edition — цифровая PS5 без дисковода. Компактный дизайн, 1 ТБ SSD, все эксклюзивы Sony.",
-    specs:[{key:"CPU",val:"AMD Zen 2, 8 ядер × 3.5 ГГц"},{key:"GPU",val:"AMD RDNA 2, 10.28 TFLOPS"},{key:"ОЗУ",val:"16 ГБ GDDR6"},{key:"Накопитель",val:"1 ТБ Custom SSD"},{key:"ОС",val:"PS OS"}] },
-
-  // ── Xbox Series X  (2024 refresh) ────────────────────────────
-  { id:"xbox-series-x-2tb", name:"Xbox Series X 2TB (2024)", slug:"xbox-series-x-2tb",
-    category:"gadzety_i_konsoli", brand:"Microsoft", price:69990, badge:"Новинка", year:2024, emoji:"🎮",
-    colors:["Robot White","Carbon Black"],
-    inStock:true, rating:5, reviewCount:27,
-    description:"Xbox Series X 2024 с SSD 2 ТБ в белом и чёрном цветах. Xbox Game Pass Ultimate, 4K/120fps, Quick Resume для нескольких игр.",
-    specs:[{key:"CPU",val:"AMD Zen 2, 8 ядер × 3.8 ГГц"},{key:"GPU",val:"AMD RDNA 2, 12 TFLOPS"},{key:"ОЗУ",val:"16 ГБ GDDR6"},{key:"Накопитель",val:"2 ТБ NVMe SSD"},{key:"Разрешение",val:"до 8K / 120 fps"},{key:"ОС",val:"Xbox OS"}] },
-  { id:"xbox-series-x-1tb", name:"Xbox Series X 1TB",         slug:"xbox-series-x-1tb",
-    category:"gadzety_i_konsoli", brand:"Microsoft", price:54990, year:2022, emoji:"🎮",
-    colors:["Carbon Black"],
-    inStock:true, rating:5, reviewCount:44,
-    description:"Xbox Series X 1TB — флагман Microsoft для 4K-гейминга с Xbox Game Pass Ultimate.",
-    specs:[{key:"CPU",val:"AMD Zen 2, 8 ядер × 3.8 ГГц"},{key:"GPU",val:"AMD RDNA 2, 12 TFLOPS"},{key:"ОЗУ",val:"16 ГБ GDDR6"},{key:"Накопитель",val:"1 ТБ NVMe SSD"},{key:"Разрешение",val:"до 8K / 120 fps"}] },
-
-  // Apple Vision Pro — из BIGGEEK_PRODUCTS (см. lib/biggeek-products.ts)
+  // PlayStation / Xbox / Apple TV — из BIGGEEK_PRODUCTS (см. lib/biggeek-products.ts)
+  // Apple Vision Pro — оттуда же
 
   // ── Ray-Ban Meta Glasses  (2023/2025) ─────────────────────────
   { id:"rayban-meta-gen4",  name:"Ray-Ban Meta Glasses (2025)", slug:"rayban-meta-gen4",
@@ -1528,21 +1493,7 @@ export const PRODUCTS: Product[] = [
     description:"Ray-Ban Meta Smart Glasses 2023 — смарт-очки с камерой 12 Мп, встроенным звуком и Meta AI (голосовой ассистент). Первые умные очки, которые выглядят модно.",
     specs:[{key:"Камера",val:"12 Мп, 1080p видео"},{key:"Звук",val:"Открытые динамики + микрофоны"},{key:"ИИ",val:"Meta AI"},{key:"Автономность",val:"до 6 ч"},{key:"Подключение",val:"Bluetooth 5.3"}] },
 
-  // ── Apple TV 4K  (2022) ────────────────────────────────────────
-  { id:"apple-tv-4k-wifi-128",    name:"Apple TV 4K Wi-Fi 128GB (2022)",          slug:"apple-tv-4k-wifi-128",
-    category:"gadzety_i_konsoli", brand:"Apple", price:17990, year:2022, emoji:"📺",
-    memories:["128 ГБ"],
-    colors:["Black"],
-    inStock:true, rating:5, reviewCount:43,
-    description:"Apple TV 4K 3-го поколения Wi-Fi 128 ГБ — стриминговая приставка с чипом A15 Bionic, 4K HDR, Dolby Vision и пультом Siri Remote с кольцом прокрутки.",
-    specs:[{key:"Чип",val:"Apple A15 Bionic"},{key:"Видео",val:"4K HDR, Dolby Vision"},{key:"Звук",val:"Dolby Atmos"},{key:"Накопитель",val:"128 ГБ"},{key:"Подключение",val:"Wi-Fi 6, Bluetooth 5.0"},{key:"ОС",val:"tvOS 18"}] },
-  { id:"apple-tv-4k-eth-128",     name:"Apple TV 4K Wi-Fi + Ethernet 128GB (2022)",slug:"apple-tv-4k-eth-128",
-    category:"gadzety_i_konsoli", brand:"Apple", price:21990, year:2022, emoji:"📺",
-    memories:["128 ГБ"],
-    colors:["Black"],
-    inStock:true, rating:5, reviewCount:29,
-    description:"Apple TV 4K Wi-Fi + Ethernet 128 ГБ — версия с гигабитным Ethernet для надёжного стриминга 4K без задержек.",
-    specs:[{key:"Чип",val:"Apple A15 Bionic"},{key:"Видео",val:"4K HDR, Dolby Vision"},{key:"Подключение",val:"Wi-Fi 6 + Gigabit Ethernet"},{key:"Накопитель",val:"128 ГБ"},{key:"ОС",val:"tvOS 18"}] },
+  // Apple TV 4K — из BIGGEEK_PRODUCTS (см. lib/biggeek-products.ts)
 
   // ── Steam Deck OLED  (2023) ────────────────────────────────────
   { id:"steam-deck-oled-512", name:"Steam Deck OLED 512GB", slug:"steam-deck-oled-512",
