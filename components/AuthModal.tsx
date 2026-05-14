@@ -451,7 +451,7 @@ function OTPScreen({
       <h2 className="text-[22px] font-black text-[#0A1628] leading-tight tracking-tight mb-1">
         Введите код
       </h2>
-      <div className="flex items-center gap-1.5 mb-6 flex-wrap">
+      <div className="flex items-center gap-1.5 mb-4 flex-wrap">
         <p className="text-sm text-[#6B7280]">Из Telegram на</p>
         <span className="text-sm font-semibold text-[#0A1628]">{phone}</span>
         <button
@@ -462,6 +462,16 @@ function OTPScreen({
           <Edit2 className="w-3 h-3" />
           Изменить
         </button>
+      </div>
+
+      {/* VPN-напоминание — код приходит в Telegram, без VPN он не дойдёт */}
+      <div className="mb-5 flex items-start gap-2 px-3 py-2 rounded-[12px]"
+           style={{ background: "rgba(0,136,204,0.08)",
+                    border: "1px solid rgba(0,136,204,0.22)" }}>
+        <span className="text-sm leading-none mt-0.5">🛡️</span>
+        <div className="text-[12px] leading-snug text-[#4B5563]">
+          <b className="text-[#0A1628]">Включите VPN</b> — код придёт в&nbsp;Telegram.
+        </div>
       </div>
 
       {/* 4 cells */}
