@@ -21,6 +21,7 @@ const ALL_PRODUCTS = [
     emoji: "📱",
     sim:   p.sim as string | undefined,
     memory: p.memory,
+    tgSynced: p.tgSynced,
   })),
   ...PRODUCTS.map(p => ({
     id:     p.id,
@@ -32,12 +33,14 @@ const ALL_PRODUCTS = [
     emoji:  p.emoji,
     sim:    undefined as string | undefined,
     memory: undefined as string | undefined,
+    tgSynced: p.tgSynced,
   })),
 ];
 
 interface FavProduct {
   id: string; name: string; brand: string; price: number;
   badge?: string; img?: string; emoji: string; sim?: string; memory?: string;
+  tgSynced?: boolean;
 }
 
 export default function FavoritesPage() {
@@ -231,7 +234,7 @@ function FavCard({
       </div>
 
       <div className="mt-auto">
-        <p className="font-extrabold text-[#0A1628] text-sm">{fmtRubApprox(p.price)} ₽</p>
+        <p className="font-extrabold text-[#0A1628] text-sm">{p.tgSynced ? fmtRub(p.price) : fmtRubApprox(p.price)} ₽</p>
         <p className="text-[10px] text-[#0C7A58] font-semibold mt-0.5">от {fmtRub(res.monthly)} ₽/мес.</p>
       </div>
 

@@ -161,6 +161,7 @@ const PHONE_ITEMS: CatalogItem[] = PHONES_CATALOG.map((p) => {
     reviewCount: 0,
     description: "",
     specs:       [],
+    tgSynced:    p.tgSynced,
   } satisfies CatalogItem;
 });
 
@@ -845,7 +846,7 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         )}
         {/* Цена */}
         <p className="font-bold text-[#0A1628] mt-1.5 leading-none" style={{ fontSize: "15px" }}>
-          {fmtRubApprox(p.price)} ₽
+          {p.tgSynced ? fmtRub(p.price) : fmtRubApprox(p.price)} ₽
           {p.oldPrice && (
             <span className="ml-1.5 text-[11px] text-[#C4C9D4] line-through font-normal">
               {fmtRub(p.oldPrice)} ₽

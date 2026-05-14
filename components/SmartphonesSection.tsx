@@ -243,7 +243,7 @@ function PhoneCard({ phone, authed, inFavs, inCart, onToggleFav, onAddCart }: Ph
         </p>
         {/* Цена */}
         <p className="font-bold text-[#0A1628] mt-1.5 leading-none" style={{ fontSize: "15px" }}>
-          {fmtRubApprox(phone.price)} ₽
+          {phone.tgSynced ? fmtRub(phone.price) : fmtRubApprox(phone.price)} ₽
         </p>
         <p className="text-[10px] text-[#9CA3AF] mt-0.5">
           от {fmtRub(perMonth)} ₽/мес.

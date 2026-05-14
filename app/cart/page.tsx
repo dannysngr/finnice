@@ -15,11 +15,13 @@ const ALL_PRODUCTS = [
     id: p.id, name: `${p.brand} ${p.model}`, brand: p.brand,
     price: p.price, badge: p.badge, img: firstImg(p.img),
     emoji: "📱", sim: p.sim as string | undefined, memory: p.memory,
+    tgSynced: p.tgSynced,
   })),
   ...PRODUCTS.map(p => ({
     id: p.id, name: p.name, brand: p.brand,
     price: p.price, badge: p.badge, img: firstImg(p.img),
     emoji: p.emoji, sim: undefined as string | undefined, memory: undefined as string | undefined,
+    tgSynced: p.tgSynced,
   })),
 ];
 
@@ -69,6 +71,7 @@ export default function CartPage() {
   })).filter(i => i.product);
 
   const totalPrice = cartProducts.reduce((s, i) => s + (i.product!.price * i.qty), 0);
+  const allSynced  = cartProducts.length > 0 && cartProducts.every(i => i.product!.tgSynced);
 
   return (
     <main className="min-h-screen bg-[#F4F7FC]">
@@ -147,7 +150,7 @@ export default function CartPage() {
                         </span>
                       )}
                       <div className="mt-1.5 flex items-center gap-2">
-                        <p className="font-extrabold text-[#0A1628] text-sm">{fmtRubApprox(p.price * qty)} ₽</p>
+                        <p className="font-extrabold text-[#0A1628] text-sm">{p.tgSynced ? fmtRub(p.price * qty) : fmtRubApprox(p.price * qty)} ₽</p>
                         <p className="text-[10px] text-[#0C7A58] font-semibold">от {fmtRub(res.monthly)} ₽/мес.</p>
                       </div>
                     </div>
@@ -185,7 +188,7 @@ export default function CartPage() {
             <div className="card p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <p className="text-sm text-[#6B7280] mb-0.5">Итого ({cartProducts.length} товара)</p>
-                <p className="text-2xl font-extrabold text-[#0A1628]">{fmtRubApprox(totalPrice)} ₽</p>
+                <p className="text-2xl font-extrabold text-[#0A1628]">{allSynced ? fmtRub(totalPrice) : fmtRubApprox(totalPrice)} ₽</p>
               </div>
               <button
                 onClick={() => {

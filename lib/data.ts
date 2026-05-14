@@ -107,6 +107,8 @@ export interface PhoneItem {
    *  Скачиваются скриптом scripts/fetch-biggeek-images.sh,
    *  кол-во для каждого товара — в public/images/phones/manifest.json */
   img:     string[];
+  /** true ⇔ цена синхронизирована с партнёрским TG-каналом */
+  tgSynced?: boolean;
 }
 
 // Манифест содержит { "iphone-17-pro-max": 3, ... } — сколько цветов скачано
@@ -123,7 +125,7 @@ const A = (filename: string): string[] => {
   return Array.from({ length: count }, (_, i) => `/images/phones/${filename}-${i + 1}.jpg`);
 };
 
-export const PHONES_CATALOG: PhoneItem[] = [
+const RAW_PHONES_CATALOG: PhoneItem[] = [
 
   /* ══ iPhone 17 Pro Max ═══════════════════════════════════════════ */
   { id: "ip17promax-256-sim",  brand: "Apple", model: "iPhone 17 Pro Max", memory: "256 ГБ", sim: "SIM + eSIM", price: 114500, badge: "Новинка",
@@ -608,6 +610,13 @@ export const PHONES_CATALOG: PhoneItem[] = [
   },
 ];
 
+// Применяем TG-цены к телефонам (по id), помечаем tgSynced=true
+export const PHONES_CATALOG: PhoneItem[] = RAW_PHONES_CATALOG.map(p =>
+  TG_PRICES[p.id] != null
+    ? { ...p, price: TG_PRICES[p.id], tgSynced: true }
+    : p
+);
+
 // Legacy alias — оставлен для обратной совместимости
 export const IPHONES = PHONES_CATALOG.filter(p => p.brand === "Apple")
   .map(p => ({ name: `${p.model} ${p.memory}`, price: p.price, monthly: 0 }));
@@ -755,6 +764,9 @@ export interface Product {
   reviewCount:  number;
   description:  string;
   specs:        { key: string; val: string }[];
+  /** true ⇔ цена пришла из партнёрского TG-канала (точная);
+   *  false/undefined ⇔ дефолтная, показываем «≈» */
+  tgSynced?:    boolean;
 }
 
 const RAW_PRODUCTS: Product[] = [
@@ -1382,10 +1394,13 @@ const RAW_PRODUCTS: Product[] = [
   ...BIGGEEK_PRODUCTS,
 ];
 
-/** Цены из партнёрского TG-канала перезаписывают базовые при матче по id.
+/** Цены из партнёрского TG-канала перезаписывают базовые при матче по id;
+ *  на синхронизированных цена точная (без «≈»), на остальных — приблизительная.
  *  Управление — в lib/tg-prices.ts. */
 export const PRODUCTS: Product[] = RAW_PRODUCTS.map(p =>
-  TG_PRICES[p.id] != null ? { ...p, price: TG_PRICES[p.id] } : p
+  TG_PRICES[p.id] != null
+    ? { ...p, price: TG_PRICES[p.id], tgSynced: true }
+    : p
 );
 
 // ─── Footer links ─────────────────────────────────────────────

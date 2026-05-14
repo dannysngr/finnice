@@ -103,7 +103,7 @@ export default async function ProductPage({
 
             {/* Price */}
             <div className="mb-5">
-              <span className="text-4xl font-extrabold text-[#0A1628]">{fmtRubApprox(product.price)} ₽</span>
+              <span className="text-4xl font-extrabold text-[#0A1628]">{product.tgSynced ? fmtRub(product.price) : fmtRubApprox(product.price)} ₽</span>
               {product.oldPrice && (
                 <span className="ml-3 text-lg text-[#9CA3AF] line-through">{fmtRub(product.oldPrice)} ₽</span>
               )}
@@ -208,7 +208,7 @@ export default async function ProductPage({
                   </div>
                   <h3 className="font-semibold text-[#0A1628] text-xs leading-snug mb-1 line-clamp-2
                                  group-hover:text-[#1A3C6E] transition-colors">{p.name}</h3>
-                  <p className="font-extrabold text-[#0A1628] text-sm">{fmtRubApprox(p.price)} ₽</p>
+                  <p className="font-extrabold text-[#0A1628] text-sm">{p.tgSynced ? fmtRub(p.price) : fmtRubApprox(p.price)} ₽</p>
                 </Link>
               ))}
             </div>
