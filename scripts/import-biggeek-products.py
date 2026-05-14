@@ -78,6 +78,7 @@ CATEGORIES = [
     ("sony-playstation",                        "gadzety_i_konsoli", "Sony",      "PlayStation"),
     ("microsoft-xbox",                          "gadzety_i_konsoli", "Microsoft", "Xbox"),
     ("nintendo-switch",                         "gadzety_i_konsoli", "Nintendo",  "Switch"),
+    ("apple-vision-pro",                        "gadzety_i_konsoli", "Apple",     "Vision Pro"),
 
     # ── Garmin (smart_chasy) ─────────────────────────────────────
     ("umnye-chasy-garmin",                      "smart_chasy",       "Garmin",    "Часы Garmin"),
@@ -308,7 +309,9 @@ def main():
         cat = p["category"]
         name_lc = p["name"].lower()
         if cat == "gadzety_i_konsoli":
-            if "apple tv" in name_lc or "медиаплеер" in name_lc:
+            if "vision pro" in name_lc or "vr" in name_lc:
+                emoji = "🥽"
+            elif "apple tv" in name_lc or "медиаплеер" in name_lc:
                 emoji = "📺"
             else:
                 emoji = "🎮"

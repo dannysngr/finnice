@@ -1512,28 +1512,7 @@ export const PRODUCTS: Product[] = [
     description:"Xbox Series X 1TB — флагман Microsoft для 4K-гейминга с Xbox Game Pass Ultimate.",
     specs:[{key:"CPU",val:"AMD Zen 2, 8 ядер × 3.8 ГГц"},{key:"GPU",val:"AMD RDNA 2, 12 TFLOPS"},{key:"ОЗУ",val:"16 ГБ GDDR6"},{key:"Накопитель",val:"1 ТБ NVMe SSD"},{key:"Разрешение",val:"до 8K / 120 fps"}] },
 
-  // ── Apple Vision Pro  (2024) ──────────────────────────────────
-  { id:"apple-vision-pro-256", name:"Apple Vision Pro 256GB", slug:"apple-vision-pro-256",
-    category:"gadzety_i_konsoli", brand:"Apple", price:349990, badge:"Флагман", year:2024, emoji:"🥽",
-    memories:["256 ГБ"],
-    colors:["Silver (Серебристый)"],
-    inStock:true, rating:5, reviewCount:7,
-    description:"Apple Vision Pro — первый пространственный компьютер Apple с дисплеями micro-OLED 4K+ на каждый глаз, чипами M2+R1 и visionOS. Новый уровень взаимодействия с цифровым миром.",
-    specs:[{key:"Дисплей",val:"Micro-OLED 4K+ (×2), 23 млн пикс."},{key:"Чипы",val:"Apple M2 + R1"},{key:"ОЗУ",val:"16 ГБ"},{key:"Накопитель",val:"256 ГБ"},{key:"Автономность",val:"до 2 ч (Battery Pack)"},{key:"ОС",val:"visionOS 2"}] },
-  { id:"apple-vision-pro-512", name:"Apple Vision Pro 512GB", slug:"apple-vision-pro-512",
-    category:"gadzety_i_konsoli", brand:"Apple", price:379990, year:2024, emoji:"🥽",
-    memories:["512 ГБ"],
-    colors:["Silver (Серебристый)"],
-    inStock:true, rating:5, reviewCount:4,
-    description:"Apple Vision Pro 512 ГБ — пространственный компьютер с увеличенным хранилищем для профессиональных задач.",
-    specs:[{key:"Дисплей",val:"Micro-OLED 4K+ (×2)"},{key:"Чипы",val:"Apple M2 + R1"},{key:"ОЗУ",val:"16 ГБ"},{key:"Накопитель",val:"512 ГБ"},{key:"ОС",val:"visionOS 2"}] },
-  { id:"apple-vision-pro-1tb",  name:"Apple Vision Pro 1TB",   slug:"apple-vision-pro-1tb",
-    category:"gadzety_i_konsoli", brand:"Apple", price:409990, year:2024, emoji:"🥽",
-    memories:["1 ТБ"],
-    colors:["Silver (Серебристый)"],
-    inStock:true, rating:5, reviewCount:2,
-    description:"Apple Vision Pro 1 ТБ — максимальная конфигурация пространственного компьютера.",
-    specs:[{key:"Дисплей",val:"Micro-OLED 4K+ (×2)"},{key:"Чипы",val:"Apple M2 + R1"},{key:"ОЗУ",val:"16 ГБ"},{key:"Накопитель",val:"1 ТБ"},{key:"ОС",val:"visionOS 2"}] },
+  // Apple Vision Pro — из BIGGEEK_PRODUCTS (см. lib/biggeek-products.ts)
 
   // ── Ray-Ban Meta Glasses  (2023/2025) ─────────────────────────
   { id:"rayban-meta-gen4",  name:"Ray-Ban Meta Glasses (2025)", slug:"rayban-meta-gen4",
