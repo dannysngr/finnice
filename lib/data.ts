@@ -12,6 +12,7 @@ export const COMPANY = {
   phoneTel:    "tel:+79284910808",
   whatsapp:    "https://wa.me/79284910808",
   telegram:    "https://t.me/+79284910808",
+  instagram:   "https://www.instagram.com/finnice.chr",
   email:       "info@finnice.ru",
   address:     "г. Грозный, ул. Орзамиева, 8",
   hours:       "Пн – Пт, 9:00–19:00",

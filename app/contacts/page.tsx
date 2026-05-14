@@ -199,7 +199,7 @@ export default function ContactsPage() {
                    style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}>
                   <span className="text-lg">💬</span> WhatsApp
                 </a>
-                <a href="#" rel="noopener"
+                <a href={COMPANY.instagram} target="_blank" rel="noopener noreferrer"
                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl text-white font-bold text-xs transition-transform hover:scale-105 active:scale-95"
                    style={{ background: "linear-gradient(135deg, #F58529, #DD2A7B 60%, #8134AF)" }}>
                   <span className="text-lg">📸</span> Instagram

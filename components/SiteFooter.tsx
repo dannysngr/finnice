@@ -80,13 +80,15 @@ export function SiteFooter() {
           {/* Social */}
           <div className="flex items-center gap-2">
             {[
-              { label: "Telegram",  Icon: TgIcon },
-              { label: "ВКонтакте", Icon: VkIcon },
-              { label: "WhatsApp",  Icon: WaIcon },
-            ].map(({ label, Icon }) => (
+              { label: "Telegram",  Icon: TgIcon, href: COMPANY.telegram },
+              { label: "Instagram", Icon: IgIcon, href: COMPANY.instagram },
+              { label: "WhatsApp",  Icon: WaIcon, href: COMPANY.whatsapp },
+            ].map(({ label, Icon, href }) => (
               <a
                 key={label}
-                href="#"
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={label}
                 className="w-8 h-8 rounded-full flex items-center justify-center
                            transition-colors hover:bg-white/15"
@@ -183,10 +185,14 @@ function TgIcon() {
     </svg>
   );
 }
-function VkIcon() {
+function IgIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 14 14" fill="rgba(255,255,255,0.7)">
-      <path d="M7.2 9.7H8c.25 0 .37-.11.37-.36 0-.6.28-.9.85-.9.34 0 .67.22.97.67l.68 1.08c.14.22.3.32.5.32h.87c.46 0 .58-.26.33-.67l-.74-1.14c-.42-.64-.76-.96-1.01-.98.55-.21 1.07-.74 1.53-1.6.17-.32.09-.55-.24-.55h-.85c-.21 0-.35.1-.43.3-.38.82-.78 1.31-1.19 1.49a.29.29 0 01-.3-.06.59.59 0 01-.09-.35V5.1c0-.28-.1-.42-.32-.42H7.34c-.17 0-.29.09-.33.26l-.03.12c.33.08.5.36.5.84v1.97c0 .29-.14.44-.41.44-.67 0-1.35-.8-2.01-2.42-.12-.31-.24-.46-.39-.46H3.8c-.28 0-.42.12-.42.37 0 .09.02.19.05.31.47 1.34 1.07 2.38 1.79 3.13.65.67 1.31 1.01 1.99 1.01v-.33z"/>
+    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+      <rect x="2" y="2" width="10" height="10" rx="3"
+            stroke="rgba(255,255,255,0.7)" strokeWidth="1.1"/>
+      <circle cx="7" cy="7" r="2.4"
+              stroke="rgba(255,255,255,0.7)" strokeWidth="1.1"/>
+      <circle cx="10.2" cy="3.8" r="0.6" fill="rgba(255,255,255,0.7)"/>
     </svg>
   );
 }
