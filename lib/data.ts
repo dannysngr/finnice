@@ -111,6 +111,7 @@ export interface PhoneItem {
 
 // Манифест содержит { "iphone-17-pro-max": 3, ... } — сколько цветов скачано
 import phonesManifest from "@/public/images/phones/manifest.json";
+import { BIGGEEK_PRODUCTS } from "./biggeek-products";
 const MANIFEST: Record<string, number> = phonesManifest as Record<string, number>;
 
 /** Возвращает массив URL картинок товара (по числу скачанных цветов).
@@ -1689,6 +1690,9 @@ export const PRODUCTS: Product[] = [
     inStock:true, rating:5, reviewCount:19,
     description:"Steam Deck OLED 1 ТБ Limited Edition — максимальный объём хранилища для Steam Deck с Anti-Glare этчингом.",
     specs:[{key:"Дисплей",val:"7.4\" OLED HDR, 90 Гц"},{key:"APU",val:"AMD Zen 2 + RDNA 2"},{key:"ОЗУ",val:"16 ГБ LPDDR5"},{key:"Накопитель",val:"1 ТБ NVMe"},{key:"Автономность",val:"до 12 ч"},{key:"Экран",val:"Anti-Glare"}] },
+
+  /* ── Импорт с biggeek.ru (Mac, iPad, Apple Watch, Apple TV, AirTag) ── */
+  ...BIGGEEK_PRODUCTS,
 ];
 
 // ─── Footer links ─────────────────────────────────────────────
