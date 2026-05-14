@@ -459,7 +459,41 @@ function CatalogContent() {
           Каталог
         </h1>
 
-        {/* Сайдбар + сетка */}
+        {/* Плитки категорий — сверху, как было */}
+        <div className="grid grid-cols-4 sm:grid-cols-7 lg:grid-cols-[repeat(14,minmax(0,1fr))] gap-2 mb-6">
+          <button
+            onClick={() => setActiveCat("all")}
+            className={`flex flex-col items-center justify-center gap-2 py-4 px-1 rounded-2xl border
+              transition-all duration-200
+              ${activeCat === "all"
+                ? "bg-[#0A1628] border-[#0A1628] text-white shadow-md -translate-y-px"
+                : "bg-white border-[#EBEBEB] text-[#6B7280] hover:bg-[#F5F6F8] hover:border-[#D4D9E1] hover:-translate-y-px hover:shadow-sm"}`}
+          >
+            <CatAllIcon />
+            <span className="text-[11px] font-medium tracking-wider leading-tight">Все</span>
+          </button>
+          {CATALOG_CATS.map((cat) => {
+            const active = activeCat === cat.cat;
+            return (
+              <button
+                key={cat.cat}
+                onClick={() => setActiveCat(cat.cat)}
+                className={`flex flex-col items-center justify-center gap-2 py-4 px-1 rounded-2xl border
+                  transition-all duration-200
+                  ${active
+                    ? "bg-[#0A1628] border-[#0A1628] text-white shadow-md -translate-y-px"
+                    : "bg-white border-[#EBEBEB] text-[#6B7280] hover:bg-[#F5F6F8] hover:border-[#D4D9E1] hover:-translate-y-px hover:shadow-sm"}`}
+              >
+                <CatIcon cat={cat.cat} />
+                <span className="text-[11px] font-medium tracking-wider leading-tight text-center">
+                  {cat.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Сайдбар (фильтры) + сетка */}
         <div className="flex flex-col lg:flex-row gap-6">
 
           {/* Кнопка-переключатель фильтров (только мобайл) */}
@@ -469,49 +503,12 @@ function CatalogContent() {
                        px-4 py-3 rounded-2xl bg-white border border-[#EBEBEB]
                        font-bold text-[#0A1628] text-sm"
           >
-            Фильтры и категории
+            Фильтры
             <span className={`text-[#9CA3AF] text-xs transition-transform ${mobileFiltersOpen ? "rotate-180" : ""}`}>▼</span>
           </button>
 
           {/* Sidebar */}
           <aside className={`${mobileFiltersOpen ? "block" : "hidden"} lg:block w-full lg:w-64 shrink-0 space-y-4`}>
-
-            {/* Категории — вертикальный список */}
-            <div className="card p-3">
-              <h3 className="font-bold text-[#0A1628] text-sm mb-2 px-1">Категории</h3>
-              <div className="space-y-0.5">
-                <button
-                  onClick={() => setActiveCat("all")}
-                  className={`w-full flex items-center gap-2.5 px-2 py-2 rounded-xl text-sm transition-colors text-left
-                    ${activeCat === "all"
-                      ? "bg-[#0A1628] text-white font-semibold"
-                      : "text-[#4B5563] hover:bg-[#F4F7FC]"}`}
-                >
-                  <span className="shrink-0 w-5 h-5 flex items-center justify-center">
-                    <CatAllIcon />
-                  </span>
-                  Все
-                </button>
-                {CATALOG_CATS.map((cat) => {
-                  const active = activeCat === cat.cat;
-                  return (
-                    <button
-                      key={cat.cat}
-                      onClick={() => setActiveCat(cat.cat)}
-                      className={`w-full flex items-center gap-2.5 px-2 py-2 rounded-xl text-sm transition-colors text-left
-                        ${active
-                          ? "bg-[#0A1628] text-white font-semibold"
-                          : "text-[#4B5563] hover:bg-[#F4F7FC]"}`}
-                    >
-                      <span className="shrink-0 w-5 h-5 flex items-center justify-center">
-                        <CatIcon cat={cat.cat} />
-                      </span>
-                      {cat.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
 
             {/* Бренды для конкретной категории */}
             {activeCat !== "all" && catBrands.length > 1 && (
