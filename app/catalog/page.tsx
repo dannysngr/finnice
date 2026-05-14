@@ -235,6 +235,7 @@ function CatalogContent() {
   const [brands,    setBrands]    = useState<string[]>([]);
   const [maxPrice,  setMaxPrice]  = useState(GLOBAL_MAX);
   const [sort,      setSort]      = useState<"popular"|"price_asc"|"price_desc">("popular");
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // ─── Телефонные фильтры (только для категории "telefony") ────
   const [phoneBrand,  setPhoneBrand]  = useState("Все");
@@ -458,80 +459,97 @@ function CatalogContent() {
           Каталог
         </h1>
 
-        {/* Плитки категорий */}
-        <div className="grid grid-cols-4 sm:grid-cols-7 lg:grid-cols-[repeat(14,minmax(0,1fr))] gap-2 mb-8">
-          {/* Все */}
+        {/* Сайдбар + сетка */}
+        <div className="flex flex-col lg:flex-row gap-6">
+
+          {/* Кнопка-переключатель фильтров (только мобайл) */}
           <button
-            onClick={() => setActiveCat("all")}
-            className={`flex flex-col items-center justify-center gap-2 py-4 px-1 rounded-2xl border
-              transition-all duration-200
-              ${activeCat === "all"
-                ? "bg-[#0A1628] border-[#0A1628] text-white shadow-md -translate-y-px"
-                : "bg-white border-[#EBEBEB] text-[#6B7280] hover:bg-[#F5F6F8] hover:border-[#D4D9E1] hover:-translate-y-px hover:shadow-sm"}`}
+            onClick={() => setMobileFiltersOpen(v => !v)}
+            className="lg:hidden flex items-center justify-between
+                       px-4 py-3 rounded-2xl bg-white border border-[#EBEBEB]
+                       font-bold text-[#0A1628] text-sm"
           >
-            <CatAllIcon />
-            <span className="text-[11px] font-medium tracking-wider leading-tight">Все</span>
+            Фильтры и категории
+            <span className={`text-[#9CA3AF] text-xs transition-transform ${mobileFiltersOpen ? "rotate-180" : ""}`}>▼</span>
           </button>
 
-          {CATALOG_CATS.map((cat) => {
-            const active = activeCat === cat.cat;
-            return (
-              <button
-                key={cat.cat}
-                onClick={() => setActiveCat(cat.cat)}
-                className={`flex flex-col items-center justify-center gap-2 py-4 px-1 rounded-2xl border
-                  transition-all duration-200
-                  ${active
-                    ? "bg-[#0A1628] border-[#0A1628] text-white shadow-md -translate-y-px"
-                    : "bg-white border-[#EBEBEB] text-[#6B7280] hover:bg-[#F5F6F8] hover:border-[#D4D9E1] hover:-translate-y-px hover:shadow-sm"}`}
-              >
-                <CatIcon cat={cat.cat} />
-                <span className="text-[11px] font-medium tracking-wider leading-tight text-center">
-                  {cat.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+          {/* Sidebar */}
+          <aside className={`${mobileFiltersOpen ? "block" : "hidden"} lg:block w-full lg:w-64 shrink-0 space-y-4`}>
 
-        {/* ── Универсальный блок фильтров категории ─────────────── */}
-        {activeCat !== "all" && (catBrands.length > 1 || catSpecFilterDefs.length > 0 || activeCat === "telefony") && (
-          <div className="mb-6 p-4 bg-[#F4F7FC] rounded-2xl border border-[#D8E2F0]">
-
-            {/* Строка брендов (не показываем, если бренд один) */}
-            {catBrands.length > 1 && (
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="text-xs font-semibold text-[#9CA3AF] shrink-0 mr-1">Бренд:</span>
-                {(["Все", ...catBrands] as string[]).map(b => {
-                  const activeBrand = activeCat === "telefony" ? phoneBrand : specBrandFilter;
+            {/* Категории — вертикальный список */}
+            <div className="card p-3">
+              <h3 className="font-bold text-[#0A1628] text-sm mb-2 px-1">Категории</h3>
+              <div className="space-y-0.5">
+                <button
+                  onClick={() => setActiveCat("all")}
+                  className={`w-full flex items-center gap-2.5 px-2 py-2 rounded-xl text-sm transition-colors text-left
+                    ${activeCat === "all"
+                      ? "bg-[#0A1628] text-white font-semibold"
+                      : "text-[#4B5563] hover:bg-[#F4F7FC]"}`}
+                >
+                  <span className="shrink-0 w-5 h-5 flex items-center justify-center">
+                    <CatAllIcon />
+                  </span>
+                  Все
+                </button>
+                {CATALOG_CATS.map((cat) => {
+                  const active = activeCat === cat.cat;
                   return (
                     <button
-                      key={b}
-                      onClick={() => {
-                        if (activeCat === "telefony") {
-                          setPhoneBrand(b);
-                          setPhoneModel("Все"); setPhoneMemory("Все");
-                          setPhoneColor("Все"); setPhoneSim("Все");
-                        } else {
-                          setSpecBrandFilter(b);
-                          setSpecFilters({});
-                        }
-                      }}
-                      className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all
-                        ${activeBrand === b
-                          ? "bg-[#0A1628] text-white border-[#0A1628]"
-                          : "bg-white border-[#D8E2F0] text-[#6B7280] hover:border-[#0A1628] hover:text-[#0A1628]"}`}
+                      key={cat.cat}
+                      onClick={() => setActiveCat(cat.cat)}
+                      className={`w-full flex items-center gap-2.5 px-2 py-2 rounded-xl text-sm transition-colors text-left
+                        ${active
+                          ? "bg-[#0A1628] text-white font-semibold"
+                          : "text-[#4B5563] hover:bg-[#F4F7FC]"}`}
                     >
-                      {b}
+                      <span className="shrink-0 w-5 h-5 flex items-center justify-center">
+                        <CatIcon cat={cat.cat} />
+                      </span>
+                      {cat.label}
                     </button>
                   );
                 })}
+              </div>
+            </div>
+
+            {/* Бренды для конкретной категории */}
+            {activeCat !== "all" && catBrands.length > 1 && (
+              <div className="card p-3">
+                <h3 className="font-bold text-[#0A1628] text-sm mb-2 px-1">Бренд</h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {(["Все", ...catBrands] as string[]).map(b => {
+                    const activeBrand = activeCat === "telefony" ? phoneBrand : specBrandFilter;
+                    return (
+                      <button
+                        key={b}
+                        onClick={() => {
+                          if (activeCat === "telefony") {
+                            setPhoneBrand(b);
+                            setPhoneModel("Все"); setPhoneMemory("Все");
+                            setPhoneColor("Все"); setPhoneSim("Все");
+                          } else {
+                            setSpecBrandFilter(b);
+                            setSpecFilters({});
+                          }
+                        }}
+                        className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all
+                          ${activeBrand === b
+                            ? "bg-[#0A1628] text-white border-[#0A1628]"
+                            : "bg-white border-[#D8E2F0] text-[#6B7280] hover:border-[#0A1628] hover:text-[#0A1628]"}`}
+                      >
+                        {b}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
             {/* Телефоны: модель / память / цвет / SIM */}
             {activeCat === "telefony" && (
-              <div className="flex flex-wrap gap-2 items-center">
+              <div className="card p-3 space-y-2">
+                <h3 className="font-bold text-[#0A1628] text-sm px-1">Параметры</h3>
                 <CatalogFilterSelect
                   label="Модель" options={phoneModelOptions} value={phoneModel}
                   onChange={v => { setPhoneModel(v); setPhoneMemory("Все"); setPhoneColor("Все"); }}
@@ -551,19 +569,20 @@ function CatalogContent() {
                 {(phoneModel !== "Все" || phoneMemory !== "Все" || phoneColor !== "Все" || phoneSim !== "Все") && (
                   <button
                     onClick={() => { setPhoneModel("Все"); setPhoneMemory("Все"); setPhoneColor("Все"); setPhoneSim("Все"); }}
-                    className="px-3 py-2 rounded-xl text-xs text-[#6B7280] border border-[#D8E2F0]
+                    className="w-full px-3 py-1.5 rounded-xl text-xs text-[#6B7280] border border-[#D8E2F0]
                                hover:border-red-300 hover:text-red-500 transition-colors"
-                  >✕ Сбросить</button>
+                  >✕ Сбросить параметры</button>
                 )}
               </div>
             )}
 
             {/* Остальные категории: spec-фильтры */}
-            {activeCat !== "telefony" && catSpecFilterDefs.length > 0 && (
-              <div className="flex flex-wrap gap-2 items-center">
+            {activeCat !== "telefony" && activeCat !== "all" && catSpecFilterDefs.length > 0 && Object.keys(specFilterOptions).length > 0 && (
+              <div className="card p-3 space-y-2">
+                <h3 className="font-bold text-[#0A1628] text-sm px-1">Параметры</h3>
                 {catSpecFilterDefs.map(({ label, specKey }) => {
                   const opts = specFilterOptions[specKey];
-                  if (!opts) return null;   // нет вариантов — прячем
+                  if (!opts) return null;
                   return (
                     <CatalogFilterSelect
                       key={specKey}
@@ -577,25 +596,18 @@ function CatalogContent() {
                 {Object.values(specFilters).some(v => v && v !== "Все") && (
                   <button
                     onClick={() => setSpecFilters({})}
-                    className="px-3 py-2 rounded-xl text-xs text-[#6B7280] border border-[#D8E2F0]
+                    className="w-full px-3 py-1.5 rounded-xl text-xs text-[#6B7280] border border-[#D8E2F0]
                                hover:border-red-300 hover:text-red-500 transition-colors"
-                  >✕ Сбросить</button>
+                  >✕ Сбросить параметры</button>
                 )}
               </div>
             )}
-          </div>
-        )}
 
-        {/* Сайдбар + сетка */}
-        <div className="flex flex-col lg:flex-row gap-6">
-
-          {/* Sidebar */}
-          <aside className="w-full lg:w-60 shrink-0 space-y-6">
-            {/* Бренды — показываем только для "Все" (в конкретных категориях — пилюли выше) */}
+            {/* Бренды — чекбоксы (для "Все") */}
             {activeCat === "all" && (
-            <div className="card p-4">
-              <h3 className="font-bold text-[#0A1628] text-sm mb-3">Бренды</h3>
-              <div className="space-y-2">
+            <div className="card p-3">
+              <h3 className="font-bold text-[#0A1628] text-sm mb-2 px-1">Бренды</h3>
+              <div className="space-y-1.5 px-1">
                 {ALL_BRANDS.map((b) => (
                   <label key={b} className="flex items-center gap-2 cursor-pointer group">
                     <input
