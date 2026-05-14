@@ -39,6 +39,13 @@ COLOR_TOKENS = [
     r"бронзовый", r"bronze", r"золотой", r"gold",
     r"графит", r"graphite", r"тёмный", r"alpine\s*green",
     r"sky\s*blue", r"небесно[-\s]голубой",
+    # Dyson colors
+    r"никель", r"nickel", r"медный", r"copper", r"prussian", r"vinca",
+    r"fuchsia", r"фуксия", r"iron", r"стальной", r"топаз", r"topaz",
+    r"бордовый", r"red\s*rust",
+    # Garmin colors
+    r"slate", r"карбон", r"carbon", r"бежевый", r"olive", r"оливковый",
+    r"графитовый",
 ]
 
 
@@ -71,8 +78,11 @@ def clean_name(name: str):
     key = re.sub(r",\s*(?:алюминий|титан|нержавеющая)\b.*$", "", key, flags=re.I)
     # 5) Прямые упоминания цвета inline (через «цвета X» или просто цвет в конце)
     key = re.sub(rf"\s+\b(?:{color_re})\b.*$", "", key, flags=re.I)
-    # 6) Хвост ", ремешок ..." / ", браслет ..." / ", ремень ..."
-    key = re.sub(r",\s*(?:ремешок|браслет|ремень)\b.*$", "", key, flags=re.I)
+    # 6) Хвост ", ... ремешок/браслет/ремень ..." (с любым прилагательным перед)
+    key = re.sub(r",[^,]*\b(?:ремешок|браслет|ремень|нейлоновый|кожаный)\b.*$", "", key, flags=re.I)
+    # 7) Хвост "Gift Edition", "коллекция", "Origin" — не различающие признаки
+    key = re.sub(r",\s*коллекция\b.*$", "", key, flags=re.I)
+    key = re.sub(r"\s+Gift\s+Edition\b.*$", "", key, flags=re.I)
     # Нормализуем кавычки/дюймы: ”, “, " → одну форму, чтобы не двоилось
     key = re.sub(r"[\"”“″]", "\"", key)
     key = re.sub(r"\s+", " ", key).strip(' -—,"')

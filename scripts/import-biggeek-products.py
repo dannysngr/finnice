@@ -73,7 +73,48 @@ CATEGORIES = [
     ("magic-keyboard",                          "aksessuary",    "Apple",   "Magic Keyboard"),
     ("magic-mouse",                             "aksessuary",    "Apple",   "Magic Mouse"),
     ("magic-trackpad",                          "aksessuary",    "Apple",   "Magic Trackpad"),
+
+    # ── Гаджеты и консоли ────────────────────────────────────────
+    ("sony-playstation",                        "gadzety_i_konsoli", "Sony",      "PlayStation"),
+    ("microsoft-xbox",                          "gadzety_i_konsoli", "Microsoft", "Xbox"),
+    ("nintendo-switch",                         "gadzety_i_konsoli", "Nintendo",  "Switch"),
+
+    # ── Garmin (smart_chasy) ─────────────────────────────────────
+    ("umnye-chasy-garmin",                      "smart_chasy",       "Garmin",    "Часы Garmin"),
+
+    # ── Dyson — распределяем по категориям ───────────────────────
+    ("besprovodnye-pylesosy-dyson",             "bytovaya_tekhnika", "Dyson",     "Пылесос"),
+    ("feny-dyson",                              "bytovaya_tekhnika", "Dyson",     "Фен"),
+    ("stajlery-dyson",                          "bytovaya_tekhnika", "Dyson",     "Стайлер"),
+    ("vypryamiteli-dlya-volos-dyson",           "bytovaya_tekhnika", "Dyson",     "Выпрямитель"),
+    ("ochistiteli-vozdukha-dyson",              "dlya_doma_i_sada",  "Dyson",     "Очиститель воздуха"),
+
+    # ── Умные колонки Apple ──────────────────────────────────────
+    ("apple-homepod",                           "aksessuary",        "Apple",     "HomePod"),
+    ("apple-homepod-mini",                      "aksessuary",        "Apple",     "HomePod mini"),
 ]
+
+# Авто-определение бренда по имени товара (для смешанных категорий)
+BRAND_PATTERNS = [
+    (r"\bPlayStation|PS5|PS4|DualSense\b", "Sony"),
+    (r"\bXbox\b",                          "Microsoft"),
+    (r"\bNintendo|Switch\b",               "Nintendo"),
+    (r"\bGarmin|Fenix|Forerunner|Instinct|Venu|Vivoactive|Epix\b", "Garmin"),
+    (r"\bDyson\b",                         "Dyson"),
+    (r"\bApple\b",                         "Apple"),
+    (r"\bSonos\b",                         "Sonos"),
+    (r"\bJBL\b",                           "JBL"),
+    (r"\bMarshall\b",                      "Marshall"),
+    (r"\bBose\b",                          "Bose"),
+    (r"\bSony\b",                          "Sony"),
+]
+
+
+def detect_brand(name: str, fallback: str) -> str:
+    for pat, br in BRAND_PATTERNS:
+        if re.search(pat, name, re.I):
+            return br
+    return fallback
 
 
 def fetch(url: str) -> str:
@@ -235,12 +276,13 @@ def main():
 
                 seen_slugs.add(slug)
                 products_total += 1
+                actual_brand = detect_brand(p["name"], brand)
                 all_products.append({
                     "id":        slug[:60],
                     "name":      p["name"],
                     "slug":      slug,
                     "category":  category,
-                    "brand":     brand,
+                    "brand":     actual_brand,
                     "type":      type_label,
                     "price":     price,
                     "img":       f"/images/biggeek/{slug}.jpg",
@@ -262,14 +304,28 @@ def main():
         "export const BIGGEEK_PRODUCTS: Product[] = [",
     ]
     for p in all_products:
-        # Лучший emoji по категории
-        emoji = {
-            "noutbuki":         "💻",
-            "planshety":        "📱",
-            "smart_chasy":      "⌚",
-            "aksessuary":       "🎧",
-            "gadzety_i_konsoli":"📺",
-        }.get(p["category"], "📦")
+        # Лучший emoji по категории (с уточнением для геймпадов/Apple TV)
+        cat = p["category"]
+        name_lc = p["name"].lower()
+        if cat == "gadzety_i_konsoli":
+            if "apple tv" in name_lc or "медиаплеер" in name_lc:
+                emoji = "📺"
+            else:
+                emoji = "🎮"
+        elif cat == "bytovaya_tekhnika":
+            if "фен" in name_lc:           emoji = "💨"
+            elif "пылесос" in name_lc:     emoji = "🧹"
+            elif "стайлер" in name_lc or "выпрямит" in name_lc: emoji = "💇"
+            else:                           emoji = "🏠"
+        elif cat == "dlya_doma_i_sada":
+            emoji = "🌿"
+        else:
+            emoji = {
+                "noutbuki":    "💻",
+                "planshety":   "📱",
+                "smart_chasy": "⌚",
+                "aksessuary":  "🎧",
+            }.get(cat, "📦")
         name_esc = p["name"].replace("\\", "\\\\").replace('"', '\\"')
         ts_lines.append(
             f'  {{ id:"{p["id"]}", name:"{name_esc}", slug:"{p["slug"]}",'
