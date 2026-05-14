@@ -37,10 +37,11 @@ export const TG_NEW_PRODUCTS: Product[] = [
   newP("tg-apple-pencil-2",        "Apple Pencil 2-го поколения", "aksessuary", "Apple", 11_500, "✏️"),
   newP("tg-apple-pencil-pro",      "Apple Pencil Pro",            "aksessuary", "Apple", 14_500, "✏️"),
   newP("tg-magic-mouse-3",         "Apple Magic Mouse 3",         "aksessuary", "Apple", 12_500, "🖱️"),
+  // AirPods 4 и 4 ANC уже есть в каталоге (id airpods4 / airpods4-anc) — цены
+  // подмешиваются через TG_PRICES override, не добавляем дубль.
   newP("tg-airpods-3",             "Apple AirPods 3",             "aksessuary", "Apple", 10_800, "🎧"),
-  newP("tg-airpods-4",             "Apple AirPods 4",             "aksessuary", "Apple", 11_300, "🎧"),
-  newP("tg-airpods-4-anc",         "Apple AirPods 4 (с активным шумоподавлением)", "aksessuary", "Apple", 15_600, "🎧"),
-  newP("tg-airpods-pro-2",         "Apple AirPods Pro 2",         "aksessuary", "Apple", 17_500, "🎧"),
+  newP("tg-airpods-pro-2",         "Apple AirPods Pro 2",         "aksessuary", "Apple", 17_500, "🎧",
+       { img: ["/images/phones/airpods-pro-2-1.jpg", "/images/phones/airpods-pro-2-2.jpg", "/images/phones/airpods-pro-2-3.jpg", "/images/phones/airpods-pro-2-4.jpg"] }),
 
   // ─── Колонки / аудио ─────────────────────────────────────────
   newP("tg-yandex-station-mini-3", "Яндекс Станция Мини 3 с часами", "aksessuary", "Яндекс",  11_000, "🔊"),

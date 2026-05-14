@@ -26,6 +26,9 @@ declare -a MAP=(
   "iphone-17|catalog/apple-iphone-17"
   "iphone-17e|catalog/iphone-17e"
   "iphone-16e|catalog/iphone-16e"
+  # apple-airpods (свод) включает Beats — отдельной страницы AirPods 3 нет, не качаем
+  "airpods-4|catalog/apple-airpods-4-2024"
+  "airpods-pro-2|catalog/apple-airpods-pro-2022"
   "iphone-air|catalog/apple-iphone-air"
   "iphone-16-pro-max|catalog/iphone-16-pro-max"
   "iphone-16-pro|catalog/iphone-16-pro"

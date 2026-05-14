@@ -4,6 +4,8 @@
 
 export const TG_PRICES: Record<string, number> = {
   "airpods-max2": 44700,
+  "airpods4":     11300,
+  "airpods4-anc": 15600,
   "apple-watch-ultra-2-49mm-korpus-iz-titana-remesok-ocean-sinego-cveta": 69500,
   "casy-apple-watch-se-3-44-mm-aluminij-cveta-temnaa-noc-remesok-sport-band-temnaa-noc-2025": 29500,
   "casy-apple-watch-series-10-46mm-aluminum-rose-gold-sport-loop-plum": 28000,
