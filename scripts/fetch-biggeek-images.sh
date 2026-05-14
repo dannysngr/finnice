@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # scripts/fetch-biggeek-images.sh
 #
-# Скачивает картинки товаров с biggeek.ru CDN (images.biggeek.ru) и
-# сохраняет их в public/images/phones/ под именами, ожидаемыми
-# каталогом (lib/data.ts).
+# Скачивает до 4 уникальных цветовых вариантов товара с biggeek.ru
+# и сохраняет в public/images/phones/ с именами <name>-1.jpg, -2.jpg, ...
+#
+# Дедупликация по цвету: имя файла biggeek заканчивается на _color@2x.jpg
+# (orange, darkblue, silver и т.п.). Берём первое вхождение каждого цвета.
+# Если на странице вообще одно фото — будет только <name>-1.jpg.
 #
 # Использование: ./scripts/fetch-biggeek-images.sh
-#
-# Для каждой записи в MAP идём на страницу товара, ищем первый
-# <img src="//images.biggeek.ru/..."> и скачиваем его как нашу-имя.jpg.
 
 set -uo pipefail
 
@@ -17,10 +17,10 @@ DEST="$ROOT/public/images/phones"
 mkdir -p "$DEST"
 
 UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'
+MAX_COLORS=4
 
-# ── Маппинг: наше_имя_файла → biggeek_url_path ───────────────
 declare -a MAP=(
-  # iPhones — apple- префикс для всех
+  # iPhones
   "iphone-17-pro-max|catalog/apple-iphone-17-pro-max"
   "iphone-17-pro|catalog/apple-iphone-17-pro"
   "iphone-17|catalog/apple-iphone-17"
@@ -47,7 +47,7 @@ declare -a MAP=(
   "iphone-11-pro|catalog/apple-iphone-11-pro"
   "iphone-11|catalog/apple-iphone-11"
 
-  # iPad — даты в URL, используем последние
+  # iPad
   "ipad-pro|catalog/ipad-pro-11-2025"
   "ipad-air|catalog/ipad-air-13-2025"
 
@@ -63,7 +63,7 @@ declare -a MAP=(
   "macbook-pro-14|catalog/macbook-pro-14"
   "macbook-pro-16|catalog/macbook-pro-16"
 
-  # iMac — для всех вариантов цветов используем общий
+  # iMac
   "imac-silver|catalog/apple-imac-24-2024"
   "imac-blue|catalog/apple-imac-24-2024"
   "imac-pink|catalog/apple-imac-24-2024"
@@ -72,7 +72,6 @@ declare -a MAP=(
   # Mac
   "mac-mini|catalog/apple-mac-mini-2024"
   "mac-studio|catalog/apple-mac-studio"
-  "mac-pro|catalog/apple-mac-pro"
 
   # Honor
   "honor-200|catalog/honor-200"
@@ -80,65 +79,96 @@ declare -a MAP=(
 )
 
 OK=0
+TOTAL=0
 FAIL=0
 FAILED=()
+MANIFEST="$DEST/manifest.json"
+declare -a MANIFEST_LINES=()
 
 for entry in "${MAP[@]}"; do
   name="${entry%%|*}"
   path="${entry#*|}"
   url="https://biggeek.ru/$path"
-  out="$DEST/$name.jpg"
 
-  # 1) HTML страницы товара
   html=$(curl -sL --max-time 15 -A "$UA" "$url" 2>/dev/null) || { FAIL=$((FAIL+1)); FAILED+=("$name (curl fail)"); continue; }
 
-  # 2) Первый <img src> с CDN biggeek
-  img=$(echo "$html" | grep -oE 'src="//images\.biggeek\.ru/[^"]*\.(jpg|jpeg|png|webp)[^"]*"' | head -1 | sed -E 's/^src="//; s/"$//')
-  if [ -z "$img" ]; then
-    img=$(echo "$html" | grep -oE 'src="https://images\.biggeek\.ru/[^"]*\.(jpg|jpeg|png|webp)[^"]*"' | head -1 | sed -E 's/^src="//; s/"$//')
-  fi
+  # Все image URLs
+  raw_urls=$(echo "$html" | grep -oE 'src="//images\.biggeek\.ru/[^"]*\.(jpg|jpeg|png|webp)[^"]*"' \
+              | sed -E 's|^src="//|https://|; s|"$||')
 
-  if [ -z "$img" ]; then
+  if [ -z "$raw_urls" ]; then
     FAIL=$((FAIL+1))
-    FAILED+=("$name (no image)")
-    echo "  ✗ $name → no image found at $url"
+    FAILED+=("$name (no images)")
+    echo "  ✗ $name → no images at $url"
     continue
   fi
 
-  # Префикс scheme
-  case "$img" in
-    //*) img="https:$img" ;;
-  esac
-
-  # URL-encoding пробелов (часто встречаются в именах файлов biggeek)
-  img_enc="${img// /%20}"
-
-  # 3) Скачиваем
-  if curl -sL --max-time 20 -A "$UA" -e "$url" -o "$out" "$img_enc" 2>/dev/null; then
-    size=$(stat -f%z "$out" 2>/dev/null || stat -c%s "$out" 2>/dev/null || echo 0)
-    if [ "$size" -gt 1000 ]; then
-      OK=$((OK+1))
-      echo "  ✓ $name ← $(basename "$img") ($((size/1024)) КБ)"
-    else
-      rm -f "$out"
-      FAIL=$((FAIL+1))
-      FAILED+=("$name (size $size)")
-      echo "  ✗ $name → file too small ($size B), removed"
+  # Дедупликация по цвету (суффикс перед @2x)
+  unique=()
+  seen_colors=""
+  while IFS= read -r u; do
+    [ -z "$u" ] && continue
+    bn=$(basename "$u")
+    # обрезаем @2x.xxx или .xxx
+    trimmed="${bn%@2x*}"
+    trimmed="${trimmed%.*}"
+    # последняя часть после _ = цвет
+    color="${trimmed##*_}"
+    color=$(echo "$color" | tr '[:upper:]' '[:lower:]')
+    if [[ "$seen_colors" != *"|$color|"* ]]; then
+      seen_colors="$seen_colors|$color|"
+      unique+=("$u")
     fi
+    [ ${#unique[@]} -ge $MAX_COLORS ] && break
+  done <<< "$raw_urls"
+
+  # Удаляем старые версии (всё что начинается с этого имени)
+  rm -f "$DEST/$name.jpg" "$DEST/$name"-*.jpg "$DEST/$name"-*.jpeg "$DEST/$name"-*.png 2>/dev/null
+
+  ok_count=0
+  i=0
+  for u in "${unique[@]}"; do
+    i=$((i+1))
+    out="$DEST/$name-$i.jpg"
+    u_enc="${u// /%20}"
+    if curl -sL --max-time 20 -A "$UA" -e "$url" -o "$out" "$u_enc" 2>/dev/null; then
+      size=$(stat -f%z "$out" 2>/dev/null || stat -c%s "$out" 2>/dev/null || echo 0)
+      if [ "$size" -gt 1000 ]; then
+        ok_count=$((ok_count+1))
+        TOTAL=$((TOTAL+1))
+      else
+        rm -f "$out"
+      fi
+    fi
+  done
+
+  if [ $ok_count -gt 0 ]; then
+    OK=$((OK+1))
+    MANIFEST_LINES+=("  \"$name\": $ok_count")
+    echo "  ✓ $name → $ok_count цвет(а)"
   else
     FAIL=$((FAIL+1))
-    FAILED+=("$name (download fail)")
-    echo "  ✗ $name → download failed"
+    FAILED+=("$name (download all fail)")
+    echo "  ✗ $name → не удалось скачать ни одного файла"
   fi
 
-  # вежливая пауза
-  sleep 0.5
+  sleep 0.3
 done
 
+# Записываем манифест: { "iphone-17-pro-max": 3, ... }
+{
+  echo "{"
+  joined=$(IFS=$',\n'; echo "${MANIFEST_LINES[*]}")
+  printf '%s\n' "$joined"
+  echo "}"
+} > "$MANIFEST"
 echo ""
-echo "═════════════════════════════════════"
-echo "Готово: ✓ $OK успешно, ✗ $FAIL не получилось"
-echo "═════════════════════════════════════"
+echo "📋 Manifest written: $MANIFEST"
+
+echo ""
+echo "═════════════════════════════════════════════"
+echo "✓ Товаров: $OK · Картинок всего: $TOTAL · ✗ Неуспехов: $FAIL"
+echo "═════════════════════════════════════════════"
 if [ "$FAIL" -gt 0 ]; then
   printf 'Не получилось:\n'
   for x in "${FAILED[@]}"; do printf '  • %s\n' "$x"; done

@@ -8,9 +8,10 @@ import {
 } from "@/lib/data";
 import { fmtRub, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
 import { useAppModal } from "@/lib/modal-context";
+import { ProductSlideshow } from "@/components/ProductSlideshow";
 
 // ─── Расширенный тип с опциональными полями ───────────────────
-type CatalogItem = Product & { img?: string; sim?: string };
+type CatalogItem = Product & { img?: string | string[]; sim?: string };
 
 // ─── Порядок памяти (хранилище + RAM, возрастающий) ──────────
 const MEM_ORDER = ["64 ГБ", "128 ГБ", "256 ГБ", "512 ГБ", "1 ТБ", "2 ТБ"];
@@ -809,26 +810,15 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         </span>
       )}
 
-      {/* Изображение */}
-      <div className="w-full bg-white overflow-hidden flex items-center justify-center"
-           style={{ aspectRatio: "1/1" }}>
-        {p.img ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={p.img}
-            alt={p.name}
-            className="w-full h-full object-contain p-2 group-hover:scale-[1.04]
-                       transition-transform duration-300"
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.display = "none";
-              (e.currentTarget.nextSibling as HTMLElement).style.display = "flex";
-            }}
-          />
-        ) : null}
-        <div className={`${p.img ? "hidden" : "flex"} w-full h-full items-center justify-center text-4xl`}>
-          {p.emoji}
-        </div>
-      </div>
+      {/* Изображение — slideshow со всеми цветами */}
+      <ProductSlideshow
+        images={p.img}
+        alt={p.name}
+        className="w-full bg-white overflow-hidden flex items-center justify-center group-hover:[&>img]:scale-[1.04]"
+        imgClassName="transition-transform duration-300 p-2"
+        style={{ aspectRatio: "1/1" }}
+        fallback={<div className="w-full h-full flex items-center justify-center text-4xl">{p.emoji}</div>}
+      />
 
       {/* Текст */}
       {/* pb-2 на мобиле (кнопка в потоке), sm:pb-8 резервирует ~32px под оверлей-кнопку */}

@@ -7,6 +7,9 @@ import { fmtRub, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
 import { useAppModal } from "@/lib/modal-context";
 
 // Объединённый список всех товаров для поиска по id
+const firstImg = (img: string | string[] | undefined): string | undefined =>
+  Array.isArray(img) ? img[0] : img;
+
 const ALL_PRODUCTS = [
   ...PHONES_CATALOG.map(p => ({
     id:    p.id,
@@ -14,7 +17,7 @@ const ALL_PRODUCTS = [
     brand: p.brand,
     price: p.price,
     badge: p.badge,
-    img:   p.img as string | undefined,
+    img:   firstImg(p.img),
     emoji: "📱",
     sim:   p.sim as string | undefined,
     memory: p.memory,
@@ -25,7 +28,7 @@ const ALL_PRODUCTS = [
     brand:  p.brand,
     price:  p.price,
     badge:  p.badge,
-    img:    undefined as string | undefined,
+    img:    firstImg(p.img),
     emoji:  p.emoji,
     sim:    undefined as string | undefined,
     memory: undefined as string | undefined,

@@ -6,15 +6,19 @@ import { PHONES_CATALOG, PRODUCTS } from "@/lib/data";
 import { fmtRub, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
 import { useAppModal } from "@/lib/modal-context";
 
+/** Берёт первую картинку — для карточки в корзине/избранном достаточно */
+const firstImg = (img: string | string[] | undefined): string | undefined =>
+  Array.isArray(img) ? img[0] : img;
+
 const ALL_PRODUCTS = [
   ...PHONES_CATALOG.map(p => ({
     id: p.id, name: `${p.brand} ${p.model}`, brand: p.brand,
-    price: p.price, badge: p.badge, img: p.img as string | undefined,
+    price: p.price, badge: p.badge, img: firstImg(p.img),
     emoji: "📱", sim: p.sim as string | undefined, memory: p.memory,
   })),
   ...PRODUCTS.map(p => ({
     id: p.id, name: p.name, brand: p.brand,
-    price: p.price, badge: p.badge, img: undefined as string | undefined,
+    price: p.price, badge: p.badge, img: firstImg(p.img),
     emoji: p.emoji, sim: undefined as string | undefined, memory: undefined as string | undefined,
   })),
 ];

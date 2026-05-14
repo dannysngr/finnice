@@ -6,6 +6,7 @@ import { PHONES_CATALOG, type PhoneItem, type SimType } from "@/lib/data";
 import { calcInstallment, fmtRub, getMinDownPct } from "@/lib/calculator-logic";
 import { COMPANY } from "@/lib/data";
 import { useAppModal } from "@/lib/modal-context";
+import { ProductSlideshow } from "@/components/ProductSlideshow";
 
 // ─── Константы ────────────────────────────────────────────────
 
@@ -216,22 +217,16 @@ function PhoneCard({ phone, authed, inFavs, inCart, onToggleFav, onAddCart }: Ph
         </svg>
       </button>
 
-      {/* Изображение */}
-      <div className="w-full bg-white overflow-hidden flex items-center justify-center"
-           style={{ aspectRatio: "1/1" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={phone.img}
-          alt={`${phone.model} ${phone.memory}`}
-          className="w-full h-full object-contain p-2 group-hover:scale-[1.04]
-                     transition-transform duration-300"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).style.display = "none";
-            (e.currentTarget.nextSibling as HTMLElement).style.display = "flex";
-          }}
-        />
-        <div className="hidden w-full h-full items-center justify-center text-4xl">📱</div>
-      </div>
+      {/* Изображение — slideshow со всеми цветами */}
+      <ProductSlideshow
+        images={phone.img}
+        alt={`${phone.model} ${phone.memory}`}
+        className="w-full bg-white overflow-hidden flex items-center justify-center
+                   group-hover:[&>img]:scale-[1.04]"
+        imgClassName="transition-transform duration-300 p-2"
+        style={{ aspectRatio: "1/1" }}
+        fallback={<div className="w-full h-full flex items-center justify-center text-4xl">📱</div>}
+      />
 
       {/* Текст */}
       {/* pb-2 на мобиле (кнопка в потоке), sm:pb-8 резервирует ~32px под оверлей-кнопку */}

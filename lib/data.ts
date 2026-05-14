@@ -103,12 +103,23 @@ export interface PhoneItem {
   sim:     SimType;
   price:   number;
   badge?:  string;
-  // Apple CDN image or placeholder URL
-  img:     string;
+  /** Массив URL'ов всех цветовых вариантов товара (1+ штук).
+   *  Скачиваются скриптом scripts/fetch-biggeek-images.sh,
+   *  кол-во для каждого товара — в public/images/phones/manifest.json */
+  img:     string[];
 }
 
-// Локальные изображения — официальные product renders (JPG)
-const A = (filename: string) => `/images/phones/${filename}.jpg`;
+// Манифест содержит { "iphone-17-pro-max": 3, ... } — сколько цветов скачано
+import phonesManifest from "@/public/images/phones/manifest.json";
+const MANIFEST: Record<string, number> = phonesManifest as Record<string, number>;
+
+/** Возвращает массив URL картинок товара (по числу скачанных цветов).
+ *  Если в манифесте нет записи — fallback на старое имя без суффикса. */
+const A = (filename: string): string[] => {
+  const count = MANIFEST[filename] ?? 0;
+  if (count <= 0) return [`/images/phones/${filename}.jpg`];
+  return Array.from({ length: count }, (_, i) => `/images/phones/${filename}-${i + 1}.jpg`);
+};
 
 export const PHONES_CATALOG: PhoneItem[] = [
 
@@ -733,7 +744,8 @@ export interface Product {
   badge?:       string;   // "Хит", "Новинка", "Акция"
   year?:        number;   // release year — used for sorting non-phone products
   emoji:        string;   // placeholder visual
-  img?:         string;   // product image path
+  /** Массив URL картинок (как у PhoneItem) или одна строка (для совместимости) */
+  img?:         string | string[];
   memories?:    string[];
   colors?:      string[];
   inStock:      boolean;
