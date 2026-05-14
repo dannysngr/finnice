@@ -115,6 +115,7 @@ export interface PhoneItem {
 import phonesManifest from "@/public/images/phones/manifest.json";
 import { BIGGEEK_PRODUCTS } from "./biggeek-products";
 import { TG_PRICES } from "./tg-prices";
+import { TG_NEW_PRODUCTS, TG_NEW_PHONES } from "./tg-additions";
 const MANIFEST: Record<string, number> = phonesManifest as Record<string, number>;
 
 /** Возвращает массив URL картинок товара (по числу скачанных цветов).
@@ -610,12 +611,16 @@ const RAW_PHONES_CATALOG: PhoneItem[] = [
   },
 ];
 
-// Применяем TG-цены к телефонам (по id), помечаем tgSynced=true
-export const PHONES_CATALOG: PhoneItem[] = RAW_PHONES_CATALOG.map(p =>
-  TG_PRICES[p.id] != null
-    ? { ...p, price: TG_PRICES[p.id], tgSynced: true }
-    : p
-);
+// Применяем TG-цены к телефонам (по id), помечаем tgSynced=true.
+// В конце добавляем «новинки из TG» (iPhone 16e/17e) — у них tgSynced уже true.
+export const PHONES_CATALOG: PhoneItem[] = [
+  ...RAW_PHONES_CATALOG.map(p =>
+    TG_PRICES[p.id] != null
+      ? { ...p, price: TG_PRICES[p.id], tgSynced: true }
+      : p
+  ),
+  ...TG_NEW_PHONES,
+];
 
 // Legacy alias — оставлен для обратной совместимости
 export const IPHONES = PHONES_CATALOG.filter(p => p.brand === "Apple")
@@ -1396,12 +1401,16 @@ const RAW_PRODUCTS: Product[] = [
 
 /** Цены из партнёрского TG-канала перезаписывают базовые при матче по id;
  *  на синхронизированных цена точная (без «≈»), на остальных — приблизительная.
- *  Управление — в lib/tg-prices.ts. */
-export const PRODUCTS: Product[] = RAW_PRODUCTS.map(p =>
-  TG_PRICES[p.id] != null
-    ? { ...p, price: TG_PRICES[p.id], tgSynced: true }
-    : p
-);
+ *  В конце добавляются TG_NEW_PRODUCTS — новые позиции, которых в базовом каталоге нет.
+ *  Управление: lib/tg-prices.ts (overrides) и lib/tg-additions.ts (новинки). */
+export const PRODUCTS: Product[] = [
+  ...RAW_PRODUCTS.map(p =>
+    TG_PRICES[p.id] != null
+      ? { ...p, price: TG_PRICES[p.id], tgSynced: true }
+      : p
+  ),
+  ...TG_NEW_PRODUCTS,
+];
 
 // ─── Footer links ─────────────────────────────────────────────
 export const FOOTER_COL1 = [
