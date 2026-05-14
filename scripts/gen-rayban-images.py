@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""Генерирует стилизованные картинки очков Ray-Ban Meta для каталога:
-    public/images/products/rayban-meta-gen4.jpg
-    public/images/products/rayban-meta-gen3.jpg
-"""
+"""Стилизованные картинки Wayfarer-style очков для каталога.
+Рендерим в 4× и даунскейлим для антиалиаса."""
 from PIL import Image, ImageDraw, ImageFilter
 from pathlib import Path
 
@@ -10,100 +8,148 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR = ROOT / "public" / "images" / "products"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
+S = 4               # supersample factor
+OUT = 500           # итоговый размер
+W = H = OUT * S
 
-def draw_sunglasses(out_path: Path, frame_color, lens_color, accent=None):
-    W = H = 500
-    img = Image.new("RGB", (W, H), (248, 249, 250))
+
+def draw_wayfarer(out_path: Path, frame, lens, highlight, dot=None):
+    img = Image.new("RGB", (W, H), (250, 251, 252))
+
+    # Базовые координаты в пикселях итоговой картинки (×S при рисовании)
+    cx, cy = OUT // 2, int(OUT * 0.52)
+    lens_w, lens_h = 145, 105
+    gap = 22
+    radius = 22
+    frame_thick = 11
+    temple_ext = 28
+
+    lx_center = cx - gap // 2 - lens_w // 2
+    rx_center = cx + gap // 2 + lens_w // 2
+
+    def box(center_x):
+        return (
+            (center_x - lens_w // 2) * S, (cy - lens_h // 2) * S,
+            (center_x + lens_w // 2) * S, (cy + lens_h // 2) * S,
+        )
+    L, R = box(lx_center), box(rx_center)
+
+    # ── Тень под очками ──────────────────────────────────────────
+    sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    sd = ImageDraw.Draw(sh)
+    sh_off = 10 * S
+    for b in (L, R):
+        sd.rounded_rectangle((b[0], b[1] + sh_off, b[2], b[3] + sh_off),
+                             radius=radius * S, fill=(0, 0, 0, 80))
+    sh = sh.filter(ImageFilter.GaussianBlur(radius=10 * S))
+    img = Image.alpha_composite(img.convert("RGBA"), sh).convert("RGB")
     draw = ImageDraw.Draw(img)
 
-    # Геометрия: два округлых "квадрата" линзы + перемычка + дужки
-    cx, cy = W // 2, int(H * 0.55)
-    lens_w = 130
-    lens_h = 100
-    gap = 30                 # перемычка
-    radius = 28              # скругление линзы
+    # ── Перемычка ────────────────────────────────────────────────
+    bt = 6 * S
+    by = (cy + 4) * S
+    draw.rectangle((L[2] - 2 * S, by - bt // 2, R[0] + 2 * S, by + bt // 2),
+                   fill=frame)
 
-    left_box = (cx - gap // 2 - lens_w, cy - lens_h // 2,
-                cx - gap // 2,          cy + lens_h // 2)
-    right_box = (cx + gap // 2,         cy - lens_h // 2,
-                 cx + gap // 2 + lens_w, cy + lens_h // 2)
-
-    # Тонкая мягкая тень
-    shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    sdraw = ImageDraw.Draw(shadow)
-    for box in (left_box, right_box):
-        sdraw.rounded_rectangle((box[0], box[1] + 14, box[2], box[3] + 14),
-                                radius=radius, fill=(0, 0, 0, 55))
-    shadow = shadow.filter(ImageFilter.GaussianBlur(radius=16))
-    img.paste(Image.alpha_composite(img.convert("RGBA"), shadow).convert("RGB"))
-    draw = ImageDraw.Draw(img)
-
-    # Перемычка (тонкая)
-    bridge_y = cy
-    draw.rectangle((left_box[2], bridge_y - 4, right_box[0], bridge_y + 6),
-                   fill=frame_color)
-
-    # Дужки (исходят из верхних углов линз наружу)
-    temple_w = 8
+    # ── Дужки (наружу от верхних углов линз) ─────────────────────
     # Левая дужка
-    draw.line((left_box[0] + 6, left_box[1] + 14, left_box[0] - 35, left_box[1] + 6),
-              fill=frame_color, width=temple_w)
+    draw.polygon([
+        (L[0] + 4 * S, L[1] + 12 * S),
+        (L[0] + 8 * S, L[1] + 20 * S),
+        (L[0] - temple_ext * S, L[1] + 6 * S),
+        (L[0] - temple_ext * S, L[1] + 1 * S),
+    ], fill=frame)
     # Правая дужка
-    draw.line((right_box[2] - 6, right_box[1] + 14, right_box[2] + 35, right_box[1] + 6),
-              fill=frame_color, width=temple_w)
+    draw.polygon([
+        (R[2] - 4 * S, R[1] + 12 * S),
+        (R[2] - 8 * S, R[1] + 20 * S),
+        (R[2] + temple_ext * S, R[1] + 6 * S),
+        (R[2] + temple_ext * S, R[1] + 1 * S),
+    ], fill=frame)
 
-    # Линзы (фоновая заливка)
-    for box in (left_box, right_box):
-        draw.rounded_rectangle(box, radius=radius, fill=lens_color)
-    # Рамка вокруг линз
-    for box in (left_box, right_box):
-        draw.rounded_rectangle(box, radius=radius, outline=frame_color, width=10)
+    # ── Линзы: заливка + вертикальный градиент ──────────────────
+    lens_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ld = ImageDraw.Draw(lens_layer)
+    for b in (L, R):
+        ld.rounded_rectangle(b, radius=radius * S, fill=lens + (255,))
 
-    # Блик в верхней части линз (диагональная белая полоса)
+    # Лёгкий градиент-блеск сверху
+    grad = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(grad)
+    for b in (L, R):
+        steps = 30
+        for i in range(steps):
+            y0 = b[1] + (b[3] - b[1]) * i // steps
+            y1 = b[1] + (b[3] - b[1]) * (i + 1) // steps
+            alpha = int(80 * (1 - i / steps) ** 2)
+            gd.rectangle((b[0], y0, b[2], y1), fill=highlight + (alpha,))
+
+    mask = Image.new("L", (W, H), 0)
+    md = ImageDraw.Draw(mask)
+    for b in (L, R):
+        md.rounded_rectangle(b, radius=radius * S, fill=255)
+
+    grad_masked = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    grad_masked.paste(grad, (0, 0), mask)
+    lens_layer = Image.alpha_composite(lens_layer, grad_masked)
+    img = Image.alpha_composite(img.convert("RGBA"), lens_layer).convert("RGB")
+    draw = ImageDraw.Draw(img)
+
+    # ── Толстая Wayfarer-рамка ───────────────────────────────────
+    for b in (L, R):
+        draw.rounded_rectangle(b, radius=radius * S,
+                               outline=frame, width=frame_thick * S)
+
+    # ── Диагональный блик внутри линз ────────────────────────────
     gloss = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    gdraw = ImageDraw.Draw(gloss)
-    for box in (left_box, right_box):
-        gdraw.polygon([
-            (box[0] + 18, box[1] + 12),
-            (box[0] + 48, box[1] + 12),
-            (box[0] + 22, box[3] - 18),
-            (box[0] + 8,  box[3] - 18),
-        ], fill=(255, 255, 255, 60))
-    gloss = gloss.filter(ImageFilter.GaussianBlur(radius=3))
-    img = Image.alpha_composite(img.convert("RGBA"), gloss).convert("RGB")
+    gd2 = ImageDraw.Draw(gloss)
+    for b in (L, R):
+        gd2.polygon([
+            (b[0] + 20 * S, b[1] + 16 * S),
+            (b[0] + 55 * S, b[1] + 16 * S),
+            (b[0] + 32 * S, b[3] - 20 * S),
+            (b[0] + 14 * S, b[3] - 20 * S),
+        ], fill=(255, 255, 255, 80))
+    gloss = gloss.filter(ImageFilter.GaussianBlur(radius=2 * S))
+    gloss_m = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    gloss_m.paste(gloss, (0, 0), mask)
+    img = Image.alpha_composite(img.convert("RGBA"), gloss_m).convert("RGB")
+    draw = ImageDraw.Draw(img)
 
-    # Акцент Meta-точка (если задана)
-    if accent:
-        adraw = ImageDraw.Draw(img)
-        r = 5
-        # маленькая точка-индикатор в правом верхнем углу правой линзы (камера)
-        ax = right_box[2] - 18
-        ay = right_box[1] + 16
-        adraw.ellipse((ax - r, ay - r, ax + r, ay + r), fill=accent)
-        # маленькая точка слева (вторая камера / LED)
-        ax2 = left_box[0] + 12
-        ay2 = left_box[1] + 16
-        adraw.ellipse((ax2 - r + 1, ay2 - r + 1, ax2 + r - 1, ay2 + r - 1),
-                      fill=(180, 180, 180))
+    # ── Точка-индикатор камеры (Meta-style) ──────────────────────
+    if dot:
+        r = 3 * S
+        ax = R[2] - 14 * S
+        ay = R[1] + 14 * S
+        draw.ellipse((ax - r, ay - r, ax + r, ay + r), fill=dot)
+        # На другой линзе — серая "вторая камера"
+        ax2 = L[0] + 14 * S
+        ay2 = L[1] + 14 * S
+        rr = r - S
+        draw.ellipse((ax2 - rr, ay2 - rr, ax2 + rr, ay2 + rr),
+                     fill=(160, 160, 165))
 
-    img.save(out_path, "JPEG", quality=88, optimize=True)
+    final = img.resize((OUT, OUT), Image.LANCZOS)
+    final.save(out_path, "JPEG", quality=90, optimize=True, progressive=True)
     print(f"  ✓ {out_path.relative_to(ROOT)}")
 
 
-# Ray-Ban Meta (2025) — глянцевый чёрный с тёмно-серыми линзами + индикатор
-draw_sunglasses(
+# Glasses 2025 — Shiny Black
+draw_wayfarer(
     OUT_DIR / "rayban-meta-gen4.jpg",
-    frame_color=(15, 15, 17),
-    lens_color=(38, 42, 52),
-    accent=(220, 30, 60),       # Meta-красный индикатор
+    frame=(12, 13, 17),
+    lens=(34, 38, 50),
+    highlight=(160, 170, 200),
+    dot=(225, 30, 60),
 )
 
-# Ray-Ban Meta Smart Glasses — классический Wayfarer Shiny Black, чёрные линзы
-draw_sunglasses(
+# Smart Glasses Gen3 — Shiny Havana (тёплый коричневый)
+draw_wayfarer(
     OUT_DIR / "rayban-meta-gen3.jpg",
-    frame_color=(20, 20, 22),
-    lens_color=(28, 30, 36),
-    accent=(220, 30, 60),
+    frame=(72, 40, 22),
+    lens=(58, 38, 26),
+    highlight=(210, 170, 110),
+    dot=(225, 30, 60),
 )
 
 print("done")
