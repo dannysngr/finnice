@@ -91,6 +91,15 @@ function honorSortKey(model: string): [number, number, number] {
   return [series, -gen, tier];
 }
 
+// Внутри аксессуаров: пушим чехлы/брелоки/кабели в конец, наушники наверх
+function accessoryRank(item: CatalogItem): number {
+  const n = item.name.toLowerCase();
+  const isCase = /(чехол|case|брелок|обложка|подвеска)/i.test(item.name) || item.emoji === "📦";
+  if (isCase) return 2;                                  // самый низ
+  if (/(airpods|наушник|headphone)/i.test(n)) return 0;  // наверху
+  return 1;
+}
+
 // Единый ключ для сортировки "По популярности"
 function defaultSortKey(item: CatalogItem): number[] {
   const bRank = brandRank(item.brand);
@@ -100,8 +109,9 @@ function defaultSortKey(item: CatalogItem): number[] {
   let modelKey: number[];
 
   if (brand === "Apple" && cat !== "telefony") {
-    // Не-телефонная Apple-техника: год убывает, цена убывает
-    modelKey = [-(item.year ?? 0), -item.price];
+    // Не-телефонная Apple-техника: тип аксессуара (наушники→чехлы), год убывает, цена убывает
+    const aRank = cat === "aksessuary" ? accessoryRank(item) : 0;
+    modelKey = [aRank, -(item.year ?? 0), -item.price];
   } else if (brand === "Apple") {
     const k = iphoneSortKey(model);
     modelKey = [k[0], k[1]];
