@@ -164,8 +164,11 @@ export default function ContactsPage() {
           {/* Map + social */}
           <div className="lg:col-span-2 space-y-4">
             <div className="rounded-3xl overflow-hidden border-2 border-[#E5E7EB] h-80 md:h-[480px] shadow-md">
+              {/* ll=lon,lat — координаты дома; pt=lon,lat,pm2dgnl — зелёный пин.
+                  text= не используем намеренно: он триггерит карточку
+                  «улица ... · Организации в доме · Сообщить об ошибке». */}
               <iframe
-                src="https://yandex.ru/map-widget/v1/?text=%D0%93%D1%80%D0%BE%D0%B7%D0%BD%D1%8B%D0%B9%2C+%D1%83%D0%BB.+%D0%9E%D1%80%D0%B7%D0%B0%D0%BC%D0%B8%D0%B5%D0%B2%D0%B0%2C+8&z=17&l=map&lang=ru_RU"
+                src="https://yandex.ru/map-widget/v1/?ll=45.6862%2C43.3187&z=17&l=map&pt=45.6862%2C43.3187%2Cpm2dgnl&lang=ru_RU"
                 width="100%" height="100%" style={{ border: 0 }}
                 allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
                 title="ФинНайс на карте — г. Грозный, ул. Орзамиева, 8"
