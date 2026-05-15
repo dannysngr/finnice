@@ -22,20 +22,15 @@ interface Props {
   className?: string;
 }
 
-let _idSeed = 0;
-function uniqueId(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID().slice(0, 8);
-  }
-  return `g${++_idSeed}`;
-}
-
 export function FinniceLogo({
   size = 32, variant = "mark", color = "gradient", className,
 }: Props) {
   /* Уникальные id для градиентов — чтобы несколько логотипов
-     на одной странице не конфликтовали. */
-  const gid = React.useMemo(() => uniqueId(), []);
+     на одной странице не конфликтовали. useId даёт стабильный
+     id, одинаковый на сервере и клиенте — без него ловим
+     hydration mismatch. Двоеточия из useId убираем, чтобы
+     не ломать url(#…) ссылку в SVG. */
+  const gid = React.useId().replace(/:/g, "");
   const gradId   = `finnice-grad-${gid}`;
   const shadowId = `finnice-shadow-${gid}`;
 

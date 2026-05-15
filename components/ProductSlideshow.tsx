@@ -66,16 +66,16 @@ export function ProductSlideshow({
     if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
 
     const tick = () => setIdx(i => (i + 1) % list.length);
-    const initial = setTimeout(() => {
+
+    let intervalId: ReturnType<typeof setInterval> | undefined;
+    const timeoutId = setTimeout(() => {
       tick();
-      const t = setInterval(tick, intervalMs);
-      (initial as unknown as { interval?: ReturnType<typeof setInterval> }).interval = t;
+      intervalId = setInterval(tick, intervalMs);
     }, offset.current);
 
     return () => {
-      clearTimeout(initial);
-      const t = (initial as unknown as { interval?: ReturnType<typeof setInterval> }).interval;
-      if (t) clearInterval(t);
+      clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
     };
   }, [list.length, paused, intervalMs]);
 
