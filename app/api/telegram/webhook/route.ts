@@ -84,7 +84,7 @@ function setupHandlers(bot: Telegraf) {
     }
 
     await ctx.reply(
-      `✅ *Номер подтверждён*\n\nТеперь вы можете войти на [finnice.vercel.app](https://finnice.vercel.app).`,
+      `✅ *Номер подтверждён*\n\nТеперь вы можете войти на [finnice.ru](https://finnice.ru).`,
       {
         parse_mode:   "Markdown",
         reply_markup: { remove_keyboard: true },

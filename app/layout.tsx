@@ -14,15 +14,25 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://finnice.ru"),
   title: `${COMPANY.name} — Честная рассрочка в Грозном`,
   description: `${COMPANY.legalName} предоставляет жителям Чеченской Республики товарную рассрочку по нормам Ислама. ${COMPANY.slogan}`,
   keywords:    `рассрочка, ${COMPANY.city}, ${COMPANY.region}, исламская рассрочка, без процентов, халяль`,
+  alternates:  { canonical: "/" },
   openGraph: {
     title:       `${COMPANY.name} — Честная рассрочка в Грозном`,
     description: COMPANY.slogan,
+    url:         "https://finnice.ru",
+    siteName:    COMPANY.name,
     locale:      "ru_RU",
     type:        "website",
   },
+  twitter: {
+    card:        "summary_large_image",
+    title:       `${COMPANY.name} — Честная рассрочка в Грозном`,
+    description: COMPANY.slogan,
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
