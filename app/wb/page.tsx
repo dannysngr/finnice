@@ -21,7 +21,7 @@ export default function WbPage() {
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/15 rounded-full
                           border border-white/25 mb-6">
             <span className="text-xl">🛍️</span>
-            <span className="font-semibold text-sm">Wildberries × ФинНайс</span>
+            <span className="font-semibold text-sm">Wildberries × Финнайс</span>
           </div>
 
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight mb-4">
@@ -118,7 +118,7 @@ const HOW_ITEMS = [
   {
     icon: "✅",
     title: "Одобрение за 15 мин",
-    desc:  "Менеджер ФинНайс свяжется с вами и подтвердит заявку.",
+    desc:  "Менеджер Финнайс свяжется с вами и подтвердит заявку.",
   },
   {
     icon: "📦",
@@ -134,7 +134,7 @@ const FAQ = [
   },
   {
     q: "Это действительно без процентов?",
-    a: "Да. ФинНайс работает по принципу товарной рассрочки — мы сначала покупаем товар, а потом продаём вам с фиксированной наценкой. Это не кредит и не займ.",
+    a: "Да. Финнайс работает по принципу товарной рассрочки — мы сначала покупаем товар, а потом продаём вам с фиксированной наценкой. Это не кредит и не займ.",
   },
   {
     q: "Какой минимальный первоначальный взнос?",

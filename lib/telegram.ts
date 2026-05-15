@@ -72,7 +72,7 @@ export async function sendOtpCode(
   const bot = getBot();
 
   const message = [
-    `🔐 *Код подтверждения ФинНайс*`,
+    `🔐 *Код подтверждения Финнайс*`,
     ``,
     `Ваш одноразовый код:`,
     ``,

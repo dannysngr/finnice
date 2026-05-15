@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { COMPANY, REP } from "@/lib/data";
+import { COMPANY } from "@/lib/data";
+import { Phone, MessageCircle, Send, MapPin, Clock, Mail, Camera } from "lucide-react";
 
 export const metadata: Metadata = {
   title:       `Контакты — ${COMPANY.name} | ${COMPANY.city}`,
   description: `Офис ${COMPANY.legalName} в г. ${COMPANY.city}. ${COMPANY.address}. Тел: ${COMPANY.phone}. График: ${COMPANY.hours}.`,
-  keywords:    `контакты ФинНайс, ${COMPANY.city}, адрес офиса, исламская рассрочка ${COMPANY.city}`,
+  keywords:    `контакты Финнайс, ${COMPANY.city}, адрес офиса, исламская рассрочка ${COMPANY.city}`,
 };
 
 export default function ContactsPage() {
@@ -58,9 +59,9 @@ export default function ContactsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <a href={COMPANY.phoneTel}
                className="group bg-white rounded-2xl p-5 border border-[#E5E7EB] flex items-center gap-3 transition-all hover:border-[#0C7A58]/40 hover:shadow-lg hover:-translate-y-0.5">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-xl"
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
                    style={{ background: "linear-gradient(135deg, #0E2344, #1A3C6E)" }}>
-                <span className="text-white">📞</span>
+                <Phone className="w-5 h-5 text-white" strokeWidth={2.2} />
               </div>
               <div className="min-w-0">
                 <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF] font-bold">Позвонить</p>
@@ -69,9 +70,9 @@ export default function ContactsPage() {
             </a>
             <a href={COMPANY.whatsapp} target="_blank" rel="noopener"
                className="group bg-white rounded-2xl p-5 border border-[#E5E7EB] flex items-center gap-3 transition-all hover:border-[#25D366]/40 hover:shadow-lg hover:-translate-y-0.5">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-xl"
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
                    style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}>
-                <span className="text-white">💬</span>
+                <MessageCircle className="w-5 h-5 text-white" strokeWidth={2.2} />
               </div>
               <div className="min-w-0">
                 <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF] font-bold">WhatsApp</p>
@@ -80,9 +81,9 @@ export default function ContactsPage() {
             </a>
             <a href={COMPANY.telegram} target="_blank" rel="noopener"
                className="group bg-white rounded-2xl p-5 border border-[#E5E7EB] flex items-center gap-3 transition-all hover:border-[#2AABEE]/40 hover:shadow-lg hover:-translate-y-0.5">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-xl"
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
                    style={{ background: "linear-gradient(135deg, #2AABEE, #229ED9)" }}>
-                <span className="text-white">✈</span>
+                <Send className="w-5 h-5 text-white" strokeWidth={2.2} />
               </div>
               <div className="min-w-0">
                 <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF] font-bold">Telegram</p>
@@ -101,9 +102,9 @@ export default function ContactsPage() {
 
             <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg"
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                      style={{ background: "linear-gradient(135deg, #ECFDF5, #D1FAE5)" }}>
-                  📍
+                  <MapPin className="w-5 h-5 text-[#0C7A58]" strokeWidth={2.2} />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-[#0C7A58] font-bold mb-1">Адрес</p>
@@ -115,9 +116,9 @@ export default function ContactsPage() {
 
             <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg"
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                      style={{ background: "linear-gradient(135deg, #FEF3C7, #FDE68A)" }}>
-                  🕐
+                  <Clock className="w-5 h-5 text-[#C8972B]" strokeWidth={2.2} />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-[#C8972B] font-bold mb-1">График</p>
@@ -129,9 +130,9 @@ export default function ContactsPage() {
 
             <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg"
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                      style={{ background: "linear-gradient(135deg, #EBF0F9, #DBE7F5)" }}>
-                  ✉
+                  <Mail className="w-5 h-5 text-[#1A3C6E]" strokeWidth={2.2} />
                 </div>
                 <div className="min-w-0">
                   <p className="text-[10px] uppercase tracking-wider text-[#1A3C6E] font-bold mb-1">Email</p>
@@ -143,22 +144,6 @@ export default function ContactsPage() {
               </div>
             </div>
 
-            {/* Rep highlighted card */}
-            <div className="rounded-2xl p-5 border-2 relative overflow-hidden"
-                 style={{
-                   background: "linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)",
-                   borderColor: "#86EFAC",
-                 }}>
-              <div className="absolute -right-4 -bottom-4 text-7xl opacity-10">👤</div>
-              <div className="relative">
-                <p className="text-[10px] uppercase tracking-wider text-[#0C7A58] font-bold mb-2">Лицо компании</p>
-                <p className="font-extrabold text-[#0A1628] text-base">{REP.name}</p>
-                <p className="text-xs text-[#374151] mb-3">{REP.title}</p>
-                <p className="text-xs text-[#0A1628]/80 leading-relaxed italic">
-                  «{REP.quote}»
-                </p>
-              </div>
-            </div>
           </div>
 
           {/* Map + social */}
@@ -168,10 +153,10 @@ export default function ContactsPage() {
                   text= не используем намеренно: он триггерит карточку
                   «улица ... · Организации в доме · Сообщить об ошибке». */}
               <iframe
-                src="https://yandex.ru/map-widget/v1/?ll=45.6862%2C43.3187&z=17&l=map&pt=45.6862%2C43.3187%2Cpm2dgnl&lang=ru_RU"
+                src="https://yandex.ru/map-widget/v1/?ll=45.679763%2C43.322269&z=17&l=map&pt=45.679763%2C43.322269%2Cpm2dgnl&lang=ru_RU"
                 width="100%" height="100%" style={{ border: 0 }}
                 allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
-                title="ФинНайс на карте — г. Грозный, ул. Орзамиева, 8"
+                title="Финнайс на карте — г. Грозный, ул. Орзамиева, 8"
               />
             </div>
 
@@ -191,26 +176,21 @@ export default function ContactsPage() {
             {/* Social grid */}
             <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5">
               <h2 className="text-base font-extrabold text-[#0A1628] mb-4">Мы в соцсетях</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <a href={COMPANY.telegram} target="_blank" rel="noopener"
+              <div className="grid grid-cols-3 gap-2.5">
+                <a href={COMPANY.telegram} target="_blank" rel="noopener noreferrer"
                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl text-white font-bold text-xs transition-transform hover:scale-105 active:scale-95"
                    style={{ background: "linear-gradient(135deg, #2AABEE, #229ED9)" }}>
-                  <span className="text-lg">✈</span> Telegram
+                  <Send className="w-5 h-5" strokeWidth={2.2} /> Telegram
                 </a>
-                <a href={COMPANY.whatsapp} target="_blank" rel="noopener"
+                <a href={COMPANY.whatsapp} target="_blank" rel="noopener noreferrer"
                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl text-white font-bold text-xs transition-transform hover:scale-105 active:scale-95"
                    style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}>
-                  <span className="text-lg">💬</span> WhatsApp
+                  <MessageCircle className="w-5 h-5" strokeWidth={2.2} /> WhatsApp
                 </a>
                 <a href={COMPANY.instagram} target="_blank" rel="noopener noreferrer"
                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl text-white font-bold text-xs transition-transform hover:scale-105 active:scale-95"
                    style={{ background: "linear-gradient(135deg, #F58529, #DD2A7B 60%, #8134AF)" }}>
-                  <span className="text-lg">📸</span> Instagram
-                </a>
-                <a href="#" rel="noopener"
-                   className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl text-white font-bold text-xs transition-transform hover:scale-105 active:scale-95"
-                   style={{ background: "linear-gradient(135deg, #4C75A3, #2B587A)" }}>
-                  <span className="text-lg">🔵</span> ВКонтакте
+                  <Camera className="w-5 h-5" strokeWidth={2.2} /> Instagram
                 </a>
               </div>
             </div>
@@ -236,7 +216,7 @@ export default function ContactsPage() {
             </Link>
             <a href={COMPANY.phoneTel}
                className="px-6 py-3 rounded-full font-bold text-white border border-white/30 hover:bg-white/10 transition-colors inline-flex items-center gap-2">
-              📞 {COMPANY.phone}
+              <Phone className="w-4 h-4" strokeWidth={2.2} /> {COMPANY.phone}
             </a>
           </div>
         </div>

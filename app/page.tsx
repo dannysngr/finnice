@@ -3,9 +3,6 @@ import Link from "next/link";
 // import { HeroSlider } from "@/components/HeroSlider";
 import { Calculator } from "@/components/Calculator";
 import { SmartphonesSection } from "@/components/SmartphonesSection";
-import {
-  CITIES, DISTRICTS,
-} from "@/lib/data";
 import { BLOG } from "@/lib/blog-data";
 
 /* ── Banner helpers ──────────────────────────────────────────── */
@@ -267,7 +264,6 @@ export default function HomePage() {
     <main>
       <CalculatorSection />
       <SmartphonesSection />
-      <LocationSection />
       <AboutSection />
       <BlogSection />
     </main>
@@ -312,51 +308,6 @@ function CalculatorSection() {
 
 /* ── 2. Smartphones — вынесен в SmartphonesSection.tsx ─────── */
 
-/* ── 4. Location coverage ────────────────────────────────────── */
-function LocationSection() {
-  return (
-    <section className="py-14">
-      <div className="section">
-        <h2 className="text-3xl font-extrabold text-[#0A1628] mb-1">
-          Рассрочка по районам
-        </h2>
-        <p className="text-[#9CA3AF] text-sm mb-8">(на стадии наполнения)</p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          <TagCloud label="🏙 Города" items={CITIES} base="/catalog/?city=" />
-          <TagCloud label="🗺 Районы" items={DISTRICTS} base="/catalog/?district=" />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TagCloud({
-  label, items, base,
-}: {
-  label: string;
-  items: ReadonlyArray<string>;
-  base: string;
-}) {
-  return (
-    <div>
-      <h3 className="font-semibold text-[#0A1628] mb-4">{label}</h3>
-      <div className="flex flex-wrap gap-2">
-        {items.map((item) => (
-          <Link
-            key={item}
-            href={`${base}${encodeURIComponent(item)}`}
-            className="px-4 py-2 bg-[#F4F7FC] border border-[#D8E2F0] rounded-full text-sm
-                       text-[#4B5563] hover:text-[#1A3C6E] hover:border-[#1A3C6E]/40
-                       hover:bg-[#EBF0F9] transition-colors"
-          >
-            {item}
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 /* ── 5. About ────────────────────────────────────────────────── */
 const ABOUT_DNA = [

@@ -346,7 +346,7 @@ export function AdminClient({ isAdmin, role }: { isAdmin: boolean; role?: AdminR
         <div className="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center flex-wrap gap-x-3">
-              ФинНайс Admin
+              Финнайс Admin
               {role && (
                 <span className="text-[11px] font-bold uppercase px-2.5 py-1 rounded-md"
                       style={{

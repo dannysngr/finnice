@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { COMPANY, REP } from "@/lib/data";
+import { COMPANY } from "@/lib/data";
 import { FinniceLogo } from "@/components/FinniceLogo";
 
 export const metadata: Metadata = {
@@ -91,7 +91,7 @@ export default function CompanyPage() {
               Наш ДНК
             </p>
             <h2 className="text-3xl font-extrabold text-[#0A1628] mb-3">
-              На чём построен ФинНайс
+              На чём построен Финнайс
             </h2>
             <p className="text-[#6B7280] max-w-xl mx-auto">
               Четыре принципа, которые определяют, как мы работаем с каждым клиентом.
@@ -118,30 +118,6 @@ export default function CompanyPage() {
         </div>
       </section>
 
-      {/* Rep banner */}
-      <section className="py-8 bg-[#F4F7FC]">
-        <div className="section max-w-4xl mx-auto">
-          <div className="bg-white rounded-3xl border border-[#E5E7EB] p-6 lg:p-8 flex items-center gap-6 flex-wrap">
-            <div className="w-14 h-14 rounded-full shrink-0 flex items-center justify-center text-white text-xl font-extrabold"
-                 style={{ background: "linear-gradient(135deg, #0C7A58, #0a6449)" }}>
-              {(REP.name?.[0] ?? "Д")}
-            </div>
-            <div className="flex-1 min-w-[200px]">
-              <p className="text-[#0A1628] font-semibold text-base leading-snug">
-                «{REP.quote}»
-              </p>
-              <p className="text-[#6B7280] text-sm mt-1">
-                {REP.name} — {REP.title}
-              </p>
-            </div>
-            <Link href="/contacts/"
-                  className="px-5 py-2.5 rounded-full text-sm font-bold text-white transition-opacity hover:opacity-90 active:scale-95"
-                  style={{ background: "linear-gradient(135deg, #0C7A58, #0a6449)" }}>
-              Связаться →
-            </Link>
-          </div>
-        </div>
-      </section>
 
       {/* Final CTA */}
       <section className="py-16 bg-[#0A1628] relative overflow-hidden">

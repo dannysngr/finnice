@@ -106,7 +106,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     contractNumber,
     contractDate: loan.startDate || new Date().toISOString().slice(0, 10),
     contractCity: profile.addrCity || "Грозный",
-    sellerCompanyName: "ФинНайс",
+    sellerCompanyName: "Финнайс",
     sellerDirectorFullName: directorFullName,
     buyerFullName: [profile.lastName, profile.firstName, profile.patronymic].filter(Boolean).join(" "),
     buyerBirthDate: profile.birthDate || "",

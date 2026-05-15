@@ -20,7 +20,7 @@ export interface ContractData {
   contractDate:   string;        // ISO yyyy-mm-dd
   contractCity:   string;        // место заключения, по умолчанию "Грозный"
   /* Продавец */
-  sellerCompanyName: string;     // "ФинНайс" (без ООО, т.к. ЮЛ нет)
+  sellerCompanyName: string;     // "Финнайс" (без ООО, т.к. ЮЛ нет)
   sellerDirectorFullName: string;
   /* Покупатель */
   buyerFullName:  string;
@@ -123,7 +123,7 @@ export async function buildContract(data: ContractData): Promise<Uint8Array> {
 
   /* ── Документ ────────────────────────────────────────── */
   const doc = new Document({
-    creator: "ФинНайс",
+    creator: "Финнайс",
     title:   `Договор купли-продажи в рассрочку №${data.contractNumber}`,
     styles:  {
       default: {

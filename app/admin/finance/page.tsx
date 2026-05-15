@@ -5,7 +5,7 @@ import { canViewFinance } from "@/lib/adminAuth";
 import { FinanceClient } from "./FinanceClient";
 
 export const metadata = {
-  title: "Finance · iso-IRR — ФинНайс",
+  title: "Finance · iso-IRR — Финнайс",
   robots: { index: false, follow: false },
 };
 

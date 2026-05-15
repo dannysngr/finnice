@@ -78,7 +78,7 @@ function ModalHeader({
             <FinniceLogo size={36} variant="mark" />
             <div>
               <p className="font-black text-[#0A1628] text-base leading-none tracking-tight">
-                ФинНайс
+                Финнайс
               </p>
               <p className="text-[11px] text-[#9CA3AF] mt-0.5">Личный кабинет</p>
             </div>

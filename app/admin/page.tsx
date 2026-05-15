@@ -4,7 +4,7 @@ import { SESSION_COOKIE, verifySessionToken } from "@/lib/session";
 import { getAdminRole } from "@/lib/adminAuth";
 
 export const metadata = {
-  title: "Admin Panel - ФинНайс",
+  title: "Admin Panel - Финнайс",
   robots: { index: false, follow: false },
 };
 

@@ -12,7 +12,7 @@ import { computeRealInvestorMetrics } from "@/lib/finance/investor-real-metrics"
 import { PortfolioClient } from "./PortfolioClient";
 
 export const metadata = {
-  title: "Портфель инвесторов — ФинНайс",
+  title: "Портфель инвесторов — Финнайс",
   robots: { index: false, follow: false },
 };
 

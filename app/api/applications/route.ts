@@ -206,7 +206,7 @@ export async function POST(req: Request) {
       if (userRecord?.chatId) {
         await sendToChat(
           userRecord.chatId,
-          `✅ *Заявка принята!*\n\nМы уже начали её рассматривать. Скоро пришлём решение.\n\nСпасибо, что выбрали *ФинНайс!*`
+          `✅ *Заявка принята!*\n\nМы уже начали её рассматривать. Скоро пришлём решение.\n\nСпасибо, что выбрали *Финнайс!*`
         );
       }
     } catch (notifyErr) {

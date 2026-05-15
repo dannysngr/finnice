@@ -266,7 +266,7 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
           <FinniceLogo size={30} variant="mark" />
           <div className="flex-1 min-w-0">
             <h2 className="text-sm font-extrabold text-[#0A1628] leading-tight">Заявка на рассрочку</h2>
-            <p className="text-[10px] text-[#9CA3AF]">ФинНайс · без риба и скрытых платежей</p>
+            <p className="text-[10px] text-[#9CA3AF]">Финнайс · без риба и скрытых платежей</p>
           </div>
           <button onClick={onClose}
                   className="w-7 h-7 rounded-full bg-[#F3F4F6] flex items-center justify-center

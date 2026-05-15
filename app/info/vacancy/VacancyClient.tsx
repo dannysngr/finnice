@@ -52,20 +52,20 @@ export function VacancyClient({ vacancies }: { vacancies: Vacancy[] }) {
               <div className="pt-4 border-t border-[#F3F4F6] flex items-center justify-between gap-3 flex-wrap">
                 <p className="text-[11px] text-[#9CA3AF]">
                   {v.closed
-                    ? "Набор временно приостановлен"
-                    : "Грозный · оформление по ТК РФ · обучение за счёт компании"}
+                    ? "Набор пока не начат"
+                    : "Грозный · обучение за счёт компании"}
                 </p>
                 {v.closed ? (
                   <button
                     disabled
-                    title="Набор по этой вакансии временно приостановлен"
+                    title="Набор по этой вакансии пока не начат"
                     className="px-5 py-2.5 rounded-full text-sm font-bold cursor-not-allowed"
                     style={{
                       background: "#F3F4F6",
                       color:      "#9CA3AF",
                       border:     "1px dashed #D8E2F0",
                     }}>
-                    Набор приостановлен
+                    Набор не начат
                   </button>
                 ) : (
                   <button

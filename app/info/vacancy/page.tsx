@@ -64,7 +64,7 @@ export default function VacancyPage() {
               {VACANCIES.length} {VACANCIES.length === 1 ? "открытая вакансия" : "открытые вакансии"} · {COMPANY.city}
             </span>
             <h1 className="text-3xl lg:text-5xl font-extrabold text-white tracking-tight mb-4">
-              Работа в ФинНайс
+              Работа в Финнайс
             </h1>
             <p className="text-white/75 text-lg leading-relaxed">
               Мы строим первый на Кавказе исламский финтех. Без риба, без штрафов, без серых схем —

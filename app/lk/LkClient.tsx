@@ -1791,7 +1791,7 @@ function Dashboard({ initialData }: { initialData: MeData }) {
           <h1 className="text-sm sm:text-base font-black text-white leading-tight tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
             {formatGreeting(data.firstName, data.lastName)}
           </h1>
-          <p className="text-xs text-white/55 mt-0.5">Ваш личный кабинет ФинНайс</p>
+          <p className="text-xs text-white/55 mt-0.5">Ваш личный кабинет Финнайс</p>
         </motion.div>
       </header>
 
