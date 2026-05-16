@@ -24,7 +24,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
   const redis      = getRedis();
   const userRecord = await findByPhone(phone);
-  const profile    = await redis.get<ProfileRecord & { blocked?: boolean }>(`profile:${phone}`);
+  const profile    = await redis.get<ProfileRecord & { blocked?: boolean; corporate?: boolean }>(`profile:${phone}`);
   const loanKeys   = await redis.keys(`loans:${phone}:*`);
 
   const loanObjects = await Promise.all(loanKeys.map(k => redis.get<LoanRecord>(k)));
@@ -39,6 +39,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
     birthDate:      profile?.birthDate      ?? null,
     trustScore:     profile?.trustScore     ?? 0,
     blocked:        profile?.blocked        ?? false,
+    corporate:      profile?.corporate      ?? false,
     chatId:         userRecord?.chatId      ?? null,
     createdAt:      userRecord?.createdAt   ?? null,
     lastLogin:      userRecord?.lastLogin   ?? null,
@@ -81,8 +82,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   if (!body) return NextResponse.json({ error: "Bad request" }, { status: 400 });
 
   const redis    = getRedis();
-  const existing = (await redis.get<ProfileRecord & { blocked?: boolean }>(`profile:${phone}`))
-    ?? ({} as ProfileRecord & { blocked?: boolean });
+  const existing = (await redis.get<ProfileRecord & { blocked?: boolean; corporate?: boolean }>(`profile:${phone}`))
+    ?? ({} as ProfileRecord & { blocked?: boolean; corporate?: boolean });
 
   const updated = {
     ...existing,
@@ -92,6 +93,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     birthDate:  body.birthDate  !== undefined ? str(body.birthDate,  "", 10) : existing.birthDate,
     trustScore: typeof body.trustScore === "number" ? body.trustScore : (existing.trustScore ?? 0),
     blocked:    typeof body.blocked    === "boolean" ? body.blocked    : (existing.blocked    ?? false),
+    corporate:  typeof body.corporate  === "boolean" ? body.corporate  : (existing.corporate  ?? false),
     avatarUrl:  existing.avatarUrl ?? "",
     // Адрес регистрации
     birthPlaceCity: body.birthPlaceCity !== undefined ? str(body.birthPlaceCity, "", 100) : (existing.birthPlaceCity ?? ""),

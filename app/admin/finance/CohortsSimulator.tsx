@@ -56,11 +56,14 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
   const [investorProfitShare, setInvestorProfitShare] = useState(0.4);
   const [profitSplitMode, setProfitSplitMode] = useState<"prorata" | "carried" | "isolated">("isolated");
 
-  /* Наценка — из iso-IRR матрицы (округлённая) */
-  const markupPct = useMemo(
+  /* Наценка — авто из iso-IRR матрицы (округлённая) или ручной override */
+  const autoMarkup = useMemo(
     () => markupRounded(termMonths, downPct, inflationAnnual),
     [termMonths, downPct, inflationAnnual],
   );
+  const [manualMarkup, setManualMarkup] = useState<number | null>(null);
+  const markupPct = manualMarkup ?? autoMarkup;
+  const isMarkupAuto = manualMarkup === null;
 
   const sim = useMemo(() => simulateCohorts({
     capital, monthsToSimulate: horizon,
@@ -107,12 +110,15 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
       </h2>
       <p className="text-xs text-[#6B7280] mb-5">
         Полная модель: дефолты, opex, дисциплина деплоя, реинвест/вывод прибыли, инвестор-капитал.
-        Наценка <b>{fmtPctInt(markupPct)}</b> берётся из iso-IRR матрицы автоматически.
+        Наценка <b>{fmtPctInt(markupPct)}</b>{" "}
+        {isMarkupAuto
+          ? <>берётся из iso-IRR матрицы автоматически.</>
+          : <>задана вручную (<button onClick={() => setManualMarkup(null)} className="underline text-[#0C7A58] hover:text-[#0A1628]">вернуть авто {fmtPctInt(autoMarkup)}</button>).</>}
       </p>
 
       {/* ════════ Блок 1: Базовые параметры ════════ */}
       <Group title="1. Базовые параметры" accent="#0A1628">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <SliderField label="Стартовый капитал" value={capital}
             min={100_000} max={50_000_000} step={100_000}
             onChange={setCapital} format={v => fmtRub(v) + " ₽"}
@@ -133,6 +139,13 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
             min={6} max={36} step={1}
             onChange={setHorizon} format={v => `${v} мес`}
             tooltip="Сколько месяцев симулируем активную выдачу новых сделок. После окончания горизонта запускается wind-down — доплата по уже выданным сделкам без новых выдач." />
+          <SliderField
+            label={isMarkupAuto ? "Наценка (авто)" : "Наценка (ручная)"}
+            value={markupPct}
+            min={0.05} max={1.0} step={0.01}
+            onChange={v => setManualMarkup(v)}
+            format={v => fmtPctInt(v)}
+            tooltip="Процент наценки сверх стоимости сделки — наша валовая маржа. Авто-значение берётся из iso-IRR матрицы по сроку/взносу/инфляции. Сдвинь слайдер чтобы переопределить вручную; вернуть к авто можно ссылкой выше." />
         </div>
       </Group>
 

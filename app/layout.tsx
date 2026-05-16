@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://finnice.ru"),
   title: `${COMPANY.name} — Честная рассрочка в Грозном`,
   description: `${COMPANY.legalName} предоставляет жителям Чеченской Республики товарную рассрочку по нормам Ислама. ${COMPANY.slogan}`,
-  keywords:    `рассрочка, ${COMPANY.city}, ${COMPANY.region}, исламская рассрочка, без процентов, халяль`,
+  keywords:    `рассрочка, ${COMPANY.city}, ${COMPANY.region}, исламская рассрочка, халяль, по нормам ислама`,
   alternates:  { canonical: "/" },
   openGraph: {
     title:       `${COMPANY.name} — Честная рассрочка в Грозном`,

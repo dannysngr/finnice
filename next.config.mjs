@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      { source: "/corporate-calculator", destination: "/corporate", permanent: true },
+    ];
+  },
   images: {
     remotePatterns: [
       {

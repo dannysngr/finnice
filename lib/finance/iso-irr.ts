@@ -211,6 +211,63 @@ export function computeDealMetrics(deal: DealParams): DealMetrics {
   };
 }
 
+/* ════════════════════════════════════════════════════════════
+   CORPORATE — пониженный таргет IRR для тарифа сотрудников
+   ────────────────────────────────────────────────────────────
+   Якорь: 6 мес (= 5 ежемесячных платежей после взноса),
+          взнос 20% (минимум для price ≥ 50 000 ₽),
+          наценка 18%.
+   Из этого якоря выводится месячный таргет ≈ 7.2%/мес
+   (≈ 130% годовых). Для остальных (term, down) применяется
+   та же формула markupForTargetIRR — наценка автоматически
+   снижается при бо́льшем взносе.
+
+   Целевая IRR ниже стандартной (~8.9%/мес, ~181% годовых),
+   поэтому корпоративная наценка всегда меньше при любых
+   входных параметрах. Инфляционный премиум для n > 6 не
+   применяется — корпоративный тариф ограничен 6 месяцами.
+   ════════════════════════════════════════════════════════════ */
+export const CORPORATE_ANCHOR_UI_TERM = 6;     // 6 в UI = 5 ежемесячных после взноса
+export const CORPORATE_ANCHOR_DOWN    = 0.20;
+export const CORPORATE_ANCHOR_MARKUP  = 0.18;
+
+let _corporateIrrCache: number | null = null;
+
+/** Месячный таргет IRR для корпоративного тарифа (кэшируется) */
+export function corporateIrrMonthly(): number {
+  if (_corporateIrrCache !== null) return _corporateIrrCache;
+  const cost  = 100_000;
+  const down  = cost * CORPORATE_ANCHOR_DOWN;
+  const total = cost * (1 + CORPORATE_ANCHOR_MARKUP);
+  // В корпоративном UI term=N означает 1 взнос + (N−1) ежемесячных платежей
+  const monthlyCount = CORPORATE_ANCHOR_UI_TERM - 1; // 5
+  const pmt   = (total - down) / monthlyCount;
+  const flows: number[] = [-(cost - down)];
+  for (let i = 0; i < monthlyCount; i++) flows.push(pmt);
+  _corporateIrrCache = irrMonthly(flows);
+  return _corporateIrrCache;
+}
+
+export function corporateIrrAnnual(): number {
+  return annualFromMonthly(corporateIrrMonthly());
+}
+
+/**
+ * Корпоративная наценка для (UI term, downPct).
+ *
+ * UI term — это то, что пользователь видит на слайдере "Количество платежей".
+ * При down > 0:  1 взнос + (term−1) ежемесячных → iso-IRR term = term−1
+ * При down = 0:  все term платежи ежемесячно    → iso-IRR term = term
+ *
+ * Возвращает наценку (доля от price), округлённую до 1%.
+ */
+export function corporateMarkupRounded(uiTerm: number, downPct: number): number {
+  const isoTerm = downPct > 0 ? Math.max(1, uiTerm - 1) : uiTerm;
+  const r = corporateIrrMonthly();
+  const exact = markupForTargetIRR(isoTerm, downPct, r);
+  return Math.max(0, Math.round(exact * 100) / 100);
+}
+
 /* ── Билдер таблицы наценок ───────────────────────────────── */
 export interface MatrixCell {
   termMonths: number;

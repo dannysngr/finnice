@@ -571,7 +571,7 @@ function AuthGate() {
           )}
         </AnimatePresence>
 
-        <p className="text-center text-xs mt-6 text-white/40">Без процентов · Сура 2:275</p>
+        <p className="text-center text-xs mt-6 text-white/40">Без риба · Сура 2:275</p>
       </div>
     </div>
   );

@@ -68,6 +68,7 @@ interface UserDetail {
   birthDate:      string | null;
   trustScore:     number;
   blocked:        boolean;
+  corporate:      boolean;
   chatId:         number | null;
   createdAt:      number | null;
   lastLogin:      number | null;
@@ -1762,6 +1763,7 @@ function UserProfileModal({
     birthDate:      user.birthDate      ?? "",
     trustScore:     user.trustScore     ?? 0,
     blocked:        user.blocked        ?? false,
+    corporate:      user.corporate      ?? false,
     birthPlaceCity: user.birthPlaceCity ?? "",
     addrCity:       user.addrCity       ?? "",
     addrStreet:     user.addrStreet     ?? "",
@@ -2101,6 +2103,32 @@ function UserProfileModal({
                     .join("; ")}.
                 </p>
               )}
+            </div>
+
+            {/* Корпоративный статус */}
+            <div className={`rounded-xl p-3 flex items-center justify-between ${
+              form.corporate
+                ? "bg-emerald-900/20 border border-emerald-500/30"
+                : "bg-white/5 border border-white/10"}`}>
+              <div>
+                <p className="text-sm font-semibold text-white">Корпоративный клиент</p>
+                <p className="text-xs text-[#9CA3AF]">
+                  {form.corporate ? "🏢 Rise / Maximum / Mayralla" : "Обычный клиент"}
+                </p>
+              </div>
+              <button
+                onClick={async () => {
+                  const nc = !form.corporate;
+                  const newForm = { ...form, corporate: nc };
+                  setForm(newForm);
+                  await onSave(user.phone, newForm);
+                }}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors active:scale-95 ${
+                  form.corporate
+                    ? "bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-600/30"
+                    : "bg-white/10 border border-white/20 text-white/70 hover:bg-white/20"}`}>
+                {form.corporate ? "Снять статус" : "Присвоить"}
+              </button>
             </div>
 
             {/* Статус аккаунта */}

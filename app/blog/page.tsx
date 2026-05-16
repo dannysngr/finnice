@@ -47,7 +47,7 @@ export default function BlogPage() {
               </span>
             </h1>
             <p className="text-white/75 text-lg lg:text-xl leading-relaxed max-w-2xl">
-              Разбираем рассрочку без процентов, мурабаху, иджару и другие халяльные модели.
+              Разбираем халяльную рассрочку и другие модели исламского финансирования.
               Простыми словами для жителей Чеченской Республики.
             </p>
           </div>
@@ -134,7 +134,7 @@ export default function BlogPage() {
                 Рассчитайте свою рассрочку
               </h3>
               <p className="text-white/70 text-sm mb-6 max-w-md mx-auto">
-                Введите цену товара и срок — получите платёж без процентов и скрытых платежей.
+                Введите цену товара и срок — получите прозрачный платёж без скрытых комиссий.
               </p>
               <Link href="/#calculator"
                     className="inline-flex px-8 py-3 bg-white text-[#0A1628] font-extrabold text-sm rounded-full hover:bg-white/90 transition-all shadow-lg">

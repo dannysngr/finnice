@@ -32,14 +32,12 @@ const TOP_NAV = [
 export function SiteHeader() {
   const pathname = usePathname();
   const [mobileOpen,  setMobileOpen]  = useState(false);
-  const [searchOpen,  setSearchOpen]  = useState(false);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [authOpen,    setAuthOpen]    = useState(false);
   const [calcOpen,    setCalcOpen]    = useState(false);
   const [scrolled,    setScrolled]    = useState(false);
   const [session,     setSession]     = useState<SessionInfo>({ authed: false, firstName: null, lastName: null });
   const [cartCount,   setCartCount]   = useState(0);
-  const searchRef  = useRef<HTMLDivElement>(null);
   const catalogRef = useRef<HTMLDivElement>(null);
 
   /* auth + cart fetch */
@@ -69,7 +67,6 @@ export function SiteHeader() {
   useEffect(() => {
     setCatalogOpen(false);
     setMobileOpen(false);
-    setSearchOpen(false);
   }, [pathname]);
 
   const handleAuthSuccess = () => {
@@ -79,10 +76,9 @@ export function SiteHeader() {
       .catch(() => {});
   };
 
-  /* Outside click for search + catalog dropdown */
+  /* Outside click for catalog dropdown */
   useEffect(() => {
     function onDown(e: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setSearchOpen(false);
       if (catalogRef.current && !catalogRef.current.contains(e.target as Node)) setCatalogOpen(false);
     }
     document.addEventListener("mousedown", onDown);
@@ -95,7 +91,6 @@ export function SiteHeader() {
       if (e.key === "Escape") {
         setCatalogOpen(false);
         setMobileOpen(false);
-        setSearchOpen(false);
       }
     };
     document.addEventListener("keydown", onKey);
@@ -128,8 +123,7 @@ export function SiteHeader() {
               target="_blank"
               rel="noopener"
               aria-label="WhatsApp"
-              className="w-7 h-7 flex items-center justify-center rounded-full transition-transform hover:scale-110"
-              style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-white/55 hover:text-white hover:bg-white/10 transition-colors"
             >
               <WhatsAppIcon />
             </a>
@@ -138,8 +132,7 @@ export function SiteHeader() {
               target="_blank"
               rel="noopener"
               aria-label="Telegram"
-              className="w-7 h-7 flex items-center justify-center rounded-full transition-transform hover:scale-110"
-              style={{ background: "linear-gradient(135deg, #2AABEE, #229ED9)" }}
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-white/55 hover:text-white hover:bg-white/10 transition-colors"
             >
               <TelegramIcon />
             </a>
@@ -272,40 +265,6 @@ export function SiteHeader() {
           {/* Right side */}
           <div className="ml-auto lg:ml-0 flex items-center gap-1.5 shrink-0">
 
-            {/* Search */}
-            <div className="relative" ref={searchRef}>
-              <button
-                onClick={() => setSearchOpen(v => !v)}
-                aria-label="Поиск"
-                className="w-9 h-9 flex items-center justify-center rounded-full
-                           text-[#6B7280] hover:bg-[#F4F7FC] hover:text-[#0A1628] transition-colors"
-              >
-                <SearchIcon />
-              </button>
-              {searchOpen && (
-                <div className="absolute top-full right-0 mt-2 z-50" style={{ width: 320 }}>
-                  <div
-                    className="flex overflow-hidden"
-                    style={{
-                      borderRadius: 50,
-                      border:       "1.5px solid #e5e7eb",
-                      boxShadow:    "0 8px 24px rgba(10,22,40,0.12)",
-                    }}
-                  >
-                    <input
-                      autoFocus
-                      type="search"
-                      placeholder="Поиск товаров..."
-                      className="flex-1 px-5 py-2.5 text-[13px] text-[#0A1628] outline-none bg-white"
-                    />
-                    <button className="px-4 bg-[#0A1628] text-white flex items-center justify-center hover:bg-[#1A3C6E] transition-colors shrink-0">
-                      <SearchIconWhite />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Cart */}
             <Link
               href="/cart"
@@ -357,7 +316,7 @@ export function SiteHeader() {
               className="lg:hidden flex items-center gap-1 px-3 h-9 rounded-full text-white text-[12px] font-semibold whitespace-nowrap transition-opacity hover:opacity-90"
               style={{ background: "linear-gradient(135deg, #0C7A58, #0a6449)" }}
             >
-              <CalcIcon /> Расчёт
+              <CalcIcon /> Калькулятор
             </button>
 
             {/* Mobile burger */}
@@ -391,8 +350,7 @@ export function SiteHeader() {
                 target="_blank"
                 rel="noopener"
                 aria-label="WhatsApp"
-                className="w-7 h-7 flex items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95"
-                style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-[#6B7280] hover:text-[#0A1628] hover:bg-[#F4F7FC] transition-colors"
               >
                 <WhatsAppIcon />
               </a>
@@ -401,8 +359,7 @@ export function SiteHeader() {
                 target="_blank"
                 rel="noopener"
                 aria-label="Telegram"
-                className="w-7 h-7 flex items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95"
-                style={{ background: "linear-gradient(135deg, #2AABEE, #229ED9)" }}
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-[#6B7280] hover:text-[#0A1628] hover:bg-[#F4F7FC] transition-colors"
               >
                 <TelegramIcon />
               </a>
@@ -499,8 +456,7 @@ export function SiteHeader() {
                 target="_blank"
                 rel="noopener"
                 aria-label="WhatsApp"
-                className="w-9 h-9 flex items-center justify-center rounded-full"
-                style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}
+                className="w-9 h-9 flex items-center justify-center rounded-xl text-[#6B7280] hover:text-[#0A1628] hover:bg-[#F4F7FC] transition-colors"
               >
                 <WhatsAppIcon />
               </a>
@@ -509,8 +465,7 @@ export function SiteHeader() {
                 target="_blank"
                 rel="noopener"
                 aria-label="Telegram"
-                className="w-9 h-9 flex items-center justify-center rounded-full"
-                style={{ background: "linear-gradient(135deg, #2AABEE, #229ED9)" }}
+                className="w-9 h-9 flex items-center justify-center rounded-xl text-[#6B7280] hover:text-[#0A1628] hover:bg-[#F4F7FC] transition-colors"
               >
                 <TelegramIcon />
               </a>
@@ -609,15 +564,17 @@ function ClockIcon() {
 }
 function WhatsAppIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="white">
-      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm.01 1.65c2.2 0 4.27.86 5.82 2.42a8.213 8.213 0 012.41 5.83c0 4.54-3.69 8.24-8.24 8.24h-.01c-1.51 0-2.99-.41-4.27-1.18l-.31-.18-3.18.83.85-3.1-.2-.32a8.193 8.193 0 01-1.26-4.36c0-4.54 3.71-8.18 8.39-8.18zm-3.5 4.27c-.18 0-.46.07-.7.34-.24.27-.93.91-.93 2.22 0 1.31.95 2.57 1.08 2.75.14.18 1.84 3 4.55 4.06 2.27.89 2.73.7 3.22.66.49-.04 1.58-.65 1.81-1.27.22-.62.22-1.16.16-1.27-.06-.11-.24-.18-.49-.31-.25-.13-1.47-.73-1.7-.81-.23-.08-.39-.13-.55.13-.18.27-.63.81-.78.97-.14.18-.29.2-.54.07-.25-.13-1.05-.39-2-1.24-.74-.66-1.24-1.47-1.38-1.72-.14-.27-.01-.4.11-.53.11-.11.25-.29.38-.43.13-.14.18-.25.27-.42.09-.18.04-.34-.02-.46-.07-.13-.55-1.34-.76-1.83-.2-.49-.4-.42-.55-.43h-.46z"/>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" />
+      <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
     </svg>
   );
 }
 function TelegramIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="white">
-      <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 2L11 13" />
+      <path d="M22 2L15 22L11 13L2 9L22 2Z" />
     </svg>
   );
 }
@@ -647,22 +604,6 @@ function CloseIcon() {
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
       <line x1="2" y1="2" x2="14" y2="14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
       <line x1="14" y1="2" x2="2"  y2="14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-    </svg>
-  );
-}
-function SearchIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      <circle cx="7.5" cy="7.5" r="5.5" stroke="currentColor" strokeWidth="1.5"/>
-      <line x1="11.5" y1="11.5" x2="15.5" y2="15.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-    </svg>
-  );
-}
-function SearchIconWhite() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 18 18" fill="none">
-      <circle cx="7.5" cy="7.5" r="5.5" stroke="white" strokeWidth="1.5"/>
-      <line x1="11.5" y1="11.5" x2="15.5" y2="15.5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
     </svg>
   );
 }

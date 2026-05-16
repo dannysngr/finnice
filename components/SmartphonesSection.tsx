@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
@@ -586,65 +587,17 @@ export function SmartphonesSection() {
   }
 
   return (
-    <section className="py-14">
+    <section className="pt-4 pb-10">
       <div className="section">
 
-        <div className="flex items-end justify-between mb-5 gap-4 flex-wrap">
-          <div>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-[#0A1628]">
-              Лучшие цены на смартфоны
-            </h2>
-            <p className="text-[#6B7280] mt-1 text-sm">
-              Мы сравниваем цены в магазинах в {COMPANY.city}, чтобы предложить вам лучшую.
-            </p>
-          </div>
+        <div className="flex items-center justify-between mb-4 gap-3">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#0A1628] whitespace-nowrap">
+            Лучшие цены на смартфоны
+          </h2>
           <Link href="/catalog/"
-                className="text-sm font-semibold text-[#1A3C6E] hover:underline whitespace-nowrap">
+                className="hidden sm:inline text-sm font-semibold text-[#1A3C6E] hover:underline whitespace-nowrap">
             Весь каталог →
           </Link>
-        </div>
-
-        {/* Бренды */}
-        <div className="flex flex-wrap items-center gap-2 mb-4">
-          {BRANDS.map(b => (
-            <BrandPill key={b} brand={b} active={brand === b} onClick={() => handleBrandChange(b)} />
-          ))}
-        </div>
-
-        {/* Фильтры */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          <FilterDropdown
-            label="Модель"
-            options={modelOptions}
-            value={model}
-            onChange={(m) => { setModel(m); setMemory("Все"); setColor("Все"); }}
-          />
-          <FilterDropdown
-            label="Память"
-            options={memoryOptions}
-            value={memory}
-            onChange={setMemory}
-          />
-          <ColorFilterDropdown
-            options={colorOptions}
-            value={color}
-            onChange={setColor}
-          />
-          <FilterDropdown
-            label="SIM"
-            options={SIMS}
-            value={sim}
-            onChange={(v) => setSim(v as "Все" | SimType)}
-          />
-          {hasFilters && (
-            <button
-              onClick={resetFilters}
-              className="px-3 py-2 rounded-xl text-sm text-[#6B7280] border border-[#D8E2F0]
-                         hover:border-red-300 hover:text-red-500 transition-colors"
-            >
-              ✕ Сбросить
-            </button>
-          )}
         </div>
 
         {/* Сетка — лимит 12 товаров (3 ряда × 4 колонки) */}

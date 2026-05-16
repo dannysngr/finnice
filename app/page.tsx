@@ -9,39 +9,40 @@ import { BLOG } from "@/lib/blog-data";
 function PhoneIllustration() {
   return (
     <div className="relative" style={{ width: 64, height: 110 }}>
-      {/* Body */}
+      {/* Body — outline cream on deep emerald */}
       <div
         className="absolute inset-0"
         style={{
           borderRadius: 22,
-          background: "linear-gradient(145deg, #1a1a2e 0%, #16213e 100%)",
-          boxShadow: "10px 14px 40px rgba(0,0,0,0.30), -3px -3px 10px rgba(255,255,255,0.08)",
+          background: "rgba(237,231,218,0.04)",
+          border: "1.5px solid rgba(237,231,218,0.45)",
+          boxShadow: "0 12px 30px rgba(0,0,0,0.25), inset 0 1px 0 rgba(237,231,218,0.10)",
         }}
       />
       {/* Screen */}
       <div
         className="absolute overflow-hidden"
         style={{
-          top: 9, left: 5, right: 5, bottom: 9,
+          top: 8, left: 4, right: 4, bottom: 8,
           borderRadius: 16,
-          background: "linear-gradient(160deg, #0C7A58 0%, #1A3C6E 100%)",
+          background: "rgba(237,231,218,0.05)",
         }}
       >
         <div className="p-2 pt-4 space-y-1.5">
-          <div className="h-1.5 w-11 rounded-full" style={{ background: "rgba(255,255,255,0.45)" }} />
-          <div className="h-1.5 w-7  rounded-full" style={{ background: "rgba(255,255,255,0.25)" }} />
+          <div className="h-1.5 w-11 rounded-full" style={{ background: "rgba(237,231,218,0.55)" }} />
+          <div className="h-1.5 w-7  rounded-full" style={{ background: "rgba(237,231,218,0.30)" }} />
           <div className="mt-2 grid grid-cols-2 gap-1">
             {[0,1,2,3].map(i => (
-              <div key={i} className="rounded-lg h-8" style={{ background: "rgba(255,255,255,0.11)" }} />
+              <div key={i} className="rounded-lg h-8" style={{ background: "rgba(237,231,218,0.10)" }} />
             ))}
           </div>
-          <div className="rounded-lg h-9" style={{ background: "rgba(255,255,255,0.07)" }} />
+          <div className="rounded-lg h-9" style={{ background: "rgba(237,231,218,0.06)" }} />
         </div>
       </div>
       {/* Notch */}
       <div
         className="absolute top-3 left-1/2 -translate-x-1/2 rounded-full"
-        style={{ width: 20, height: 5, background: "#0d0d1f" }}
+        style={{ width: 20, height: 5, background: "rgba(3,16,31,0.6)" }}
       />
     </div>
   );
@@ -52,7 +53,13 @@ function BannerCard() {
     <div
       className="rounded-2xl relative overflow-hidden banner-card banner-card-responsive"
       style={{
-        background:     "linear-gradient(145deg, #EFE5FF 0%, #FFD6EC 100%)",
+        background: `
+          radial-gradient(ellipse at 85% 15%, rgba(12,122,88,0.40), transparent 55%),
+          radial-gradient(ellipse at 15% 85%, rgba(237,231,218,0.10), transparent 60%),
+          linear-gradient(135deg, #03101F 0%, #082848 22%, #054238 58%, #0A5440 100%)
+        `,
+        boxShadow:      "0 30px 80px -20px rgba(3,16,31,0.45), inset 0 1px 0 rgba(237,231,218,0.08)",
+        border:         "1px solid rgba(237,231,218,0.10)",
         height:         "100%",
         minHeight:      "100%",
         width:          "100%",
@@ -64,37 +71,27 @@ function BannerCard() {
         alignSelf:      "stretch",
       }}
     >
-      {/* Animated gradient sheen overlay */}
+      {/* Animated subtle sheen overlay */}
       <div
         className="absolute inset-0 pointer-events-none banner-sheen"
         style={{
-          background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.45) 50%, transparent 70%)",
+          background: "linear-gradient(115deg, transparent 30%, rgba(237,231,218,0.06) 50%, transparent 70%)",
         }}
-      />
-
-      {/* Decorative blobs — теперь медленно «дышат» */}
-      <div
-        className="absolute -top-10 -right-10 w-48 h-48 rounded-full pointer-events-none banner-blob-1"
-        style={{ background: "radial-gradient(circle, #C084FC55, transparent 70%)" }}
-      />
-      <div
-        className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full pointer-events-none banner-blob-2"
-        style={{ background: "radial-gradient(circle, #F472B640, transparent 70%)" }}
       />
 
       {/* Badge */}
       <div className="relative z-10 banner-text-block">
         <span
           className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold mb-4 banner-badge"
-          style={{ background: "rgba(0,0,0,0.08)", color: "#2d1a4a" }}
+          style={{ background: "rgba(237,231,218,0.10)", color: "#EDE7DA", border: "1px solid rgba(237,231,218,0.22)" }}
         >
           <span className="banner-pulse" />
-          Халяль · Без риба · Мурабаха
+          Халяль · Без риба · Прозрачно
         </span>
-        <h2 className="text-xl sm:text-2xl font-bold text-[#0A0A0A] leading-tight mb-1.5">
-          Бери сегодня —<br />плати потом
+        <h2 className="text-xl sm:text-2xl font-bold leading-tight mb-1.5" style={{ color: "#EDE7DA" }}>
+          Бери сегодня —{" "}<br />плати потом
         </h2>
-        <p className="text-[#5a4a6a] text-xs leading-relaxed max-w-[230px]">
+        <p className="text-xs leading-relaxed max-w-[230px]" style={{ color: "rgba(237,231,218,0.6)" }}>
           Халяльная рассрочка без скрытых платежей, штрафов и пени
         </p>
       </div>
@@ -107,9 +104,9 @@ function BannerCard() {
           <div
             className="absolute -right-10 top-2 px-2 py-1 rounded-lg text-[9px] font-bold whitespace-nowrap shadow-md banner-chip-1"
             style={{
-              background: "#fff",
-              color: "#0A1628",
-              boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+              background: "#EDE7DA",
+              color: "#03101F",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
             }}
           >
             3&nbsp;490 ₽/мес
@@ -118,16 +115,17 @@ function BannerCard() {
           <div
             className="absolute -left-8 bottom-4 px-2 py-1 rounded-lg text-[9px] font-bold whitespace-nowrap shadow-md banner-chip-2"
             style={{
-              background: "#0C7A58",
-              color: "#fff",
-              boxShadow: "0 4px 16px rgba(12,122,88,0.35)",
+              background: "rgba(237,231,218,0.12)",
+              color: "#EDE7DA",
+              border: "1px solid rgba(237,231,218,0.25)",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
             }}
           >
             до 12 мес
           </div>
           {/* Subtle radial glow за телефоном */}
           <div className="absolute inset-0 -z-10 banner-glow pointer-events-none"
-               style={{ background: "radial-gradient(circle, rgba(12,122,88,0.22), transparent 65%)" }} />
+               style={{ background: "radial-gradient(circle, rgba(12,122,88,0.4), transparent 65%)" }} />
         </div>
       </div>
 
@@ -136,8 +134,8 @@ function BannerCard() {
         <Link
           href="/catalog/"
           className="flex items-center justify-center w-full py-2.5 rounded-full font-bold
-                     text-xs text-white transition-all hover:opacity-85 active:scale-[.98] banner-cta"
-          style={{ background: "#0A0A0A" }}
+                     text-xs transition-all hover:opacity-90 active:scale-[.98] banner-cta"
+          style={{ background: "#EDE7DA", color: "#03101F" }}
         >
           В каталог
           <span className="banner-arrow">→</span>
@@ -176,8 +174,8 @@ function BannerCard() {
           50%      { opacity: 1;    transform: scale(1.12);}
         }
         @keyframes bannerPulseDot {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(12,122,88,0.55); }
-          70%      { box-shadow: 0 0 0 6px rgba(12,122,88,0);  }
+          0%, 100% { box-shadow: 0 0 0 0 rgba(237,231,218,0.60); }
+          70%      { box-shadow: 0 0 0 6px rgba(237,231,218,0);  }
         }
         @keyframes bannerArrow {
           0%, 100% { transform: translateX(0);  }
@@ -193,7 +191,7 @@ function BannerCard() {
         .banner-glow    { animation: bannerGlow   5s ease-in-out infinite; }
         .banner-pulse {
           width: 6px; height: 6px; border-radius: 9999px;
-          background: #0C7A58;
+          background: #EDE7DA;
           animation: bannerPulseDot 1.8s ease-out infinite;
         }
         .banner-arrow {
@@ -315,7 +313,7 @@ const ABOUT_DNA = [
     icon: "☽",
     accent: "#C9A84C",
     label: "100% Халяль",
-    desc:  "Мурабаха — договор купли-продажи, одобренный Шариатом.",
+    desc:  "Договор купли-продажи, одобренный Шариатом.",
   },
   {
     icon: "🛡",
@@ -347,8 +345,8 @@ function AboutSection() {
           </h2>
           <p className="text-white/50 text-base leading-relaxed max-w-xl mx-auto mb-8">
             Мы делаем современные гаджеты и услуги доступными без нарушения
-            религиозных норм. Никаких процентов — только фиксированная наценка
-            по договору Мурабаха.
+            религиозных норм. Никакого риба — только фиксированная наценка
+            по договору купли-продажи.
           </p>
           <Link
             href="/company/"

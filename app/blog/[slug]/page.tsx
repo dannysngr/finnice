@@ -247,7 +247,7 @@ function ContentRenderer({ block }: { block: ContentBlock }) {
             Рассчитайте свою рассрочку прямо сейчас
           </h3>
           <p className="text-white/65 text-sm mb-6 max-w-md mx-auto">
-            Без банка, без процентов. Фиксированная наценка, прозрачный договор.
+            Без банка, без риба. Фиксированная наценка, прозрачный договор.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link

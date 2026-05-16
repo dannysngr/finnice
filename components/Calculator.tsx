@@ -41,8 +41,17 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
   const [down,  setDown]  = useState(Math.ceil(startPrice * getMinDownPct(startPrice)));
   const [term,  setTerm]  = useState(6);
   const [wbUrl, setWbUrl] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const { openModal } = useAppModal();
+
+  /* Проверяем роль: ставку показываем только админам/модерам */
+  useEffect(() => {
+    fetch("/api/lk/me")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.adminRole) setIsAdmin(true); })
+      .catch(() => {});
+  }, []);
 
   /* ── iso-IRR публичная политика ──────────────────────── */
   const [policy, setPolicy] = useState<{
@@ -98,17 +107,24 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
   return (
     <div
       id="calculator"
-      className="rounded-2xl p-4 md:p-6 flex flex-col overflow-hidden"
+      className="rounded-2xl p-4 md:p-6 flex flex-col overflow-hidden relative"
       style={{
-        background: "linear-gradient(135deg, #0E2344 0%, #1E4582 50%, #0C7A58 100%)",
+        background: `
+          radial-gradient(ellipse at 85% 15%, rgba(12,122,88,0.40), transparent 55%),
+          radial-gradient(ellipse at 15% 85%, rgba(237,231,218,0.08), transparent 60%),
+          linear-gradient(135deg, #03101F 0%, #082848 22%, #054238 58%, #0A5440 100%)
+        `,
         height:     "100%",
         width:      "100%",
         alignSelf:  "stretch",
+        boxShadow:  "0 30px 80px -20px rgba(3,16,31,0.45), inset 0 1px 0 rgba(237,231,218,0.08)",
+        border:     "1px solid rgba(237,231,218,0.10)",
       }}
     >
       {/* Заголовок */}
       <div className="flex items-center gap-2 mb-3 sm:mb-5">
-        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0"
+             style={{ background: "rgba(237,231,218,0.10)", border: "1px solid rgba(237,231,218,0.18)" }}>
           <CalcIcon />
         </div>
         <h2 className="text-sm sm:text-base md:text-lg font-extrabold text-white">
@@ -208,17 +224,21 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
         <ResultCell label="Итого"        value={result.total}   />
       </div>
 
-      {/* Наценка · Ставка · Поручители — строкой текстом */}
+      {/* Наценка · Ставка (только для админов) · Поручители — строкой текстом */}
       <p className="text-white/55 text-[11px] sm:text-xs mb-3 sm:mb-4 text-center leading-relaxed">
         Наценка:{" "}
         <span className="text-white font-semibold tabular-nums">
           {fmtRub(result.markup)}&nbsp;₽
         </span>
-        <span className="text-white/30 mx-2">·</span>
-        Ставка:{" "}
-        <span className="text-white font-semibold tabular-nums">
-          {(result.rate * 100).toFixed(1)}%/мес
-        </span>
+        {isAdmin && (
+          <>
+            <span className="text-white/30 mx-2">·</span>
+            Ставка:{" "}
+            <span className="text-white font-semibold tabular-nums">
+              {(result.rate * 100).toFixed(1)}%/мес
+            </span>
+          </>
+        )}
         <span className="text-white/30 mx-2">·</span>
         Поручители:{" "}
         <span className="text-white font-semibold">
@@ -236,8 +256,9 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
           onClick={() =>
             openModal({ price, down, term, monthly: result.monthly, wbUrl: wbUrl || undefined })
           }
-          className="px-8 sm:px-12 py-2 sm:py-2.5 bg-white text-[#0A1628] font-extrabold text-xs sm:text-sm
-                     rounded-full hover:bg-white/90 active:scale-95 transition-all shadow-md"
+          className="px-8 sm:px-12 py-2 sm:py-2.5 font-extrabold text-xs sm:text-sm
+                     rounded-full hover:opacity-90 active:scale-95 transition-all shadow-md"
+          style={{ background: "#EDE7DA", color: "#03101F" }}
         >
           Подать заявку
         </button>
@@ -310,8 +331,8 @@ function NumberSlider({
   const displayUnit = unit === "платежей" ? pluralPayment(value).split(" ")[1] : unit;
 
   const trackStyle = noTrack
-    ? { background: "rgba(255,255,255,0.20)" }
-    : { background: `linear-gradient(to right, #10B981 ${trackPct}%, rgba(255,255,255,0.20) ${trackPct}%)` };
+    ? { background: "rgba(237,231,218,0.20)", accentColor: "#EDE7DA" as const }
+    : { background: `linear-gradient(to right, #EDE7DA ${trackPct}%, rgba(237,231,218,0.18) ${trackPct}%)`, accentColor: "#EDE7DA" as const };
 
   return (
     <div

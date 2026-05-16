@@ -10,7 +10,7 @@ export const COMPANY = {
   slogan:      "Без риба. Без скрытых платежей. Без пени и штрафов.",
   phone:       "+7 (928) 491-08-08",
   phoneTel:    "tel:+79284910808",
-  whatsapp:    "https://wa.me/79284910808",
+  whatsapp:    "https://wa.me/79284910808?text=" + encodeURIComponent("Ассаламу Алайкум. Хочу оформить рассрочку."),
   telegram:    "https://t.me/+79284910808",
   instagram:   "https://www.instagram.com/finnice.chr",
   email:       "info@finnice.ru",
@@ -43,7 +43,7 @@ export const HERO_SLIDES = [
     id:       1,
     badge:    "Услуги по нормам Ислама",
     headline: "Медицина, Туризм, Паломничество и другие товары и услуги — теперь доступны каждому в рассрочку по нормам Ислама",
-    sub:      "Оформите рассрочку на любые товары и услуги без банка, без процентов и строго по нормам Ислама.",
+    sub:      "Оформите рассрочку на любые товары и услуги без банка, без риба и строго по нормам Ислама.",
     cta:      { label: "Подробнее", href: "/uslugi/khadzh-i-umra-v-rassrochku/" },
     icons:    ["🕋", "🏥", "✈️"],
     imgUrl:   "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?w=640&h=400&fit=crop&auto=format",
@@ -674,7 +674,7 @@ export const VALUES = [
   {
     icon:  "✅",
     title: "Без риба",
-    desc:  "Рассрочка без процентов, строго по шариату",
+    desc:  "Рассрочка без ссудного процента, строго по шариату",
   },
   {
     icon:  "✅",
