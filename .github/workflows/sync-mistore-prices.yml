@@ -2,13 +2,13 @@ name: Sync mistore prices
 
 on:
   schedule:
-    # 03:00 UTC = 06:00 MSK –µ–ґ–µ–і–љ–µ–≤–љ–Њ
-    - cron: "0 3 * * *"
-  # –Т–Њ–Ј–Љ–Њ–ґ–љ–Њ—Б—В—М —А—Г—З–љ–Њ–≥–Њ –Ј–∞–њ—Г—Б–Ї–∞ –Є–Ј –≤–Ї–ї–∞–і–Ї–Є Actions
+    # 03:00 и 15:00 UTC = 06:00 и 18:00 MSK (дважды в сутки)
+    - cron: "0 3,15 * * *"
+  # Возможность ручного запуска из вкладки Actions
   workflow_dispatch:
 
 permissions:
-  contents: write   # –і–ї—П –∞–≤—В–Њ-–Ї–Њ–Љ–Љ–Є—В–∞ lib/tg-prices.ts
+  contents: write   # для авто-коммита lib/tg-prices.ts
 
 jobs:
   sync:
@@ -35,10 +35,10 @@ jobs:
         run: |
           if git diff --quiet lib/tg-prices.ts; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "–¶–µ–љ—Л –љ–µ –Є–Ј–Љ–µ–љ–Є–ї–Є—Б—М."
+            echo "Цены не изменились."
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            # –Ъ—А–∞—В–Ї–∞—П —Б–≤–Њ–і–Ї–∞ –і–ї—П –Ї–Њ–Љ–Љ–Є—В–∞ –Є Telegram
+            # Краткая сводка для коммита и Telegram
             python3 - <<'PY' > diff-summary.txt
           import re, subprocess
           out = subprocess.run(
@@ -47,7 +47,7 @@ jobs:
           ).stdout
           added   = re.findall(r'^\+\s*"([^"]+)":\s*(\d+)', out, re.M)
           removed = re.findall(r'^-\s*"([^"]+)":\s*(\d+)', out, re.M)
-          # –Я–∞—А–љ—Л–µ —Б—В—А–Њ–Ї–Є = –Є–Ј–Љ–µ–љ–µ–љ–Є—П; –Њ—Б—В–∞–ї—М–љ–Њ–µ = —З–Є—Б—В—Л–µ add/remove
+          # Парные строки = изменения; остальное = чистые add/remove
           added_d   = dict(added)
           removed_d = dict(removed)
           changed   = [k for k in added_d if k in removed_d]
@@ -56,24 +56,24 @@ jobs:
 
           lines = []
           if changed:
-              lines.append(f"~ –Ш–Ј–Љ–µ–љ–µ–љ–Њ: {len(changed)}")
+              lines.append(f"~ Изменено: {len(changed)}")
               for k in changed[:8]:
                   old = int(removed_d[k]); new_p = int(added_d[k])
-                  lines.append(f"  вАҐ {k}: {old:,}вЖТ{new_p:,}вВљ ({new_p-old:+,})")
+                  lines.append(f"  • {k}: {old:,}→{new_p:,}₽ ({new_p-old:+,})")
               if len(changed) > 8:
-                  lines.append(f"  вА¶ –Є –µ—Й—С {len(changed)-8}")
+                  lines.append(f"  … и ещё {len(changed)-8}")
           if new:
-              lines.append(f"+ –Э–Њ–≤—Л—Е: {len(new)}")
+              lines.append(f"+ Новых: {len(new)}")
               for k in new[:5]:
-                  lines.append(f"  вАҐ {k}: {int(added_d[k]):,}вВљ")
+                  lines.append(f"  • {k}: {int(added_d[k]):,}₽")
               if len(new) > 5:
-                  lines.append(f"  вА¶ –Є –µ—Й—С {len(new)-5}")
+                  lines.append(f"  … и ещё {len(new)-5}")
           if gone:
-              lines.append(f"- –£–±—А–∞–љ–Њ: {len(gone)}")
+              lines.append(f"- Убрано: {len(gone)}")
               for k in gone[:5]:
-                  lines.append(f"  вАҐ {k} (–±—Л–ї {int(removed_d[k]):,}вВљ)")
+                  lines.append(f"  • {k} (был {int(removed_d[k]):,}₽)")
 
-          print("\n".join(lines) or "–Ш–Ј–Љ–µ–љ–µ–љ–Є–є –≤ –љ–∞—Ж–µ–љ–Ї–∞—Е –љ–µ—В.")
+          print("\n".join(lines) or "Изменений в наценках нет.")
           PY
             cat diff-summary.txt
           fi
@@ -99,7 +99,7 @@ jobs:
           RUN_URL:   ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           SUMMARY=$(cat diff-summary.txt)
-          MESSAGE=$(printf "рЯФД *–¶–µ–љ—Л mistore —Б–Є–љ—Е—А–Њ–љ–Є–Ј–Є—А–Њ–≤–∞–љ—Л*\n\n\`\`\`\n%s\n\`\`\`\n[Run #${{ github.run_number }}](%s) ¬Ј –∞–≤—В–Њ–і–µ–њ–ї–Њ–є Vercel –Ј–∞–њ—Г—Й–µ–љ" "$SUMMARY" "$RUN_URL")
+          MESSAGE=$(printf "🔄 *Цены mistore синхронизированы*\n\n\`\`\`\n%s\n\`\`\`\n[Run #${{ github.run_number }}](%s) · автодеплой Vercel запущен" "$SUMMARY" "$RUN_URL")
           curl -sS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
             -d "chat_id=${CHAT_ID}" \
             -d "parse_mode=Markdown" \
@@ -113,7 +113,7 @@ jobs:
           CHAT_ID:   ${{ secrets.ADMIN_CHAT_ID }}
           RUN_URL:   ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          MESSAGE=$(printf "вЪ†пЄП *Sync mistore —Г–њ–∞–ї*\n[Run #${{ github.run_number }}](%s) вАФ –њ—А–Њ–≤–µ—А—М –ї–Њ–≥–Є" "$RUN_URL")
+          MESSAGE=$(printf "⚠️ *Sync mistore упал*\n[Run #${{ github.run_number }}](%s) — проверь логи" "$RUN_URL")
           curl -sS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
             -d "chat_id=${CHAT_ID}" \
             -d "parse_mode=Markdown" \
