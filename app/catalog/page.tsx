@@ -745,22 +745,20 @@ function CatalogFilterSelect({
   );
 }
 
-/** Сводка диапазона ОЗУ/накопителя из variants, для подписи под названием карточки.
- *  Пример: «24–48 ГБ · 1–2 ТБ» или «24 ГБ · 1 ТБ» (когда вариант один). */
-function variantSummary(variants: NonNullable<CatalogItem["variants"]>): string {
+/** Собирает уникальные значения ОЗУ и накопителя из variants — для бэйджей
+ *  под названием карточки в каталоге. */
+function variantChipsFor(variants: NonNullable<CatalogItem["variants"]>) {
   const onlyNum = (s: string) => parseInt(s.replace(/\D/g, "")) || 0;
   const toGB = (s: string) => (s.includes("ТБ") ? onlyNum(s) * 1000 : onlyNum(s));
   const fmtSsd = (gb: number) => (gb >= 1000 ? `${gb / 1000} ТБ` : `${gb} ГБ`);
 
-  const rams = Array.from(new Set(variants.map(v => onlyNum(v.ram)))).sort((a, b) => a - b);
-  const ssds = Array.from(new Set(variants.map(v => toGB(v.ssd)))).sort((a, b) => a - b);
-
-  const ramTxt = rams.length > 1 ? `${rams[0]}–${rams[rams.length - 1]} ГБ` : `${rams[0]} ГБ`;
-  const ssdTxt = ssds.length > 1
-    ? `${fmtSsd(ssds[0])}–${fmtSsd(ssds[ssds.length - 1])}`
-    : fmtSsd(ssds[0]);
-
-  return `${ramTxt} · ${ssdTxt}`;
+  const rams = Array.from(new Set(variants.map(v => onlyNum(v.ram))))
+    .sort((a, b) => a - b)
+    .map(n => `${n} ГБ`);
+  const ssds = Array.from(new Set(variants.map(v => toGB(v.ssd))))
+    .sort((a, b) => a - b)
+    .map(fmtSsd);
+  return { rams, ssds };
 }
 
 /* ── ProductCard ──────────────────────────────────────────────── */
@@ -794,11 +792,12 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
     ? "bg-[#0C7A58] text-white cursor-default"
     : "bg-[#0A1628] text-white hover:bg-[#1A3C6E]";
 
-  // У конфигуратора (variants) под названием показываем диапазон ОЗУ/SSD,
-  // иначе обычный список памяти/SIM.
+  // Для variants — собираем уникальные значения RAM и SSD для бэйджей;
+  // для остальных — текстовая подпись как раньше.
   const hasVariants = (p.variants?.length ?? 0) > 0;
+  const variantChips = hasVariants ? variantChipsFor(p.variants!) : null;
   const specsText = hasVariants
-    ? variantSummary(p.variants!)
+    ? ""
     : [
         ...(p.memories && p.memories.length > 0 ? [p.memories.join(" / ")] : []),
         ...(p.sim ? [p.sim] : []),
@@ -879,10 +878,32 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         <h3 className="font-medium text-[#0A1628] text-[13px] leading-snug line-clamp-2 mt-0.5">
           {p.name}
         </h3>
-        {/* Характеристики — всегда видны */}
-        {specsText && (
+        {/* Характеристики. Для конфигуратора — два ряда бэйджей (ОЗУ, SSD);
+            для остальных — текстовая подпись. */}
+        {variantChips ? (
+          <div className="mt-1 space-y-1">
+            <div className="flex flex-wrap gap-1">
+              {variantChips.rams.map(r => (
+                <span key={r}
+                  className="px-1.5 py-0.5 text-[9px] font-semibold text-[#6B7280]
+                             bg-[#F4F7FC] border border-[#E5E7EB] rounded-md leading-none">
+                  {r}
+                </span>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {variantChips.ssds.map(s => (
+                <span key={s}
+                  className="px-1.5 py-0.5 text-[9px] font-semibold text-[#6B7280]
+                             bg-[#F4F7FC] border border-[#E5E7EB] rounded-md leading-none">
+                  {s}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : specsText ? (
           <p className="text-[10px] text-[#ADADAD] mt-0.5">{specsText}</p>
-        )}
+        ) : null}
         {/* Цена. Если есть variants — это «от <min>», иначе обычная цена. */}
         <p className="font-bold text-[#0A1628] mt-1.5 leading-none" style={{ fontSize: "15px" }}>
           {p.variants && p.variants.length > 0 ? (
