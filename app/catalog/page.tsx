@@ -745,6 +745,24 @@ function CatalogFilterSelect({
   );
 }
 
+/** Сводка диапазона ОЗУ/накопителя из variants, для подписи под названием карточки.
+ *  Пример: «24–48 ГБ · 1–2 ТБ» или «24 ГБ · 1 ТБ» (когда вариант один). */
+function variantSummary(variants: NonNullable<CatalogItem["variants"]>): string {
+  const onlyNum = (s: string) => parseInt(s.replace(/\D/g, "")) || 0;
+  const toGB = (s: string) => (s.includes("ТБ") ? onlyNum(s) * 1000 : onlyNum(s));
+  const fmtSsd = (gb: number) => (gb >= 1000 ? `${gb / 1000} ТБ` : `${gb} ГБ`);
+
+  const rams = Array.from(new Set(variants.map(v => onlyNum(v.ram)))).sort((a, b) => a - b);
+  const ssds = Array.from(new Set(variants.map(v => toGB(v.ssd)))).sort((a, b) => a - b);
+
+  const ramTxt = rams.length > 1 ? `${rams[0]}–${rams[rams.length - 1]} ГБ` : `${rams[0]} ГБ`;
+  const ssdTxt = ssds.length > 1
+    ? `${fmtSsd(ssds[0])}–${fmtSsd(ssds[ssds.length - 1])}`
+    : fmtSsd(ssds[0]);
+
+  return `${ramTxt} · ${ssdTxt}`;
+}
+
 /* ── ProductCard ──────────────────────────────────────────────── */
 interface ProductCardProps {
   item:          CatalogItem;
@@ -776,11 +794,11 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
     ? "bg-[#0C7A58] text-white cursor-default"
     : "bg-[#0A1628] text-white hover:bg-[#1A3C6E]";
 
-  // У конфигуратора (variants) под названием показываем «N конфигураций»,
+  // У конфигуратора (variants) под названием показываем диапазон ОЗУ/SSD,
   // иначе обычный список памяти/SIM.
   const hasVariants = (p.variants?.length ?? 0) > 0;
   const specsText = hasVariants
-    ? `${p.variants!.length} конфигураций`
+    ? variantSummary(p.variants!)
     : [
         ...(p.memories && p.memories.length > 0 ? [p.memories.join(" / ")] : []),
         ...(p.sim ? [p.sim] : []),
