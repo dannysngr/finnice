@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   CATALOG_CATS, PRODUCTS, PHONES_CATALOG,
   type Product,
@@ -229,9 +229,17 @@ interface CartEntry { productId: string; qty: number; }
 
 function CatalogContent() {
   const searchParams = useSearchParams();
+  const router       = useRouter();
   const initCat      = searchParams.get("cat") ?? "all";
 
-  const [activeCat, setActiveCat] = useState<string>(initCat);
+  // setActiveCat-обёртка: одновременно меняет state и URL,
+  // чтобы при refresh страница не сбрасывалась в «Все».
+  const [activeCat, setActiveCatState] = useState<string>(initCat);
+  const setActiveCat = (cat: string) => {
+    setActiveCatState(cat);
+    const qs = cat === "all" ? "" : `?cat=${encodeURIComponent(cat)}`;
+    router.replace(`/catalog/${qs}`, { scroll: false });
+  };
   const [brands,    setBrands]    = useState<string[]>([]);
   const [maxPrice,  setMaxPrice]  = useState(GLOBAL_MAX);
   const [sort,      setSort]      = useState<"popular"|"price_asc"|"price_desc">("popular");
@@ -878,11 +886,15 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         <h3 className="font-medium text-[#0A1628] text-[13px] leading-snug line-clamp-2 mt-0.5">
           {p.name}
         </h3>
-        {/* Характеристики. Для конфигуратора — два ряда бэйджей (ОЗУ, SSD);
+        {/* Характеристики. Для конфигуратора — два ряда: иконка-чип + бэйджи,
             для остальных — текстовая подпись. */}
         {variantChips ? (
           <div className="mt-1 space-y-1">
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap items-center gap-1">
+              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-[#1A3C6E]"
+                    title="Оперативная память">
+                <RamIcon /> ОЗУ
+              </span>
               {variantChips.rams.map(r => (
                 <span key={r}
                   className="px-1.5 py-0.5 text-[9px] font-semibold text-[#6B7280]
@@ -891,7 +903,11 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
                 </span>
               ))}
             </div>
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap items-center gap-1">
+              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-[#1A3C6E]"
+                    title="Накопитель">
+                <SsdIcon /> SSD
+              </span>
               {variantChips.ssds.map(s => (
                 <span key={s}
                   className="px-1.5 py-0.5 text-[9px] font-semibold text-[#6B7280]
@@ -972,6 +988,30 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         </button>
       )}
     </div>
+  );
+}
+
+/* ── SVG-иконки бэйджей характеристик ──────────────────────────── */
+
+/** ОЗУ — память-чип с контактами. */
+function RamIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <rect x="2" y="4" width="12" height="8" rx="1" stroke="currentColor" strokeWidth="1.4"/>
+      <path d="M5 4V2 M8 4V2 M11 4V2 M5 14v-2 M8 14v-2 M11 14v-2"
+            stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+/** SSD — диск-накопитель. */
+function SsdIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+      <circle cx="11" cy="8" r="0.9" fill="currentColor"/>
+      <path d="M4 7h4 M4 9h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    </svg>
   );
 }
 
