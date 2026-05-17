@@ -367,6 +367,15 @@ export function AdminClient({ isAdmin, role }: { isAdmin: boolean; role?: AdminR
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Цены — только root */}
+            {role === "root" && (
+              <button onClick={() => router.push("/admin/prices")}
+                      className="px-4 py-2 text-sm font-semibold text-white rounded-full
+                                 transition-opacity hover:opacity-90 flex items-center gap-1.5"
+                      style={{ background: "linear-gradient(135deg, #C8972B, #a87d22)" }}>
+                💰 Цены
+              </button>
+            )}
             {/* Финансы и Портфель — только root + admin */}
             {(role === "root" || role === "admin") && (
               <>

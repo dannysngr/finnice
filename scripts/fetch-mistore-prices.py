@@ -15,15 +15,17 @@ Multi-channel: список CHANNELS ниже — добавляй новые к
 Запуск: python3 scripts/fetch-mistore-prices.py
 """
 from __future__ import annotations
-import re, sys, html, urllib.request
+import re, sys, html, json, urllib.request
+from datetime import datetime, timezone
 from pathlib import Path
 from collections import defaultdict
 
 ROOT = Path(__file__).resolve().parent.parent
-DATA_TS = ROOT / "lib" / "data.ts"
-BIG_TS  = ROOT / "lib" / "biggeek-products.ts"
-ADD_TS  = ROOT / "lib" / "tg-additions.ts"
-OUT_TS  = ROOT / "lib" / "tg-prices.ts"
+DATA_TS  = ROOT / "lib" / "data.ts"
+BIG_TS   = ROOT / "lib" / "biggeek-products.ts"
+ADD_TS   = ROOT / "lib" / "tg-additions.ts"
+OUT_TS   = ROOT / "lib" / "tg-prices.ts"
+META_OUT = ROOT / "lib" / "tg-sync-meta.json"
 
 # Markup к каждой TG-цене (₽) — наша наценка партнёра
 MARKUP = 1000
@@ -548,6 +550,118 @@ def main():
 
     write_prices(overrides)
     print(f"\n📝 Записано {OUT_TS} ({len(overrides)} цен)")
+
+    # ── Метаданные для админ-дашборда ────────────────────────────────
+    # Резолвим product name из каталога для каждого SKU
+    name_of: dict[str, str] = {}
+    base_price_of: dict[str, int] = {}
+    for p in phones:
+        name_of[p["id"]] = f"{p['brand']} {p['model']} {p['memory']} · {p['sim']}"
+        base_price_of[p["id"]] = p["price"]
+    for p in bigs:
+        name_of[p["id"]] = p["name"]
+        base_price_of[p["id"]] = p["price"]
+    # AirPods и другие standalone Product entries в data.ts
+    data_text = DATA_TS.read_text()
+    for m in re.finditer(
+        r'id:\s*"([a-z0-9-]+)"[^}]*?name:\s*"([^"]+)"[^}]*?price:\s*(\d+)',
+        data_text,
+    ):
+        pid, name, price = m.group(1), m.group(2), int(m.group(3))
+        if pid not in name_of:
+            name_of[pid] = name
+            base_price_of[pid] = price
+
+    # Какой ключ TG победил для каждого SKU + откуда (источник)
+    matched_items: list[dict] = []
+    for pid, final_price in sorted(overrides.items()):
+        # Найдём TG-ключ, цена которого == final_price - MARKUP
+        tg_price = final_price - MARKUP
+        winning_key = None
+        for k, p in agg.items():
+            if p == tg_price:
+                # Уточнение: может быть несколько ключей с одной ценой;
+                # выбираем тот, чьи токены model/memory чаще встречаются в названии
+                if winning_key is None: winning_key = k
+        matched_items.append({
+            "sku":         pid,
+            "name":        name_of.get(pid, pid),
+            "basePrice":   base_price_of.get(pid),
+            "tgPrice":     tg_price,
+            "finalPrice":  final_price,
+            "delta":       final_price - (base_price_of.get(pid) or final_price),
+            "tgKey":       winning_key,
+            "source":      source_of.get(winning_key, ""),
+        })
+
+    # Несматченные TG-ключи: товар в канале есть, в каталоге нет
+    unmatched_keys_full = [
+        {"key": k, "tgPrice": agg[k], "finalPrice": agg[k] + MARKUP,
+         "source": source_of.get(k, "")}
+        for k in sorted(set(agg.keys()) - matched_keys)
+    ]
+
+    # Сырые строки которые не распарсились (Samsung/Xiaomi/Garmin/…) —
+    # группируем по бренду для удобства просмотра
+    unmatched_by_brand: dict[str, list[dict]] = {}
+    for raw, price in unmatched_lines:
+        # Простая эвристика бренда — первое слово (или известный pattern)
+        rl = raw.lower()
+        if   "samsung" in rl or "galaxy" in rl or rl.startswith(("s2", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "fold", "flip")):
+            brand = "Samsung"
+        elif "xiaomi" in rl or "mi " in rl or rl.startswith("mi "): brand = "Xiaomi"
+        elif "poco"   in rl: brand = "POCO"
+        elif "redmi"  in rl: brand = "Redmi"
+        elif "honor"  in rl: brand = "Honor"
+        elif "huawei" in rl: brand = "Huawei"
+        elif "google" in rl or "pixel" in rl: brand = "Google"
+        elif "oppo"   in rl: brand = "OPPO"
+        elif "realme" in rl: brand = "Realme"
+        elif "nothing" in rl: brand = "Nothing"
+        elif "garmin" in rl: brand = "Garmin"
+        elif "amazfit" in rl: brand = "Amazfit"
+        elif "dyson"  in rl: brand = "Dyson"
+        elif "oneplus" in rl or "one plus" in rl: brand = "OnePlus"
+        elif "infinix" in rl: brand = "Infinix"
+        elif "tecno"  in rl: brand = "Tecno"
+        elif "asus"   in rl: brand = "Asus"
+        elif "red magic" in rl: brand = "Red Magic"
+        elif "lenovo" in rl: brand = "Lenovo"
+        elif "macbook" in rl: brand = "Apple"
+        elif "watch" in rl and ("apple" in rl or "ultra" in rl): brand = "Apple"
+        else: brand = "Other"
+        unmatched_by_brand.setdefault(brand, []).append({"raw": raw, "tgPrice": price})
+
+    # Per-channel stats
+    channel_stats = []
+    for ch in CHANNELS:
+        name = ch["name"]
+        items = per_channel_items.get(name, [])
+        wins = sum(1 for s in source_of.values() if s == name)
+        channel_stats.append({
+            "name":       name,
+            "postIds":    ch["post_ids"],
+            "linesTotal": len(items),
+            "winsMax":    wins,
+        })
+
+    meta = {
+        "syncedAt":          datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "markup":            MARKUP,
+        "strategy":          "MAX across channels",
+        "channels":          channel_stats,
+        "totals": {
+            "matched":      len(matched_items),
+            "unmatchedKeys": len(unmatched_keys_full),
+            "unmatchedRaw":  len(unmatched_lines),
+        },
+        "matched":          matched_items,
+        "unmatchedKeys":    unmatched_keys_full,
+        "unmatchedByBrand": {b: sorted(v, key=lambda x: -x["tgPrice"])
+                              for b, v in sorted(unmatched_by_brand.items())},
+    }
+    META_OUT.write_text(json.dumps(meta, ensure_ascii=False, indent=2))
+    print(f"📝 Метаданные → {META_OUT}")
 
 
 if __name__ == "__main__":
