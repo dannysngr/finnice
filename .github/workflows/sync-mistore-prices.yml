@@ -89,7 +89,21 @@ jobs:
             echo
             cat diff-summary.txt
           } | git commit -F -
-          git push
+          # Длинный прогон (TG + biggeek = ~50 сек) даёт окно для конкурентного
+          # коммита в main → push фейлится с «fetch first». Тянем последний main
+          # и реблоим наш sync-коммит поверх, до 5 попыток на случай повторных
+          # гонок. --autostash не нужен — рабочая копия чистая после commit.
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main || exit 1
+            if git push; then
+              echo "✓ Pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "⚠️  Push rejected (attempt $attempt) — retrying after rebase"
+            sleep 2
+          done
+          echo "✗ Push failed after 5 attempts"
+          exit 1
 
       - name: Notify Telegram (success with changes)
         if: steps.diff.outputs.changed == 'true'
