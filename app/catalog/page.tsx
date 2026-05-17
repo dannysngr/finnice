@@ -849,18 +849,6 @@ function ProductCard({ item: p, authed, inFavs, cartQty, onToggleFav, onAddCart,
   const down = Math.ceil(p.price * getMinDownPct(p.price));
   const res  = calcInstallment({ price: p.price, down, term: 6 });
 
-  function handleBuy() {
-    openModal({
-      productName: p.name,
-      memory:      p.memories?.[0],
-      sim:         p.sim,
-      price:       p.price,
-      down,
-      term:        6,
-      monthly:     res.monthly,
-    });
-  }
-
   // Для variants — собираем уникальные значения RAM и SSD для бэйджей;
   // для остальных — текстовая подпись как раньше.
   const hasVariants = (p.variants?.length ?? 0) > 0;
