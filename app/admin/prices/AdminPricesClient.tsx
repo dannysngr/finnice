@@ -239,9 +239,13 @@ export function AdminPricesClient() {
                 </thead>
                 <tbody>
                   {filteredMatched.map(m => {
-                    // Min цена среди магазинов — её красим в зелёный
-                    const prices = Object.values(m.perChannel).filter(p => p > 0);
-                    const minPrice = prices.length ? Math.min(...prices) : null;
+                    // Min цена среди ВСЕХ строк всех магазинов (а не только max-per-channel).
+                    // Это та реальная самая низкая цена, которая видна в таблице.
+                    const allPrices: number[] = [];
+                    for (const dets of Object.values(m.details ?? {})) {
+                      for (const d of dets) if (d.price > 0) allPrices.push(d.price);
+                    }
+                    const minPrice = allPrices.length ? Math.min(...allPrices) : null;
                     return (
                       <tr key={m.sku} className="border-t border-[#1A3C6E]/20 hover:bg-[#1A3C6E]/20 align-top">
                         <td className="px-3 py-2">
