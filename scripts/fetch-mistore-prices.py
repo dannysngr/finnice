@@ -424,18 +424,30 @@ def match_catalog(agg: dict[str, int], phones: list[dict], bigs: list[dict]):
         # Парсим PhoneItem из TG_NEW_PHONES
         for block in re.finditer(
             r'id:\s*"([^"]+)",[^}]*?brand:\s*"([^"]+)",[^}]*?'
-            r'model:\s*"([^"]+)",[^}]*?memory:\s*"([^"]+)"',
+            r'model:\s*"([^"]+)",[^}]*?memory:\s*"([^"]+)"[^}]*?'
+            r'(?:sim:\s*"([^"]+)")?',
             add_text, re.DOTALL,
         ):
-            pid, brand, model, mem = block.groups()
-            key = f"{brand}|{model}|{mem}"
-            # Алиасы: канал пишет iPhone 16E, а в каталоге iPhone 16e
-            for alias in (key, key.replace("16e", "16E"), key.replace("17e", "17E")):
-                if alias in agg:
-                    overrides[pid] = agg[alias] + MARKUP
-                    sku_to_key[pid] = alias
-                    matched.add(alias)
-                    break
+            pid, brand, model, mem, sim = block.groups()
+            base_key = f"{brand}|{model}|{mem}"
+            # iPhone 17+: ищем с SIM-suffix; иначе обычный ключ
+            is_17plus = bool(re.match(r"iPhone (?:Air|17)", model))
+            if is_17plus:
+                sim_suffix = "eSIM" if (sim or "").lower() == "esim" else "SIM"
+                other = "SIM" if sim_suffix == "eSIM" else "eSIM"
+                candidates = [f"{base_key}|{sim_suffix}",
+                              f"{base_key}|{other}", base_key]
+            else:
+                candidates = [base_key]
+            # Алиасы для 16E/17E на случай если канал пишет с заглавной
+            for tpl in candidates:
+                for alias in (tpl, tpl.replace("16e", "16E"), tpl.replace("17e", "17E")):
+                    if alias in agg:
+                        overrides[pid] = agg[alias] + MARKUP
+                        sku_to_key[pid] = alias
+                        matched.add(alias)
+                        break
+                if pid in overrides: break
 
     # Watches из biggeek
     for p in bigs:
@@ -738,10 +750,28 @@ def main():
         if pid not in name_of:
             name_of[pid] = name
             base_price_of[pid] = price
+    # TG-новинки (iPhone 16e, 17e и пр.) в tg-additions.ts — структура PhoneItem
+    if ADD_TS.exists():
+        add_text = ADD_TS.read_text()
+        for m in re.finditer(
+            r'id:\s*"([^"]+)",[^}]*?brand:\s*"([^"]+)",[^}]*?'
+            r'model:\s*"([^"]+)",[^}]*?memory:\s*"([^"]+)"[^}]*?'
+            r'(?:sim:\s*"([^"]+)",[^}]*?)?price:\s*([\d_]+)',
+            add_text, re.DOTALL,
+        ):
+            pid, brand, model, mem, sim, price = m.groups()
+            if pid not in name_of:
+                show_sim = bool(re.match(r"iPhone (?:Air|17)$|iPhone 17 ", model)) and sim
+                name_of[pid] = (f"{brand} {model} {mem} · {sim}" if show_sim
+                                else f"{brand} {model} {mem}")
+                base_price_of[pid] = int(price.replace("_", ""))
 
-    # Каждый сматченный SKU с раскладкой цен по каждому магазину
+    # Каждый сматченный SKU с раскладкой цен по каждому магазину.
+    # Сортируем по имени (естественный порядок для UI).
     matched_items: list[dict] = []
-    for pid, final_price in sorted(overrides.items()):
+    sorted_pids = sorted(overrides.keys(), key=lambda p: name_of.get(p, p).lower())
+    for pid in sorted_pids:
+        final_price = overrides[pid]
         key = sku_to_key.get(pid, "")
         per_ch = per_key_channel_prices.get(key, {})
         per_ch_details = per_key_details.get(key, {})

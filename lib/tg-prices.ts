@@ -51,4 +51,5 @@ export const TG_PRICES: Record<string, number> = {
   "planset-apple-ipad-pro-13-256-gb-wi-fi-plus-cellular-cernyj-kosmos-space-black-m5-2025": 98500,
   "planset-apple-ipad-pro-13-512-gb-wi-fi-plus-cellular-cernyj-kosmos-space-black-m5-2025": 122000,
   "tg-ip16e-128": 45300,
+  "tg-ip17e-256": 52500,
 };

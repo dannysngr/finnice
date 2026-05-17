@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-05-17T01:39:37+00:00",
+  "syncedAt": "2026-05-17T01:54:11+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -34,75 +34,11 @@
     }
   ],
   "totals": {
-    "matched": 48,
-    "unmatchedKeys": 6,
+    "matched": 49,
+    "unmatchedKeys": 5,
     "unmatchedRaw": 448
   },
   "matched": [
-    {
-      "sku": "airpods-max2",
-      "name": "AirPods Max 2",
-      "basePrice": 59990,
-      "tgPrice": 41900,
-      "finalPrice": 42900,
-      "delta": -17090,
-      "tgKey": "Apple|AirPods Max|нет",
-      "source": "mistore095",
-      "perChannel": {
-        "mistore095": 41900,
-        "istoregroznyy": 41900
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "Midnight",
-            "price": 41900,
-            "simType": "SIM",
-            "raw": "Air pods Max 2024 Midnight"
-          }
-        ],
-        "istoregroznyy": [
-          {
-            "color": "Midnight",
-            "price": 41900,
-            "simType": "SIM",
-            "raw": "AirPods Max 2 Midnight"
-          }
-        ]
-      }
-    },
-    {
-      "sku": "airpods-pro3",
-      "name": "AirPods Pro 3",
-      "basePrice": 29990,
-      "tgPrice": 18500,
-      "finalPrice": 19500,
-      "delta": -10490,
-      "tgKey": "Apple|AirPods Pro 3|нет",
-      "source": "istoregroznyy",
-      "perChannel": {
-        "mistore095": 18400,
-        "istoregroznyy": 18500
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "",
-            "price": 18400,
-            "simType": "SIM",
-            "raw": "Air pods Pro 3"
-          }
-        ],
-        "istoregroznyy": [
-          {
-            "color": "",
-            "price": 18500,
-            "simType": "SIM",
-            "raw": "Airpods Pro3"
-          }
-        ]
-      }
-    },
     {
       "sku": "airpods4",
       "name": "AirPods 4",
@@ -168,235 +104,65 @@
       }
     },
     {
-      "sku": "apple-watch-ultra-2-49mm-korpus-iz-titana-remesok-ocean-sinego-cveta",
-      "name": "Apple Watch Ultra 2, 49 мм",
-      "basePrice": 53990,
-      "tgPrice": 55000,
-      "finalPrice": 56000,
-      "delta": 2010,
-      "tgKey": "Apple|Apple Watch Ultra 2|49 мм",
+      "sku": "airpods-max2",
+      "name": "AirPods Max 2",
+      "basePrice": 59990,
+      "tgPrice": 41900,
+      "finalPrice": 42900,
+      "delta": -17090,
+      "tgKey": "Apple|AirPods Max|нет",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 55000
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "Green",
-            "price": 53000,
-            "simType": "SIM",
-            "raw": "Watch Ultra 2 49mm Black Green Alpine Loop"
-          },
-          {
-            "color": "Black",
-            "price": 55000,
-            "simType": "SIM",
-            "raw": "Watch Ultra 2 49mm Black Trail Loop Milanese"
-          }
-        ]
-      }
-    },
-    {
-      "sku": "casy-apple-watch-se-3-44-mm-aluminij-cveta-temnaa-noc-remesok-sport-band-temnaa-noc-2025",
-      "name": "Apple Watch SE 3, 44 мм",
-      "basePrice": 23990,
-      "tgPrice": 24000,
-      "finalPrice": 25000,
-      "delta": 1010,
-      "tgKey": "Apple|Apple Watch SE 3|44 мм",
-      "source": "mistore095",
-      "perChannel": {
-        "mistore095": 24000
+        "mistore095": 41900,
+        "istoregroznyy": 41900
       },
       "details": {
         "mistore095": [
           {
             "color": "Midnight",
-            "price": 24000,
+            "price": 41900,
             "simType": "SIM",
-            "raw": "Watch SE 3 44mm – Midnight 2025"
-          },
+            "raw": "Air pods Max 2024 Midnight"
+          }
+        ],
+        "istoregroznyy": [
           {
-            "color": "Starlight",
-            "price": 24000,
+            "color": "Midnight",
+            "price": 41900,
             "simType": "SIM",
-            "raw": "Watch SE 3 44mm Starlight 2025"
+            "raw": "AirPods Max 2 Midnight"
           }
         ]
       }
     },
     {
-      "sku": "casy-apple-watch-series-10-46mm-aluminum-rose-gold-sport-loop-plum",
-      "name": "Apple Watch Series 10, 46 мм",
-      "basePrice": 26490,
-      "tgPrice": 26700,
-      "finalPrice": 27700,
-      "delta": 1210,
-      "tgKey": "Apple|Apple Watch Series 10|46 мм",
-      "source": "mistore095",
-      "perChannel": {
-        "mistore095": 26700
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "Jet Black",
-            "price": 26700,
-            "simType": "SIM",
-            "raw": "Watch S10 46 mm Jet Black"
-          },
-          {
-            "color": "Rose Gold",
-            "price": 25700,
-            "simType": "SIM",
-            "raw": "Watch S10 46 mm Rose Gold"
-          }
-        ]
-      }
-    },
-    {
-      "sku": "casy-apple-watch-series-11-42-mm-aluminij-cveta-rozovoe-zoloto-remesok-sport-band-cveta-svetlye-rumana",
-      "name": "Apple Watch Series 11, 42 мм",
-      "basePrice": 28990,
-      "tgPrice": 29500,
-      "finalPrice": 30500,
-      "delta": 1510,
-      "tgKey": "Apple|Apple Watch Series 11|42 мм",
+      "sku": "airpods-pro3",
+      "name": "AirPods Pro 3",
+      "basePrice": 29990,
+      "tgPrice": 18500,
+      "finalPrice": 19500,
+      "delta": -10490,
+      "tgKey": "Apple|AirPods Pro 3|нет",
       "source": "istoregroznyy",
       "perChannel": {
-        "mistore095": 27900,
-        "istoregroznyy": 29500
+        "mistore095": 18400,
+        "istoregroznyy": 18500
       },
       "details": {
         "mistore095": [
           {
-            "color": "Black",
-            "price": 27900,
+            "color": "",
+            "price": 18400,
             "simType": "SIM",
-            "raw": "Watch 11 42 mm Black"
+            "raw": "Air pods Pro 3"
           }
         ],
         "istoregroznyy": [
           {
-            "color": "Jet Black",
-            "price": 29500,
+            "color": "",
+            "price": 18500,
             "simType": "SIM",
-            "raw": "S11 42mm Jet Black"
-          },
-          {
-            "color": "Rose Gold",
-            "price": 29500,
-            "simType": "SIM",
-            "raw": "S11 42mm Rose Gold"
-          },
-          {
-            "color": "Space Grey",
-            "price": 29500,
-            "simType": "SIM",
-            "raw": "S11 42mm  Space Grey"
-          }
-        ]
-      }
-    },
-    {
-      "sku": "casy-apple-watch-series-11-46-mm-aluminij-serebristogo-cveta-remesok-sport-band-cveta-fioletovyj-tuman",
-      "name": "Apple Watch Series 11, 46 мм",
-      "basePrice": 30990,
-      "tgPrice": 30500,
-      "finalPrice": 31500,
-      "delta": 510,
-      "tgKey": "Apple|Apple Watch Series 11|46 мм",
-      "source": "mistore095",
-      "perChannel": {
-        "mistore095": 30500,
-        "istoregroznyy": 30000
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "Black",
-            "price": 30500,
-            "simType": "SIM",
-            "raw": "Watch 11 46 mm Black"
-          },
-          {
-            "color": "Silver",
-            "price": 30000,
-            "simType": "SIM",
-            "raw": "Watch 11 46 мм Silver"
-          },
-          {
-            "color": "Grey",
-            "price": 30500,
-            "simType": "SIM",
-            "raw": "Watch 11 46 mm Grey"
-          },
-          {
-            "color": "Jet Black",
-            "price": 30000,
-            "simType": "SIM",
-            "raw": "Watch 11 46 mm Jet black"
-          }
-        ],
-        "istoregroznyy": [
-          {
-            "color": "Rose Gold",
-            "price": 30000,
-            "simType": "SIM",
-            "raw": "S11 46mm Rose Gold"
-          },
-          {
-            "color": "Jet Black",
-            "price": 30000,
-            "simType": "SIM",
-            "raw": "S11 46mm Jet black"
-          },
-          {
-            "color": "Space Grey",
-            "price": 30000,
-            "simType": "SIM",
-            "raw": "S11 46mm  Space Grey"
-          }
-        ]
-      }
-    },
-    {
-      "sku": "casy-apple-watch-ultra-3-49-mm-titan-svetlogo-cveta-remesok-trail-cveta-sinijarko-sinij-2025",
-      "name": "Apple Watch Ultra 3, 49 мм",
-      "basePrice": 62990,
-      "tgPrice": 61500,
-      "finalPrice": 62500,
-      "delta": -490,
-      "tgKey": "Apple|Apple Watch Ultra 3|49 мм",
-      "source": "mistore095",
-      "perChannel": {
-        "mistore095": 61500
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "Black",
-            "price": 60000,
-            "simType": "SIM",
-            "raw": "Watch Ultra 3 49 Black Alpine Loop M"
-          },
-          {
-            "color": "Black",
-            "price": 60000,
-            "simType": "SIM",
-            "raw": "Watch Ultra 3 49 Black Ocean Band"
-          },
-          {
-            "color": "Black",
-            "price": 60500,
-            "simType": "SIM",
-            "raw": "Watch Ultra 3 49 mm Black Trail/loop"
-          },
-          {
-            "color": "Blue",
-            "price": 61500,
-            "simType": "SIM",
-            "raw": "Watch Ultra 3 49 mm Natural Titanium Case Anchor Blue Ocean Band"
+            "raw": "Airpods Pro3"
           }
         ]
       }
@@ -741,6 +507,29 @@
       }
     },
     {
+      "sku": "tg-ip16e-128",
+      "name": "Apple iPhone 16e 128 ГБ",
+      "basePrice": 46000,
+      "tgPrice": 44300,
+      "finalPrice": 45300,
+      "delta": -700,
+      "tgKey": "Apple|iPhone 16e|128 ГБ",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 44300
+      },
+      "details": {
+        "mistore095": [
+          {
+            "color": "White",
+            "price": 44300,
+            "simType": "SIM",
+            "raw": "iPhone 16E 128 White"
+          }
+        ]
+      }
+    },
+    {
       "sku": "ip17-256-esim",
       "name": "Apple iPhone 17 256 ГБ · eSIM",
       "basePrice": 60000,
@@ -891,87 +680,6 @@
             "price": 82500,
             "simType": "SIM",
             "raw": "iPhone 17 512 Lavanda"
-          }
-        ]
-      }
-    },
-    {
-      "sku": "ip17air-1tb-esim",
-      "name": "Apple iPhone Air 1 ТБ · eSIM",
-      "basePrice": 103000,
-      "tgPrice": 96000,
-      "finalPrice": 97000,
-      "delta": -6000,
-      "tgKey": "Apple|iPhone Air|1 ТБ|SIM",
-      "source": "mistore095",
-      "perChannel": {
-        "mistore095": 96000
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "Black",
-            "price": 96000,
-            "simType": "SIM",
-            "raw": "iPhone Air 1TB Black"
-          }
-        ]
-      }
-    },
-    {
-      "sku": "ip17air-256-esim",
-      "name": "Apple iPhone Air 256 ГБ · eSIM",
-      "basePrice": 72000,
-      "tgPrice": 73000,
-      "finalPrice": 74000,
-      "delta": 2000,
-      "tgKey": "Apple|iPhone Air|256 ГБ|SIM",
-      "source": "mistore095",
-      "perChannel": {
-        "mistore095": 73000
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "Black",
-            "price": 73000,
-            "simType": "SIM",
-            "raw": "iPhone Air 256 Black"
-          },
-          {
-            "color": "Gold",
-            "price": 71700,
-            "simType": "SIM",
-            "raw": "iPhone Air 256 Gold"
-          },
-          {
-            "color": "Blue",
-            "price": 71000,
-            "simType": "SIM",
-            "raw": "iPhone Air 256 Blue"
-          }
-        ]
-      }
-    },
-    {
-      "sku": "ip17air-512-esim",
-      "name": "Apple iPhone Air 512 ГБ · eSIM",
-      "basePrice": 87000,
-      "tgPrice": 83000,
-      "finalPrice": 84000,
-      "delta": -3000,
-      "tgKey": "Apple|iPhone Air|512 ГБ|SIM",
-      "source": "mistore095",
-      "perChannel": {
-        "mistore095": 83000
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "Black",
-            "price": 83000,
-            "simType": "SIM",
-            "raw": "iPhone Air 512GB Black"
           }
         ]
       }
@@ -1275,6 +983,64 @@
       }
     },
     {
+      "sku": "ip17promax-2tb-esim",
+      "name": "Apple iPhone 17 Pro Max 2 ТБ · eSIM",
+      "basePrice": 168000,
+      "tgPrice": 173000,
+      "finalPrice": 174000,
+      "delta": 6000,
+      "tgKey": "Apple|iPhone 17 Pro Max|2 ТБ|SIM",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 173000
+      },
+      "details": {
+        "mistore095": [
+          {
+            "color": "Blue",
+            "price": 173000,
+            "simType": "SIM",
+            "raw": "iPhone 17 Pro Max 2 TB Blue"
+          },
+          {
+            "color": "Orange",
+            "price": 173000,
+            "simType": "SIM",
+            "raw": "iPhone 17 Pro Max 2 TB orange"
+          }
+        ]
+      }
+    },
+    {
+      "sku": "ip17promax-2tb-sim",
+      "name": "Apple iPhone 17 Pro Max 2 ТБ · SIM + eSIM",
+      "basePrice": 175000,
+      "tgPrice": 173000,
+      "finalPrice": 174000,
+      "delta": -1000,
+      "tgKey": "Apple|iPhone 17 Pro Max|2 ТБ|SIM",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 173000
+      },
+      "details": {
+        "mistore095": [
+          {
+            "color": "Blue",
+            "price": 173000,
+            "simType": "SIM",
+            "raw": "iPhone 17 Pro Max 2 TB Blue"
+          },
+          {
+            "color": "Orange",
+            "price": 173000,
+            "simType": "SIM",
+            "raw": "iPhone 17 Pro Max 2 TB orange"
+          }
+        ]
+      }
+    },
+    {
       "sku": "ip17promax-256-esim",
       "name": "Apple iPhone 17 Pro Max 256 ГБ · eSIM",
       "basePrice": 108000,
@@ -1366,64 +1132,6 @@
       }
     },
     {
-      "sku": "ip17promax-2tb-esim",
-      "name": "Apple iPhone 17 Pro Max 2 ТБ · eSIM",
-      "basePrice": 168000,
-      "tgPrice": 173000,
-      "finalPrice": 174000,
-      "delta": 6000,
-      "tgKey": "Apple|iPhone 17 Pro Max|2 ТБ|SIM",
-      "source": "mistore095",
-      "perChannel": {
-        "mistore095": 173000
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "Blue",
-            "price": 173000,
-            "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 2 TB Blue"
-          },
-          {
-            "color": "Orange",
-            "price": 173000,
-            "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 2 TB orange"
-          }
-        ]
-      }
-    },
-    {
-      "sku": "ip17promax-2tb-sim",
-      "name": "Apple iPhone 17 Pro Max 2 ТБ · SIM + eSIM",
-      "basePrice": 175000,
-      "tgPrice": 173000,
-      "finalPrice": 174000,
-      "delta": -1000,
-      "tgKey": "Apple|iPhone 17 Pro Max|2 ТБ|SIM",
-      "source": "mistore095",
-      "perChannel": {
-        "mistore095": 173000
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "Blue",
-            "price": 173000,
-            "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 2 TB Blue"
-          },
-          {
-            "color": "Orange",
-            "price": 173000,
-            "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 2 TB orange"
-          }
-        ]
-      }
-    },
-    {
       "sku": "ip17promax-512-esim",
       "name": "Apple iPhone 17 Pro Max 512 ГБ · eSIM",
       "basePrice": 124000,
@@ -1504,6 +1212,356 @@
             "price": 131500,
             "simType": "SIM",
             "raw": "17 Pro Max 512 Blue"
+          }
+        ]
+      }
+    },
+    {
+      "sku": "tg-ip17e-256",
+      "name": "Apple iPhone 17e 256 ГБ",
+      "basePrice": 53000,
+      "tgPrice": 51500,
+      "finalPrice": 52500,
+      "delta": -500,
+      "tgKey": "Apple|iPhone 17e|256 ГБ|SIM",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 51500
+      },
+      "details": {
+        "mistore095": [
+          {
+            "color": "Black",
+            "price": 51500,
+            "simType": "SIM",
+            "raw": "iPhone 17e 256 Black"
+          },
+          {
+            "color": "White",
+            "price": 51500,
+            "simType": "SIM",
+            "raw": "iPhone 17e 256 White"
+          },
+          {
+            "color": "Pink",
+            "price": 51500,
+            "simType": "SIM",
+            "raw": "iPhone 17e 256 Pink"
+          }
+        ]
+      }
+    },
+    {
+      "sku": "ip17air-1tb-esim",
+      "name": "Apple iPhone Air 1 ТБ · eSIM",
+      "basePrice": 103000,
+      "tgPrice": 96000,
+      "finalPrice": 97000,
+      "delta": -6000,
+      "tgKey": "Apple|iPhone Air|1 ТБ|SIM",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 96000
+      },
+      "details": {
+        "mistore095": [
+          {
+            "color": "Black",
+            "price": 96000,
+            "simType": "SIM",
+            "raw": "iPhone Air 1TB Black"
+          }
+        ]
+      }
+    },
+    {
+      "sku": "ip17air-256-esim",
+      "name": "Apple iPhone Air 256 ГБ · eSIM",
+      "basePrice": 72000,
+      "tgPrice": 73000,
+      "finalPrice": 74000,
+      "delta": 2000,
+      "tgKey": "Apple|iPhone Air|256 ГБ|SIM",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 73000
+      },
+      "details": {
+        "mistore095": [
+          {
+            "color": "Black",
+            "price": 73000,
+            "simType": "SIM",
+            "raw": "iPhone Air 256 Black"
+          },
+          {
+            "color": "Gold",
+            "price": 71700,
+            "simType": "SIM",
+            "raw": "iPhone Air 256 Gold"
+          },
+          {
+            "color": "Blue",
+            "price": 71000,
+            "simType": "SIM",
+            "raw": "iPhone Air 256 Blue"
+          }
+        ]
+      }
+    },
+    {
+      "sku": "ip17air-512-esim",
+      "name": "Apple iPhone Air 512 ГБ · eSIM",
+      "basePrice": 87000,
+      "tgPrice": 83000,
+      "finalPrice": 84000,
+      "delta": -3000,
+      "tgKey": "Apple|iPhone Air|512 ГБ|SIM",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 83000
+      },
+      "details": {
+        "mistore095": [
+          {
+            "color": "Black",
+            "price": 83000,
+            "simType": "SIM",
+            "raw": "iPhone Air 512GB Black"
+          }
+        ]
+      }
+    },
+    {
+      "sku": "casy-apple-watch-se-3-44-mm-aluminij-cveta-temnaa-noc-remesok-sport-band-temnaa-noc-2025",
+      "name": "Apple Watch SE 3, 44 мм",
+      "basePrice": 23990,
+      "tgPrice": 24000,
+      "finalPrice": 25000,
+      "delta": 1010,
+      "tgKey": "Apple|Apple Watch SE 3|44 мм",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 24000
+      },
+      "details": {
+        "mistore095": [
+          {
+            "color": "Midnight",
+            "price": 24000,
+            "simType": "SIM",
+            "raw": "Watch SE 3 44mm – Midnight 2025"
+          },
+          {
+            "color": "Starlight",
+            "price": 24000,
+            "simType": "SIM",
+            "raw": "Watch SE 3 44mm Starlight 2025"
+          }
+        ]
+      }
+    },
+    {
+      "sku": "casy-apple-watch-series-10-46mm-aluminum-rose-gold-sport-loop-plum",
+      "name": "Apple Watch Series 10, 46 мм",
+      "basePrice": 26490,
+      "tgPrice": 26700,
+      "finalPrice": 27700,
+      "delta": 1210,
+      "tgKey": "Apple|Apple Watch Series 10|46 мм",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 26700
+      },
+      "details": {
+        "mistore095": [
+          {
+            "color": "Jet Black",
+            "price": 26700,
+            "simType": "SIM",
+            "raw": "Watch S10 46 mm Jet Black"
+          },
+          {
+            "color": "Rose Gold",
+            "price": 25700,
+            "simType": "SIM",
+            "raw": "Watch S10 46 mm Rose Gold"
+          }
+        ]
+      }
+    },
+    {
+      "sku": "casy-apple-watch-series-11-42-mm-aluminij-cveta-rozovoe-zoloto-remesok-sport-band-cveta-svetlye-rumana",
+      "name": "Apple Watch Series 11, 42 мм",
+      "basePrice": 28990,
+      "tgPrice": 29500,
+      "finalPrice": 30500,
+      "delta": 1510,
+      "tgKey": "Apple|Apple Watch Series 11|42 мм",
+      "source": "istoregroznyy",
+      "perChannel": {
+        "mistore095": 27900,
+        "istoregroznyy": 29500
+      },
+      "details": {
+        "mistore095": [
+          {
+            "color": "Black",
+            "price": 27900,
+            "simType": "SIM",
+            "raw": "Watch 11 42 mm Black"
+          }
+        ],
+        "istoregroznyy": [
+          {
+            "color": "Jet Black",
+            "price": 29500,
+            "simType": "SIM",
+            "raw": "S11 42mm Jet Black"
+          },
+          {
+            "color": "Rose Gold",
+            "price": 29500,
+            "simType": "SIM",
+            "raw": "S11 42mm Rose Gold"
+          },
+          {
+            "color": "Space Grey",
+            "price": 29500,
+            "simType": "SIM",
+            "raw": "S11 42mm  Space Grey"
+          }
+        ]
+      }
+    },
+    {
+      "sku": "casy-apple-watch-series-11-46-mm-aluminij-serebristogo-cveta-remesok-sport-band-cveta-fioletovyj-tuman",
+      "name": "Apple Watch Series 11, 46 мм",
+      "basePrice": 30990,
+      "tgPrice": 30500,
+      "finalPrice": 31500,
+      "delta": 510,
+      "tgKey": "Apple|Apple Watch Series 11|46 мм",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 30500,
+        "istoregroznyy": 30000
+      },
+      "details": {
+        "mistore095": [
+          {
+            "color": "Black",
+            "price": 30500,
+            "simType": "SIM",
+            "raw": "Watch 11 46 mm Black"
+          },
+          {
+            "color": "Silver",
+            "price": 30000,
+            "simType": "SIM",
+            "raw": "Watch 11 46 мм Silver"
+          },
+          {
+            "color": "Grey",
+            "price": 30500,
+            "simType": "SIM",
+            "raw": "Watch 11 46 mm Grey"
+          },
+          {
+            "color": "Jet Black",
+            "price": 30000,
+            "simType": "SIM",
+            "raw": "Watch 11 46 mm Jet black"
+          }
+        ],
+        "istoregroznyy": [
+          {
+            "color": "Rose Gold",
+            "price": 30000,
+            "simType": "SIM",
+            "raw": "S11 46mm Rose Gold"
+          },
+          {
+            "color": "Jet Black",
+            "price": 30000,
+            "simType": "SIM",
+            "raw": "S11 46mm Jet black"
+          },
+          {
+            "color": "Space Grey",
+            "price": 30000,
+            "simType": "SIM",
+            "raw": "S11 46mm  Space Grey"
+          }
+        ]
+      }
+    },
+    {
+      "sku": "apple-watch-ultra-2-49mm-korpus-iz-titana-remesok-ocean-sinego-cveta",
+      "name": "Apple Watch Ultra 2, 49 мм",
+      "basePrice": 53990,
+      "tgPrice": 55000,
+      "finalPrice": 56000,
+      "delta": 2010,
+      "tgKey": "Apple|Apple Watch Ultra 2|49 мм",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 55000
+      },
+      "details": {
+        "mistore095": [
+          {
+            "color": "Green",
+            "price": 53000,
+            "simType": "SIM",
+            "raw": "Watch Ultra 2 49mm Black Green Alpine Loop"
+          },
+          {
+            "color": "Black",
+            "price": 55000,
+            "simType": "SIM",
+            "raw": "Watch Ultra 2 49mm Black Trail Loop Milanese"
+          }
+        ]
+      }
+    },
+    {
+      "sku": "casy-apple-watch-ultra-3-49-mm-titan-svetlogo-cveta-remesok-trail-cveta-sinijarko-sinij-2025",
+      "name": "Apple Watch Ultra 3, 49 мм",
+      "basePrice": 62990,
+      "tgPrice": 61500,
+      "finalPrice": 62500,
+      "delta": -490,
+      "tgKey": "Apple|Apple Watch Ultra 3|49 мм",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 61500
+      },
+      "details": {
+        "mistore095": [
+          {
+            "color": "Black",
+            "price": 60000,
+            "simType": "SIM",
+            "raw": "Watch Ultra 3 49 Black Alpine Loop M"
+          },
+          {
+            "color": "Black",
+            "price": 60000,
+            "simType": "SIM",
+            "raw": "Watch Ultra 3 49 Black Ocean Band"
+          },
+          {
+            "color": "Black",
+            "price": 60500,
+            "simType": "SIM",
+            "raw": "Watch Ultra 3 49 mm Black Trail/loop"
+          },
+          {
+            "color": "Blue",
+            "price": 61500,
+            "simType": "SIM",
+            "raw": "Watch Ultra 3 49 mm Natural Titanium Case Anchor Blue Ocean Band"
           }
         ]
       }
@@ -1731,29 +1789,6 @@
           }
         ]
       }
-    },
-    {
-      "sku": "tg-ip16e-128",
-      "name": "tg-ip16e-128",
-      "basePrice": null,
-      "tgPrice": 44300,
-      "finalPrice": 45300,
-      "delta": 0,
-      "tgKey": "Apple|iPhone 16e|128 ГБ",
-      "source": "mistore095",
-      "perChannel": {
-        "mistore095": 44300
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "White",
-            "price": 44300,
-            "simType": "SIM",
-            "raw": "iPhone 16E 128 White"
-          }
-        ]
-      }
     }
   ],
   "unmatchedKeys": [
@@ -1785,12 +1820,6 @@
       "key": "Apple|MacBook Pro 16 M5|1 ТБ",
       "tgPrice": 223000,
       "finalPrice": 224000,
-      "source": "mistore095"
-    },
-    {
-      "key": "Apple|iPhone 17e|256 ГБ|SIM",
-      "tgPrice": 51500,
-      "finalPrice": 52500,
       "source": "mistore095"
     }
   ],
