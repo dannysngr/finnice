@@ -951,31 +951,8 @@ const RAW_PRODUCTS: Product[] = [
     description:"Mac mini M4 — самый доступный способ войти в экосистему Apple Mac.",
     specs:[{key:"Процессор",val:"Apple M4"},{key:"ОЗУ",val:"16 ГБ"},{key:"GPU",val:"10-ядерный"},{key:"Накопитель",val:"256 ГБ SSD"}] },
 
-  // ── iMac 24" M4  (2024) ───────────────────────────────────────
-  { id:"imac24-m4-blue-256",   name:'iMac 24" M4 Blue 16/256',  slug:"imac24-m4-blue-256",
-    category:"noutbuki", brand:"Apple", price:139990, badge:"Новинка", year:2024, emoji:"🖥️",
-    img:A("imac-blue"), memories:["256 ГБ"],
-    colors:["Blue (Синий)"], inStock:true, rating:5, reviewCount:19,
-    description:"iMac 24\" M4 в цвете Blue — моноблок толщиной 11.5 мм с дисплеем 4.5K Retina и камерой 12 Мп.",
-    specs:[{key:"Дисплей",val:'24" 4.5K Retina'},{key:"Процессор",val:"Apple M4"},{key:"ОЗУ",val:"16 ГБ"},{key:"Накопитель",val:"256 ГБ SSD"}] },
-  { id:"imac24-m4-pink-256",   name:'iMac 24" M4 Pink 16/256',  slug:"imac24-m4-pink-256",
-    category:"noutbuki", brand:"Apple", price:139990, badge:"Новинка", year:2024, emoji:"🖥️",
-    img:A("imac-pink"), memories:["256 ГБ"],
-    colors:["Pink (Розовый)"], inStock:true, rating:5, reviewCount:14,
-    description:"iМac 24\" M4 Pink — стильный моноблок с M4 и дисплеем 4.5K Retina. Украсит любой интерьер.",
-    specs:[{key:"Дисплей",val:'24" 4.5K Retina'},{key:"Процессор",val:"Apple M4"},{key:"ОЗУ",val:"16 ГБ"},{key:"Накопитель",val:"256 ГБ SSD"}] },
-  { id:"imac24-m4-purple-256", name:'iMac 24" M4 Purple 16/256',slug:"imac24-m4-purple-256",
-    category:"noutbuki", brand:"Apple", price:139990, badge:"Новинка", year:2024, emoji:"🖥️",
-    img:A("imac-purple"), memories:["256 ГБ"],
-    colors:["Purple (Фиолетовый)"], inStock:true, rating:5, reviewCount:12,
-    description:"iMac 24\" M4 Purple — чип M4 в самом красивом оттенке линейки iMac.",
-    specs:[{key:"Дисплей",val:'24" 4.5K Retina'},{key:"Процессор",val:"Apple M4"},{key:"ОЗУ",val:"16 ГБ"},{key:"Накопитель",val:"256 ГБ SSD"}] },
-  { id:"imac24-m4-silver-256", name:'iMac 24" M4 Silver 16/256',slug:"imac24-m4-silver-256",
-    category:"noutbuki", brand:"Apple", price:139990, badge:"Новинка", year:2024, emoji:"🖥️",
-    img:A("imac-silver"), memories:["256 ГБ"],
-    colors:["Silver (Серебристый)"], inStock:true, rating:5, reviewCount:22,
-    description:"iMac 24\" M4 Silver — классический цвет, современный чип M4 и 4.5K-дисплей.",
-    specs:[{key:"Дисплей",val:'24" 4.5K Retina'},{key:"Процессор",val:"Apple M4"},{key:"ОЗУ",val:"16 ГБ"},{key:"Накопитель",val:"256 ГБ SSD"}] },
+  // iMac 24" M4 — берётся из BIGGEEK_PRODUCTS (см. lib/biggeek-products.ts),
+  // одна карточка с каруселью всех 4 цветов (Blue / Pink / Purple / Silver).
 
   /* ── Телевизоры ── */
   {
