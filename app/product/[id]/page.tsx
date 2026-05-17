@@ -3,6 +3,15 @@ import Link from "next/link";
 import { PRODUCTS, CATALOG_CATS } from "@/lib/data";
 import { fmtRub, fmtRubApprox } from "@/lib/calculator-logic";
 import { Calculator } from "@/components/Calculator";
+import { ProductHero } from "@/components/ProductHero";
+
+/** Порядок групп spec'ов на детальной странице (как на biggeek.ru). */
+const SPEC_GROUP_ORDER = [
+  "Общие характеристики", "Конструкция", "Память и процессор",
+  "Экран", "Звук", "Связь", "Интерфейсы",
+  "Устройства ввода", "Устройства хранения данных",
+  "Мультимедийные возможности", "Питание", "Другие функции", "Прочее",
+];
 
 /* ── Static params for pre-rendering ─────────────────────────── */
 export function generateStaticParams() {
@@ -50,114 +59,9 @@ export default async function ProductPage({
       </div>
 
       <div className="section py-8">
-        {/* ── Top: image + info ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
-
-          {/* Left: image gallery */}
-          <div>
-            {/* Main image */}
-            <div className="w-full aspect-square bg-[#F4F7FC] rounded-3xl
-                            flex items-center justify-center text-[120px] mb-4 border border-[#D8E2F0]">
-              {product.emoji}
-            </div>
-            {/* Thumbnails */}
-            <div className="flex gap-3">
-              {[0, 1, 2].map((i) => (
-                <div key={i}
-                  className={`w-20 h-20 rounded-xl bg-[#F4F7FC] flex items-center justify-center text-4xl
-                               border-2 transition-colors cursor-pointer
-                               ${i === 0 ? "border-[#1A3C6E]" : "border-[#D8E2F0] hover:border-[#1A3C6E]/40"}`}
-                >
-                  {product.emoji}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right: product info */}
-          <div>
-            {/* Badge */}
-            {product.badge && (
-              <span className={`inline-block px-3 py-1 text-xs font-bold rounded-full mb-3
-                ${product.badge === "Хит" ? "bg-[#FEF3C7] text-[#D97706]" :
-                  product.badge === "Акция" ? "bg-[#FEE2E2] text-[#DC2626]" :
-                  "bg-[#EBF0F9] text-[#1A3C6E]"}`}>
-                {product.badge}
-              </span>
-            )}
-
-            <h1 className="text-2xl lg:text-3xl font-extrabold text-[#0A1628] mb-3 leading-snug">
-              {product.name}
-            </h1>
-
-            {/* Rating */}
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-[#F59E0B] text-base tracking-tight">{stars}</span>
-              <span className="text-sm text-[#6B7280]">{product.rating.toFixed(1)}</span>
-              <span className="text-xs text-[#9CA3AF]">({product.reviewCount} отзывов)</span>
-              <span className={`ml-2 text-xs font-semibold px-2 py-0.5 rounded-full
-                ${product.inStock ? "bg-[#D1FAE5] text-[#059669]" : "bg-[#FEE2E2] text-[#DC2626]"}`}>
-                {product.inStock ? "В наличии" : "Нет в наличии"}
-              </span>
-            </div>
-
-            {/* Price */}
-            <div className="mb-5">
-              <span className="text-4xl font-extrabold text-[#0A1628]">{product.tgSynced ? fmtRub(product.price) : fmtRubApprox(product.price)} ₽</span>
-              {product.oldPrice && (
-                <span className="ml-3 text-lg text-[#9CA3AF] line-through">{fmtRub(product.oldPrice)} ₽</span>
-              )}
-              {product.oldPrice && (
-                <span className="ml-2 text-sm font-bold text-[#DC2626]">
-                  −{fmtRub(product.oldPrice - product.price)} ₽
-                </span>
-              )}
-            </div>
-
-            {/* Memory selector */}
-            {product.memories && product.memories.length > 0 && (
-              <div className="mb-4">
-                <p className="text-xs font-semibold text-[#6B7280] mb-2">Память:</p>
-                <div className="flex flex-wrap gap-2">
-                  {product.memories.map((m, i) => (
-                    <button key={m}
-                      className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-colors
-                        ${i === 0 ? "bg-[#1A3C6E] text-white border-[#1A3C6E]"
-                                  : "border-[#D8E2F0] text-[#6B7280] hover:border-[#1A3C6E] hover:text-[#1A3C6E]"}`}>
-                      {m}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Color selector */}
-            {product.colors && product.colors.length > 0 && (
-              <div className="mb-6">
-                <p className="text-xs font-semibold text-[#6B7280] mb-2">Цвет:</p>
-                <div className="flex flex-wrap gap-2">
-                  {product.colors.map((c, i) => (
-                    <button key={c}
-                      className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-colors
-                        ${i === 0 ? "bg-[#0A1628] text-white border-[#0A1628]"
-                                  : "border-[#D8E2F0] text-[#6B7280] hover:border-[#0A1628] hover:text-[#0A1628]"}`}>
-                      {c}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* CTA */}
-            <button className="btn-primary w-full py-4 text-base mb-3">
-              Купить в рассрочку
-            </button>
-            <button className="w-full py-3 rounded-2xl border-2 border-[#D8E2F0] text-[#0A1628]
-                               font-semibold text-sm hover:border-[#1A3C6E] hover:text-[#1A3C6E] transition-colors">
-              Добавить в избранное ♡
-            </button>
-          </div>
-        </div>
+        {/* ── Top: image + info (клиентский компонент для синхронизации
+               цвета и фото) ── */}
+        <ProductHero product={product} stars={stars} />
 
         {/* ── Calculator ── */}
         <div className="mb-12">
@@ -169,23 +73,54 @@ export default async function ProductPage({
           {/* Description */}
           <div className="card p-6">
             <h2 className="text-lg font-extrabold text-[#0A1628] mb-4">Описание</h2>
-            <p className="text-[#4B5563] leading-relaxed text-sm">{product.description}</p>
+            <p className="text-[#4B5563] leading-relaxed text-sm whitespace-pre-line">
+              {product.description}
+            </p>
           </div>
 
-          {/* Specs */}
+          {/* Specs — сгруппированы по подразделам (как на biggeek) */}
           <div className="card p-6">
             <h2 className="text-lg font-extrabold text-[#0A1628] mb-4">Характеристики</h2>
-            <table className="w-full text-sm">
-              <tbody>
-                {product.specs.map((s, i) => (
-                  <tr key={s.key}
-                    className={`border-b ${i % 2 === 0 ? "bg-[#F4F7FC]" : "bg-white"}`}>
-                    <td className="py-2 px-3 text-[#6B7280] font-medium w-2/5">{s.key}</td>
-                    <td className="py-2 px-3 text-[#0A1628] font-semibold">{s.val}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {(() => {
+              // Группируем specs по group; внутри группы сохраняем исходный порядок
+              const byGroup = new Map<string, { key: string; val: string }[]>();
+              for (const s of product.specs) {
+                const g = s.group ?? "Прочее";
+                if (!byGroup.has(g)) byGroup.set(g, []);
+                byGroup.get(g)!.push({ key: s.key, val: s.val });
+              }
+              // Сортируем группы по фиксированному порядку, остальные — в конец
+              const groups = Array.from(byGroup.keys()).sort((a, b) => {
+                const ia = SPEC_GROUP_ORDER.indexOf(a);
+                const ib = SPEC_GROUP_ORDER.indexOf(b);
+                return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib);
+              });
+              if (groups.length === 0) {
+                return <p className="text-sm text-[#9CA3AF]">Нет характеристик</p>;
+              }
+              return (
+                <div className="space-y-5">
+                  {groups.map(g => (
+                    <div key={g}>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-[#1A3C6E] mb-2">
+                        {g}
+                      </h3>
+                      <table className="w-full text-sm">
+                        <tbody>
+                          {byGroup.get(g)!.map((s, i) => (
+                            <tr key={s.key + i}
+                                className={`border-b border-[#EBF0F9] ${i % 2 === 0 ? "bg-[#F4F7FC]" : "bg-white"}`}>
+                              <td className="py-1.5 px-3 text-[#6B7280] font-medium w-1/2">{s.key}</td>
+                              <td className="py-1.5 px-3 text-[#0A1628] font-semibold">{s.val}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         </div>
 

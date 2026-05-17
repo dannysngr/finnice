@@ -115,6 +115,7 @@ export interface PhoneItem {
 // Манифест содержит { "iphone-17-pro-max": 3, ... } — сколько цветов скачано
 import phonesManifest from "@/public/images/phones/manifest.json";
 import { BIGGEEK_PRODUCTS } from "./biggeek-products";
+import { BIGGEEK_MACBOOKS } from "./biggeek-macbooks";
 import { TG_PRICES } from "./tg-prices";
 import { TG_NEW_PRODUCTS, TG_NEW_PHONES } from "./tg-additions";
 const MANIFEST: Record<string, number> = phonesManifest as Record<string, number>;
@@ -792,7 +793,11 @@ export interface Product {
   rating:       number;   // 1–5
   reviewCount:  number;
   description:  string;
-  specs:        { key: string; val: string }[];
+  specs:        { key: string; val: string; group?: string }[];
+  /** Конкретные комплектации (RAM × SSD × цвет → цена + фото).
+   *  Если задано — карточка показывает «от <минимальная цена>»,
+   *  на детальной странице — конфигуратор. */
+  variants?:    { ram: string; ssd: string; color: string; price: number; img?: string }[];
   /** true ⇔ цена пришла из партнёрского TG-канала (точная);
    *  false/undefined ⇔ дефолтная, показываем «≈» */
   tgSynced?:    boolean;
@@ -891,86 +896,7 @@ const RAW_PRODUCTS: Product[] = [
      НОУТБУКИ И КОМПЬЮТЕРЫ  (год ↓, цена ↓)
   ══════════════════════════════════════════════════════════════ */
 
-  // ── MacBook Pro M5  (2026) ────────────────────────────────────
-  { id:"mbp16-m5max-64-1tb",  name:'MacBook Pro 16" M5 Max 64/1TB', slug:"mbp16-m5max-64-1tb",
-    category:"noutbuki", brand:"Apple", price:634990, badge:"Новинка", year:2026, emoji:"💻",
-    img:A("macbook-pro-16"), memories:["1 ТБ"],
-    colors:["Space Black (Космический чёрный)","Silver (Серебристый)"],
-    inStock:true, rating:5, reviewCount:6,
-    description:"MacBook Pro 16\" M5 Max 64 ГБ — абсолютный флагман: 40-ядерный GPU, Thunderbolt 5, нанотекстурное стекло.",
-    specs:[{key:"Дисплей",val:'16.2" Liquid Retina XDR 120 Гц'},{key:"Процессор",val:"Apple M5 Max"},{key:"ОЗУ",val:"64 ГБ"},{key:"Накопитель",val:"1 ТБ SSD"},{key:"GPU",val:"40-ядерный"},{key:"Автономность",val:"до 22 ч"}] },
-  { id:"mbp16-m5max-48-1tb",  name:'MacBook Pro 16" M5 Max 48/1TB', slug:"mbp16-m5max-48-1tb",
-    category:"noutbuki", brand:"Apple", price:549990, badge:"Новинка", year:2026, emoji:"💻",
-    img:A("macbook-pro-16"), memories:["1 ТБ"],
-    colors:["Space Black (Космический чёрный)","Silver (Серебристый)"],
-    inStock:true, rating:5, reviewCount:9,
-    description:"MacBook Pro 16\" M5 Max — для 3D-рендера, ML и видеомонтажа 8K без компромиссов.",
-    specs:[{key:"Дисплей",val:'16.2" Liquid Retina XDR 120 Гц'},{key:"Процессор",val:"Apple M5 Max"},{key:"ОЗУ",val:"48 ГБ"},{key:"Накопитель",val:"1 ТБ SSD"},{key:"GPU",val:"40-ядерный"},{key:"Автономность",val:"до 22 ч"}] },
-  { id:"mbp16-m5pro-24-1tb",  name:'MacBook Pro 16" M5 Pro 24/1TB', slug:"mbp16-m5pro-24-1tb",
-    category:"noutbuki", brand:"Apple", price:444990, badge:"Новинка", year:2026, emoji:"💻",
-    img:A("macbook-pro-16"), memories:["1 ТБ"],
-    colors:["Space Black (Космический чёрный)","Silver (Серебристый)"],
-    inStock:true, rating:5, reviewCount:14,
-    description:"MacBook Pro 16\" M5 Pro 24 ГБ — большой экран и мощность Pro для разработчиков и дизайнеров.",
-    specs:[{key:"Дисплей",val:'16.2" Liquid Retina XDR 120 Гц'},{key:"Процессор",val:"Apple M5 Pro"},{key:"ОЗУ",val:"24 ГБ"},{key:"Накопитель",val:"1 ТБ SSD"},{key:"GPU",val:"20-ядерный"},{key:"Автономность",val:"до 22 ч"}] },
-  { id:"mbp16-m5pro-24-512",  name:'MacBook Pro 16" M5 Pro 24/512', slug:"mbp16-m5pro-24-512",
-    category:"noutbuki", brand:"Apple", price:399990, badge:"Новинка", year:2026, emoji:"💻",
-    img:A("macbook-pro-16"), memories:["512 ГБ"],
-    colors:["Space Black (Космический чёрный)","Silver (Серебристый)"],
-    inStock:true, rating:5, reviewCount:18,
-    description:"MacBook Pro 16\" M5 Pro — идеальный баланс экрана, мощности и цены в линейке Pro.",
-    specs:[{key:"Дисплей",val:'16.2" Liquid Retina XDR 120 Гц'},{key:"Процессор",val:"Apple M5 Pro"},{key:"ОЗУ",val:"24 ГБ"},{key:"Накопитель",val:"512 ГБ SSD"},{key:"GPU",val:"20-ядерный"},{key:"Автономность",val:"до 22 ч"}] },
-  { id:"mbp14-m5pro-24-1tb",  name:'MacBook Pro 14" M5 Pro 24/1TB', slug:"mbp14-m5pro-24-1tb",
-    category:"noutbuki", brand:"Apple", price:374990, badge:"Новинка", year:2026, emoji:"💻",
-    img:A("macbook-pro-14"), memories:["1 ТБ"],
-    colors:["Space Black (Космический чёрный)","Silver (Серебристый)"],
-    inStock:true, rating:5, reviewCount:22,
-    description:"MacBook Pro 14\" M5 Pro — компактный профессиональный ноутбук с дисплеем Liquid Retina XDR и Thunderbolt 5.",
-    specs:[{key:"Дисплей",val:'14.2" Liquid Retina XDR 120 Гц'},{key:"Процессор",val:"Apple M5 Pro"},{key:"ОЗУ",val:"24 ГБ"},{key:"Накопитель",val:"1 ТБ SSD"},{key:"GPU",val:"20-ядерный"},{key:"Автономность",val:"до 17 ч"}] },
-  { id:"mbp14-m5pro-24-512",  name:'MacBook Pro 14" M5 Pro 24/512', slug:"mbp14-m5pro-24-512",
-    category:"noutbuki", brand:"Apple", price:334990, badge:"Новинка", year:2026, emoji:"💻",
-    img:A("macbook-pro-14"), memories:["512 ГБ"],
-    colors:["Space Black (Космический чёрный)","Silver (Серебристый)"],
-    inStock:true, rating:5, reviewCount:31,
-    description:"MacBook Pro 14\" M5 Pro 512 ГБ — топовая производительность в компактном корпусе.",
-    specs:[{key:"Дисплей",val:'14.2" Liquid Retina XDR 120 Гц'},{key:"Процессор",val:"Apple M5 Pro"},{key:"ОЗУ",val:"24 ГБ"},{key:"Накопитель",val:"512 ГБ SSD"},{key:"GPU",val:"20-ядерный"},{key:"Автономность",val:"до 17 ч"}] },
-  { id:"mbp14-m5-24-512",     name:'MacBook Pro 14" M5 24/512',     slug:"mbp14-m5-24-512",
-    category:"noutbuki", brand:"Apple", price:264990, year:2026, emoji:"💻",
-    img:A("macbook-pro-14"), memories:["512 ГБ"],
-    colors:["Space Black (Космический чёрный)","Silver (Серебристый)"],
-    inStock:true, rating:5, reviewCount:40,
-    description:"MacBook Pro 14\" M5 — базовый Pro с чипом M5 и дисплеем Liquid Retina XDR. Лучше любого конкурента.",
-    specs:[{key:"Дисплей",val:'14.2" Liquid Retina XDR 120 Гц'},{key:"Процессор",val:"Apple M5"},{key:"ОЗУ",val:"24 ГБ"},{key:"Накопитель",val:"512 ГБ SSD"},{key:"GPU",val:"14-ядерный"},{key:"Автономность",val:"до 17 ч"}] },
-
-  // ── MacBook Air M4  (2025) ────────────────────────────────────
-  { id:"mba15-m4-16-512", name:'MacBook Air 15" M4 16/512', slug:"mba15-m4-16-512",
-    category:"noutbuki", brand:"Apple", price:174990, badge:"Хит", year:2025, emoji:"💻",
-    img:A("macbook-air-15"), memories:["512 ГБ"],
-    colors:["Sky Blue (Небесно-голубой)","Starlight (Звёздный свет)","Midnight (Полночь)","Silver (Серебристый)"],
-    inStock:true, rating:5, reviewCount:67,
-    description:"MacBook Air 15\" M4 — самый тонкий 15\" ноутбук. Без вентилятора, до 18 ч автономности, два внешних дисплея.",
-    specs:[{key:"Дисплей",val:'15.3" Liquid Retina'},{key:"Процессор",val:"Apple M4"},{key:"ОЗУ",val:"16 ГБ"},{key:"Накопитель",val:"512 ГБ SSD"},{key:"Автономность",val:"до 18 ч"}] },
-  { id:"mba15-m4-16-256", name:'MacBook Air 15" M4 16/256', slug:"mba15-m4-16-256",
-    category:"noutbuki", brand:"Apple", price:149990, year:2025, emoji:"💻",
-    img:A("macbook-air-15"), memories:["256 ГБ"],
-    colors:["Sky Blue (Небесно-голубой)","Starlight (Звёздный свет)","Midnight (Полночь)","Silver (Серебристый)"],
-    inStock:true, rating:5, reviewCount:93,
-    description:"MacBook Air 15\" M4 256 ГБ — бесшумный мощный ноутбук с большим дисплеем по доступной цене.",
-    specs:[{key:"Дисплей",val:'15.3" Liquid Retina'},{key:"Процессор",val:"Apple M4"},{key:"ОЗУ",val:"16 ГБ"},{key:"Накопитель",val:"256 ГБ SSD"},{key:"Автономность",val:"до 18 ч"}] },
-  { id:"mba13-m4-16-512", name:'MacBook Air 13" M4 16/512', slug:"mba13-m4-16-512",
-    category:"noutbuki", brand:"Apple", price:149990, badge:"Хит", year:2025, emoji:"💻",
-    img:A("macbook-air-13"), memories:["512 ГБ"],
-    colors:["Sky Blue (Небесно-голубой)","Starlight (Звёздный свет)","Midnight (Полночь)","Silver (Серебристый)"],
-    inStock:true, rating:5, reviewCount:115,
-    description:"MacBook Air 13\" M4 — самый продаваемый ноутбук Apple. Лёгкий (1.24 кг), тихий и невероятно быстрый.",
-    specs:[{key:"Дисплей",val:'13.6" Liquid Retina'},{key:"Процессор",val:"Apple M4"},{key:"ОЗУ",val:"16 ГБ"},{key:"Накопитель",val:"512 ГБ SSD"},{key:"Автономность",val:"до 18 ч"}] },
-  { id:"mba13-m4-16-256", name:'MacBook Air 13" M4 16/256', slug:"mba13-m4-16-256",
-    category:"noutbuki", brand:"Apple", price:119990, year:2025, emoji:"💻",
-    img:A("macbook-air-13"), memories:["256 ГБ"],
-    colors:["Sky Blue (Небесно-голубой)","Starlight (Звёздный свет)","Midnight (Полночь)","Silver (Серебристый)"],
-    inStock:true, rating:5, reviewCount:142,
-    description:"MacBook Air 13\" M4 256 ГБ — лучший ноутбук для учёбы и работы. Удар по кошельку минимальный.",
-    specs:[{key:"Дисплей",val:'13.6" Liquid Retina'},{key:"Процессор",val:"Apple M4"},{key:"ОЗУ",val:"16 ГБ"},{key:"Накопитель",val:"256 ГБ SSD"},{key:"Автономность",val:"до 18 ч"}] },
+  // ── MacBook'и берутся из BIGGEEK_MACBOOKS (см. lib/biggeek-macbooks.ts).
 
   // ── Mac Studio  (2025) ────────────────────────────────────────
   { id:"mac-studio-m4ultra-1tb", name:"Mac Studio M4 Ultra 64/1TB", slug:"mac-studio-m4ultra-1tb",
@@ -1421,6 +1347,8 @@ const RAW_PRODUCTS: Product[] = [
 
   /* ── Импорт с biggeek.ru (Mac, iPad, Apple Watch, Apple TV, AirTag) ── */
   ...BIGGEEK_PRODUCTS,
+  /* ── MacBook'и с biggeek.ru (отдельный скрипт с детальными specs) ── */
+  ...BIGGEEK_MACBOOKS,
 ];
 
 /** Цены из партнёрского TG-канала перезаписывают базовые при матче по id;

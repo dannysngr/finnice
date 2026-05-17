@@ -776,10 +776,15 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
     ? "bg-[#0C7A58] text-white cursor-default"
     : "bg-[#0A1628] text-white hover:bg-[#1A3C6E]";
 
-  const specsText = [
-    ...(p.memories && p.memories.length > 0 ? [p.memories.join(" / ")] : []),
-    ...(p.sim ? [p.sim] : []),
-  ].join(" · ");
+  // У конфигуратора (variants) под названием показываем «N конфигураций»,
+  // иначе обычный список памяти/SIM.
+  const hasVariants = (p.variants?.length ?? 0) > 0;
+  const specsText = hasVariants
+    ? `${p.variants!.length} конфигураций`
+    : [
+        ...(p.memories && p.memories.length > 0 ? [p.memories.join(" / ")] : []),
+        ...(p.sim ? [p.sim] : []),
+      ].join(" · ");
 
   const BtnContent = inCart ? (
     <><svg width="10" height="10" viewBox="0 0 12 12" fill="none">
@@ -802,10 +807,17 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
                  hover:shadow-[0_4px_20px_rgba(10,22,40,0.10)]"
       style={{ borderRadius: "14px", border: "1px solid #f0f0f0" }}
     >
+      {/* Кликабельная подложка — навигация на детальную страницу.
+          Все интерактивные кнопки имеют z-20+ и перехватывают клик. */}
+      <Link
+        href={`/product/${p.id}/`}
+        aria-label={p.name}
+        className="absolute inset-0 z-10"
+      />
 
       {/* Кнопка «Избранное» */}
       <button
-        onClick={(e) => { e.stopPropagation(); onToggleFav(p.id); }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(p.id); }}
         aria-label={inFavs ? "Убрать из избранного" : "В избранное"}
         className={`absolute top-1.5 right-1.5 z-20 w-6 h-6 flex items-center justify-center
                     rounded-full transition-all active:scale-90
@@ -853,9 +865,18 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         {specsText && (
           <p className="text-[10px] text-[#ADADAD] mt-0.5">{specsText}</p>
         )}
-        {/* Цена */}
+        {/* Цена. Если есть variants — это «от <min>», иначе обычная цена. */}
         <p className="font-bold text-[#0A1628] mt-1.5 leading-none" style={{ fontSize: "15px" }}>
-          {p.tgSynced ? fmtRub(p.price) : fmtRubApprox(p.price)} ₽
+          {p.variants && p.variants.length > 0 ? (
+            <>
+              <span className="text-[10px] font-semibold text-[#6B7280] mr-1">от</span>
+              {fmtRub(p.price)} ₽
+            </>
+          ) : p.tgSynced ? (
+            `${fmtRub(p.price)} ₽`
+          ) : (
+            `${fmtRubApprox(p.price)} ₽`
+          )}
           {p.oldPrice && (
             <span className="ml-1.5 text-[11px] text-[#C4C9D4] line-through font-normal">
               {fmtRub(p.oldPrice)} ₽
@@ -869,16 +890,16 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         {/* Мобиле: кнопка в потоке */}
         {authed ? (
           <button
-            onClick={inCart ? undefined : () => onAddCart(p.id)}
-            className={`mt-2 sm:hidden w-full py-1.5 rounded-[10px] text-[11px] font-semibold
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!inCart) onAddCart(p.id); }}
+            className={`relative z-20 mt-2 sm:hidden w-full py-1.5 rounded-[10px] text-[11px] font-semibold
                         flex items-center justify-center gap-1 transition-all
                         active:scale-95 touch-manipulation ${btnInCart}`}
           >
             {BtnContent}
           </button>
         ) : (
-          <button onClick={handleBuy}
-            className="mt-2 sm:hidden w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
+          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBuy(); }}
+            className="relative z-20 mt-2 sm:hidden w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
                        text-[11px] font-semibold active:scale-95 transition-all touch-manipulation">
             Купить в рассрочку
           </button>
@@ -888,8 +909,8 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
       {/* Десктоп: overlay button снизу */}
       {authed ? (
         <button
-          onClick={inCart ? undefined : () => onAddCart(p.id)}
-          className={`hidden sm:flex absolute inset-x-0 bottom-0 z-10
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!inCart) onAddCart(p.id); }}
+          className={`hidden sm:flex absolute inset-x-0 bottom-0 z-20
                       items-center justify-center gap-1
                       py-2 text-[11px] font-semibold
                       translate-y-full group-hover:translate-y-0
@@ -900,8 +921,8 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         </button>
       ) : (
         <button
-          onClick={handleBuy}
-          className="hidden sm:flex absolute inset-x-0 bottom-0 z-10
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBuy(); }}
+          className="hidden sm:flex absolute inset-x-0 bottom-0 z-20
                      items-center justify-center py-2
                      bg-[#0A1628] text-white text-[11px] font-semibold
                      translate-y-full group-hover:translate-y-0
