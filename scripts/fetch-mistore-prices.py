@@ -15,7 +15,7 @@ Multi-channel: список CHANNELS ниже — добавляй новые к
 Запуск: python3 scripts/fetch-mistore-prices.py
 """
 from __future__ import annotations
-import re, sys, html, json, urllib.request
+import re, sys, html, json, importlib.util, urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from collections import defaultdict
@@ -26,6 +26,14 @@ BIG_TS   = ROOT / "lib" / "biggeek-products.ts"
 ADD_TS   = ROOT / "lib" / "tg-additions.ts"
 OUT_TS   = ROOT / "lib" / "tg-prices.ts"
 META_OUT = ROOT / "lib" / "tg-sync-meta.json"
+
+# fetch-biggeek-prices.py содержит дефис в имени — грузим через importlib
+_BG_SPEC = importlib.util.spec_from_file_location(
+    "bg_fetcher", ROOT / "scripts" / "fetch-biggeek-prices.py",
+)
+_bg = importlib.util.module_from_spec(_BG_SPEC)
+_BG_SPEC.loader.exec_module(_bg)  # type: ignore
+fetch_biggeek_prices = _bg.fetch_biggeek_prices
 
 # Markup к каждой TG-цене (₽) — наша наценка партнёра
 MARKUP = 1000
@@ -685,6 +693,81 @@ def main():
     print(f"→ Матч найден для {len(overrides)} SKU "
           f"({len(matched_keys)} TG-ключей)")
 
+    # ── BigGeek (display-only) ──────────────────────────────────────
+    # Тянем live-цены с biggeek.ru и подмешиваем в per_key_channel_prices /
+    # per_key_details третьей колонкой. ВАЖНО: в agg / overrides не пишем —
+    # biggeek НЕ влияет на финальную цену (MAX считаем только из TG-каналов).
+    # Это договорённость: партнёры (Mi Store/iStore Grozny) задают маржу,
+    # biggeek — справочная точка для админа.
+    print("\n→ Фетчим biggeek.ru (display-only)…")
+    try:
+        bg_prices = fetch_biggeek_prices(verbose=False)
+        print(f"  ✓ Собрано {len(bg_prices)} SKU с biggeek")
+    except Exception as e:
+        print(f"  ⚠️  Biggeek fetch упал: {e} — продолжаем без него")
+        bg_prices = {}
+
+    bg_injected = 0
+    bg_unmatched = 0
+    for bg_slug, bg_data in bg_prices.items():
+        bg_price = bg_data["price"]
+        bg_name  = bg_data["name"]
+
+        # Путь 1: slug ↔ SKU id из biggeek-products.ts (Watch/iPad/Mac)
+        tg_key = sku_to_key.get(bg_slug)
+
+        # Путь 2: AirPods — slug на biggeek не совпадает с нашими id,
+        # матчим по имени. ВАЖНО: только полные комплекты «Беспроводные наушники
+        # Apple AirPods …», иначе попадут аксессуары (одиночный наушник, OEM-кейс
+        # за 4-9 тыс. ₽ против ~20 тыс. ₽ за комплект → таблица уезжает в космос).
+        if not tg_key:
+            n_full = bg_name
+            n = n_full.lower()
+            is_full_set = (
+                n_full.startswith("Беспроводные наушники")
+                and "oem" not in n
+            )
+            ap_key = None
+            if is_full_set:
+                # Разделяем ANC vs не-ANC явно: фраза «с активным» vs «без активного»
+                # (просто «шумоподавлен» матчит ОБА варианта — это был баг).
+                has_anc = (
+                    "с активным шумоподавл" in n
+                    or "with active noise" in n
+                    or re.search(r"\banc\b", n) is not None
+                )
+                no_anc = "без активного шумоподавл" in n
+                if   "max"       in n: ap_key = "Apple|AirPods Max|нет"
+                elif "pro 3"     in n: ap_key = "Apple|AirPods Pro 3|нет"
+                elif "pro 2"     in n: ap_key = "Apple|AirPods Pro 2|нет"
+                elif has_anc and not no_anc: ap_key = "Apple|AirPods 4 ANC|нет"
+                elif "4-го поколения" in n or "airpods 4" in n: ap_key = "Apple|AirPods 4|нет"
+                elif "3-го поколения" in n or "airpods 3" in n: ap_key = "Apple|AirPods 3|нет"
+            if ap_key and ap_key in agg:
+                tg_key = ap_key
+
+        if not tg_key:
+            bg_unmatched += 1
+            continue
+
+        # Инжектим. При нескольких biggeek-цветах одной модели берём min
+        # (как самую честную для покупателя — это уже промо-цена).
+        ch_dict = per_key_channel_prices.setdefault(tg_key, {})
+        existing = ch_dict.get("biggeek")
+        if existing is None or bg_price < existing:
+            ch_dict["biggeek"] = bg_price
+        det_list = per_key_details.setdefault(tg_key, {}).setdefault("biggeek", [])
+        det_list.append({
+            "color":   "",
+            "price":   bg_price,
+            "simType": "—",
+            "raw":     bg_name,
+        })
+        bg_injected += 1
+
+    print(f"  → Сматчено в TG-ключи: {bg_injected}, "
+          f"не нашлось пары: {bg_unmatched}")
+
     # Diff vs текущий tg-prices.ts
     old = load_old_prices()
     added   = sorted(set(overrides) - set(old))
@@ -842,6 +925,16 @@ def main():
             "linesTotal":  len(items),
             "winsMax":     wins,
         })
+    # BigGeek — display-only синтетический канал (не из CHANNELS, потому что
+    # это не TG, а HTML-парсинг). В UI отрисуется как третья колонка.
+    channel_stats.append({
+        "name":        "biggeek",
+        "displayName": "BigGeek",
+        "postIds":     [],
+        "linesTotal":  len(bg_prices),
+        "winsMax":     0,
+        "displayOnly": True,
+    })
 
     meta = {
         "syncedAt":          datetime.now(timezone.utc).isoformat(timespec="seconds"),
