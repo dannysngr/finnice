@@ -51,9 +51,8 @@ CHANNELS: list[dict] = [
     {
         "name":        "istoregroznyy",
         "displayName": "iStore Grozny",
-        # 6180 — iPhone+AirPods, 6181 — Watch+Garmin,
-        # 6182 — iPad+Mac, 6183 — Dyson (нет в каталоге, всё равно парсим).
-        "post_ids":    [6180, 6181, 6182, 6183],
+        # Обновлено 2026-05-17: новые посты с актуальными ценами.
+        "post_ids":    [6321, 6322, 6323, 6324],
     },
 ]
 

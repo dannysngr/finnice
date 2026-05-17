@@ -4,7 +4,7 @@
 
 export const TG_PRICES: Record<string, number> = {
   "airpods-max2": 42900,
-  "airpods-pro3": 19500,
+  "airpods-pro3": 19400,
   "airpods4": 11500,
   "airpods4-anc": 15000,
   "apple-watch-ultra-2-49mm-korpus-iz-titana-remesok-ocean-sinego-cveta": 56000,
@@ -12,7 +12,7 @@ export const TG_PRICES: Record<string, number> = {
   "casy-apple-watch-series-10-46mm-aluminum-rose-gold-sport-loop-plum": 27700,
   "casy-apple-watch-series-11-42-mm-aluminij-cveta-rozovoe-zoloto-remesok-sport-band-cveta-svetlye-rumana": 30500,
   "casy-apple-watch-series-11-46-mm-aluminij-serebristogo-cveta-remesok-sport-band-cveta-fioletovyj-tuman": 31500,
-  "casy-apple-watch-ultra-3-49-mm-titan-svetlogo-cveta-remesok-trail-cveta-sinijarko-sinij-2025": 62500,
+  "casy-apple-watch-ultra-3-49-mm-titan-svetlogo-cveta-remesok-trail-cveta-sinijarko-sinij-2025": 74000,
   "ip14-256-sim": 50000,
   "ip14-512-sim": 49500,
   "ip15-128-sim": 49500,
@@ -37,7 +37,7 @@ export const TG_PRICES: Record<string, number> = {
   "ip17pro-512-sim": 119900,
   "ip17promax-1tb-esim": 147000,
   "ip17promax-1tb-sim": 147000,
-  "ip17promax-256-esim": 105000,
+  "ip17promax-256-esim": 104900,
   "ip17promax-256-sim": 110900,
   "ip17promax-2tb-esim": 174000,
   "ip17promax-2tb-sim": 174000,
