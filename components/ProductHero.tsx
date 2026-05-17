@@ -9,92 +9,104 @@ interface Props {
   stars: string;
 }
 
+type Variant = NonNullable<Product["variants"]>[number];
+
 /**
  * Верхний блок детальной страницы — конфигуратор (если есть variants).
  *
- *  • Если у товара есть variants[] (новые biggeek-MacBook'и):
- *    показываем селектор «память (RAM/SSD)» × «цвет», цена и фото
- *    обновляются под выбранную комплектацию.
- *
- *  • Если variants нет — простой режим: одна цена + статичная галерея,
- *    цвета/память — обычные кнопки без логики.
+ *  Поддерживаются два режима:
+ *  • MacBook-вариант: variants содержат ram + ssd → показываем
+ *    ОЗУ × Накопитель × Цвет.
+ *  • Phone-вариант: variants содержат memory (+ опц. sim) → показываем
+ *    Память × SIM × Цвет.
  */
 export function ProductHero({ product, stars }: Props) {
   const { openModal } = useAppModal();
   const variants = product.variants ?? [];
   const hasVariants = variants.length > 0;
 
-  // Уникальные значения RAM (отсортированы по числу)
-  const ramOptions = useMemo(() => {
-    if (!hasVariants) return [];
-    const set = new Set(variants.map(v => v.ram));
-    return Array.from(set).sort((a, b) =>
-      parseInt(a.replace(/\D/g, "")) - parseInt(b.replace(/\D/g, "")));
-  }, [variants, hasVariants]);
+  // Определяем режим по первому варианту
+  const mode: "mac" | "phone" | "none" = !hasVariants
+    ? "none"
+    : variants[0].ram !== undefined
+      ? "mac"
+      : "phone";
 
-  // Уникальные значения SSD (сортируем 256 < 512 < 1ТБ < 2ТБ ...)
-  const ssdOptions = useMemo(() => {
-    if (!hasVariants) return [];
-    const set = new Set(variants.map(v => v.ssd));
-    const toGB = (s: string) => {
-      const n = parseInt(s.replace(/\D/g, ""));
-      return s.includes("ТБ") ? n * 1000 : n;
-    };
-    return Array.from(set).sort((a, b) => toGB(a) - toGB(b));
-  }, [variants, hasVariants]);
+  // ── Опции: A (RAM/Memory), B (SSD/SIM), Color ───────────────
+  const axisB: "ssd" | "sim" | null =
+    mode === "mac" ? "ssd"
+    : (mode === "phone" && variants.some(v => v.sim)) ? "sim"
+    : null;
 
-  // Уникальные цвета
+  const getA = (v: Variant): string => (mode === "mac" ? v.ram : v.memory) ?? "";
+  const getB = (v: Variant): string =>
+    !axisB ? "" : axisB === "ssd" ? (v.ssd ?? "") : (v.sim ?? "");
+
+  // Сортируем по числовому объёму
+  const toGB = (s: string) => {
+    const n = parseInt(s.replace(/\D/g, "")) || 0;
+    return s.includes("ТБ") ? n * 1000 : n;
+  };
+
+  const optionsA = useMemo(() => {
+    if (!hasVariants) return [];
+    return Array.from(new Set(variants.map(getA))).filter(Boolean)
+      .sort((a, b) => toGB(a) - toGB(b));
+  }, [variants, hasVariants]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const optionsB = useMemo(() => {
+    if (!hasVariants || !axisB) return [];
+    const arr = Array.from(new Set(variants.map(getB))).filter(Boolean);
+    return axisB === "ssd" ? arr.sort((a, b) => toGB(a) - toGB(b)) : arr;
+  }, [variants, hasVariants, axisB]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const colorOptions = useMemo(() => {
-    if (hasVariants) {
-      const seen = new Set<string>();
-      const out: string[] = [];
-      for (const v of variants) {
-        if (!seen.has(v.color)) { seen.add(v.color); out.push(v.color); }
-      }
-      return out;
+    if (!hasVariants) return product.colors ?? [];
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const v of variants) {
+      if (!seen.has(v.color)) { seen.add(v.color); out.push(v.color); }
     }
-    return product.colors ?? [];
+    return out;
   }, [variants, hasVariants, product.colors]);
 
-  // Дефолтные значения — берём от самой дешёвой комплектации
+  // Дефолт — самая дешёвая комплектация
   const cheapest = useMemo(() => {
     if (!hasVariants) return null;
     return [...variants].sort((a, b) => a.price - b.price)[0];
   }, [variants, hasVariants]);
 
-  const [ram, setRam] = useState<string>(cheapest?.ram ?? "");
-  const [ssd, setSsd] = useState<string>(cheapest?.ssd ?? "");
+  const [pickA, setPickA] = useState<string>(cheapest ? getA(cheapest) : "");
+  const [pickB, setPickB] = useState<string>(cheapest ? getB(cheapest) : "");
   const [color, setColor] = useState<string>(cheapest?.color ?? colorOptions[0] ?? "");
 
-  // Найти точное совпадение, иначе ближайший по цене вариант с этим color
-  const selectedVariant = useMemo(() => {
+  // Найти точное совпадение, иначе ближайший
+  const selectedVariant = useMemo<Variant | null>(() => {
     if (!hasVariants) return null;
-    let v = variants.find(x => x.ram === ram && x.ssd === ssd && x.color === color);
+    let v = variants.find(x => getA(x) === pickA && getB(x) === pickB && x.color === color);
     if (v) return v;
-    v = variants.find(x => x.ram === ram && x.ssd === ssd);
+    v = variants.find(x => getA(x) === pickA && getB(x) === pickB);
     if (v) return v;
     v = variants.find(x => x.color === color);
-    if (v) return v;
-    return variants[0];
-  }, [variants, hasVariants, ram, ssd, color]);
+    return v ?? variants[0];
+  }, [variants, hasVariants, pickA, pickB, color]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Картинки для галереи
-  const imagesByColor = useMemo(() => {
-    if (hasVariants) {
-      const map = new Map<string, string>();
-      for (const v of variants) {
-        if (v.img && !map.has(v.color)) map.set(v.color, v.img);
-      }
-      return map;
+  // Картинки галереи: одна на каждый цвет
+  const imagesByColor = useMemo<Map<string, string> | null>(() => {
+    if (!hasVariants) return null;
+    const map = new Map<string, string>();
+    for (const v of variants) {
+      if (v.img && !map.has(v.color)) map.set(v.color, v.img);
     }
-    return null;
+    return map;
   }, [variants, hasVariants]);
 
   const galleryImages: string[] = useMemo(() => {
     if (hasVariants && imagesByColor) {
-      return colorOptions
+      const imgs = colorOptions
         .map(c => imagesByColor.get(c))
         .filter((x): x is string => Boolean(x));
+      if (imgs.length > 0) return imgs;
     }
     return Array.isArray(product.img)
       ? product.img
@@ -110,29 +122,37 @@ export function ProductHero({ product, stars }: Props) {
 
   const displayPrice = selectedVariant?.price ?? product.price;
 
-  // Открывает модалку «Оформить рассрочку» с текущей выбранной конфигурацией.
+  const isCombo = (a: string, b: string) =>
+    !axisB ? variants.some(v => getA(v) === a) : variants.some(v => getA(v) === a && getB(v) === b);
+  const isColorAvailable = (cl: string) =>
+    !axisB
+      ? variants.some(v => getA(v) === pickA && v.color === cl)
+      : variants.some(v => getA(v) === pickA && getB(v) === pickB && v.color === cl);
+
+  // Открывает модалку «Оформить рассрочку».
   function handleBuy() {
     const price = displayPrice;
     const down = Math.ceil(price * getMinDownPct(price));
     const res = calcInstallment({ price, down, term: 6 });
     const memoryLabel = hasVariants && selectedVariant
-      ? `${selectedVariant.ram} / ${selectedVariant.ssd}`
+      ? mode === "mac"
+        ? `${selectedVariant.ram} / ${selectedVariant.ssd}`
+        : selectedVariant.memory
       : product.memories?.[0];
     openModal({
       productName: product.name + (hasVariants && color ? `, ${color}` : ""),
       memory: memoryLabel,
-      sim: undefined,
+      sim: selectedVariant?.sim,
       price,
       down,
       term: 6,
       monthly: res.monthly,
     });
   }
-  // Доступно ли это (ram, ssd) — для гашения недоступных кнопок
-  const isCombo = (r: string, s: string) =>
-    variants.some(v => v.ram === r && v.ssd === s);
-  const isColor = (cl: string) =>
-    variants.some(v => v.ram === ram && v.ssd === ssd && v.color === cl);
+
+  // Текстовые подписи селекторов в зависимости от режима
+  const labelA = mode === "mac" ? "Оперативная память:" : "Память:";
+  const labelB = mode === "mac" ? "Накопитель:" : "SIM-карта:";
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
@@ -153,9 +173,7 @@ export function ProductHero({ product, stars }: Props) {
           <div className="flex gap-3 flex-wrap">
             {galleryImages.map((src, i) => {
               const cl = hasVariants ? colorOptions[i] : undefined;
-              const active = hasVariants
-                ? cl === color
-                : i === 0;
+              const active = hasVariants ? cl === color : i === 0;
               return (
                 <button key={src + i} type="button"
                   onClick={() => { if (cl) setColor(cl); }}
@@ -216,21 +234,22 @@ export function ProductHero({ product, stars }: Props) {
 
         {hasVariants ? (
           <>
-            {/* RAM */}
+            {/* Axis A — RAM / Memory */}
             <div className="mb-4">
-              <p className="text-xs font-semibold text-[#6B7280] mb-2">Оперативная память:</p>
+              <p className="text-xs font-semibold text-[#6B7280] mb-2">{labelA}</p>
               <div className="flex flex-wrap gap-2">
-                {ramOptions.map(r => {
-                  const available = ssdOptions.some(s => isCombo(r, s));
-                  const active = r === ram;
+                {optionsA.map(a => {
+                  const available = optionsB.length === 0
+                    ? variants.some(v => getA(v) === a)
+                    : optionsB.some(b => isCombo(a, b));
+                  const active = a === pickA;
                   return (
-                    <button key={r} type="button" disabled={!available}
+                    <button key={a} type="button" disabled={!available}
                       onClick={() => {
-                        setRam(r);
-                        // Если текущий SSD недоступен с новым RAM — снэп на первый доступный
-                        if (!isCombo(r, ssd)) {
-                          const firstSsd = ssdOptions.find(s => isCombo(r, s));
-                          if (firstSsd) setSsd(firstSsd);
+                        setPickA(a);
+                        if (axisB && !isCombo(a, pickB)) {
+                          const firstB = optionsB.find(b => isCombo(a, b));
+                          if (firstB) setPickB(firstB);
                         }
                       }}
                       className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-colors
@@ -238,42 +257,44 @@ export function ProductHero({ product, stars }: Props) {
                                  : available
                                    ? "border-[#D8E2F0] text-[#374151] hover:border-[#1A3C6E] hover:text-[#1A3C6E]"
                                    : "border-[#E5E7EB] text-[#C4C9D4] cursor-not-allowed"}`}>
-                      {r}
+                      {a}
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* SSD */}
-            <div className="mb-4">
-              <p className="text-xs font-semibold text-[#6B7280] mb-2">Накопитель:</p>
-              <div className="flex flex-wrap gap-2">
-                {ssdOptions.map(s => {
-                  const available = isCombo(ram, s);
-                  const active = s === ssd;
-                  return (
-                    <button key={s} type="button" disabled={!available}
-                      onClick={() => setSsd(s)}
-                      className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-colors
-                        ${active ? "bg-[#1A3C6E] text-white border-[#1A3C6E]"
-                                 : available
-                                   ? "border-[#D8E2F0] text-[#374151] hover:border-[#1A3C6E] hover:text-[#1A3C6E]"
-                                   : "border-[#E5E7EB] text-[#C4C9D4] cursor-not-allowed"}`}>
-                      {s}
-                    </button>
-                  );
-                })}
+            {/* Axis B — SSD / SIM */}
+            {axisB && optionsB.length > 0 && (
+              <div className="mb-4">
+                <p className="text-xs font-semibold text-[#6B7280] mb-2">{labelB}</p>
+                <div className="flex flex-wrap gap-2">
+                  {optionsB.map(b => {
+                    const available = isCombo(pickA, b);
+                    const active = b === pickB;
+                    return (
+                      <button key={b} type="button" disabled={!available}
+                        onClick={() => setPickB(b)}
+                        className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-colors
+                          ${active ? "bg-[#1A3C6E] text-white border-[#1A3C6E]"
+                                   : available
+                                     ? "border-[#D8E2F0] text-[#374151] hover:border-[#1A3C6E] hover:text-[#1A3C6E]"
+                                     : "border-[#E5E7EB] text-[#C4C9D4] cursor-not-allowed"}`}>
+                        {b}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Color */}
+            {/* Цвет */}
             {colorOptions.length > 0 && (
               <div className="mb-6">
                 <p className="text-xs font-semibold text-[#6B7280] mb-2">Цвет:</p>
                 <div className="flex flex-wrap gap-2">
                   {colorOptions.map(cl => {
-                    const available = isColor(cl);
+                    const available = isColorAvailable(cl);
                     const active = cl === color;
                     return (
                       <button key={cl} type="button" disabled={!available}

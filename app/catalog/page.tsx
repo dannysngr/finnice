@@ -143,38 +143,12 @@ function cmpArrays(a: number[], b: number[]): number {
   return 0;
 }
 
-// ─── Строим карточки телефонов из PHONES_CATALOG (без группировки) ──
-// Каждая запись в PHONES_CATALOG → отдельная карточка в каталоге
-const PHONE_ITEMS: CatalogItem[] = PHONES_CATALOG.map((p) => {
-  const name = p.model.startsWith(p.brand) ? p.model : `${p.brand} ${p.model}`;
-  return {
-    id:          p.id,
-    name,
-    slug:        name.toLowerCase().replace(/[^a-zа-яё0-9]+/gi, "-"),
-    category:    "telefony" as const,
-    brand:       p.brand,
-    price:       p.price,
-    badge:       p.badge,
-    emoji:       "📱",
-    img:         p.img,
-    sim:         p.sim,
-    memories:    [p.memory],
-    inStock:     true,
-    rating:      5,
-    reviewCount: 0,
-    description: "",
-    specs:       [],
-    tgSynced:    p.tgSynced,
-  } satisfies CatalogItem;
-});
+// ─── PHONE_ITEMS больше не используем напрямую: телефоны теперь
+// приходят как объединённые карточки PHONE_PRODUCTS внутри PRODUCTS
+// (с variants[memory × SIM × color] вместо отдельных SKU).
 
-// ─── Прочие товары (не телефоны) из PRODUCTS ─────────────────
-const OTHER_ITEMS: CatalogItem[] = PRODUCTS.filter(
-  (p) => p.category !== "telefony"
-);
-
-// ─── Общий каталог ────────────────────────────────────────────
-const ALL_ITEMS: CatalogItem[] = [...PHONE_ITEMS, ...OTHER_ITEMS];
+// ─── Все товары (телефоны уже сгруппированы внутри PRODUCTS) ─────
+const ALL_ITEMS: CatalogItem[] = PRODUCTS;
 
 // ─── Список брендов в нужном порядке ─────────────────────────
 const ALL_BRANDS = Array.from(new Set(ALL_ITEMS.map((p) => p.brand)))
@@ -329,9 +303,7 @@ function CatalogContent() {
   // ─── Бренды в текущей категории (для пилюль) ────────────────
   const catBrands = useMemo(() => {
     if (activeCat === "all") return ALL_BRANDS;
-    const items = activeCat === "telefony"
-      ? PHONE_ITEMS
-      : OTHER_ITEMS.filter(p => p.category === activeCat);
+    const items = ALL_ITEMS.filter(p => p.category === activeCat);
     return Array.from(new Set(items.map(p => p.brand)))
       .sort((a, b) => brandRank(a) - brandRank(b) || a.localeCompare(b, "ru"));
   }, [activeCat]);
@@ -347,7 +319,7 @@ function CatalogContent() {
   // ─── Доступные значения spec-фильтров (динамически) ──────────
   const specFilterOptions = useMemo(() => {
     if (!catSpecFilterDefs.length) return {} as Record<string, string[]>;
-    const catItems = OTHER_ITEMS.filter(p =>
+    const catItems = ALL_ITEMS.filter(p =>
       p.category === activeCat &&
       (specBrandFilter === "Все" || p.brand === specBrandFilter)
     );
@@ -445,20 +417,20 @@ function CatalogContent() {
     if (activeCat !== "all") list = list.filter((p) => p.category === activeCat);
 
     if (activeCat === "telefony") {
-      // Телефонные фильтры — пилюли брендов + модель/память/цвет/SIM
+      // Телефоны теперь — одна карточка на модель с variants[memory × SIM × color].
+      // Фильтры применяем «хотя бы один вариант подходит».
       if (phoneBrand !== "Все") list = list.filter(p => p.brand === phoneBrand);
       if (phoneModel !== "Все") {
-        const ids = new Set(PHONES_CATALOG.filter(p => p.model === phoneModel).map(p => p.id));
-        list = list.filter(p => ids.has(p.id));
+        list = list.filter(p => p.name.endsWith(phoneModel) || p.name.includes(phoneModel));
       }
       if (phoneMemory !== "Все") {
-        const ids = new Set(PHONES_CATALOG.filter(p => p.memory === phoneMemory).map(p => p.id));
-        list = list.filter(p => ids.has(p.id));
+        list = list.filter(p => p.variants?.some(v => v.memory === phoneMemory));
       }
-      if (phoneSim !== "Все") list = list.filter(p => p.sim === phoneSim);
+      if (phoneSim !== "Все") {
+        list = list.filter(p => p.variants?.some(v => v.sim === phoneSim));
+      }
       if (phoneColor !== "Все") {
-        const ids = new Set(PHONES_CATALOG.filter(p => p.colors.includes(phoneColor)).map(p => p.id));
-        list = list.filter(p => ids.has(p.id));
+        list = list.filter(p => p.colors?.includes(phoneColor));
       }
     } else if (activeCat !== "all") {
       // Конкретная не-телефонная категория: бренд-пилюля + spec-фильтры
@@ -806,29 +778,49 @@ function CatalogFilterSelect({
   );
 }
 
-/** Собирает значения ОЗУ и накопителя для подписи под названием карточки.
- *  Возвращает массивы чисел (без юнита) + общий юнит для каждого ряда —
- *  чтобы юнит был один раз в конце, а не на каждой плашке. */
-function variantChipsFor(variants: NonNullable<CatalogItem["variants"]>) {
+/** Собирает значения для двух подписей под названием карточки.
+ *  Полиморфно: для MacBook возвращает (ОЗУ, SSD), для телефонов —
+ *  (Память, SIM-варианты).  Возвращает null если нечего показать. */
+function variantChipsFor(variants: NonNullable<CatalogItem["variants"]>):
+  | { rowA: { label: string; values: string[]; unit: string };
+      rowB: { label: string; values: string[]; unit: string } | null }
+  | null
+{
   const onlyNum = (s: string) => parseInt(s.replace(/\D/g, "")) || 0;
   const toGB = (s: string) => (s.includes("ТБ") ? onlyNum(s) * 1000 : onlyNum(s));
+  const fmtSsd = (g: number) => (g >= 1000 ? `${g / 1000} ТБ` : `${g} ГБ`);
 
-  // ОЗУ — всегда в ГБ, юнит общий
-  const rams = Array.from(new Set(variants.map(v => onlyNum(v.ram))))
-    .sort((a, b) => a - b)
-    .map(String);
+  // MacBook-mode: есть ram
+  if (variants[0]?.ram !== undefined) {
+    const rams = Array.from(new Set(variants.map(v => onlyNum(v.ram ?? ""))))
+      .sort((a, b) => a - b).map(String);
+    const ssdGBs = Array.from(new Set(variants.map(v => toGB(v.ssd ?? ""))))
+      .sort((a, b) => a - b);
+    const allTB = ssdGBs.every(g => g >= 1000);
+    const ssds = allTB ? ssdGBs.map(g => String(g / 1000)) : ssdGBs.map(fmtSsd);
+    const ssdUnit = allTB ? "ТБ" : "";
+    return {
+      rowA: { label: "ОЗУ", values: rams,  unit: "ГБ" },
+      rowB: { label: "SSD", values: ssds, unit: ssdUnit },
+    };
+  }
 
-  // SSD — если все ≥ 1 ТБ, выводим в ТБ с общим юнитом;
-  // иначе значения остаются «как есть» с per-item юнитом
-  const ssdGBs = Array.from(new Set(variants.map(v => toGB(v.ssd))))
-    .sort((a, b) => a - b);
-  const allTB = ssdGBs.every(g => g >= 1000);
-  const ssds = allTB
-    ? ssdGBs.map(g => String(g / 1000))
-    : ssdGBs.map(g => (g >= 1000 ? `${g / 1000} ТБ` : `${g} ГБ`));
-  const ssdUnit = allTB ? "ТБ" : "";
+  // Phone-mode: есть memory
+  if (variants[0]?.memory !== undefined) {
+    const memGBs = Array.from(new Set(variants.map(v => toGB(v.memory ?? ""))))
+      .sort((a, b) => a - b);
+    const allTB = memGBs.every(g => g >= 1000);
+    const mems = allTB ? memGBs.map(g => String(g / 1000)) : memGBs.map(fmtSsd);
+    const memUnit = allTB ? "ТБ" : "";
 
-  return { rams, ssds, ssdUnit };
+    const sims = Array.from(new Set(variants.map(v => v.sim).filter(Boolean) as string[]));
+    return {
+      rowA: { label: "Память", values: mems, unit: memUnit },
+      rowB: sims.length > 0 ? { label: "SIM", values: sims, unit: "" } : null,
+    };
+  }
+
+  return null;
 }
 
 /* ── ProductCard ──────────────────────────────────────────────── */
@@ -987,13 +979,19 @@ function ProductCard({ item: p, authed, inFavs, cartQty, onToggleFav, onAddCart,
         {variantChips ? (
           <div className="mt-1 space-y-1">
             <ChipRow
-              icon={<RamIcon />} label="ОЗУ"
-              values={variantChips.rams} unit="ГБ"
+              icon={variantChips.rowA.label === "ОЗУ" ? <RamIcon /> : <SsdIcon />}
+              label={variantChips.rowA.label}
+              values={variantChips.rowA.values}
+              unit={variantChips.rowA.unit}
             />
-            <ChipRow
-              icon={<SsdIcon />} label="SSD"
-              values={variantChips.ssds} unit={variantChips.ssdUnit}
-            />
+            {variantChips.rowB && (
+              <ChipRow
+                icon={variantChips.rowB.label === "SSD" ? <SsdIcon /> : <SimIcon />}
+                label={variantChips.rowB.label}
+                values={variantChips.rowB.values}
+                unit={variantChips.rowB.unit}
+              />
+            )}
           </div>
         ) : specsText ? (
           <p className="text-[10px] text-[#ADADAD] mt-0.5">{specsText}</p>
@@ -1066,6 +1064,17 @@ function RamIcon() {
       <rect x="2" y="4" width="12" height="8" rx="1" stroke="currentColor" strokeWidth="1.4"/>
       <path d="M5 4V2 M8 4V2 M11 4V2 M5 14v-2 M8 14v-2 M11 14v-2"
             stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+/** SIM — карта SIM. */
+function SimIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <rect x="3" y="2" width="10" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+      <path d="M5 8h6 M5 10h6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+      <circle cx="6" cy="6" r="0.7" fill="currentColor"/>
     </svg>
   );
 }

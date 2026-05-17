@@ -651,6 +651,105 @@ export const PHONES_CATALOG: PhoneItem[] = _MERGED.sort(
 export const IPHONES = PHONES_CATALOG.filter(p => p.brand === "Apple")
   .map(p => ({ name: `${p.model} ${p.memory}`, price: p.price, monthly: 0 }));
 
+// ─── PHONE_PRODUCTS ───────────────────────────────────────────
+// Группируем PHONES_CATALOG по (brand, model): одна карточка на модель,
+// внутри variants[memory × SIM × color]. Используется в каталоге и на
+// главной как замена per-SKU-карточек (визуальная сборка как у MacBook).
+
+const PHONE_SLUGIFY = (s: string): string =>
+  s.toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+const PHONE_MEM_RANK = (m: string): number => {
+  const n = parseInt(m.replace(/\D/g, "")) || 0;
+  return m.includes("ТБ") ? n * 1000 : n;
+};
+
+const SIM_ORDER: Record<string, number> = {
+  "SIM + eSIM": 0, "2 SIM": 1, "1 SIM": 2, "eSIM": 3,
+};
+
+export const PHONE_PRODUCTS: Product[] = (() => {
+  const groups = new Map<string, PhoneItem[]>();
+  for (const p of PHONES_CATALOG) {
+    const k = `${p.brand}|${p.model}`;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k)!.push(p);
+  }
+
+  const result: Product[] = [];
+  Array.from(groups.values()).forEach((skus) => {
+    if (!skus.length) return;
+    const first = skus[0];
+
+    // Все цвета уникально по порядку появления
+    const colors: string[] = [];
+    const seenColor = new Set<string>();
+    for (const s of skus) {
+      for (const c of s.colors) {
+        if (!seenColor.has(c)) { seenColor.add(c); colors.push(c); }
+      }
+    }
+
+    // Variants: каждый SKU раскрываем на цвета
+    const variants: NonNullable<Product["variants"]> = [];
+    for (const s of skus) {
+      const skuImg = Array.isArray(s.img) ? s.img[0] : undefined;
+      for (const c of s.colors) {
+        variants.push({
+          memory: s.memory,
+          sim:    s.sim,
+          color:  c,
+          price:  s.price,
+          img:    skuImg,
+        });
+      }
+    }
+
+    // Сортируем по memory (mem rank) → SIM → color
+    variants.sort((a, b) => {
+      const m = PHONE_MEM_RANK(a.memory || "") - PHONE_MEM_RANK(b.memory || "");
+      if (m !== 0) return m;
+      const s = (SIM_ORDER[a.sim || ""] ?? 99) - (SIM_ORDER[b.sim || ""] ?? 99);
+      if (s !== 0) return s;
+      return colors.indexOf(a.color) - colors.indexOf(b.color);
+    });
+
+    const minPrice = Math.min(...variants.map(v => v.price));
+    const img = (Array.isArray(first.img) ? first.img : [first.img]).filter(Boolean) as string[];
+
+    result.push({
+      id:          PHONE_SLUGIFY(`${first.brand} ${first.model}`),
+      name:        `${first.brand} ${first.model}`,
+      slug:        PHONE_SLUGIFY(`${first.brand} ${first.model}`),
+      category:    "telefony",
+      brand:       first.brand,
+      price:       minPrice,
+      badge:       first.badge,
+      emoji:       "📱",
+      img,
+      colors,
+      inStock:     true,
+      rating:      5,
+      reviewCount: 0,
+      description: "",
+      specs:       [],
+      variants,
+      tgSynced:    skus.some((s: PhoneItem) => s.tgSynced),
+    });
+  });
+
+  // Стабильный порядок: те же ранги, что у PHONES_CATALOG (через первый SKU)
+  const rankOf = (prod: Product): number => {
+    const modelName = prod.name.replace(prod.brand + " ", "");
+    return PHONES_CATALOG.findIndex(p => p.brand === prod.brand && p.model === modelName);
+  };
+  return result.sort((a, b) => rankOf(a) - rankOf(b));
+})();
+
 // ─── Partners ─────────────────────────────────────────────────
 export const PARTNER_TABS = [
   {
@@ -794,10 +893,19 @@ export interface Product {
   reviewCount:  number;
   description:  string;
   specs:        { key: string; val: string; group?: string }[];
-  /** Конкретные комплектации (RAM × SSD × цвет → цена + фото).
-   *  Если задано — карточка показывает «от <минимальная цена>»,
-   *  на детальной странице — конфигуратор. */
-  variants?:    { ram: string; ssd: string; color: string; price: number; img?: string }[];
+  /** Конкретные комплектации → цена + фото. Если задано — карточка
+   *  показывает «от <минимальная цена>», на детальной — конфигуратор.
+   *  Поля: ram + ssd для ноутбуков, memory + sim для телефонов,
+   *  memory + sim?: undefined для планшетов и т. п. */
+  variants?:    {
+    ram?:    string;
+    ssd?:    string;
+    memory?: string;
+    sim?:    string;
+    color:   string;
+    price:   number;
+    img?:    string;
+  }[];
   /** true ⇔ цена пришла из партнёрского TG-канала (точная);
    *  false/undefined ⇔ дефолтная, показываем «≈» */
   tgSynced?:    boolean;
@@ -1326,6 +1434,8 @@ const RAW_PRODUCTS: Product[] = [
   ...BIGGEEK_PRODUCTS,
   /* ── MacBook'и с biggeek.ru (отдельный скрипт с детальными specs) ── */
   ...BIGGEEK_MACBOOKS,
+  /* ── iPhone'ы — объединение PHONES_CATALOG по (brand, model) ── */
+  ...PHONE_PRODUCTS,
 ];
 
 /** Цены из партнёрского TG-канала перезаписывают базовые при матче по id;
