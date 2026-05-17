@@ -745,6 +745,22 @@ function CatalogFilterSelect({
   );
 }
 
+/** Собирает уникальные значения ОЗУ и накопителя из variants — для бэйджей
+ *  под названием карточки в каталоге. */
+function variantChipsFor(variants: NonNullable<CatalogItem["variants"]>) {
+  const onlyNum = (s: string) => parseInt(s.replace(/\D/g, "")) || 0;
+  const toGB = (s: string) => (s.includes("ТБ") ? onlyNum(s) * 1000 : onlyNum(s));
+  const fmtSsd = (gb: number) => (gb >= 1000 ? `${gb / 1000} ТБ` : `${gb} ГБ`);
+
+  const rams = Array.from(new Set(variants.map(v => onlyNum(v.ram))))
+    .sort((a, b) => a - b)
+    .map(n => `${n} ГБ`);
+  const ssds = Array.from(new Set(variants.map(v => toGB(v.ssd))))
+    .sort((a, b) => a - b)
+    .map(fmtSsd);
+  return { rams, ssds };
+}
+
 /* ── ProductCard ──────────────────────────────────────────────── */
 interface ProductCardProps {
   item:          CatalogItem;
@@ -776,10 +792,16 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
     ? "bg-[#0C7A58] text-white cursor-default"
     : "bg-[#0A1628] text-white hover:bg-[#1A3C6E]";
 
-  const specsText = [
-    ...(p.memories && p.memories.length > 0 ? [p.memories.join(" / ")] : []),
-    ...(p.sim ? [p.sim] : []),
-  ].join(" · ");
+  // Для variants — собираем уникальные значения RAM и SSD для бэйджей;
+  // для остальных — текстовая подпись как раньше.
+  const hasVariants = (p.variants?.length ?? 0) > 0;
+  const variantChips = hasVariants ? variantChipsFor(p.variants!) : null;
+  const specsText = hasVariants
+    ? ""
+    : [
+        ...(p.memories && p.memories.length > 0 ? [p.memories.join(" / ")] : []),
+        ...(p.sim ? [p.sim] : []),
+      ].join(" · ");
 
   const BtnContent = inCart ? (
     <><svg width="10" height="10" viewBox="0 0 12 12" fill="none">
@@ -802,10 +824,17 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
                  hover:shadow-[0_4px_20px_rgba(10,22,40,0.10)]"
       style={{ borderRadius: "14px", border: "1px solid #f0f0f0" }}
     >
+      {/* Кликабельная подложка — навигация на детальную страницу.
+          Все интерактивные кнопки имеют z-20+ и перехватывают клик. */}
+      <Link
+        href={`/product/${p.id}/`}
+        aria-label={p.name}
+        className="absolute inset-0 z-10"
+      />
 
       {/* Кнопка «Избранное» */}
       <button
-        onClick={(e) => { e.stopPropagation(); onToggleFav(p.id); }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(p.id); }}
         aria-label={inFavs ? "Убрать из избранного" : "В избранное"}
         className={`absolute top-1.5 right-1.5 z-20 w-6 h-6 flex items-center justify-center
                     rounded-full transition-all active:scale-90
@@ -849,13 +878,44 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         <h3 className="font-medium text-[#0A1628] text-[13px] leading-snug line-clamp-2 mt-0.5">
           {p.name}
         </h3>
-        {/* Характеристики — всегда видны */}
-        {specsText && (
+        {/* Характеристики. Для конфигуратора — два ряда бэйджей (ОЗУ, SSD);
+            для остальных — текстовая подпись. */}
+        {variantChips ? (
+          <div className="mt-1 space-y-1">
+            <div className="flex flex-wrap gap-1">
+              {variantChips.rams.map(r => (
+                <span key={r}
+                  className="px-1.5 py-0.5 text-[9px] font-semibold text-[#6B7280]
+                             bg-[#F4F7FC] border border-[#E5E7EB] rounded-md leading-none">
+                  {r}
+                </span>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {variantChips.ssds.map(s => (
+                <span key={s}
+                  className="px-1.5 py-0.5 text-[9px] font-semibold text-[#6B7280]
+                             bg-[#F4F7FC] border border-[#E5E7EB] rounded-md leading-none">
+                  {s}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : specsText ? (
           <p className="text-[10px] text-[#ADADAD] mt-0.5">{specsText}</p>
-        )}
-        {/* Цена */}
+        ) : null}
+        {/* Цена. Если есть variants — это «от <min>», иначе обычная цена. */}
         <p className="font-bold text-[#0A1628] mt-1.5 leading-none" style={{ fontSize: "15px" }}>
-          {p.tgSynced ? fmtRub(p.price) : fmtRubApprox(p.price)} ₽
+          {p.variants && p.variants.length > 0 ? (
+            <>
+              <span className="text-[10px] font-semibold text-[#6B7280] mr-1">от</span>
+              {fmtRub(p.price)} ₽
+            </>
+          ) : p.tgSynced ? (
+            `${fmtRub(p.price)} ₽`
+          ) : (
+            `${fmtRubApprox(p.price)} ₽`
+          )}
           {p.oldPrice && (
             <span className="ml-1.5 text-[11px] text-[#C4C9D4] line-through font-normal">
               {fmtRub(p.oldPrice)} ₽
@@ -869,16 +929,16 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         {/* Мобиле: кнопка в потоке */}
         {authed ? (
           <button
-            onClick={inCart ? undefined : () => onAddCart(p.id)}
-            className={`mt-2 sm:hidden w-full py-1.5 rounded-[10px] text-[11px] font-semibold
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!inCart) onAddCart(p.id); }}
+            className={`relative z-20 mt-2 sm:hidden w-full py-1.5 rounded-[10px] text-[11px] font-semibold
                         flex items-center justify-center gap-1 transition-all
                         active:scale-95 touch-manipulation ${btnInCart}`}
           >
             {BtnContent}
           </button>
         ) : (
-          <button onClick={handleBuy}
-            className="mt-2 sm:hidden w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
+          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBuy(); }}
+            className="relative z-20 mt-2 sm:hidden w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
                        text-[11px] font-semibold active:scale-95 transition-all touch-manipulation">
             Купить в рассрочку
           </button>
@@ -888,8 +948,8 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
       {/* Десктоп: overlay button снизу */}
       {authed ? (
         <button
-          onClick={inCart ? undefined : () => onAddCart(p.id)}
-          className={`hidden sm:flex absolute inset-x-0 bottom-0 z-10
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!inCart) onAddCart(p.id); }}
+          className={`hidden sm:flex absolute inset-x-0 bottom-0 z-20
                       items-center justify-center gap-1
                       py-2 text-[11px] font-semibold
                       translate-y-full group-hover:translate-y-0
@@ -900,8 +960,8 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         </button>
       ) : (
         <button
-          onClick={handleBuy}
-          className="hidden sm:flex absolute inset-x-0 bottom-0 z-10
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBuy(); }}
+          className="hidden sm:flex absolute inset-x-0 bottom-0 z-20
                      items-center justify-center py-2
                      bg-[#0A1628] text-white text-[11px] font-semibold
                      translate-y-full group-hover:translate-y-0

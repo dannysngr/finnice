@@ -29,23 +29,8 @@ UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/
 # ── Категории biggeek и их соответствие нашему каталогу ─────────
 CATEGORIES = [
     # (biggeek_path,                            our_category,    brand_hint, type_label)
-    # Ноутбуки
-    ("macbook-air-13-m5-2026",                  "noutbuki",      "Apple",   "MacBook Air"),
-    ("macbook-air-15-m5-2026",                  "noutbuki",      "Apple",   "MacBook Air"),
-    ("macbook-air-13-m4-2025",                  "noutbuki",      "Apple",   "MacBook Air"),
-    ("macbook-air-15-m4-2025",                  "noutbuki",      "Apple",   "MacBook Air"),
-    ("macbook-air-13-m3-2024",                  "noutbuki",      "Apple",   "MacBook Air"),
-    ("macbook-air-15-m3-2024",                  "noutbuki",      "Apple",   "MacBook Air"),
-    ("macbook-pro-14-m5-2025",                  "noutbuki",      "Apple",   "MacBook Pro"),
-    ("macbook-pro-14-m5-pro-2026",              "noutbuki",      "Apple",   "MacBook Pro"),
-    ("macbook-pro-14-m5-max-2026",              "noutbuki",      "Apple",   "MacBook Pro"),
-    ("macbook-pro-16-m5-pro-2026-preorder",     "noutbuki",      "Apple",   "MacBook Pro"),
-    ("macbook-pro-16-m5-max-2026",              "noutbuki",      "Apple",   "MacBook Pro"),
-    ("macbook-pro-14-m4-2024",                  "noutbuki",      "Apple",   "MacBook Pro"),
-    ("macbook-pro-14-m4-pro-2024",              "noutbuki",      "Apple",   "MacBook Pro"),
-    ("macbook-pro-14-m4-max-2024",              "noutbuki",      "Apple",   "MacBook Pro"),
-    ("macbook-pro-16-m4-pro-2024",              "noutbuki",      "Apple",   "MacBook Pro"),
-    ("macbook-pro-16-m4-max-2024",              "noutbuki",      "Apple",   "MacBook Pro"),
+    # MacBook'и обрабатываются отдельным скриптом import-biggeek-macbooks.py
+    # (с фетчем детальной страницы и группировкой по конфигурации).
     # iMac / Mac mini / Studio
     ("apple-imac-24-2024",                      "noutbuki",      "Apple",   "iMac 24"),
     ("apple-mac-mini-2024",                     "noutbuki",      "Apple",   "Mac mini"),
