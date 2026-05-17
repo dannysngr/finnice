@@ -34,6 +34,7 @@ interface ChannelStat {
   postIds: number[];
   linesTotal: number;
   winsMax: number;
+  displayOnly?: boolean;  // biggeek: справочный канал, не двигает финальную цену
 }
 interface MetaData {
   syncedAt: string;
@@ -170,10 +171,33 @@ export function AdminPricesClient() {
         <div className="px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-3">
           {meta.channels.map(c => (
             <div key={c.name} className="bg-[#0E2344] border border-[#1A3C6E]/50 rounded-xl p-4">
-              <p className="text-sm font-bold text-[#C8972B]">{c.displayName}</p>
-              <p className="text-[10px] text-[#9CA3AF]">@{c.name} · {c.postIds.length} постов</p>
-              <p className="text-[11px] text-[#9CA3AF] mt-1">{c.linesTotal} строк парсилось</p>
-              <p className="text-lg font-extrabold mt-2 text-white">{c.winsMax}<span className="text-xs text-[#9CA3AF] font-normal"> побед MAX</span></p>
+              <p className="text-sm font-bold text-[#C8972B] flex items-center gap-2">
+                {c.displayName}
+                {c.displayOnly && (
+                  <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded"
+                        style={{ background: "rgba(63,207,165,0.2)", color: "#3FCFA5" }}>
+                    справочно
+                  </span>
+                )}
+              </p>
+              <p className="text-[10px] text-[#9CA3AF]">
+                {c.displayOnly
+                  ? "biggeek.ru · HTML-парсинг"
+                  : `@${c.name} · ${c.postIds.length} постов`}
+              </p>
+              <p className="text-[11px] text-[#9CA3AF] mt-1">
+                {c.linesTotal} {c.displayOnly ? "SKU сфетчено" : "строк парсилось"}
+              </p>
+              {c.displayOnly ? (
+                <p className="text-[11px] text-[#9CA3AF] mt-2 leading-tight">
+                  Не влияет на финальную цену — показывается рядом для сравнения.
+                </p>
+              ) : (
+                <p className="text-lg font-extrabold mt-2 text-white">
+                  {c.winsMax}
+                  <span className="text-xs text-[#9CA3AF] font-normal"> побед MAX</span>
+                </p>
+              )}
             </div>
           ))}
           <div className="bg-[#0E2344] border border-[#1A3C6E]/50 rounded-xl p-4">
@@ -299,7 +323,8 @@ export function AdminPricesClient() {
             </div>
             <p className="text-[10px] text-[#9CA3AF] mt-2">
               💡 Зелёным выделена самая низкая цена среди магазинов. «Финнайс» — наша
-              финальная (max от магазинов + {meta.markup}₽ markup).
+              финальная (max от TG-каналов партнёров + {meta.markup}₽ markup).
+              Колонка BigGeek — справочная, в расчёт финальной цены не идёт.
             </p>
           </>
         )}
