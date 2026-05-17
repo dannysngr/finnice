@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { notifyCartChanged, notifyFavoritesChanged } from "@/lib/cart-events";
 import {
   CATALOG_CATS, PRODUCTS, PHONES_CATALOG,
   type Product,
@@ -361,6 +362,7 @@ function CatalogContent() {
     setFavorites(prev =>
       prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
     );
+    notifyFavoritesChanged();
     try {
       const r = await fetch("/api/favorites", {
         method: "POST",
@@ -369,6 +371,7 @@ function CatalogContent() {
       });
       const d = await r.json();
       if (d.ids) setFavorites(d.ids);
+      notifyFavoritesChanged();
     } catch { /* откат не нужен — просто логируем */ }
   }, []);
 
@@ -377,6 +380,7 @@ function CatalogContent() {
     if (already) return;
     // Оптимистичное обновление
     setCart(prev => [...prev, { productId, qty: 1 }]);
+    notifyCartChanged();
     try {
       const r = await fetch("/api/cart", {
         method: "POST",
@@ -385,8 +389,39 @@ function CatalogContent() {
       });
       const d = await r.json();
       if (d.items) setCart(d.items);
+      notifyCartChanged();
     } catch { /* игнорируем ошибки сети */ }
   }, [cart]);
+
+  const handleUpdateCartQty = useCallback(async (productId: string, qty: number) => {
+    if (qty <= 0) {
+      setCart(prev => prev.filter(c => c.productId !== productId));
+      notifyCartChanged();
+      try {
+        const r = await fetch("/api/cart", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId }),
+        });
+        const d = await r.json();
+        if (d.items) setCart(d.items);
+        notifyCartChanged();
+      } catch {}
+      return;
+    }
+    setCart(prev => prev.map(c => c.productId === productId ? { ...c, qty } : c));
+    notifyCartChanged();
+    try {
+      const r = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, qty }),
+      });
+      const d = await r.json();
+      if (d.items) setCart(d.items);
+      notifyCartChanged();
+    } catch {}
+  }, []);
 
   const filtered = useMemo(() => {
     let list = [...ALL_ITEMS];
@@ -712,9 +747,10 @@ function CatalogContent() {
                     item={p}
                     authed={authed}
                     inFavs={favorites.includes(p.id)}
-                    inCart={cart.some(c => c.productId === p.id)}
+                    cartQty={cart.find(c => c.productId === p.id)?.qty ?? 0}
                     onToggleFav={handleToggleFav}
                     onAddCart={handleAddCart}
+                    onUpdateQty={handleUpdateCartQty}
                   />
                 ))}
               </div>
@@ -783,12 +819,14 @@ interface ProductCardProps {
   item:          CatalogItem;
   authed:        boolean;
   inFavs:        boolean;
-  inCart:        boolean;
+  cartQty:       number;
   onToggleFav:   (id: string) => void;
   onAddCart:     (id: string) => void;
+  onUpdateQty:   (id: string, qty: number) => void;
 }
 
-function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }: ProductCardProps) {
+function ProductCard({ item: p, authed, inFavs, cartQty, onToggleFav, onAddCart, onUpdateQty }: ProductCardProps) {
+  const inCart = cartQty > 0;
   const { openModal } = useAppModal();
   const down = Math.ceil(p.price * getMinDownPct(p.price));
   const res  = calcInstallment({ price: p.price, down, term: 6 });
@@ -805,10 +843,6 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
     });
   }
 
-  const btnInCart = inCart
-    ? "bg-[#0C7A58] text-white cursor-default"
-    : "bg-[#0A1628] text-white hover:bg-[#1A3C6E]";
-
   // Для variants — собираем уникальные значения RAM и SSD для бэйджей;
   // для остальных — текстовая подпись как раньше.
   const hasVariants = (p.variants?.length ?? 0) > 0;
@@ -820,19 +854,54 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         ...(p.sim ? [p.sim] : []),
       ].join(" · ");
 
-  const BtnContent = inCart ? (
-    <><svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-      <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2"
-            strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>В корзине</>
-  ) : (
-    <><svg width="11" height="11" viewBox="0 0 20 20" fill="none">
-      <path d="M3 3h1.5l2.5 9h8l2-6H7" stroke="currentColor" strokeWidth="1.6"
-            strokeLinecap="round" strokeLinejoin="round"/>
-      <circle cx="9" cy="16.5" r="1.2" fill="currentColor"/>
-      <circle cx="15" cy="16.5" r="1.2" fill="currentColor"/>
-    </svg>В корзину</>
-  );
+  /** Постоянная нижняя строка действия: если товар в корзине — степпер
+   *  «−  qty  +»; иначе кнопка «В корзину» (для гостей — «Купить в рассрочку»). */
+  const ActionRow = () => {
+    if (!authed) {
+      return (
+        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBuy(); }}
+          className="relative z-20 mt-2 w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
+                     text-[11px] font-semibold active:scale-95 transition-all touch-manipulation">
+          Купить в рассрочку
+        </button>
+      );
+    }
+    if (inCart) {
+      return (
+        <div className="relative z-20 mt-2 w-full flex items-stretch rounded-[10px]
+                        bg-[#0C7A58] text-white text-[11px] font-semibold overflow-hidden
+                        ring-1 ring-[#0a6449]/30">
+          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUpdateQty(p.id, cartQty - 1); }}
+            aria-label="Убавить"
+            className="px-3 py-1.5 hover:bg-[#0a6449] active:scale-95 transition-all touch-manipulation">
+            −
+          </button>
+          <span className="flex-1 text-center py-1.5 tabular-nums">
+            В корзине · {cartQty}
+          </span>
+          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUpdateQty(p.id, cartQty + 1); }}
+            aria-label="Добавить ещё"
+            className="px-3 py-1.5 hover:bg-[#0a6449] active:scale-95 transition-all touch-manipulation">
+            +
+          </button>
+        </div>
+      );
+    }
+    return (
+      <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddCart(p.id); }}
+        className="relative z-20 mt-2 w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
+                   text-[11px] font-semibold flex items-center justify-center gap-1
+                   hover:bg-[#1A3C6E] active:scale-95 transition-all touch-manipulation">
+        <svg width="11" height="11" viewBox="0 0 20 20" fill="none">
+          <path d="M3 3h1.5l2.5 9h8l2-6H7" stroke="currentColor" strokeWidth="1.6"
+                strokeLinecap="round" strokeLinejoin="round"/>
+          <circle cx="9" cy="16.5" r="1.2" fill="currentColor"/>
+          <circle cx="15" cy="16.5" r="1.2" fill="currentColor"/>
+        </svg>
+        В корзину
+      </button>
+    );
+  };
 
   return (
     <div
@@ -886,9 +955,8 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         fallback={<div className="w-full h-full flex items-center justify-center text-4xl">{p.emoji}</div>}
       />
 
-      {/* Текст */}
-      {/* pb-2 на мобиле (кнопка в потоке), sm:pb-8 резервирует ~32px под оверлей-кнопку */}
-      <div className="px-2.5 pt-1.5 pb-2 sm:pb-8">
+      {/* Текст + действия */}
+      <div className="px-2.5 pt-1.5 pb-2.5">
         <p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-[#8B8B8C]">
           {p.brand}
         </p>
@@ -933,51 +1001,9 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
           от {fmtRub(res.monthly)} ₽/мес.
         </p>
 
-        {/* Мобиле: кнопка в потоке */}
-        {authed ? (
-          <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!inCart) onAddCart(p.id); }}
-            className={`relative z-20 mt-2 sm:hidden w-full py-1.5 rounded-[10px] text-[11px] font-semibold
-                        flex items-center justify-center gap-1 transition-all
-                        active:scale-95 touch-manipulation ${btnInCart}`}
-          >
-            {BtnContent}
-          </button>
-        ) : (
-          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBuy(); }}
-            className="relative z-20 mt-2 sm:hidden w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
-                       text-[11px] font-semibold active:scale-95 transition-all touch-manipulation">
-            Купить в рассрочку
-          </button>
-        )}
+        {/* Действие — всегда видно, со счётчиком qty если в корзине */}
+        <ActionRow />
       </div>
-
-      {/* Десктоп: overlay button снизу */}
-      {authed ? (
-        <button
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!inCart) onAddCart(p.id); }}
-          className={`hidden sm:flex absolute inset-x-0 bottom-0 z-20
-                      items-center justify-center gap-1
-                      py-2 text-[11px] font-semibold
-                      translate-y-full group-hover:translate-y-0
-                      transition-transform duration-200
-                      active:scale-[0.98] touch-manipulation ${btnInCart}`}
-        >
-          {BtnContent}
-        </button>
-      ) : (
-        <button
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBuy(); }}
-          className="hidden sm:flex absolute inset-x-0 bottom-0 z-20
-                     items-center justify-center py-2
-                     bg-[#0A1628] text-white text-[11px] font-semibold
-                     translate-y-full group-hover:translate-y-0
-                     transition-transform duration-200
-                     active:scale-[0.98] touch-manipulation"
-        >
-          Купить в рассрочку
-        </button>
-      )}
     </div>
   );
 }

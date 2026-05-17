@@ -7,6 +7,7 @@ import { PHONES_CATALOG, type PhoneItem, type SimType } from "@/lib/data";
 import { calcInstallment, fmtRub, fmtRubApprox, getMinDownPct } from "@/lib/calculator-logic";
 import { COMPANY } from "@/lib/data";
 import { useAppModal } from "@/lib/modal-context";
+import { notifyCartChanged, notifyFavoritesChanged } from "@/lib/cart-events";
 import { ProductSlideshow } from "@/components/ProductSlideshow";
 
 // ─── Константы ────────────────────────────────────────────────
@@ -462,23 +463,27 @@ export function SmartphonesSection() {
     setFavorites(prev =>
       prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
     );
+    notifyFavoritesChanged();
     const r = await fetch("/api/favorites", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productId }),
     });
     const d = await r.json();
     if (d.ids) setFavorites(d.ids);
+    notifyFavoritesChanged();
   };
 
   const handleAddCart = async (productId: string) => {
     if (cart.some(c => c.productId === productId)) return;
     setCart(prev => [...prev, { productId, qty: 1 }]);
+    notifyCartChanged();
     const r = await fetch("/api/cart", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productId, qty: 1 }),
     });
     const d = await r.json();
     if (d.items) setCart(d.items);
+    notifyCartChanged();
   };
 
   // Дедуплицированный список для текущего бренда

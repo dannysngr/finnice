@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { COMPANY, CATALOG_CATS } from "@/lib/data";
+import { onCartChanged, onFavoritesChanged } from "@/lib/cart-events";
 import { AuthModal } from "@/components/AuthModal";
 import { CalculatorModal } from "@/components/CalculatorModal";
 import { FinniceLogo } from "@/components/FinniceLogo";
@@ -38,21 +39,37 @@ export function SiteHeader() {
   const [scrolled,    setScrolled]    = useState(false);
   const [session,     setSession]     = useState<SessionInfo>({ authed: false, firstName: null, lastName: null });
   const [cartCount,   setCartCount]   = useState(0);
+  const [favCount,    setFavCount]    = useState(0);
   const catalogRef = useRef<HTMLDivElement>(null);
 
-  /* auth + cart fetch */
+  /* auth + cart + favs fetch (with event-bus refresh) */
   useEffect(() => {
+    const refreshCart = () =>
+      fetch("/api/cart")
+        .then(r => r.ok ? r.json() : { items: [] })
+        .then(c => setCartCount((c.items ?? []).length))
+        .catch(() => {});
+    const refreshFavs = () =>
+      fetch("/api/favorites")
+        .then(r => r.ok ? r.json() : { ids: [] })
+        .then(f => setFavCount((f.ids ?? []).length))
+        .catch(() => {});
+
     fetch("/api/auth/me")
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         if (d?.authed) {
           setSession({ authed: true, firstName: d.firstName, lastName: d.lastName });
-          fetch("/api/cart")
-            .then(r => r.ok ? r.json() : { items: [] })
-            .then(c => setCartCount((c.items ?? []).length));
+          refreshCart();
+          refreshFavs();
         }
       })
       .catch(() => {});
+
+    // Подписываемся на события — счётчики обновляются сразу при добавлении.
+    const unsubCart = onCartChanged(refreshCart);
+    const unsubFavs = onFavoritesChanged(refreshFavs);
+    return () => { unsubCart(); unsubFavs(); };
   }, []);
 
   /* Subtle elevation on scroll (fintech-style) */
@@ -264,6 +281,23 @@ export function SiteHeader() {
 
           {/* Right side */}
           <div className="ml-auto lg:ml-0 flex items-center gap-1.5 shrink-0">
+
+            {/* Favorites */}
+            <Link
+              href="/favorites"
+              aria-label="Избранное"
+              className="w-9 h-9 flex items-center justify-center rounded-full relative
+                         text-[#6B7280] hover:bg-[#F4F7FC] hover:text-[#0A1628] transition-colors"
+            >
+              <HeartIcon />
+              {favCount > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-[#DC2626] text-white
+                                 text-[8px] font-black rounded-full flex items-center justify-center
+                                 ring-2 ring-white">
+                  {favCount > 9 ? "9+" : favCount}
+                </span>
+              )}
+            </Link>
 
             {/* Cart */}
             <Link
@@ -613,6 +647,14 @@ function CartIcon() {
       <path d="M3 3h1.5l2.5 9h8l2-6H7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
       <circle cx="9"  cy="16.5" r="1.3" fill="currentColor"/>
       <circle cx="15" cy="16.5" r="1.3" fill="currentColor"/>
+    </svg>
+  );
+}
+function HeartIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+      <path d="M10 17S3 12.5 3 7a4 4 0 017-2.66A4 4 0 0117 7c0 5.5-7 10-7 10z"
+            stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
     </svg>
   );
 }

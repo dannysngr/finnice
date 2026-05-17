@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PHONES_CATALOG, PRODUCTS } from "@/lib/data";
 import { fmtRub, fmtRubApprox, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
 import { useAppModal } from "@/lib/modal-context";
+import { notifyCartChanged } from "@/lib/cart-events";
 
 /** Берёт первую картинку — для карточки в корзине/избранном достаточно */
 const firstImg = (img: string | string[] | undefined): string | undefined =>
@@ -48,21 +49,25 @@ export default function CartPage() {
 
   const handleRemove = useCallback(async (productId: string) => {
     setItems(prev => prev.filter(i => i.productId !== productId));
+    notifyCartChanged();
     await fetch("/api/cart", {
       method:  "DELETE",
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify({ productId }),
     });
+    notifyCartChanged();
   }, []);
 
   const handleQty = useCallback(async (productId: string, qty: number) => {
     if (qty < 1) { handleRemove(productId); return; }
     setItems(prev => prev.map(i => i.productId === productId ? { ...i, qty } : i));
+    notifyCartChanged();
     await fetch("/api/cart", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify({ productId, qty }),
     });
+    notifyCartChanged();
   }, [handleRemove]);
 
   const cartProducts = items.map(item => ({
@@ -221,6 +226,7 @@ export default function CartPage() {
                         body: JSON.stringify({ all: true }),
                       });
                       setItems([]);
+                      notifyCartChanged();
                     },
                   });
                 }}
