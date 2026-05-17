@@ -116,18 +116,55 @@ def parse_post(text: str) -> list[tuple[str, int]]:
     return items
 
 
+# Известные цвета (для извлечения из raw_name).
+# Порядок важен — длинные сочетания первыми (Pink Gold vs Pink).
+COLOR_WORDS = [
+    "Pink Gold", "Sky Blue", "Ice Blue", "Cloud Black", "Cloud White",
+    "Rose Gold", "Light Gold", "Silver Shadow", "Sand Storm", "Arctic Dawn",
+    "Astral Trail", "Midnight Blue", "Nebula Neor", "Mocha Gold",
+    "Jade Blue", "Jet Black", "Space Black", "Space Grey", "Space Gray",
+    "Coral Red", "Sage", "Lavender", "Lavanda", "Ultramarine", "Midnight",
+    "Starlight", "Natural", "Desert", "Black Titanium", "White Titanium",
+    "Titan", "Titanium", "Indigo", "Blush", "Cream", "Sky", "Charcoal",
+    "Black", "White", "Blue", "Pink", "Teal", "Purple", "Green", "Red",
+    "Yellow", "Orange", "Silver", "Gold", "Gray", "Grey", "Brown",
+    "Violet", "Mint", "Navy",
+]
+COLOR_RE = re.compile(
+    r"\b(" + "|".join(re.escape(c) for c in COLOR_WORDS) + r")\b", re.I,
+)
+
+def extract_color(raw: str) -> str:
+    """Из «iPhone 16 128 Pink» → «Pink». Возвращает '' если не нашлось."""
+    matches = COLOR_RE.findall(raw)
+    if not matches:
+        return ""
+    raw_color = matches[-1]
+    for c in COLOR_WORDS:
+        if c.lower() == raw_color.lower(): return c
+    return raw_color.capitalize()
+
+
+def extract_sim_type(raw: str) -> str:
+    """'E-SIM 17 Pro …' → 'eSIM'; иначе → 'SIM' (релевантно для iPhone 17+)."""
+    if re.match(r"^\s*E[-\s]?SIM\b", raw, re.I): return "eSIM"
+    return "SIM"
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # 3. Нормализатор — превращает raw_name в ключ "Brand|Model|Memory"
 # ═══════════════════════════════════════════════════════════════════════════
 
 def normalize_iphone(raw: str) -> tuple[str, str] | None:
     """Возвращает ('Apple|iPhone 16 Pro Max', '256 ГБ') или None.
-    Понимает варианты: «iPhone 17 Pro Max 256 Blue» (mistore),
-                      «17 Pro Max 256 Blue» (istore),
-                      «E-SIM 17 Pro Max 256 Blue» (istore E-SIM).
+    Для iPhone 17+ в memory дописывается SIM-тип через «|»:
+      «E-SIM 17 Pro Max 256 …» → ('Apple|iPhone 17 Pro Max', '256 ГБ|eSIM')
+      «17 Pro Max 256 …»       → ('Apple|iPhone 17 Pro Max', '256 ГБ|?')
+                                  (resolution в пост-процессинге через близость
+                                   к ценам с явным eSIM-маркером)
     """
-    # Снимаем E-SIM-префикс (istoregroznyy явно разделяет, нам в нормализации
-    # это не нужно — sim/esim ветки катaлога матчатся одинаково).
+    # Определяем SIM-тип ДО снятия E-SIM префикса
+    has_esim_prefix = bool(re.match(r"^\s*E[-\s]?SIM\b", raw, re.I))
     s = re.sub(r"^\s*E[-\s]?SIM\s+", "", raw, flags=re.I)
     s = s.replace("—", "-").replace("–", "-")
     # «17 Air …» (istore сокращает) → «iPhone 17 Air …»
@@ -179,6 +216,15 @@ def normalize_iphone(raw: str) -> tuple[str, str] | None:
     elif "13"         in sl: model = "iPhone 13"
     else: return None
 
+    # Для iPhone 17+ и iPhone Air различаем SIM/eSIM (партнёры цены разные).
+    # Для моделей <17 SIM-тип не различается.
+    is_17plus = model in (
+        "iPhone 17", "iPhone 17 Pro", "iPhone 17 Pro Max",
+        "iPhone 17e", "iPhone Air",
+    )
+    if is_17plus:
+        sim_suffix = "eSIM" if has_esim_prefix else "?"
+        return (f"Apple|{model}", f"{mem}|{sim_suffix}")
     return (f"Apple|{model}", mem)
 
 
@@ -263,10 +309,13 @@ def normalize_macbook(raw: str) -> tuple[str, str] | None:
     return (f"Apple|{model}", mem)
 
 
-def make_keys(items: list[tuple[str, int]]) -> dict[str, int]:
-    """raw → нормализованные ключи `brand|model|memory` → max цена."""
+def make_keys(items: list[tuple[str, int]]) -> tuple[dict[str, int], list, dict]:
+    """Возвращает (agg, unmatched, details).
+       agg[key] = max цена (для tg-prices.ts);
+       details[key] = [{color, price, simType, raw}, ...] — для дашборда."""
     agg: dict[str, int] = {}
     unmatched: list[tuple[str, int]] = []
+    details: dict[str, list[dict]] = {}
     # Pattern: istore без префикса «iPhone» — «17 Pro Max 256 Blue», «E-SIM 17 Air …»
     iphone_no_prefix = re.compile(r"^\s*(?:E[-\s]?SIM\s+)?1[3-7](?:\s+(?:Pro|Air|Plus|Max)|\s+\d{2,4}|\s+E\b|\s|$)", re.I)
     for raw, price in items:
@@ -300,9 +349,15 @@ def make_keys(items: list[tuple[str, int]]) -> dict[str, int]:
             if r: key = f"{r[0]}|{r[1]}"
         if key:
             agg[key] = max(agg.get(key, 0), price)
+            details.setdefault(key, []).append({
+                "color":   extract_color(raw),
+                "price":   price,
+                "simType": extract_sim_type(raw),
+                "raw":     raw,
+            })
         else:
             unmatched.append((raw, price))
-    return agg, unmatched
+    return agg, unmatched, details
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -343,13 +398,25 @@ def match_catalog(agg: dict[str, int], phones: list[dict], bigs: list[dict]):
     matched: set[str] = set()
     sku_to_key: dict[str, str] = {}   # для метаданных: какой TG-ключ матчнут к какому SKU
 
-    # Phones по точному ключу brand|model|memory
+    # Phones по точному ключу brand|model|memory[|sim]
     for p in phones:
-        key = f"{p['brand']}|{p['model']}|{p['memory']}"
-        if key in agg:
-            overrides[p["id"]] = agg[key] + MARKUP
-            sku_to_key[p["id"]] = key
-            matched.add(key)
+        base_key = f"{p['brand']}|{p['model']}|{p['memory']}"
+        # Для iPhone 17+ в каталоге у каждого SKU есть -sim или -esim suffix.
+        # Порядок поиска ключа: точный → SIM-fallback → eSIM-fallback → base.
+        # Так -esim SKU без явных eSIM-цен подхватит данные SIM (Mi Store
+        # обычно не различает, его цена попадает в SIM-ветку).
+        candidates = [base_key]
+        is_17plus = bool(re.match(r"iPhone (?:Air|17)", p["model"]))
+        if is_17plus:
+            sim_suffix = "eSIM" if p["sim"].lower() == "esim" else "SIM"
+            other = "SIM" if sim_suffix == "eSIM" else "eSIM"
+            candidates = [f"{base_key}|{sim_suffix}", f"{base_key}|{other}", base_key]
+        for key in candidates:
+            if key in agg:
+                overrides[p["id"]] = agg[key] + MARKUP
+                sku_to_key[p["id"]] = key
+                matched.add(key)
+                break
 
     # TG-новинки (iPhone 16e/17e и т.п.) в tg-additions.ts
     if ADD_TS.exists():
@@ -511,22 +578,89 @@ def main():
 
     # MAX-агрегация по нормализованным ключам.
     # Для каждого ключа храним (max_price, channel-источник победителя)
-    # + полную раскладку по каналам (для админ-дашборда).
+    # + полную раскладку по каналам с цветами и SIM-типами (для дашборда).
     agg: dict[str, int] = {}
     source_of: dict[str, str] = {}
     per_key_channel_prices: dict[str, dict[str, int]] = {}
+    # per_key_details[key][channel] = [{color, price, simType, raw}, ...]
+    per_key_details: dict[str, dict[str, list[dict]]] = {}
     unmatched_lines: list[tuple[str, int]] = []
     for ch_name, items in per_channel_items.items():
-        ch_agg, ch_unmatched = make_keys(items)
+        ch_agg, ch_unmatched, ch_details = make_keys(items)
         unmatched_lines.extend(ch_unmatched)
         for key, price in ch_agg.items():
             per_key_channel_prices.setdefault(key, {})[ch_name] = price
             if price > agg.get(key, 0):
                 agg[key] = price
                 source_of[key] = ch_name
+        for key, dets in ch_details.items():
+            per_key_details.setdefault(key, {})[ch_name] = dets
+
+    # ── Резолв «|?» SIM-маркеров для iPhone 17+ ────────────────────
+    # Ключи с suffix «|?» (мiстор-стиль без явного eSIM-маркера) распределяем
+    # между SIM и eSIM по близости к явным eSIM-ценам. Порог 3000 ₽.
+    ESIM_THRESHOLD = 3000
+    keys_to_remap: list[tuple[str, str]] = []  # (old_key, new_key)
+    for key in list(agg.keys()):
+        if not key.endswith("|?"): continue
+        base = key[:-2]  # «Apple|iPhone 17 Pro Max|256 ГБ»
+        esim_key = f"{base}|eSIM"
+        esim_price = agg.get(esim_key)
+        # Для каждого канала, который писал в «|?», пересчитываем
+        ch_prices = per_key_channel_prices.get(key, {})
+        # Если у нас есть eSIM-ценник, проверяем дистанцию каждого «?»-канала
+        new_sim_channels: dict[str, int] = {}
+        new_esim_channels: dict[str, int] = {}
+        new_sim_details:  dict[str, list] = {}
+        new_esim_details: dict[str, list] = {}
+        ch_details = per_key_details.get(key, {})
+        for ch, price in ch_prices.items():
+            if esim_price is not None and abs(price - esim_price) < ESIM_THRESHOLD:
+                # Близко к eSIM — этот канал на самом деле eSIM
+                new_esim_channels[ch] = price
+                if ch in ch_details: new_esim_details[ch] = ch_details[ch]
+            else:
+                # Дефолт — SIM (физический)
+                new_sim_channels[ch] = price
+                if ch in ch_details: new_sim_details[ch] = ch_details[ch]
+        # Записываем в SIM-ключ
+        if new_sim_channels:
+            sim_key = f"{base}|SIM"
+            sim_dict = per_key_channel_prices.setdefault(sim_key, {})
+            for ch, price in new_sim_channels.items():
+                if price > sim_dict.get(ch, 0):
+                    sim_dict[ch] = price
+            sim_det = per_key_details.setdefault(sim_key, {})
+            for ch, dets in new_sim_details.items():
+                sim_det.setdefault(ch, []).extend(dets)
+            max_sim = max(sim_dict.values())
+            if max_sim > agg.get(sim_key, 0):
+                agg[sim_key] = max_sim
+                source_of[sim_key] = max(sim_dict.items(), key=lambda x: x[1])[0]
+        # Аналогично для eSIM
+        if new_esim_channels:
+            esim_dict = per_key_channel_prices.setdefault(esim_key, {})
+            for ch, price in new_esim_channels.items():
+                if price > esim_dict.get(ch, 0):
+                    esim_dict[ch] = price
+            esim_det = per_key_details.setdefault(esim_key, {})
+            for ch, dets in new_esim_details.items():
+                esim_det.setdefault(ch, []).extend(dets)
+            max_esim = max(esim_dict.values())
+            if max_esim > agg.get(esim_key, 0):
+                agg[esim_key] = max_esim
+                source_of[esim_key] = max(esim_dict.items(), key=lambda x: x[1])[0]
+        keys_to_remap.append(key)
+    for k in keys_to_remap:
+        agg.pop(k, None)
+        source_of.pop(k, None)
+        per_key_channel_prices.pop(k, None)
+        per_key_details.pop(k, None)
 
     print(f"\n→ Нормализовано в {len(agg)} уникальных ключей "
-          f"(brand|model|memory). MAX-выборка по каналам.")
+          f"(brand|model|memory[|sim]). MAX-выборка по каналам.")
+    if keys_to_remap:
+        print(f"  · iPhone 17+ «?»-ключей резолвнуто: {len(keys_to_remap)}")
     # Источники
     by_src: dict[str, int] = {}
     for src in source_of.values(): by_src[src] = by_src.get(src, 0) + 1
@@ -584,7 +718,12 @@ def main():
     name_of: dict[str, str] = {}
     base_price_of: dict[str, int] = {}
     for p in phones:
-        name_of[p["id"]] = f"{p['brand']} {p['model']} {p['memory']} · {p['sim']}"
+        # SIM-тип показываем только для iPhone 17+ и iPhone Air (где это реально важно)
+        show_sim = bool(re.match(r"iPhone (?:Air|17)", p["model"]))
+        if show_sim:
+            name_of[p["id"]] = f"{p['brand']} {p['model']} {p['memory']} · {p['sim']}"
+        else:
+            name_of[p["id"]] = f"{p['brand']} {p['model']} {p['memory']}"
         base_price_of[p["id"]] = p["price"]
     for p in bigs:
         name_of[p["id"]] = p["name"]
@@ -605,6 +744,9 @@ def main():
     for pid, final_price in sorted(overrides.items()):
         key = sku_to_key.get(pid, "")
         per_ch = per_key_channel_prices.get(key, {})
+        per_ch_details = per_key_details.get(key, {})
+        # Группируем по магазину: список {color, price, simType, raw}
+        details_for_meta = {ch: dets for ch, dets in per_ch_details.items()}
         tg_price = final_price - MARKUP
         matched_items.append({
             "sku":         pid,
@@ -615,7 +757,8 @@ def main():
             "delta":       final_price - (base_price_of.get(pid) or final_price),
             "tgKey":       key,
             "source":      source_of.get(key, ""),
-            "perChannel":  per_ch,   # {"mistore095": 41900, "istoregroznyy": 41900}
+            "perChannel":  per_ch,           # {"mistore095": 41900}  max за модель
+            "details":     details_for_meta, # {"mistore095": [{color, price, simType, raw}]}
         })
 
     # Несматченные TG-ключи: товар в канале есть, в каталоге нет

@@ -3,6 +3,12 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 
+interface ColorDetail {
+  color: string;
+  price: number;
+  simType: string;
+  raw: string;
+}
 interface MatchedItem {
   sku: string;
   name: string;
@@ -12,7 +18,8 @@ interface MatchedItem {
   delta: number;
   tgKey: string | null;
   source: string;
-  perChannel: Record<string, number>;  // {"mistore095": 41900, ...}
+  perChannel: Record<string, number>;  // max за модель+память
+  details: Record<string, ColorDetail[]>;  // {"mistore095": [{color, price, ...}]}
 }
 interface UnmatchedKey {
   key: string;
@@ -232,25 +239,48 @@ export function AdminPricesClient() {
                 </thead>
                 <tbody>
                   {filteredMatched.map(m => {
-                    // Минимальная цена среди магазинов — её красим в зелёный
+                    // Min цена среди магазинов — её красим в зелёный
                     const prices = Object.values(m.perChannel).filter(p => p > 0);
                     const minPrice = prices.length ? Math.min(...prices) : null;
                     return (
-                      <tr key={m.sku} className="border-t border-[#1A3C6E]/20 hover:bg-[#1A3C6E]/20">
+                      <tr key={m.sku} className="border-t border-[#1A3C6E]/20 hover:bg-[#1A3C6E]/20 align-top">
                         <td className="px-3 py-2">
                           <div className="font-medium">{m.name}</div>
                           <div className="text-[10px] text-[#9CA3AF] font-mono">{m.sku}</div>
                         </td>
                         {meta.channels.map(c => {
-                          const price = m.perChannel[c.name];
-                          const isMin = price != null && price === minPrice;
+                          const dets = m.details?.[c.name] ?? [];
+                          // Группируем цвета по цене: { price: [colors] }
+                          const byPrice = new Map<number, string[]>();
+                          for (const d of dets) {
+                            const arr = byPrice.get(d.price) ?? [];
+                            if (d.color && !arr.includes(d.color)) arr.push(d.color);
+                            byPrice.set(d.price, arr);
+                          }
+                          const groups = Array.from(byPrice.entries())
+                            .sort((a, b) => a[0] - b[0]);
+                          if (groups.length === 0) {
+                            return <td key={c.name} className="px-3 py-2 text-right text-[#4B5563]">—</td>;
+                          }
                           return (
-                            <td key={c.name}
-                                className={`px-3 py-2 text-right tabular-nums ${
-                                  price == null ? "text-[#4B5563]"
-                                  : isMin       ? "text-emerald-400 font-bold"
-                                                : "text-white"}`}>
-                              {price == null ? "—" : fmt(price)}
+                            <td key={c.name} className="px-3 py-2 text-right">
+                              <div className="space-y-1">
+                                {groups.map(([price, colors]) => {
+                                  const isMin = price === minPrice;
+                                  return (
+                                    <div key={price}
+                                         className={`tabular-nums ${
+                                           isMin ? "text-emerald-400 font-bold" : "text-white"}`}>
+                                      <div>{fmt(price)}</div>
+                                      {colors.length > 0 && (
+                                        <div className="text-[10px] text-[#9CA3AF] font-normal">
+                                          ({colors.join(", ")})
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
                             </td>
                           );
                         })}
