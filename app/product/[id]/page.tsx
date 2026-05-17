@@ -134,18 +134,31 @@ export default async function ProductPage({
               </Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {related.map((p) => (
-                <Link key={p.id} href={`/product/${p.id}/`}
-                  className="card p-4 hover:shadow-md transition-shadow group block">
-                  <div className="w-full aspect-square bg-[#F4F7FC] rounded-xl mb-3
-                                  flex items-center justify-center text-5xl">
-                    {p.emoji}
-                  </div>
-                  <h3 className="font-semibold text-[#0A1628] text-xs leading-snug mb-1 line-clamp-2
-                                 group-hover:text-[#1A3C6E] transition-colors">{p.name}</h3>
-                  <p className="font-extrabold text-[#0A1628] text-sm">{p.tgSynced ? fmtRub(p.price) : fmtRubApprox(p.price)} ₽</p>
-                </Link>
-              ))}
+              {related.map((p) => {
+                const firstImg = Array.isArray(p.img) ? p.img[0] : p.img;
+                return (
+                  <Link key={p.id} href={`/product/${p.id}/`}
+                    className="card p-4 hover:shadow-md transition-shadow group block">
+                    <div className="w-full aspect-square bg-[#F4F7FC] rounded-xl mb-3
+                                    flex items-center justify-center overflow-hidden">
+                      {firstImg ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={firstImg} alt={p.name}
+                             className="w-full h-full object-contain p-2 transition-transform group-hover:scale-[1.04]" />
+                      ) : (
+                        <span className="text-5xl">{p.emoji}</span>
+                      )}
+                    </div>
+                    <h3 className="font-semibold text-[#0A1628] text-xs leading-snug mb-1 line-clamp-2
+                                   group-hover:text-[#1A3C6E] transition-colors">{p.name}</h3>
+                    <p className="font-extrabold text-[#0A1628] text-sm">
+                      {p.variants && p.variants.length > 0
+                        ? <><span className="text-[10px] text-[#6B7280] mr-1">от</span>{fmtRub(p.price)} ₽</>
+                        : p.tgSynced ? `${fmtRub(p.price)} ₽` : `${fmtRubApprox(p.price)} ₽`}
+                    </p>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
