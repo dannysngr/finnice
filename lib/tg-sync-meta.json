@@ -1,10 +1,11 @@
 {
-  "syncedAt": "2026-05-17T00:42:57+00:00",
+  "syncedAt": "2026-05-17T01:10:52+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
     {
       "name": "mistore095",
+      "displayName": "Mi Store",
       "postIds": [
         1203,
         1207,
@@ -21,6 +22,7 @@
     },
     {
       "name": "istoregroznyy",
+      "displayName": "iStore Grozny",
       "postIds": [
         6180,
         6181,
@@ -45,7 +47,11 @@
       "finalPrice": 42900,
       "delta": -17090,
       "tgKey": "Apple|AirPods Max|нет",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 41900,
+        "istoregroznyy": 41900
+      }
     },
     {
       "sku": "airpods-pro3",
@@ -55,7 +61,11 @@
       "finalPrice": 19500,
       "delta": -10490,
       "tgKey": "Apple|AirPods Pro 3|нет",
-      "source": "istoregroznyy"
+      "source": "istoregroznyy",
+      "perChannel": {
+        "mistore095": 18400,
+        "istoregroznyy": 18500
+      }
     },
     {
       "sku": "airpods4",
@@ -65,7 +75,11 @@
       "finalPrice": 11500,
       "delta": -3490,
       "tgKey": "Apple|AirPods 4|нет",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 10500,
+        "istoregroznyy": 9900
+      }
     },
     {
       "sku": "airpods4-anc",
@@ -75,7 +89,11 @@
       "finalPrice": 15000,
       "delta": -4990,
       "tgKey": "Apple|AirPods 4 ANC|нет",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 14000,
+        "istoregroznyy": 13500
+      }
     },
     {
       "sku": "apple-watch-ultra-2-49mm-korpus-iz-titana-remesok-ocean-sinego-cveta",
@@ -84,8 +102,11 @@
       "tgPrice": 55000,
       "finalPrice": 56000,
       "delta": 2010,
-      "tgKey": "Apple|iPhone 16|128 ГБ",
-      "source": "mistore095"
+      "tgKey": "Apple|Apple Watch Ultra 2|49 мм",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 55000
+      }
     },
     {
       "sku": "casy-apple-watch-se-3-44-mm-aluminij-cveta-temnaa-noc-remesok-sport-band-temnaa-noc-2025",
@@ -95,7 +116,10 @@
       "finalPrice": 25000,
       "delta": 1010,
       "tgKey": "Apple|Apple Watch SE 3|44 мм",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 24000
+      }
     },
     {
       "sku": "casy-apple-watch-series-10-46mm-aluminum-rose-gold-sport-loop-plum",
@@ -105,7 +129,10 @@
       "finalPrice": 27700,
       "delta": 1210,
       "tgKey": "Apple|Apple Watch Series 10|46 мм",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 26700
+      }
     },
     {
       "sku": "casy-apple-watch-series-11-42-mm-aluminij-cveta-rozovoe-zoloto-remesok-sport-band-cveta-svetlye-rumana",
@@ -115,7 +142,10 @@
       "finalPrice": 28900,
       "delta": -90,
       "tgKey": "Apple|Apple Watch Series 11|42 мм",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 27900
+      }
     },
     {
       "sku": "casy-apple-watch-series-11-46-mm-aluminij-serebristogo-cveta-remesok-sport-band-cveta-fioletovyj-tuman",
@@ -125,7 +155,10 @@
       "finalPrice": 31500,
       "delta": 510,
       "tgKey": "Apple|Apple Watch Series 11|46 мм",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 30500
+      }
     },
     {
       "sku": "casy-apple-watch-ultra-3-49-mm-titan-svetlogo-cveta-remesok-trail-cveta-sinijarko-sinij-2025",
@@ -134,8 +167,11 @@
       "tgPrice": 61500,
       "finalPrice": 62500,
       "delta": -490,
-      "tgKey": "Apple|iPhone 16|256 ГБ",
-      "source": "mistore095"
+      "tgKey": "Apple|Apple Watch Ultra 3|49 мм",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 61500
+      }
     },
     {
       "sku": "ip14-256-sim",
@@ -145,7 +181,10 @@
       "finalPrice": 50000,
       "delta": 3100,
       "tgKey": "Apple|iPhone 14|256 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 49000
+      }
     },
     {
       "sku": "ip15-128-sim",
@@ -155,7 +194,10 @@
       "finalPrice": 49500,
       "delta": 2000,
       "tgKey": "Apple|iPhone 15|128 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 48500
+      }
     },
     {
       "sku": "ip15-256-sim",
@@ -165,7 +207,10 @@
       "finalPrice": 57000,
       "delta": 2500,
       "tgKey": "Apple|iPhone 15|256 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 56000
+      }
     },
     {
       "sku": "ip16-128-sim",
@@ -175,7 +220,10 @@
       "finalPrice": 56000,
       "delta": 500,
       "tgKey": "Apple|iPhone 16|128 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 55000
+      }
     },
     {
       "sku": "ip16-256-sim",
@@ -185,7 +233,10 @@
       "finalPrice": 62500,
       "delta": -400,
       "tgKey": "Apple|iPhone 16|256 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 61500
+      }
     },
     {
       "sku": "ip16plus-256-sim",
@@ -195,7 +246,10 @@
       "finalPrice": 68900,
       "delta": -3100,
       "tgKey": "Apple|iPhone 16 Plus|256 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 67900
+      }
     },
     {
       "sku": "ip16promax-256-sim",
@@ -205,7 +259,10 @@
       "finalPrice": 99000,
       "delta": -5000,
       "tgKey": "Apple|iPhone 16 Pro Max|256 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 98000
+      }
     },
     {
       "sku": "ip16promax-512-sim",
@@ -215,7 +272,10 @@
       "finalPrice": 109000,
       "delta": -13000,
       "tgKey": "Apple|iPhone 16 Pro Max|512 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 108000
+      }
     },
     {
       "sku": "ip17-256-esim",
@@ -225,7 +285,10 @@
       "finalPrice": 66900,
       "delta": 6900,
       "tgKey": "Apple|iPhone 17|256 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 65900
+      }
     },
     {
       "sku": "ip17-256-sim",
@@ -235,7 +298,10 @@
       "finalPrice": 66900,
       "delta": 1900,
       "tgKey": "Apple|iPhone 17|256 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 65900
+      }
     },
     {
       "sku": "ip17-512-esim",
@@ -245,7 +311,10 @@
       "finalPrice": 83500,
       "delta": 10500,
       "tgKey": "Apple|iPhone 17|512 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 82500
+      }
     },
     {
       "sku": "ip17-512-sim",
@@ -255,7 +324,10 @@
       "finalPrice": 83500,
       "delta": 4500,
       "tgKey": "Apple|iPhone 17|512 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 82500
+      }
     },
     {
       "sku": "ip17air-1tb-esim",
@@ -265,7 +337,10 @@
       "finalPrice": 97000,
       "delta": -6000,
       "tgKey": "Apple|iPhone Air|1 ТБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 96000
+      }
     },
     {
       "sku": "ip17air-256-esim",
@@ -275,7 +350,10 @@
       "finalPrice": 74000,
       "delta": 2000,
       "tgKey": "Apple|iPhone Air|256 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 73000
+      }
     },
     {
       "sku": "ip17air-512-esim",
@@ -285,7 +363,10 @@
       "finalPrice": 84000,
       "delta": -3000,
       "tgKey": "Apple|iPhone Air|512 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 83000
+      }
     },
     {
       "sku": "ip17pro-1tb-esim",
@@ -295,7 +376,10 @@
       "finalPrice": 135000,
       "delta": 3000,
       "tgKey": "Apple|iPhone 17 Pro|1 ТБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 134000
+      }
     },
     {
       "sku": "ip17pro-1tb-sim",
@@ -305,7 +389,10 @@
       "finalPrice": 135000,
       "delta": -5000,
       "tgKey": "Apple|iPhone 17 Pro|1 ТБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 134000
+      }
     },
     {
       "sku": "ip17pro-256-esim",
@@ -315,7 +402,10 @@
       "finalPrice": 101700,
       "delta": 3700,
       "tgKey": "Apple|iPhone 17 Pro|256 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 100700
+      }
     },
     {
       "sku": "ip17pro-256-sim",
@@ -325,7 +415,10 @@
       "finalPrice": 101700,
       "delta": -2800,
       "tgKey": "Apple|iPhone 17 Pro|256 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 100700
+      }
     },
     {
       "sku": "ip17pro-512-esim",
@@ -335,7 +428,10 @@
       "finalPrice": 119900,
       "delta": 5400,
       "tgKey": "Apple|iPhone 17 Pro|512 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 118900
+      }
     },
     {
       "sku": "ip17pro-512-sim",
@@ -345,7 +441,10 @@
       "finalPrice": 119900,
       "delta": -3100,
       "tgKey": "Apple|iPhone 17 Pro|512 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 118900
+      }
     },
     {
       "sku": "ip17promax-1tb-esim",
@@ -355,7 +454,10 @@
       "finalPrice": 145900,
       "delta": 2900,
       "tgKey": "Apple|iPhone 17 Pro Max|1 ТБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 144900
+      }
     },
     {
       "sku": "ip17promax-1tb-sim",
@@ -365,7 +467,10 @@
       "finalPrice": 145900,
       "delta": -3100,
       "tgKey": "Apple|iPhone 17 Pro Max|1 ТБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 144900
+      }
     },
     {
       "sku": "ip17promax-256-esim",
@@ -375,7 +480,10 @@
       "finalPrice": 110900,
       "delta": 2900,
       "tgKey": "Apple|iPhone 17 Pro Max|256 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 109900
+      }
     },
     {
       "sku": "ip17promax-256-sim",
@@ -385,7 +493,10 @@
       "finalPrice": 110900,
       "delta": -3600,
       "tgKey": "Apple|iPhone 17 Pro Max|256 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 109900
+      }
     },
     {
       "sku": "ip17promax-2tb-esim",
@@ -395,7 +506,10 @@
       "finalPrice": 174000,
       "delta": 6000,
       "tgKey": "Apple|iPhone 17 Pro Max|2 ТБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 173000
+      }
     },
     {
       "sku": "ip17promax-2tb-sim",
@@ -405,7 +519,10 @@
       "finalPrice": 174000,
       "delta": -1000,
       "tgKey": "Apple|iPhone 17 Pro Max|2 ТБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 173000
+      }
     },
     {
       "sku": "ip17promax-512-esim",
@@ -415,7 +532,10 @@
       "finalPrice": 133900,
       "delta": 9900,
       "tgKey": "Apple|iPhone 17 Pro Max|512 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 132900
+      }
     },
     {
       "sku": "ip17promax-512-sim",
@@ -425,7 +545,10 @@
       "finalPrice": 133900,
       "delta": 1900,
       "tgKey": "Apple|iPhone 17 Pro Max|512 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 132900
+      }
     },
     {
       "sku": "noutbuk-apple-macbook-pro-14-mde04-m5-10-core-gpu-10-core-16gb-512gb-cernyj-kosmos-space-black",
@@ -435,7 +558,11 @@
       "finalPrice": 140000,
       "delta": -5990,
       "tgKey": "Apple|MacBook Pro 14 M5|512 ГБ",
-      "source": "istoregroznyy"
+      "source": "istoregroznyy",
+      "perChannel": {
+        "mistore095": 128500,
+        "istoregroznyy": 139000
+      }
     },
     {
       "sku": "planset-apple-ipad-11-128-gb-wi-fi-sinij-blue-2025",
@@ -444,8 +571,11 @@
       "tgPrice": 30500,
       "finalPrice": 31500,
       "delta": 510,
-      "tgKey": "Apple|Apple Watch Series 11|46 мм",
-      "source": "mistore095"
+      "tgKey": "Apple|iPad 11|128 ГБ Wi-Fi",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 30500
+      }
     },
     {
       "sku": "planset-apple-ipad-11-256-gb-wi-fi-serebristyj-silver-2025",
@@ -455,7 +585,10 @@
       "finalPrice": 41400,
       "delta": 410,
       "tgKey": "Apple|iPad 11|256 ГБ Wi-Fi",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 40400
+      }
     },
     {
       "sku": "planset-apple-ipad-air-11-128-gb-wi-fi-seryj-kosmos-space-gray-2025",
@@ -465,7 +598,10 @@
       "finalPrice": 49000,
       "delta": 2010,
       "tgKey": "Apple|iPad Air 11 M2|128 ГБ Wi-Fi",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 48000
+      }
     },
     {
       "sku": "planset-apple-ipad-pro-11-256-gb-wi-fi-cernyj-kosmos-space-black-m5-2025",
@@ -475,7 +611,10 @@
       "finalPrice": 78500,
       "delta": -6490,
       "tgKey": "Apple|iPad Pro 11|256 ГБ Wi-Fi",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 77500
+      }
     },
     {
       "sku": "planset-apple-ipad-pro-13-256-gb-wi-fi-plus-cellular-cernyj-kosmos-space-black-m5-2025",
@@ -485,7 +624,10 @@
       "finalPrice": 98500,
       "delta": -9490,
       "tgKey": "Apple|iPad Pro 13|256 ГБ Cellular",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 97500
+      }
     },
     {
       "sku": "planset-apple-ipad-pro-13-512-gb-wi-fi-plus-cellular-cernyj-kosmos-space-black-m5-2025",
@@ -495,7 +637,10 @@
       "finalPrice": 122000,
       "delta": -7990,
       "tgKey": "Apple|iPad Pro 13|512 ГБ Cellular",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 121000
+      }
     },
     {
       "sku": "tg-ip16e-128",
@@ -505,7 +650,10 @@
       "finalPrice": 45300,
       "delta": 0,
       "tgKey": "Apple|iPhone 16e|128 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 44300
+      }
     },
     {
       "sku": "tg-ip17e-256",
@@ -515,7 +663,10 @@
       "finalPrice": 52500,
       "delta": 0,
       "tgKey": "Apple|iPhone 17e|256 ГБ",
-      "source": "mistore095"
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 51500
+      }
     }
   ],
   "unmatchedKeys": [

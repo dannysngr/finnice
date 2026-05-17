@@ -12,6 +12,7 @@ interface MatchedItem {
   delta: number;
   tgKey: string | null;
   source: string;
+  perChannel: Record<string, number>;  // {"mistore095": 41900, ...}
 }
 interface UnmatchedKey {
   key: string;
@@ -22,6 +23,7 @@ interface UnmatchedKey {
 interface UnmatchedRaw { raw: string; tgPrice: number; }
 interface ChannelStat {
   name: string;
+  displayName: string;
   postIds: number[];
   linesTotal: number;
   winsMax: number;
@@ -161,9 +163,9 @@ export function AdminPricesClient() {
         <div className="px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-3">
           {meta.channels.map(c => (
             <div key={c.name} className="bg-[#0E2344] border border-[#1A3C6E]/50 rounded-xl p-4">
-              <p className="text-sm font-bold text-[#C8972B]">@{c.name}</p>
-              <p className="text-xs text-[#9CA3AF] mt-1">{c.postIds.length} постов</p>
-              <p className="text-[11px] text-[#9CA3AF]">{c.linesTotal} строк парсилось</p>
+              <p className="text-sm font-bold text-[#C8972B]">{c.displayName}</p>
+              <p className="text-[10px] text-[#9CA3AF]">@{c.name} · {c.postIds.length} постов</p>
+              <p className="text-[11px] text-[#9CA3AF] mt-1">{c.linesTotal} строк парсилось</p>
               <p className="text-lg font-extrabold mt-2 text-white">{c.winsMax}<span className="text-xs text-[#9CA3AF] font-normal"> побед MAX</span></p>
             </div>
           ))}
@@ -222,36 +224,49 @@ export function AdminPricesClient() {
                 <thead className="bg-[#0A1628] text-[#9CA3AF] text-xs">
                   <tr>
                     <th className="text-left px-3 py-2">Товар</th>
-                    <th className="text-right px-3 py-2">Базовая цена</th>
-                    <th className="text-right px-3 py-2">TG-цена</th>
-                    <th className="text-right px-3 py-2">+ markup</th>
-                    <th className="text-right px-3 py-2">Финал</th>
-                    <th className="text-right px-3 py-2">Δ от базы</th>
-                    <th className="text-left px-3 py-2">Источник</th>
+                    {meta.channels.map(c => (
+                      <th key={c.name} className="text-right px-3 py-2">{c.displayName}</th>
+                    ))}
+                    <th className="text-right px-3 py-2 border-l border-[#1A3C6E]/40">Финнайс</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredMatched.map(m => (
-                    <tr key={m.sku} className="border-t border-[#1A3C6E]/20 hover:bg-[#1A3C6E]/20">
-                      <td className="px-3 py-2">
-                        <div className="font-medium">{m.name}</div>
-                        <div className="text-[10px] text-[#9CA3AF] font-mono">{m.sku}</div>
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums text-[#9CA3AF]">{fmt(m.basePrice)}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{fmt(m.tgPrice)}</td>
-                      <td className="px-3 py-2 text-right tabular-nums text-[#9CA3AF]">+{meta.markup} ₽</td>
-                      <td className="px-3 py-2 text-right tabular-nums font-bold">{fmt(m.finalPrice)}</td>
-                      <td className={`px-3 py-2 text-right tabular-nums ${m.delta < 0 ? "text-emerald-400" : m.delta > 0 ? "text-orange-400" : "text-[#9CA3AF]"}`}>
-                        {m.delta > 0 ? "+" : ""}{fmt(m.delta).replace(" ₽", "")} ₽
-                      </td>
-                      <td className="px-3 py-2 text-xs">
-                        {m.source ? <span className="px-2 py-0.5 rounded-md bg-[#1A3C6E]/40">@{m.source}</span> : "—"}
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredMatched.map(m => {
+                    // Минимальная цена среди магазинов — её красим в зелёный
+                    const prices = Object.values(m.perChannel).filter(p => p > 0);
+                    const minPrice = prices.length ? Math.min(...prices) : null;
+                    return (
+                      <tr key={m.sku} className="border-t border-[#1A3C6E]/20 hover:bg-[#1A3C6E]/20">
+                        <td className="px-3 py-2">
+                          <div className="font-medium">{m.name}</div>
+                          <div className="text-[10px] text-[#9CA3AF] font-mono">{m.sku}</div>
+                        </td>
+                        {meta.channels.map(c => {
+                          const price = m.perChannel[c.name];
+                          const isMin = price != null && price === minPrice;
+                          return (
+                            <td key={c.name}
+                                className={`px-3 py-2 text-right tabular-nums ${
+                                  price == null ? "text-[#4B5563]"
+                                  : isMin       ? "text-emerald-400 font-bold"
+                                                : "text-white"}`}>
+                              {price == null ? "—" : fmt(price)}
+                            </td>
+                          );
+                        })}
+                        <td className="px-3 py-2 text-right tabular-nums font-bold border-l border-[#1A3C6E]/40">
+                          {fmt(m.finalPrice)}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
+            <p className="text-[10px] text-[#9CA3AF] mt-2">
+              💡 Зелёным выделена самая низкая цена среди магазинов. «Финнайс» — наша
+              финальная (max от магазинов + {meta.markup}₽ markup).
+            </p>
           </>
         )}
 

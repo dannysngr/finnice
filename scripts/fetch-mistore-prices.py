@@ -36,14 +36,16 @@ MARKUP = 1000
 # (наш осознанный выбор — выше маржа, см. README в репо).
 CHANNELS: list[dict] = [
     {
-        "name":     "mistore095",
-        "post_ids": [1203, 1207, 1103, 1104, 1105, 1106, 1107, 1108, 1112],
+        "name":        "mistore095",
+        "displayName": "Mi Store",
+        "post_ids":    [1203, 1207, 1103, 1104, 1105, 1106, 1107, 1108, 1112],
     },
     {
-        "name":     "istoregroznyy",
+        "name":        "istoregroznyy",
+        "displayName": "iStore Grozny",
         # 6180 — iPhone+AirPods, 6181 — Watch+Garmin,
         # 6182 — iPad+Mac, 6183 — Dyson (нет в каталоге, всё равно парсим).
-        "post_ids": [6180, 6181, 6182, 6183],
+        "post_ids":    [6180, 6181, 6182, 6183],
     },
 ]
 
@@ -323,12 +325,14 @@ def load_catalog() -> tuple[list[dict], list[dict]]:
 def match_catalog(agg: dict[str, int], phones: list[dict], bigs: list[dict]):
     overrides: dict[str, int] = {}
     matched: set[str] = set()
+    sku_to_key: dict[str, str] = {}   # для метаданных: какой TG-ключ матчнут к какому SKU
 
     # Phones по точному ключу brand|model|memory
     for p in phones:
         key = f"{p['brand']}|{p['model']}|{p['memory']}"
         if key in agg:
             overrides[p["id"]] = agg[key] + MARKUP
+            sku_to_key[p["id"]] = key
             matched.add(key)
 
     # TG-новинки (iPhone 16e/17e и т.п.) в tg-additions.ts
@@ -346,6 +350,7 @@ def match_catalog(agg: dict[str, int], phones: list[dict], bigs: list[dict]):
             for alias in (key, key.replace("16e", "16E"), key.replace("17e", "17E")):
                 if alias in agg:
                     overrides[pid] = agg[alias] + MARKUP
+                    sku_to_key[pid] = alias
                     matched.add(alias)
                     break
 
@@ -366,6 +371,7 @@ def match_catalog(agg: dict[str, int], phones: list[dict], bigs: list[dict]):
         key = f"Apple|{model}|{size}"
         if key in agg:
             overrides[p["id"]] = agg[key] + MARKUP
+            sku_to_key[p["id"]] = key
             matched.add(key)
 
     # AirPods — id-pattern в data.ts
@@ -385,6 +391,7 @@ def match_catalog(agg: dict[str, int], phones: list[dict], bigs: list[dict]):
         elif "airpods 3" in n: ap_key = "Apple|AirPods 3|нет"
         if ap_key and ap_key in agg:
             overrides[pid] = agg[ap_key] + MARKUP
+            sku_to_key[pid] = ap_key
             matched.add(ap_key)
 
     # MacBook
@@ -408,6 +415,7 @@ def match_catalog(agg: dict[str, int], phones: list[dict], bigs: list[dict]):
         key = f"Apple|{model}|{mem}"
         if key in agg:
             overrides[p["id"]] = agg[key] + MARKUP
+            sku_to_key[p["id"]] = key
             matched.add(key)
 
     # iPad
@@ -431,9 +439,10 @@ def match_catalog(agg: dict[str, int], phones: list[dict], bigs: list[dict]):
         key = f"Apple|{base}|{mem} {net}"
         if key in agg:
             overrides[p["id"]] = agg[key] + MARKUP
+            sku_to_key[p["id"]] = key
             matched.add(key)
 
-    return overrides, matched
+    return overrides, matched, sku_to_key
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -485,14 +494,17 @@ def main():
         per_channel_items[name] = items
 
     # MAX-агрегация по нормализованным ключам.
-    # Для каждого ключа храним (max_price, channel-источник победителя).
+    # Для каждого ключа храним (max_price, channel-источник победителя)
+    # + полную раскладку по каналам (для админ-дашборда).
     agg: dict[str, int] = {}
     source_of: dict[str, str] = {}
+    per_key_channel_prices: dict[str, dict[str, int]] = {}
     unmatched_lines: list[tuple[str, int]] = []
     for ch_name, items in per_channel_items.items():
         ch_agg, ch_unmatched = make_keys(items)
         unmatched_lines.extend(ch_unmatched)
         for key, price in ch_agg.items():
+            per_key_channel_prices.setdefault(key, {})[ch_name] = price
             if price > agg.get(key, 0):
                 agg[key] = price
                 source_of[key] = ch_name
@@ -507,7 +519,7 @@ def main():
     phones, bigs = load_catalog()
     print(f"→ Каталог: {len(phones)} телефонов + {len(bigs)} biggeek-SKU")
 
-    overrides, matched_keys = match_catalog(agg, phones, bigs)
+    overrides, matched_keys, sku_to_key = match_catalog(agg, phones, bigs)
     print(f"→ Матч найден для {len(overrides)} SKU "
           f"({len(matched_keys)} TG-ключей)")
 
@@ -572,17 +584,12 @@ def main():
             name_of[pid] = name
             base_price_of[pid] = price
 
-    # Какой ключ TG победил для каждого SKU + откуда (источник)
+    # Каждый сматченный SKU с раскладкой цен по каждому магазину
     matched_items: list[dict] = []
     for pid, final_price in sorted(overrides.items()):
-        # Найдём TG-ключ, цена которого == final_price - MARKUP
+        key = sku_to_key.get(pid, "")
+        per_ch = per_key_channel_prices.get(key, {})
         tg_price = final_price - MARKUP
-        winning_key = None
-        for k, p in agg.items():
-            if p == tg_price:
-                # Уточнение: может быть несколько ключей с одной ценой;
-                # выбираем тот, чьи токены model/memory чаще встречаются в названии
-                if winning_key is None: winning_key = k
         matched_items.append({
             "sku":         pid,
             "name":        name_of.get(pid, pid),
@@ -590,8 +597,9 @@ def main():
             "tgPrice":     tg_price,
             "finalPrice":  final_price,
             "delta":       final_price - (base_price_of.get(pid) or final_price),
-            "tgKey":       winning_key,
-            "source":      source_of.get(winning_key, ""),
+            "tgKey":       key,
+            "source":      source_of.get(key, ""),
+            "perChannel":  per_ch,   # {"mistore095": 41900, "istoregroznyy": 41900}
         })
 
     # Несматченные TG-ключи: товар в канале есть, в каталоге нет
@@ -639,10 +647,11 @@ def main():
         items = per_channel_items.get(name, [])
         wins = sum(1 for s in source_of.values() if s == name)
         channel_stats.append({
-            "name":       name,
-            "postIds":    ch["post_ids"],
-            "linesTotal": len(items),
-            "winsMax":    wins,
+            "name":        name,
+            "displayName": ch.get("displayName", name),
+            "postIds":     ch["post_ids"],
+            "linesTotal":  len(items),
+            "winsMax":     wins,
         })
 
     meta = {
