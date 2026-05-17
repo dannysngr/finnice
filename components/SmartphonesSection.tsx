@@ -8,6 +8,7 @@ import { calcInstallment, fmtRub, fmtRubApprox, getMinDownPct } from "@/lib/calc
 import { COMPANY } from "@/lib/data";
 import { useAppModal } from "@/lib/modal-context";
 import { notifyCartChanged, notifyFavoritesChanged } from "@/lib/cart-events";
+import { useCartFeedback } from "@/lib/cart-feedback";
 import { ProductSlideshow } from "@/components/ProductSlideshow";
 
 // ─── Константы ────────────────────────────────────────────────
@@ -159,6 +160,7 @@ interface PhoneCardProps {
 
 function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onUpdateQty }: PhoneCardProps) {
   const inCart = cartQty > 0;
+  const { showCartAdded } = useCartFeedback();
   const perMonth = monthly(phone.price);
   const { openModal } = useAppModal();
 
@@ -210,7 +212,10 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
       );
     }
     return (
-      <button onClick={() => onAddCart(phone.id)}
+      <button onClick={() => {
+          onAddCart(phone.id);
+          showCartAdded({ productName: `${phone.brand} ${phone.model} ${phone.memory}` });
+        }}
         className="mt-2 w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
                    text-[11px] font-semibold flex items-center justify-center gap-1
                    hover:bg-[#1A3C6E] active:scale-95 transition-all touch-manipulation">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { notifyCartChanged, notifyFavoritesChanged } from "@/lib/cart-events";
+import { useCartFeedback } from "@/lib/cart-feedback";
 import {
   CATALOG_CATS, PRODUCTS, PHONES_CATALOG,
   type Product,
@@ -828,6 +829,7 @@ interface ProductCardProps {
 function ProductCard({ item: p, authed, inFavs, cartQty, onToggleFav, onAddCart, onUpdateQty }: ProductCardProps) {
   const inCart = cartQty > 0;
   const { openModal } = useAppModal();
+  const { showCartAdded } = useCartFeedback();
   const down = Math.ceil(p.price * getMinDownPct(p.price));
   const res  = calcInstallment({ price: p.price, down, term: 6 });
 
@@ -888,7 +890,13 @@ function ProductCard({ item: p, authed, inFavs, cartQty, onToggleFav, onAddCart,
       );
     }
     return (
-      <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddCart(p.id); }}
+      <button onClick={(e) => {
+          e.preventDefault(); e.stopPropagation();
+          onAddCart(p.id);
+          // Первое добавление (qty 0 → 1) — показываем модалку с выбором
+          // «Перейти в корзину» / «Продолжить покупки».
+          showCartAdded({ productName: p.name });
+        }}
         className="relative z-20 mt-2 w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
                    text-[11px] font-semibold flex items-center justify-center gap-1
                    hover:bg-[#1A3C6E] active:scale-95 transition-all touch-manipulation">

@@ -4,6 +4,7 @@ import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ModalProvider } from "@/lib/modal-context";
+import { CartFeedbackProvider } from "@/lib/cart-feedback";
 import { COMPANY } from "@/lib/data";
 
 const inter = Inter({
@@ -40,9 +41,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ru" className={inter.variable}>
       <body>
         <ModalProvider>
-          <SiteHeader />
-          {children}
-          <SiteFooter />
+          <CartFeedbackProvider>
+            <SiteHeader />
+            {children}
+            <SiteFooter />
+          </CartFeedbackProvider>
         </ModalProvider>
       </body>
     </html>
