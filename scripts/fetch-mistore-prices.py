@@ -183,19 +183,23 @@ def normalize_iphone(raw: str) -> tuple[str, str] | None:
 
 
 def normalize_apple_watch(raw: str) -> tuple[str, str] | None:
-    """'Watch SE 3 44mm Midnight 2025' → ('Apple|Apple Watch SE 3', '44 мм')."""
-    s = raw.replace("мм", "мм")
-    m = re.search(r"\b(\d{2})\s*(?:mm|мм)\b", s, re.I)
-    if not m: return None
-    size = f"{m.group(1)} мм"
-    sl = s.lower()
+    """'Watch SE 3 44mm Midnight 2025' → ('Apple|Apple Watch SE 3', '44 мм').
+    Поддерживает istore-сокращения: «S11 42mm», «Ultra 3 Black Ocean Band» (без размера)."""
+    sl = raw.lower()
+    m = re.search(r"\b(\d{2})\s*(?:mm|мм)\b", raw, re.I)
+    if m:
+        size = f"{m.group(1)} мм"
+    elif "ultra" in sl:
+        size = "49 мм"   # Ultra всегда 49 мм
+    else:
+        return None
     if "ultra 3" in sl:      model = "Apple Watch Ultra 3"
     elif "ultra 2" in sl:    model = "Apple Watch Ultra 2"
     elif "ultra"   in sl:    model = "Apple Watch Ultra"
     elif "se 3"    in sl:    model = "Apple Watch SE 3"
     elif "watch se" in sl:   model = "Apple Watch SE"
     elif "s10"     in sl or "series 10" in sl: model = "Apple Watch Series 10"
-    elif "11"      in sl:    model = "Apple Watch Series 11"
+    elif "s11"     in sl or "series 11" in sl or " 11 " in f" {sl} ": model = "Apple Watch Series 11"
     else: return None
     return (f"Apple|{model}", size)
 
@@ -225,8 +229,8 @@ def normalize_ipad(raw: str) -> tuple[str, str] | None:
         m = re.search(r"\b1\s*tb\b", sl)
         if m: mem = "1 ТБ"
         else: return None
-    # Wi-Fi / Cellular
-    net = "Cellular" if ("lte" in sl or "cellular" in sl or "4g" in sl or "5g" in sl) else "Wi-Fi"
+    # Wi-Fi / Cellular (E-sim тоже Cellular — istore: «Wi-Fi+E-sim»)
+    net = "Cellular" if any(t in sl for t in ("lte", "cellular", "4g", "5g", "e-sim", "esim", "+sim")) else "Wi-Fi"
 
     if "ipad pro 13" in sl:   base = "iPad Pro 13"
     elif "ipad pro 11" in sl: base = "iPad Pro 11"
@@ -234,6 +238,7 @@ def normalize_ipad(raw: str) -> tuple[str, str] | None:
     elif "ipad air 11" in sl: base = "iPad Air 11 M2"
     elif "ipad a16"    in sl: base = "iPad 11"     # iPad A16 — это наш iPad 11
     elif "ipad mini"   in sl: base = "iPad mini"
+    elif "ipad 11"     in sl: base = "iPad 11"     # istore: «iPad 11 128GB Blue»
     else: return None
     return (f"Apple|{base}", f"{mem} {net}")
 
@@ -262,18 +267,29 @@ def make_keys(items: list[tuple[str, int]]) -> dict[str, int]:
     """raw → нормализованные ключи `brand|model|memory` → max цена."""
     agg: dict[str, int] = {}
     unmatched: list[tuple[str, int]] = []
+    # Pattern: istore без префикса «iPhone» — «17 Pro Max 256 Blue», «E-SIM 17 Air …»
+    iphone_no_prefix = re.compile(r"^\s*(?:E[-\s]?SIM\s+)?1[3-7](?:\s+(?:Pro|Air|Plus|Max)|\s+\d{2,4}|\s+E\b|\s|$)", re.I)
     for raw, price in items:
         key = None
         rl = raw.lower()
-        if "iphone" in rl:
+        is_iphone = (
+            "iphone" in rl
+            or bool(iphone_no_prefix.match(raw))
+        )
+        if is_iphone:
             r = normalize_iphone(raw)
             if r: key = f"{r[0]}|{r[1]}"
-        elif "watch" in rl and ("apple" not in rl or "watch" in rl):
-            # Apple Watch
-            if any(w in rl for w in ("se ", "ultra", "series", "s10", "watch s", "11")) and \
-               not any(w in rl for w in ("samsung", "galaxy", "huawei", "oneplus", "honor", "garmin", "amazfit", "nothing")):
-                r = normalize_apple_watch(raw)
-                if r: key = f"{r[0]}|{r[1]}"
+        elif (
+            ("watch" in rl)
+            # istore-сокращения: «S11 42mm Jet Black», «Ultra 3 Black Ocean Band»
+            or re.match(r"^\s*(?:S1[01]|Ultra\s+[23]|SE\s+3)\s+\d", raw, re.I)
+        ) and not any(w in rl for w in (
+            "samsung", "galaxy", "huawei", "oneplus", "honor",
+            "garmin", "amazfit", "nothing", "vivomove", "venu",
+            "instinct", "forerunner", "fenix", "marq", "tactix",
+        )):
+            r = normalize_apple_watch(raw)
+            if r: key = f"{r[0]}|{r[1]}"
         elif "air pod" in rl or "airpod" in rl:
             key = normalize_airpods(raw)
         elif "ipad" in rl:

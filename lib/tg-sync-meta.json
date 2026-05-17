@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-05-17T01:10:52+00:00",
+  "syncedAt": "2026-05-17T01:22:10+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -18,7 +18,7 @@
         1112
       ],
       "linesTotal": 478,
-      "winsMax": 40
+      "winsMax": 33
     },
     {
       "name": "istoregroznyy",
@@ -30,13 +30,13 @@
         6183
       ],
       "linesTotal": 119,
-      "winsMax": 4
+      "winsMax": 12
     }
   ],
   "totals": {
-    "matched": 48,
+    "matched": 49,
     "unmatchedKeys": 5,
-    "unmatchedRaw": 493
+    "unmatchedRaw": 448
   },
   "matched": [
     {
@@ -138,13 +138,14 @@
       "sku": "casy-apple-watch-series-11-42-mm-aluminij-cveta-rozovoe-zoloto-remesok-sport-band-cveta-svetlye-rumana",
       "name": "Apple Watch Series 11, 42 мм",
       "basePrice": 28990,
-      "tgPrice": 27900,
-      "finalPrice": 28900,
-      "delta": -90,
+      "tgPrice": 29500,
+      "finalPrice": 30500,
+      "delta": 1510,
       "tgKey": "Apple|Apple Watch Series 11|42 мм",
-      "source": "mistore095",
+      "source": "istoregroznyy",
       "perChannel": {
-        "mistore095": 27900
+        "mistore095": 27900,
+        "istoregroznyy": 29500
       }
     },
     {
@@ -157,7 +158,8 @@
       "tgKey": "Apple|Apple Watch Series 11|46 мм",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 30500
+        "mistore095": 30500,
+        "istoregroznyy": 30000
       }
     },
     {
@@ -183,7 +185,21 @@
       "tgKey": "Apple|iPhone 14|256 ГБ",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 49000
+        "mistore095": 49000,
+        "istoregroznyy": 46500
+      }
+    },
+    {
+      "sku": "ip14-512-sim",
+      "name": "Apple iPhone 14 512 ГБ · SIM + eSIM",
+      "basePrice": 56000,
+      "tgPrice": 48500,
+      "finalPrice": 49500,
+      "delta": -6500,
+      "tgKey": "Apple|iPhone 14|512 ГБ",
+      "source": "istoregroznyy",
+      "perChannel": {
+        "istoregroznyy": 48500
       }
     },
     {
@@ -196,7 +212,8 @@
       "tgKey": "Apple|iPhone 15|128 ГБ",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 48500
+        "mistore095": 48500,
+        "istoregroznyy": 47500
       }
     },
     {
@@ -222,20 +239,22 @@
       "tgKey": "Apple|iPhone 16|128 ГБ",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 55000
+        "mistore095": 55000,
+        "istoregroznyy": 53900
       }
     },
     {
       "sku": "ip16-256-sim",
       "name": "Apple iPhone 16 256 ГБ · SIM + eSIM",
       "basePrice": 62900,
-      "tgPrice": 61500,
-      "finalPrice": 62500,
-      "delta": -400,
+      "tgPrice": 62200,
+      "finalPrice": 63200,
+      "delta": 300,
       "tgKey": "Apple|iPhone 16|256 ГБ",
-      "source": "mistore095",
+      "source": "istoregroznyy",
       "perChannel": {
-        "mistore095": 61500
+        "mistore095": 61500,
+        "istoregroznyy": 62200
       }
     },
     {
@@ -281,26 +300,28 @@
       "sku": "ip17-256-esim",
       "name": "Apple iPhone 17 256 ГБ · eSIM",
       "basePrice": 60000,
-      "tgPrice": 65900,
-      "finalPrice": 66900,
-      "delta": 6900,
+      "tgPrice": 66000,
+      "finalPrice": 67000,
+      "delta": 7000,
       "tgKey": "Apple|iPhone 17|256 ГБ",
-      "source": "mistore095",
+      "source": "istoregroznyy",
       "perChannel": {
-        "mistore095": 65900
+        "mistore095": 65900,
+        "istoregroznyy": 66000
       }
     },
     {
       "sku": "ip17-256-sim",
       "name": "Apple iPhone 17 256 ГБ · SIM + eSIM",
       "basePrice": 65000,
-      "tgPrice": 65900,
-      "finalPrice": 66900,
-      "delta": 1900,
+      "tgPrice": 66000,
+      "finalPrice": 67000,
+      "delta": 2000,
       "tgKey": "Apple|iPhone 17|256 ГБ",
-      "source": "mistore095",
+      "source": "istoregroznyy",
       "perChannel": {
-        "mistore095": 65900
+        "mistore095": 65900,
+        "istoregroznyy": 66000
       }
     },
     {
@@ -398,26 +419,28 @@
       "sku": "ip17pro-256-esim",
       "name": "Apple iPhone 17 Pro 256 ГБ · eSIM",
       "basePrice": 98000,
-      "tgPrice": 100700,
-      "finalPrice": 101700,
-      "delta": 3700,
+      "tgPrice": 101000,
+      "finalPrice": 102000,
+      "delta": 4000,
       "tgKey": "Apple|iPhone 17 Pro|256 ГБ",
-      "source": "mistore095",
+      "source": "istoregroznyy",
       "perChannel": {
-        "mistore095": 100700
+        "mistore095": 100700,
+        "istoregroznyy": 101000
       }
     },
     {
       "sku": "ip17pro-256-sim",
       "name": "Apple iPhone 17 Pro 256 ГБ · SIM + eSIM",
       "basePrice": 104500,
-      "tgPrice": 100700,
-      "finalPrice": 101700,
-      "delta": -2800,
+      "tgPrice": 101000,
+      "finalPrice": 102000,
+      "delta": -2500,
       "tgKey": "Apple|iPhone 17 Pro|256 ГБ",
-      "source": "mistore095",
+      "source": "istoregroznyy",
       "perChannel": {
-        "mistore095": 100700
+        "mistore095": 100700,
+        "istoregroznyy": 101000
       }
     },
     {
@@ -430,7 +453,8 @@
       "tgKey": "Apple|iPhone 17 Pro|512 ГБ",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 118900
+        "mistore095": 118900,
+        "istoregroznyy": 118500
       }
     },
     {
@@ -443,59 +467,64 @@
       "tgKey": "Apple|iPhone 17 Pro|512 ГБ",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 118900
+        "mistore095": 118900,
+        "istoregroznyy": 118500
       }
     },
     {
       "sku": "ip17promax-1tb-esim",
       "name": "Apple iPhone 17 Pro Max 1 ТБ · eSIM",
       "basePrice": 143000,
-      "tgPrice": 144900,
-      "finalPrice": 145900,
-      "delta": 2900,
+      "tgPrice": 146000,
+      "finalPrice": 147000,
+      "delta": 4000,
       "tgKey": "Apple|iPhone 17 Pro Max|1 ТБ",
-      "source": "mistore095",
+      "source": "istoregroznyy",
       "perChannel": {
-        "mistore095": 144900
+        "mistore095": 144900,
+        "istoregroznyy": 146000
       }
     },
     {
       "sku": "ip17promax-1tb-sim",
       "name": "Apple iPhone 17 Pro Max 1 ТБ · SIM + eSIM",
       "basePrice": 149000,
-      "tgPrice": 144900,
-      "finalPrice": 145900,
-      "delta": -3100,
+      "tgPrice": 146000,
+      "finalPrice": 147000,
+      "delta": -2000,
       "tgKey": "Apple|iPhone 17 Pro Max|1 ТБ",
-      "source": "mistore095",
+      "source": "istoregroznyy",
       "perChannel": {
-        "mistore095": 144900
+        "mistore095": 144900,
+        "istoregroznyy": 146000
       }
     },
     {
       "sku": "ip17promax-256-esim",
       "name": "Apple iPhone 17 Pro Max 256 ГБ · eSIM",
       "basePrice": 108000,
-      "tgPrice": 109900,
-      "finalPrice": 110900,
-      "delta": 2900,
+      "tgPrice": 111500,
+      "finalPrice": 112500,
+      "delta": 4500,
       "tgKey": "Apple|iPhone 17 Pro Max|256 ГБ",
-      "source": "mistore095",
+      "source": "istoregroznyy",
       "perChannel": {
-        "mistore095": 109900
+        "mistore095": 109900,
+        "istoregroznyy": 111500
       }
     },
     {
       "sku": "ip17promax-256-sim",
       "name": "Apple iPhone 17 Pro Max 256 ГБ · SIM + eSIM",
       "basePrice": 114500,
-      "tgPrice": 109900,
-      "finalPrice": 110900,
-      "delta": -3600,
+      "tgPrice": 111500,
+      "finalPrice": 112500,
+      "delta": -2000,
       "tgKey": "Apple|iPhone 17 Pro Max|256 ГБ",
-      "source": "mistore095",
+      "source": "istoregroznyy",
       "perChannel": {
-        "mistore095": 109900
+        "mistore095": 109900,
+        "istoregroznyy": 111500
       }
     },
     {
@@ -528,26 +557,28 @@
       "sku": "ip17promax-512-esim",
       "name": "Apple iPhone 17 Pro Max 512 ГБ · eSIM",
       "basePrice": 124000,
-      "tgPrice": 132900,
-      "finalPrice": 133900,
-      "delta": 9900,
+      "tgPrice": 133500,
+      "finalPrice": 134500,
+      "delta": 10500,
       "tgKey": "Apple|iPhone 17 Pro Max|512 ГБ",
-      "source": "mistore095",
+      "source": "istoregroznyy",
       "perChannel": {
-        "mistore095": 132900
+        "mistore095": 132900,
+        "istoregroznyy": 133500
       }
     },
     {
       "sku": "ip17promax-512-sim",
       "name": "Apple iPhone 17 Pro Max 512 ГБ · SIM + eSIM",
       "basePrice": 132000,
-      "tgPrice": 132900,
-      "finalPrice": 133900,
-      "delta": 1900,
+      "tgPrice": 133500,
+      "finalPrice": 134500,
+      "delta": 2500,
       "tgKey": "Apple|iPhone 17 Pro Max|512 ГБ",
-      "source": "mistore095",
+      "source": "istoregroznyy",
       "perChannel": {
-        "mistore095": 132900
+        "mistore095": 132900,
+        "istoregroznyy": 133500
       }
     },
     {
@@ -752,14 +783,6 @@
       {
         "raw": "🎆Macbook Neo 13 8/256GB Silver",
         "tgPrice": 61900
-      },
-      {
-        "raw": "Watch Ultra 3 49 Black Alpine Loop M",
-        "tgPrice": 60000
-      },
-      {
-        "raw": "Watch Ultra 3 49 Black Ocean Band",
-        "tgPrice": 60000
       },
       {
         "raw": "MacBook Neo A18 Pro 8/256 Indigo",
@@ -1302,112 +1325,24 @@
         "tgPrice": 149000
       },
       {
-        "raw": "17 Pro Max 1TB Blue",
-        "tgPrice": 146000
-      },
-      {
-        "raw": "17 Pro Max 1TB Silver",
-        "tgPrice": 146000
-      },
-      {
         "raw": "MARQ ATHLETE 2 GOLFER",
         "tgPrice": 145000
-      },
-      {
-        "raw": "17 Pro Max 1TB Orange",
-        "tgPrice": 143000
       },
       {
         "raw": "Thunderobot 911+ (i7-13620H RTX4060) 16/1Tb Gray",
         "tgPrice": 135900
       },
       {
-        "raw": "17 Pro Max 512 Silver",
-        "tgPrice": 133500
-      },
-      {
-        "raw": "17 Pro Max 512 Blue",
-        "tgPrice": 131500
-      },
-      {
-        "raw": "E-SIM 17 Pro Max 512 Silver",
-        "tgPrice": 125000
-      },
-      {
-        "raw": "17 Pro Max 512 Orange",
-        "tgPrice": 124900
-      },
-      {
         "raw": "MARQ ATHLETE 2",
         "tgPrice": 123000
-      },
-      {
-        "raw": "17 Pro 512 Silver",
-        "tgPrice": 118500
-      },
-      {
-        "raw": "17 Pro 512 Blue",
-        "tgPrice": 118000
-      },
-      {
-        "raw": "E-SIM 17 Pro Max 512 Orange",
-        "tgPrice": 118000
-      },
-      {
-        "raw": "17 Pro 512 Orange",
-        "tgPrice": 116000
-      },
-      {
-        "raw": "E-SIM 17 Pro 512GB Silver",
-        "tgPrice": 113900
-      },
-      {
-        "raw": "17 Pro Max 256 Silver",
-        "tgPrice": 111500
-      },
-      {
-        "raw": "17 Pro Max 256 Blue",
-        "tgPrice": 111000
-      },
-      {
-        "raw": "17 Pro Max 256 Orange",
-        "tgPrice": 108500
-      },
-      {
-        "raw": "E-SIM 17 Pro Max 256 Silver",
-        "tgPrice": 104500
-      },
-      {
-        "raw": "E-SIM 17 Pro Max 256 Orange",
-        "tgPrice": 104000
-      },
-      {
-        "raw": "E-SIM 17 Pro Max 256 Blue",
-        "tgPrice": 104000
       },
       {
         "raw": "iPad Pro 13 (M5) 256GB Wi-Fi+E-sim Space Black",
         "tgPrice": 102000
       },
       {
-        "raw": "17 Pro 256 Orange",
-        "tgPrice": 101000
-      },
-      {
-        "raw": "17 Pro 256 Silver",
-        "tgPrice": 101000
-      },
-      {
-        "raw": "17 Pro 256 Blue",
-        "tgPrice": 101000
-      },
-      {
         "raw": "iPad Pro 13 (M5) 256GB Wi-Fi Space Black",
         "tgPrice": 99500
-      },
-      {
-        "raw": "E-SIM 17 Pro 256GB Silver",
-        "tgPrice": 94500
       },
       {
         "raw": "HP Victus 15 8/512 (R5-8645HS, RTX 4050) Black",
@@ -1474,36 +1409,8 @@
         "tgPrice": 72500
       },
       {
-        "raw": "17 256 Sage",
-        "tgPrice": 66000
-      },
-      {
         "raw": "Machenike Light 16 Air (R7-7735H) 16/512",
         "tgPrice": 64900
-      },
-      {
-        "raw": "17 256 White",
-        "tgPrice": 64500
-      },
-      {
-        "raw": "17 256 Black",
-        "tgPrice": 64500
-      },
-      {
-        "raw": "17 256 Blue",
-        "tgPrice": 64500
-      },
-      {
-        "raw": "17 256 Lavender",
-        "tgPrice": 64500
-      },
-      {
-        "raw": "E-SIM 17 256GB Black",
-        "tgPrice": 62900
-      },
-      {
-        "raw": "16 256 Pink",
-        "tgPrice": 62200
       },
       {
         "raw": "Mac Mini M2 Pro\\10CPU\\16GPU\\16GB /512GB",
@@ -1518,26 +1425,6 @@
         "tgPrice": 59900
       },
       {
-        "raw": "16 128 Pink",
-        "tgPrice": 53900
-      },
-      {
-        "raw": "16 128 Teal",
-        "tgPrice": 53900
-      },
-      {
-        "raw": "16 128 Black",
-        "tgPrice": 53900
-      },
-      {
-        "raw": "16 128 White",
-        "tgPrice": 53900
-      },
-      {
-        "raw": "16 128 Ultramarine",
-        "tgPrice": 53900
-      },
-      {
         "raw": "FORERUNNER 970 Silver",
         "tgPrice": 51000
       },
@@ -1548,18 +1435,6 @@
       {
         "raw": "Neobihier (i7-1165G7-MX450 2Gb) 32/512 Gray",
         "tgPrice": 49900
-      },
-      {
-        "raw": "14 512 Black",
-        "tgPrice": 48500
-      },
-      {
-        "raw": "15 128 Blue",
-        "tgPrice": 47500
-      },
-      {
-        "raw": "14 256 Black",
-        "tgPrice": 46500
       },
       {
         "raw": "Acer Extensa 15 (r-5 7520U) 16/512 Black",
@@ -1646,32 +1521,8 @@
         "tgPrice": 30500
       },
       {
-        "raw": "S11 46mm Rose Gold",
-        "tgPrice": 30000
-      },
-      {
-        "raw": "S11 46mm Jet black",
-        "tgPrice": 30000
-      },
-      {
-        "raw": "S11 46mm  Space Grey",
-        "tgPrice": 30000
-      },
-      {
         "raw": "iPad A16 Wi-Fi 256GB Yellow",
         "tgPrice": 29700
-      },
-      {
-        "raw": "S11 42mm Jet Black",
-        "tgPrice": 29500
-      },
-      {
-        "raw": "S11 42mm Rose Gold",
-        "tgPrice": 29500
-      },
-      {
-        "raw": "S11 42mm  Space Grey",
-        "tgPrice": 29500
       },
       {
         "raw": "А56 8/256 Pink",
