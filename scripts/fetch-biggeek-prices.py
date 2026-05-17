@@ -66,6 +66,26 @@ CATEGORIES: list[str] = [
     "apple-watch-ultra-2-titan",
     # AirPods (нет в biggeek-products.ts — матчим по имени)
     "apple-airpods",
+    # iPhones — матчим по имени через normalize_iphone() в основном скрипте.
+    # У biggeek 4 разных URL-паттерна для iPhone-категорий, перечисляем все.
+    "apple-iphone-13",
+    "apple-iphone-13-mini",
+    "apple-iphone-14",
+    "apple-iphone-14-plus",
+    "apple-iphone-15",
+    "apple-iphone-15-plus",
+    "apple-iphone-15-pro",
+    "apple-iphone-15-pro-max",
+    "iphone-16",
+    "iphone-16-plus",
+    "iphone-16-pro",
+    "iphone-16-pro-max",
+    "iphone-16e",
+    "apple-iphone-17",
+    "apple-iphone-17-pro",
+    "apple-iphone-17-pro-max",
+    "apple-iphone-air",
+    "iphone-17e",
 ]
 
 
