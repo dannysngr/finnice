@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Fragment } from "react";
 import Link from "next/link";
 
 interface ColorDetail {
@@ -54,6 +54,22 @@ interface Run {
 
 const fmt = (n: number | null | undefined) =>
   n == null ? "—" : n.toLocaleString("ru-RU") + " ₽";
+
+// Три категории для группировки строк в таблице.
+// Порядок в массиве = порядок секций в UI.
+const CATEGORIES = [
+  { id: "phones",    label: "Смартфоны",         emoji: "📱" },
+  { id: "mac-pad",   label: "Mac и планшеты",    emoji: "💻" },
+  { id: "wearables", label: "Часы и наушники",   emoji: "⌚" },
+] as const;
+type CategoryId = typeof CATEGORIES[number]["id"];
+
+function categoryOf(tgKey: string | null): CategoryId {
+  const k = tgKey ?? "";
+  if (k.includes("iPhone")) return "phones";
+  if (k.includes("MacBook") || k.includes("iPad") || k.includes("iMac") || k.includes("Mac mini") || k.includes("Mac Studio")) return "mac-pad";
+  return "wearables";  // Watch + AirPods
+}
 
 const timeAgo = (iso: string) => {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -118,6 +134,17 @@ export function AdminPricesClient() {
       return true;
     });
   }, [meta, filter, sourceFilter]);
+
+  // Группируем отфильтрованные SKU по 3 категориям с сохранением исходного порядка
+  const groupedByCategory = useMemo(() => {
+    const buckets: Record<CategoryId, MatchedItem[]> = {
+      "phones": [], "mac-pad": [], "wearables": [],
+    };
+    for (const m of filteredMatched) buckets[categoryOf(m.tgKey)].push(m);
+    return CATEGORIES
+      .map(c => ({ ...c, items: buckets[c.id] }))
+      .filter(c => c.items.length > 0);
+  }, [filteredMatched]);
 
   return (
     <div className="min-h-screen bg-[#0A1628] text-white">
@@ -262,62 +289,72 @@ export function AdminPricesClient() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredMatched.map(m => {
-                    // Min цена среди ВСЕХ строк всех магазинов (а не только max-per-channel).
-                    // Это та реальная самая низкая цена, которая видна в таблице.
-                    const allPrices: number[] = [];
-                    for (const dets of Object.values(m.details ?? {})) {
-                      for (const d of dets) if (d.price > 0) allPrices.push(d.price);
-                    }
-                    const minPrice = allPrices.length ? Math.min(...allPrices) : null;
-                    return (
-                      <tr key={m.sku} className="border-t border-[#1A3C6E]/20 hover:bg-[#1A3C6E]/20 align-top">
-                        <td className="px-3 py-2">
-                          <div className="font-medium">{m.name}</div>
-                          <div className="text-[10px] text-[#9CA3AF] font-mono">{m.sku}</div>
-                        </td>
-                        {meta.channels.map(c => {
-                          const dets = m.details?.[c.name] ?? [];
-                          // Группируем цвета по цене: { price: [colors] }
-                          const byPrice = new Map<number, string[]>();
-                          for (const d of dets) {
-                            const arr = byPrice.get(d.price) ?? [];
-                            if (d.color && !arr.includes(d.color)) arr.push(d.color);
-                            byPrice.set(d.price, arr);
-                          }
-                          const groups = Array.from(byPrice.entries())
-                            .sort((a, b) => a[0] - b[0]);
-                          if (groups.length === 0) {
-                            return <td key={c.name} className="px-3 py-2 text-right text-[#4B5563]">—</td>;
-                          }
-                          return (
-                            <td key={c.name} className="px-3 py-2 text-right">
-                              <div className="space-y-1">
-                                {groups.map(([price, colors]) => {
-                                  const isMin = price === minPrice;
-                                  return (
-                                    <div key={price}
-                                         className={`tabular-nums ${
-                                           isMin ? "text-emerald-400 font-bold" : "text-white"}`}>
-                                      <div>{fmt(price)}</div>
-                                      {colors.length > 0 && (
-                                        <div className="text-[10px] text-[#9CA3AF] font-normal">
-                                          ({colors.join(", ")})
-                                        </div>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </td>
-                          );
-                        })}
-                        <td className="px-3 py-2 text-right tabular-nums font-bold border-l border-[#1A3C6E]/40">
-                          {fmt(m.finalPrice)}
+                  {groupedByCategory.map(cat => (
+                    <Fragment key={cat.id}>
+                      <tr className="bg-[#0A1628]/80 sticky top-0">
+                        <td colSpan={meta.channels.length + 2}
+                            className="px-3 py-2 text-[11px] uppercase tracking-wider font-bold text-[#C8972B] border-t-2 border-[#1A3C6E]/60">
+                          <span className="mr-2">{cat.emoji}</span>{cat.label}
+                          <span className="text-[#9CA3AF] font-normal ml-2">({cat.items.length})</span>
                         </td>
                       </tr>
-                    );
-                  })}
+                      {cat.items.map(m => {
+                        // Min цена среди ВСЕХ строк всех магазинов (а не только max-per-channel)
+                        const allPrices: number[] = [];
+                        for (const dets of Object.values(m.details ?? {})) {
+                          for (const d of dets) if (d.price > 0) allPrices.push(d.price);
+                        }
+                        const minPrice = allPrices.length ? Math.min(...allPrices) : null;
+                        return (
+                          <tr key={m.sku} className="border-t border-[#1A3C6E]/20 hover:bg-[#1A3C6E]/20 align-top">
+                            <td className="px-3 py-2">
+                              <div className="font-medium">{m.name}</div>
+                              <div className="text-[10px] text-[#9CA3AF] font-mono">{m.sku}</div>
+                            </td>
+                            {meta.channels.map(c => {
+                              const dets = m.details?.[c.name] ?? [];
+                              // Группируем цвета по цене: { price: [colors] }
+                              const byPrice = new Map<number, string[]>();
+                              for (const d of dets) {
+                                const arr = byPrice.get(d.price) ?? [];
+                                if (d.color && !arr.includes(d.color)) arr.push(d.color);
+                                byPrice.set(d.price, arr);
+                              }
+                              const groups = Array.from(byPrice.entries())
+                                .sort((a, b) => a[0] - b[0]);
+                              if (groups.length === 0) {
+                                return <td key={c.name} className="px-3 py-2 text-right text-[#4B5563]">—</td>;
+                              }
+                              return (
+                                <td key={c.name} className="px-3 py-2 text-right">
+                                  <div className="space-y-1">
+                                    {groups.map(([price, colors]) => {
+                                      const isMin = price === minPrice;
+                                      return (
+                                        <div key={price}
+                                             className={`tabular-nums ${
+                                               isMin ? "text-emerald-400 font-bold" : "text-white"}`}>
+                                          <div>{fmt(price)}</div>
+                                          {colors.length > 0 && (
+                                            <div className="text-[10px] text-[#9CA3AF] font-normal">
+                                              ({colors.join(", ")})
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </td>
+                              );
+                            })}
+                            <td className="px-3 py-2 text-right tabular-nums font-bold border-l border-[#1A3C6E]/40">
+                              {fmt(m.finalPrice)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </Fragment>
+                  ))}
                 </tbody>
               </table>
             </div>

@@ -707,6 +707,21 @@ def main():
         print(f"  ⚠️  Biggeek fetch упал: {e} — продолжаем без него")
         bg_prices = {}
 
+    # Извлечение цвета из biggeek-имени (форматы у них разные):
+    # 1) «… (Русский | English)» — берём английский (iPhone/AirPods)
+    # 2) «… цвета «русский цвет»» — берём русский в Title Case (Watch)
+    # 3) Fallback — общий extract_color() по словарю COLOR_WORDS (MacBook/iPad)
+    BG_COLOR_PIPE = re.compile(
+        r'\(\s*(?:«[^»]+»|[^|()]+?)\s*\|\s*([A-Za-z][A-Za-z\s\-]*?)\s*\)'
+    )
+    BG_COLOR_QUOTED = re.compile(r'цвета\s+«([^»]+)»', re.I)
+    def extract_biggeek_color(name: str) -> str:
+        m = BG_COLOR_PIPE.search(name)
+        if m: return m.group(1).strip()
+        m = BG_COLOR_QUOTED.search(name)
+        if m: return m.group(1).strip().capitalize()
+        return extract_color(name)  # fallback на COLOR_WORDS
+
     bg_injected = 0
     bg_unmatched = 0
     for bg_slug, bg_data in bg_prices.items():
@@ -772,6 +787,7 @@ def main():
 
         # Инжектим в каждый матчнутый ключ. При нескольких biggeek-цветах
         # одной модели берём min (это уже промо-цена, самая честная).
+        bg_color = extract_biggeek_color(bg_name)
         any_hit = False
         for k in target_keys:
             ch_dict = per_key_channel_prices.setdefault(k, {})
@@ -780,7 +796,7 @@ def main():
                 ch_dict["biggeek"] = bg_price
             det_list = per_key_details.setdefault(k, {}).setdefault("biggeek", [])
             det_list.append({
-                "color":   "",
+                "color":   bg_color,
                 "price":   bg_price,
                 "simType": "—",
                 "raw":     bg_name,
