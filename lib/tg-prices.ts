@@ -43,7 +43,6 @@ export const TG_PRICES: Record<string, number> = {
   "ip17promax-2tb-sim": 174000,
   "ip17promax-512-esim": 126000,
   "ip17promax-512-sim": 134500,
-  "noutbuk-apple-macbook-pro-14-mde04-m5-10-core-gpu-10-core-16gb-512gb-cernyj-kosmos-space-black": 140000,
   "planset-apple-ipad-11-128-gb-wi-fi-sinij-blue-2025": 31500,
   "planset-apple-ipad-11-256-gb-wi-fi-serebristyj-silver-2025": 41400,
   "planset-apple-ipad-air-11-128-gb-wi-fi-seryj-kosmos-space-gray-2025": 49000,

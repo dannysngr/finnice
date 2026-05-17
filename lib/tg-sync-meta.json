@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-05-17T09:19:18+00:00",
+  "syncedAt": "2026-05-17T09:25:24+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -42,8 +42,8 @@
     }
   ],
   "totals": {
-    "matched": 49,
-    "unmatchedKeys": 5,
+    "matched": 48,
+    "unmatchedKeys": 6,
     "unmatchedRaw": 448
   },
   "matched": [
@@ -2691,53 +2691,6 @@
       }
     },
     {
-      "sku": "noutbuk-apple-macbook-pro-14-mde04-m5-10-core-gpu-10-core-16gb-512gb-cernyj-kosmos-space-black",
-      "name": "Ноутбук Apple MacBook Pro 14″",
-      "basePrice": 145990,
-      "tgPrice": 139000,
-      "finalPrice": 140000,
-      "delta": -5990,
-      "tgKey": "Apple|MacBook Pro 14 M5|512 ГБ",
-      "source": "istoregroznyy",
-      "perChannel": {
-        "mistore095": 128500,
-        "istoregroznyy": 139000,
-        "biggeek": 146990
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "Black",
-            "price": 128500,
-            "simType": "SIM",
-            "raw": "MacBook Pro 14 M5 16/512GB Black"
-          }
-        ],
-        "istoregroznyy": [
-          {
-            "color": "Space Black",
-            "price": 139000,
-            "simType": "SIM",
-            "raw": "MacBook Pro 14 M5 /16/512 Space Black"
-          },
-          {
-            "color": "Silver",
-            "price": 137000,
-            "simType": "SIM",
-            "raw": "MacBook Pro 14 M5 /16/512 Silver"
-          }
-        ],
-        "biggeek": [
-          {
-            "color": "",
-            "price": 146990,
-            "simType": "—",
-            "raw": "Ноутбук Apple MacBook Pro 14\" MDE04 (M5 10-Core, GPU 10-Core, 16GB, 512GB) («Чёрный космос» | Space Black)"
-          }
-        ]
-      }
-    },
-    {
       "sku": "planset-apple-ipad-11-128-gb-wi-fi-sinij-blue-2025",
       "name": "Планшет Apple iPad 11, 128 ГБ, Wi-Fi",
       "basePrice": 30990,
@@ -3001,6 +2954,12 @@
       "key": "Apple|MacBook Air 15 M5|512 ГБ",
       "tgPrice": 117000,
       "finalPrice": 118000,
+      "source": "istoregroznyy"
+    },
+    {
+      "key": "Apple|MacBook Pro 14 M5|512 ГБ",
+      "tgPrice": 139000,
+      "finalPrice": 140000,
       "source": "istoregroznyy"
     },
     {
