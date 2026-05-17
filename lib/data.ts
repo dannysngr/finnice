@@ -613,8 +613,27 @@ const RAW_PHONES_CATALOG: PhoneItem[] = [
 ];
 
 // Применяем TG-цены к телефонам (по id), помечаем tgSynced=true.
-// В конце добавляем «новинки из TG» (iPhone 16e/17e) — у них tgSynced уже true.
-export const PHONES_CATALOG: PhoneItem[] = [
+// Затем мерджим «новинки из TG» (iPhone 16e/17e) и сортируем единым
+// логическим порядком: новые поколения первыми, e-варианты сразу после
+// своего поколения, а не в самом конце списка.
+const MODEL_ORDER: Record<string, number> = {
+  "iPhone 17 Pro Max": 10, "iPhone 17 Pro": 11, "iPhone 17": 12, "iPhone 17e": 13,
+  "iPhone Air":        14,
+  "iPhone 16 Pro Max": 20, "iPhone 16 Pro": 21, "iPhone 16 Plus": 22, "iPhone 16": 23, "iPhone 16e": 24,
+  "iPhone 15 Pro Max": 30, "iPhone 15 Pro": 31, "iPhone 15 Plus": 32, "iPhone 15": 33,
+  "iPhone 14 Pro Max": 40, "iPhone 14 Pro": 41, "iPhone 14 Plus": 42, "iPhone 14": 43,
+  "iPhone 13 Pro Max": 50, "iPhone 13 Pro": 51, "iPhone 13": 52,
+  "iPhone 12 Pro Max": 60, "iPhone 12 Pro": 61, "iPhone 12": 62,
+  "iPhone 11 Pro Max": 70, "iPhone 11 Pro": 71, "iPhone 11": 72,
+};
+function phoneOrderRank(p: PhoneItem): number {
+  const base = MODEL_ORDER[p.model] ?? 999;
+  // В рамках одной модели: меньше памяти сначала
+  const mem = parseInt(p.memory) || 0;
+  return base * 1000 + mem;
+}
+
+const _MERGED: PhoneItem[] = [
   ...RAW_PHONES_CATALOG.map(p =>
     TG_PRICES[p.id] != null
       ? { ...p, price: TG_PRICES[p.id], tgSynced: true }
@@ -622,6 +641,10 @@ export const PHONES_CATALOG: PhoneItem[] = [
   ),
   ...TG_NEW_PHONES,
 ];
+
+export const PHONES_CATALOG: PhoneItem[] = _MERGED.sort(
+  (a, b) => phoneOrderRank(a) - phoneOrderRank(b),
+);
 
 // Legacy alias — оставлен для обратной совместимости
 export const IPHONES = PHONES_CATALOG.filter(p => p.brand === "Apple")
