@@ -746,24 +746,50 @@ def main():
             if ap_key and ap_key in agg:
                 tg_key = ap_key
 
-        if not tg_key:
+        # Путь 3: iPhone — slug на biggeek начинается с smartfon-apple-iphone-…,
+        # имя содержит «iPhone». Используем тот же normalize_iphone(), что и для
+        # TG-постов, и инжектим в обе SIM/eSIM-версии ключа для 17+ (biggeek
+        # не разделяет — это один и тот же товар по одной цене).
+        target_keys: list[str] = []
+        if tg_key:
+            target_keys = [tg_key]
+        else:
+            n_low = bg_name.lower()
+            if ("iphone" in n_low and "смартфон" in n_low) or bg_slug.startswith("smartfon-"):
+                r = normalize_iphone(bg_name)
+                if r:
+                    base, mem = r
+                    if mem.endswith("|?"):
+                        base_mem = mem[:-2]
+                        for s in ("SIM", "eSIM"):
+                            target_keys.append(f"{base}|{base_mem}|{s}")
+                    else:
+                        target_keys.append(f"{base}|{mem}")
+
+        if not target_keys:
             bg_unmatched += 1
             continue
 
-        # Инжектим. При нескольких biggeek-цветах одной модели берём min
-        # (как самую честную для покупателя — это уже промо-цена).
-        ch_dict = per_key_channel_prices.setdefault(tg_key, {})
-        existing = ch_dict.get("biggeek")
-        if existing is None or bg_price < existing:
-            ch_dict["biggeek"] = bg_price
-        det_list = per_key_details.setdefault(tg_key, {}).setdefault("biggeek", [])
-        det_list.append({
-            "color":   "",
-            "price":   bg_price,
-            "simType": "—",
-            "raw":     bg_name,
-        })
-        bg_injected += 1
+        # Инжектим в каждый матчнутый ключ. При нескольких biggeek-цветах
+        # одной модели берём min (это уже промо-цена, самая честная).
+        any_hit = False
+        for k in target_keys:
+            ch_dict = per_key_channel_prices.setdefault(k, {})
+            existing = ch_dict.get("biggeek")
+            if existing is None or bg_price < existing:
+                ch_dict["biggeek"] = bg_price
+            det_list = per_key_details.setdefault(k, {}).setdefault("biggeek", [])
+            det_list.append({
+                "color":   "",
+                "price":   bg_price,
+                "simType": "—",
+                "raw":     bg_name,
+            })
+            any_hit = True
+        if any_hit:
+            bg_injected += 1
+        else:
+            bg_unmatched += 1
 
     print(f"  → Сматчено в TG-ключи: {bg_injected}, "
           f"не нашлось пары: {bg_unmatched}")
