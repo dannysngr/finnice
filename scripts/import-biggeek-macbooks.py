@@ -30,12 +30,16 @@ UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
       "AppleWebKit/537.36 Chrome/126.0 Safari/537.36")
 
 CATEGORIES = [
+    # iMac (Mac mini и Mac Studio пока через старый import-biggeek-products.py)
+    "apple-imac-24-2024",
+    # MacBook Air
     "macbook-air-13-m5-2026",
     "macbook-air-15-m5-2026",
     "macbook-air-13-m4-2025",
     "macbook-air-15-m4-2025",
     "macbook-air-13-m3-2024",
     "macbook-air-15-m3-2024",
+    # MacBook Pro
     "macbook-pro-14-m5-2025",
     "macbook-pro-14-m5-pro-2026",
     "macbook-pro-14-m5-max-2026",
@@ -47,6 +51,21 @@ CATEGORIES = [
     "macbook-pro-16-m4-pro-2024",
     "macbook-pro-16-m4-max-2024",
 ]
+
+# Чтобы запустить только подмножество (быстро): задать переменную окружения
+# IMPORT_BIGGEEK_ONLY="apple-imac-24-2024,apple-mac-mini-2024,apple-mac-studio"
+import os as _os
+_only = _os.environ.get("IMPORT_BIGGEEK_ONLY", "").strip()
+if _only:
+    _whitelist = {s.strip() for s in _only.split(",") if s.strip()}
+    CATEGORIES = [c for c in CATEGORIES if c in _whitelist]
+
+# Fallback Серия по category_path — если biggeek не вернул её в спеках.
+SERIES_FALLBACK = {
+    "apple-imac-24-2024":  "iMac 24",
+    "apple-mac-mini-2024": "Mac mini",
+    "apple-mac-studio":    "Mac Studio",
+}
 
 # Порядок групп на детальной странице (как на biggeek).
 GROUP_ORDER = [
@@ -249,10 +268,14 @@ def year_from_cat(cat: str) -> int:
 
 def series_short(series: str) -> str:
     return {
-        "MacBook Air 13": "mba13",
-        "MacBook Air 15": "mba15",
-        "MacBook Pro 14": "mbp14",
-        "MacBook Pro 16": "mbp16",
+        "MacBook Air 13":  "mba13",
+        "MacBook Air 15":  "mba15",
+        "MacBook Pro 14":  "mbp14",
+        "MacBook Pro 16":  "mbp16",
+        "iMac 24":         "imac24",
+        "iMac":            "imac",
+        "Mac mini":        "mac-mini",
+        "Mac Studio":      "mac-studio",
     }.get(series, re.sub(r"[^a-z0-9]+", "-", series.lower()).strip("-"))
 
 
@@ -292,7 +315,7 @@ def main():
             detail = parse_detail(detail_html)
             time.sleep(0.15)
 
-            series = spec_get(detail["specs"], "Серия")
+            series = spec_get(detail["specs"], "Серия") or SERIES_FALLBACK.get(cat)
             chip = normalize_chip(spec_get(detail["specs"], "Процессор") or "")
             ram = normalize_ram(spec_get(detail["specs"], "Объем оперативной памяти") or "")
             ssd = normalize_storage(spec_get(detail["specs"], "Объем встроенной памяти") or "")
@@ -412,7 +435,10 @@ def main():
         # Все specs от cheapest SKU (полный набор)
         specs_full = list(c["specs"])
 
-        name = f'{series}" {chip}'
+        # Для серий с числом-размером в названии (MacBook Pro 14, iMac 24) ставим
+        # знак дюйма; для Mac mini / Mac Studio — без дюймов.
+        has_size = bool(re.search(r"\b\d{2}$", series))
+        name = (f'{series}" {chip}' if has_size else f"{series} {chip}")
         slug_id = f"{series_short(series)}-{chip.lower().replace(' ', '')}"
 
         products.append({
@@ -423,7 +449,7 @@ def main():
             "brand": "Apple",
             "price": g["min_price"],
             "year": year_from_cat(c["category_path"]),
-            "emoji": "💻",
+            "emoji": "🖥️" if any(s in series for s in ("iMac", "Mac mini", "Mac Studio")) else "💻",
             "imgs": imgs_for_card,
             "memories": memory_labels,
             "colors": colors,
@@ -436,16 +462,23 @@ def main():
     # Сортировка: чип-поколение ↓ → размер ↓ → цена ↑
     chip_order = {
         "M5 Max": 0, "M5 Pro": 1, "M5": 2,
-        "M4 Max": 3, "M4 Pro": 4, "M4": 5,
-        "M3 Max": 6, "M3 Pro": 7, "M3": 8,
+        "M4 Ultra": 3, "M4 Max": 4, "M4 Pro": 5, "M4": 6,
+        "M3 Ultra": 7, "M3 Max": 8, "M3 Pro": 9, "M3": 10,
+        "M2 Ultra": 11, "M2 Max": 12, "M2 Pro": 13, "M2": 14,
     }
-    size_order = {"MacBook Pro 16": 0, "MacBook Pro 14": 1, "MacBook Air 15": 2, "MacBook Air 13": 3}
+    size_order = {
+        "MacBook Pro 16": 0, "MacBook Pro 14": 1,
+        "MacBook Air 15": 2, "MacBook Air 13": 3,
+        "iMac 24": 4, "iMac": 5,
+        "Mac Studio": 6, "Mac mini": 7,
+    }
 
     def sort_key(p):
+        series_key = p["name"].split('"')[0].strip()
         return (
             -p["year"],
             chip_order.get(p["chip"], 99),
-            size_order.get(p["name"].split('"')[0], 99),
+            size_order.get(series_key, 99),
             p["price"],
         )
 

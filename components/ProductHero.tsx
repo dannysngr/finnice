@@ -1,7 +1,8 @@
 "use client";
 import { useMemo, useState } from "react";
 import type { Product } from "@/lib/data";
-import { fmtRub, fmtRubApprox } from "@/lib/calculator-logic";
+import { fmtRub, fmtRubApprox, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
+import { useAppModal } from "@/lib/modal-context";
 
 interface Props {
   product: Product;
@@ -19,6 +20,7 @@ interface Props {
  *    цвета/память — обычные кнопки без логики.
  */
 export function ProductHero({ product, stars }: Props) {
+  const { openModal } = useAppModal();
   const variants = product.variants ?? [];
   const hasVariants = variants.length > 0;
 
@@ -107,6 +109,25 @@ export function ProductHero({ product, stars }: Props) {
   }, [hasVariants, imagesByColor, color, galleryImages]);
 
   const displayPrice = selectedVariant?.price ?? product.price;
+
+  // Открывает модалку «Оформить рассрочку» с текущей выбранной конфигурацией.
+  function handleBuy() {
+    const price = displayPrice;
+    const down = Math.ceil(price * getMinDownPct(price));
+    const res = calcInstallment({ price, down, term: 6 });
+    const memoryLabel = hasVariants && selectedVariant
+      ? `${selectedVariant.ram} / ${selectedVariant.ssd}`
+      : product.memories?.[0];
+    openModal({
+      productName: product.name + (hasVariants && color ? `, ${color}` : ""),
+      memory: memoryLabel,
+      sim: undefined,
+      price,
+      down,
+      term: 6,
+      monthly: res.monthly,
+    });
+  }
   // Доступно ли это (ram, ssd) — для гашения недоступных кнопок
   const isCombo = (r: string, s: string) =>
     variants.some(v => v.ram === r && v.ssd === s);
@@ -305,7 +326,8 @@ export function ProductHero({ product, stars }: Props) {
           </>
         )}
 
-        <button type="button" className="btn-primary w-full py-4 text-base mb-3">
+        <button type="button" onClick={handleBuy}
+          className="btn-primary w-full py-4 text-base mb-3">
           Купить в рассрочку
         </button>
         <button type="button"
