@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-05-17T09:16:16+00:00",
+  "syncedAt": "2026-05-17T09:19:18+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -17,7 +17,7 @@
         1108,
         1112
       ],
-      "linesTotal": 446,
+      "linesTotal": 478,
       "winsMax": 33
     },
     {
@@ -44,7 +44,7 @@
   "totals": {
     "matched": 49,
     "unmatchedKeys": 5,
-    "unmatchedRaw": 416
+    "unmatchedRaw": 448
   },
   "matched": [
     {
@@ -3493,7 +3493,73 @@
         "tgPrice": 6900
       }
     ],
+    "OPPO": [
+      {
+        "raw": "Oppo Reno 15 Pro max 12/512 Dusk Brown",
+        "tgPrice": 55500
+      },
+      {
+        "raw": "Oppo Reno 15 Pro max 12/512 Aura Gold",
+        "tgPrice": 55500
+      },
+      {
+        "raw": "Oppo Reno 15F 12/512 Twilight Blue",
+        "tgPrice": 37000
+      },
+      {
+        "raw": "Oppo Reno 15F 12/512 Aurora Blue",
+        "tgPrice": 37000
+      }
+    ],
     "OnePlus": [
+      {
+        "raw": "OnePlus 15 16/512 Black",
+        "tgPrice": 68000
+      },
+      {
+        "raw": "OnePlus 15 16/512 Sand Storm",
+        "tgPrice": 68000
+      },
+      {
+        "raw": "OnePlus 13 16/512 Black",
+        "tgPrice": 56000
+      },
+      {
+        "raw": "OnePlus 13 16/512 Arctic Dawn",
+        "tgPrice": 56000
+      },
+      {
+        "raw": "OnePlus 13S 12/512 Green",
+        "tgPrice": 47500
+      },
+      {
+        "raw": "One plus 15R 12/512 Black",
+        "tgPrice": 44000
+      },
+      {
+        "raw": "OnePlus 13S 12/512 Black",
+        "tgPrice": 42000
+      },
+      {
+        "raw": "OnePlus Nord 6 12/256 Black",
+        "tgPrice": 39500
+      },
+      {
+        "raw": "OnePlus Nord 6 12/256 Silver",
+        "tgPrice": 39500
+      },
+      {
+        "raw": "OnePlus Nord 6 8/256 Black",
+        "tgPrice": 35900
+      },
+      {
+        "raw": "OnePlus Nord 6 8/256 Silver",
+        "tgPrice": 35900
+      },
+      {
+        "raw": "OnePlus Nord 5 8/256 Grey",
+        "tgPrice": 32500
+      },
       {
         "raw": "OnePlus Watch 2 Radiant Steel",
         "tgPrice": 22500
@@ -4065,6 +4131,50 @@
     ],
     "Realme": [
       {
+        "raw": "Realme GT 8 Pro 16/512 White",
+        "tgPrice": 68500
+      },
+      {
+        "raw": "Realme GT 8 Pro 12/256 Blue",
+        "tgPrice": 61000
+      },
+      {
+        "raw": "Realme GT 8 Pro 12/256 White",
+        "tgPrice": 61000
+      },
+      {
+        "raw": "Realme 16 Pro 12/512 Gray",
+        "tgPrice": 32500
+      },
+      {
+        "raw": "Realme 16 Pro 12/512 Beige",
+        "tgPrice": 31300
+      },
+      {
+        "raw": "Realme 16 Pro 12/512 Black",
+        "tgPrice": 31300
+      },
+      {
+        "raw": "Realme 16 Pro 12/512 Purple",
+        "tgPrice": 31300
+      },
+      {
+        "raw": "Realme C85 Pro 8/256 Green",
+        "tgPrice": 15700
+      },
+      {
+        "raw": "Realme C85 Pro 8/256 Purple",
+        "tgPrice": 15700
+      },
+      {
+        "raw": "Realme C85 Pro 6/128 Green",
+        "tgPrice": 13400
+      },
+      {
+        "raw": "Realme C85 6/128 Black",
+        "tgPrice": 12000
+      },
+      {
         "raw": "Наушники БП Realme Buds Air 5 Pro (бежевые)",
         "tgPrice": 7900
       },
@@ -4073,12 +4183,34 @@
         "tgPrice": 7900
       },
       {
+        "raw": "Realme Note 60X 4/128 Green",
+        "tgPrice": 7500
+      },
+      {
         "raw": "Часы Realme S2 (gray)",
         "tgPrice": 6900
       },
       {
         "raw": "Часы Realme S2 (black)",
         "tgPrice": 6900
+      }
+    ],
+    "Red Magic": [
+      {
+        "raw": "Red Magic 11 Pro 12/256 Cray",
+        "tgPrice": 60000
+      },
+      {
+        "raw": "Red Magic 10 Air 12/256 Twilight 5G",
+        "tgPrice": 53500
+      },
+      {
+        "raw": "Red Magic 11 Air 12/256 Phantom",
+        "tgPrice": 45400
+      },
+      {
+        "raw": "Red Magic 11 Air 12/256 Prism",
+        "tgPrice": 45400
       }
     ],
     "Samsung": [
