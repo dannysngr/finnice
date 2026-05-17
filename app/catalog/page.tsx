@@ -753,20 +753,29 @@ function CatalogFilterSelect({
   );
 }
 
-/** Собирает уникальные значения ОЗУ и накопителя из variants — для бэйджей
- *  под названием карточки в каталоге. */
+/** Собирает значения ОЗУ и накопителя для подписи под названием карточки.
+ *  Возвращает массивы чисел (без юнита) + общий юнит для каждого ряда —
+ *  чтобы юнит был один раз в конце, а не на каждой плашке. */
 function variantChipsFor(variants: NonNullable<CatalogItem["variants"]>) {
   const onlyNum = (s: string) => parseInt(s.replace(/\D/g, "")) || 0;
   const toGB = (s: string) => (s.includes("ТБ") ? onlyNum(s) * 1000 : onlyNum(s));
-  const fmtSsd = (gb: number) => (gb >= 1000 ? `${gb / 1000} ТБ` : `${gb} ГБ`);
 
+  // ОЗУ — всегда в ГБ, юнит общий
   const rams = Array.from(new Set(variants.map(v => onlyNum(v.ram))))
     .sort((a, b) => a - b)
-    .map(n => `${n} ГБ`);
-  const ssds = Array.from(new Set(variants.map(v => toGB(v.ssd))))
-    .sort((a, b) => a - b)
-    .map(fmtSsd);
-  return { rams, ssds };
+    .map(String);
+
+  // SSD — если все ≥ 1 ТБ, выводим в ТБ с общим юнитом;
+  // иначе значения остаются «как есть» с per-item юнитом
+  const ssdGBs = Array.from(new Set(variants.map(v => toGB(v.ssd))))
+    .sort((a, b) => a - b);
+  const allTB = ssdGBs.every(g => g >= 1000);
+  const ssds = allTB
+    ? ssdGBs.map(g => String(g / 1000))
+    : ssdGBs.map(g => (g >= 1000 ? `${g / 1000} ТБ` : `${g} ГБ`));
+  const ssdUnit = allTB ? "ТБ" : "";
+
+  return { rams, ssds, ssdUnit };
 }
 
 /* ── ProductCard ──────────────────────────────────────────────── */
@@ -886,36 +895,18 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
         <h3 className="font-medium text-[#0A1628] text-[13px] leading-snug line-clamp-2 mt-0.5">
           {p.name}
         </h3>
-        {/* Характеристики. Для конфигуратора — два ряда: иконка-чип + бэйджи,
-            для остальных — текстовая подпись. */}
+        {/* Характеристики. Для конфигуратора — два компактных ряда «иконка
+            + блок значений с разделителями + общий юнит»; иначе текст. */}
         {variantChips ? (
           <div className="mt-1 space-y-1">
-            <div className="flex flex-wrap items-center gap-1">
-              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-[#1A3C6E]"
-                    title="Оперативная память">
-                <RamIcon /> ОЗУ
-              </span>
-              {variantChips.rams.map(r => (
-                <span key={r}
-                  className="px-1.5 py-0.5 text-[9px] font-semibold text-[#6B7280]
-                             bg-[#F4F7FC] border border-[#E5E7EB] rounded-md leading-none">
-                  {r}
-                </span>
-              ))}
-            </div>
-            <div className="flex flex-wrap items-center gap-1">
-              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-[#1A3C6E]"
-                    title="Накопитель">
-                <SsdIcon /> SSD
-              </span>
-              {variantChips.ssds.map(s => (
-                <span key={s}
-                  className="px-1.5 py-0.5 text-[9px] font-semibold text-[#6B7280]
-                             bg-[#F4F7FC] border border-[#E5E7EB] rounded-md leading-none">
-                  {s}
-                </span>
-              ))}
-            </div>
+            <ChipRow
+              icon={<RamIcon />} label="ОЗУ"
+              values={variantChips.rams} unit="ГБ"
+            />
+            <ChipRow
+              icon={<SsdIcon />} label="SSD"
+              values={variantChips.ssds} unit={variantChips.ssdUnit}
+            />
           </div>
         ) : specsText ? (
           <p className="text-[10px] text-[#ADADAD] mt-0.5">{specsText}</p>
@@ -987,6 +978,36 @@ function ProductCard({ item: p, authed, inFavs, inCart, onToggleFav, onAddCart }
           Купить в рассрочку
         </button>
       )}
+    </div>
+  );
+}
+
+/** Один ряд под названием карточки: иконка + лейбл + объединённый блок
+ *  значений (значения разделены вертикальными чертами, юнит — в конце). */
+function ChipRow({ icon, label, values, unit }: {
+  icon: React.ReactNode; label: string; values: string[]; unit: string;
+}) {
+  if (!values.length) return null;
+  return (
+    <div className="flex items-center gap-1.5 flex-wrap">
+      <span className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-[#1A3C6E]"
+            title={label}>
+        {icon}{label}
+      </span>
+      <span className="inline-flex items-stretch text-[9px] font-semibold text-[#6B7280]
+                       bg-[#F4F7FC] border border-[#E5E7EB] rounded-md leading-none overflow-hidden">
+        {values.map((v, i) => (
+          <span key={v}
+            className={`px-1.5 py-0.5 ${i > 0 ? "border-l border-[#E5E7EB]" : ""}`}>
+            {v}
+          </span>
+        ))}
+        {unit && (
+          <span className="px-1.5 py-0.5 border-l border-[#E5E7EB] bg-[#EBF0F9] text-[#1A3C6E]">
+            {unit}
+          </span>
+        )}
+      </span>
     </div>
   );
 }
