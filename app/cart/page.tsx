@@ -6,6 +6,7 @@ import { PHONES_CATALOG, PRODUCTS } from "@/lib/data";
 import { fmtRub, fmtRubApprox, calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
 import { useAppModal } from "@/lib/modal-context";
 import { notifyCartChanged } from "@/lib/cart-events";
+import { guestCart } from "@/lib/guest-cart";
 
 /** Берёт первую картинку — для карточки в корзине/избранном достаточно */
 const firstImg = (img: string | string[] | undefined): string | undefined =>
@@ -42,33 +43,43 @@ export default function CartPage() {
           fetch("/api/cart")
             .then(r => r.ok ? r.json() : { items: [] })
             .then(d => setItems(d.items ?? []));
+        } else {
+          setItems(guestCart.getItems());
         }
       })
-      .catch(() => setAuthed(false));
+      .catch(() => { setAuthed(false); setItems(guestCart.getItems()); });
   }, []);
 
   const handleRemove = useCallback(async (productId: string) => {
     setItems(prev => prev.filter(i => i.productId !== productId));
     notifyCartChanged();
+    if (!authed) {
+      guestCart.remove(productId);
+      return;
+    }
     await fetch("/api/cart", {
       method:  "DELETE",
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify({ productId }),
     });
     notifyCartChanged();
-  }, []);
+  }, [authed]);
 
   const handleQty = useCallback(async (productId: string, qty: number) => {
     if (qty < 1) { handleRemove(productId); return; }
     setItems(prev => prev.map(i => i.productId === productId ? { ...i, qty } : i));
     notifyCartChanged();
+    if (!authed) {
+      guestCart.setQty(productId, qty);
+      return;
+    }
     await fetch("/api/cart", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify({ productId, qty }),
     });
     notifyCartChanged();
-  }, [handleRemove]);
+  }, [handleRemove, authed]);
 
   const cartProducts = items.map(item => ({
     ...item,
@@ -102,18 +113,7 @@ export default function CartPage() {
           <div className="text-center py-20 text-[#9CA3AF]">Загрузка…</div>
         )}
 
-        {authed === false && (
-          <div className="card p-12 text-center">
-            <div className="text-5xl mb-4">🔐</div>
-            <p className="font-bold text-[#0A1628] mb-2">Войдите, чтобы видеть корзину</p>
-            <Link href="/lk"
-                  className="inline-flex mt-4 px-6 py-3 rounded-xl bg-[#0A1628] text-white text-sm font-bold">
-              Войти
-            </Link>
-          </div>
-        )}
-
-        {authed === true && cartProducts.length === 0 && (
+        {authed !== null && cartProducts.length === 0 && (
           <div className="card p-12 text-center">
             <div className="text-5xl mb-4">🛒</div>
             <p className="font-bold text-[#0A1628] mb-2">Корзина пуста</p>
@@ -126,7 +126,7 @@ export default function CartPage() {
           </div>
         )}
 
-        {authed === true && cartProducts.length > 0 && (
+        {authed !== null && cartProducts.length > 0 && (
           <div className="flex flex-col gap-6">
             {/* Список */}
             <div className="space-y-3">

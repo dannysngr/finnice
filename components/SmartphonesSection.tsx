@@ -9,6 +9,7 @@ import { COMPANY } from "@/lib/data";
 import { useAppModal } from "@/lib/modal-context";
 import { notifyCartChanged, notifyFavoritesChanged } from "@/lib/cart-events";
 import { useCartFeedback } from "@/lib/cart-feedback";
+import { guestCart } from "@/lib/guest-cart";
 import { ProductSlideshow } from "@/components/ProductSlideshow";
 
 // ─── Константы ────────────────────────────────────────────────
@@ -178,18 +179,8 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
     });
   }
 
-  /** Постоянная нижняя строка действия: для гостя — «Купить в рассрочку»,
-   *  для авториз. — «В корзину» / степпер «− qty +». */
+  /** Постоянная нижняя строка действия. */
   const ActionRow = () => {
-    if (!authed) {
-      return (
-        <button onClick={handleBuy}
-          className="mt-2 w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
-                     text-[11px] font-semibold active:scale-95 transition-all touch-manipulation">
-          Купить в рассрочку
-        </button>
-      );
-    }
     if (inCart) {
       return (
         <div className="mt-2 w-full flex items-stretch rounded-[10px]
@@ -214,7 +205,23 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
     return (
       <button onClick={() => {
           onAddCart(phone.id);
-          showCartAdded({ productName: `${phone.brand} ${phone.model} ${phone.memory}` });
+          if (authed) {
+            showCartAdded({ productName: `${phone.brand} ${phone.model} ${phone.memory}` });
+          } else {
+            // Гость — большая модалка с доп. кнопками «Перейти в корзину / Продолжить».
+            const down = Math.ceil(phone.price * getMinDownPct(phone.price));
+            const monthlyAmt = calcInstallment({ price: phone.price, down, term: DEFAULT_TERM }).monthly;
+            openModal({
+              productName: phone.model,
+              memory:      phone.memory,
+              sim:         phone.sim,
+              price:       phone.price,
+              down,
+              term:        DEFAULT_TERM,
+              monthly:     monthlyAmt,
+              showCartActions: true,
+            });
+          }
         }}
         className="mt-2 w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
                    text-[11px] font-semibold flex items-center justify-center gap-1
@@ -448,12 +455,15 @@ export function SmartphonesSection() {
             setFavorites(fav.ids ?? []);
             setCart(crt.items ?? []);
           });
+        } else {
+          setCart(guestCart.getItems());
         }
       })
-      .catch(() => {});
+      .catch(() => setCart(guestCart.getItems()));
   }, []);
 
   const handleToggleFav = async (productId: string) => {
+    if (!authed) return; // избранное только для авторизованных
     setFavorites(prev =>
       prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
     );
@@ -469,6 +479,12 @@ export function SmartphonesSection() {
 
   const handleAddCart = async (productId: string) => {
     if (cart.some(c => c.productId === productId)) return;
+    if (!authed) {
+      const items = guestCart.add(productId, 1);
+      setCart(items);
+      notifyCartChanged();
+      return;
+    }
     setCart(prev => [...prev, { productId, qty: 1 }]);
     notifyCartChanged();
     const r = await fetch("/api/cart", {
@@ -481,6 +497,12 @@ export function SmartphonesSection() {
   };
 
   const handleUpdateQty = async (productId: string, qty: number) => {
+    if (!authed) {
+      const items = guestCart.setQty(productId, qty);
+      setCart(items);
+      notifyCartChanged();
+      return;
+    }
     if (qty <= 0) {
       setCart(prev => prev.filter(c => c.productId !== productId));
       notifyCartChanged();

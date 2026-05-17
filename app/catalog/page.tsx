@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { notifyCartChanged, notifyFavoritesChanged } from "@/lib/cart-events";
 import { useCartFeedback } from "@/lib/cart-feedback";
+import { guestCart } from "@/lib/guest-cart";
 import {
   CATALOG_CATS, PRODUCTS, PHONES_CATALOG,
   type Product,
@@ -264,13 +265,13 @@ function CatalogContent() {
   const [cart,      setCart]      = useState<CartEntry[]>([]);
 
   useEffect(() => {
-    // Проверка авторизации и загрузка данных пользователя
+    // Проверка авторизации и загрузка данных пользователя.
+    // Для гостей корзина читается из localStorage.
     fetch("/api/auth/me")
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         if (d?.authed) {
           setAuthed(true);
-          // Загружаем избранное и корзину параллельно
           Promise.all([
             fetch("/api/favorites").then(r => r.ok ? r.json() : { ids: [] }),
             fetch("/api/cart").then(r => r.ok ? r.json() : { items: [] }),
@@ -278,9 +279,11 @@ function CatalogContent() {
             setFavorites(fav.ids ?? []);
             setCart(crt.items ?? []);
           });
+        } else {
+          setCart(guestCart.getItems());
         }
       })
-      .catch(() => {});
+      .catch(() => setCart(guestCart.getItems()));
   }, []);
 
   // Сбрасываем все категорийные фильтры при смене категории
@@ -379,6 +382,13 @@ function CatalogContent() {
   const handleAddCart = useCallback(async (productId: string) => {
     const already = cart.some(c => c.productId === productId);
     if (already) return;
+    if (!authed) {
+      // Гостевая корзина — только localStorage
+      const items = guestCart.add(productId, 1);
+      setCart(items);
+      notifyCartChanged();
+      return;
+    }
     // Оптимистичное обновление
     setCart(prev => [...prev, { productId, qty: 1 }]);
     notifyCartChanged();
@@ -392,9 +402,15 @@ function CatalogContent() {
       if (d.items) setCart(d.items);
       notifyCartChanged();
     } catch { /* игнорируем ошибки сети */ }
-  }, [cart]);
+  }, [cart, authed]);
 
   const handleUpdateCartQty = useCallback(async (productId: string, qty: number) => {
+    if (!authed) {
+      const items = guestCart.setQty(productId, qty);
+      setCart(items);
+      notifyCartChanged();
+      return;
+    }
     if (qty <= 0) {
       setCart(prev => prev.filter(c => c.productId !== productId));
       notifyCartChanged();
@@ -422,7 +438,7 @@ function CatalogContent() {
       if (d.items) setCart(d.items);
       notifyCartChanged();
     } catch {}
-  }, []);
+  }, [authed]);
 
   const filtered = useMemo(() => {
     let list = [...ALL_ITEMS];
@@ -857,17 +873,11 @@ function ProductCard({ item: p, authed, inFavs, cartQty, onToggleFav, onAddCart,
       ].join(" · ");
 
   /** Постоянная нижняя строка действия: если товар в корзине — степпер
-   *  «−  qty  +»; иначе кнопка «В корзину» (для гостей — «Купить в рассрочку»). */
+   *  «−  qty  +»; иначе кнопка «В корзину».
+   *  Авторизованным после добавления показываем маленькую модалку «Добавлено»,
+   *  гостям — большую «Купить в рассрочку» (с показом доп. кнопок «Перейти
+   *  в корзину» / «Продолжить покупки»). */
   const ActionRow = () => {
-    if (!authed) {
-      return (
-        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBuy(); }}
-          className="relative z-20 mt-2 w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
-                     text-[11px] font-semibold active:scale-95 transition-all touch-manipulation">
-          Купить в рассрочку
-        </button>
-      );
-    }
     if (inCart) {
       return (
         <div className="relative z-20 mt-2 w-full flex items-stretch rounded-[10px]
@@ -893,9 +903,22 @@ function ProductCard({ item: p, authed, inFavs, cartQty, onToggleFav, onAddCart,
       <button onClick={(e) => {
           e.preventDefault(); e.stopPropagation();
           onAddCart(p.id);
-          // Первое добавление (qty 0 → 1) — показываем модалку с выбором
-          // «Перейти в корзину» / «Продолжить покупки».
-          showCartAdded({ productName: p.name });
+          if (authed) {
+            // Авториз. — лёгкая модалка «Добавлено» (только при первом добавлении).
+            showCartAdded({ productName: p.name });
+          } else {
+            // Гость — большая модалка «Купить в рассрочку» с доп. кнопками.
+            openModal({
+              productName: p.name,
+              memory:      p.memories?.[0],
+              sim:         p.sim,
+              price:       p.price,
+              down,
+              term:        6,
+              monthly:     res.monthly,
+              showCartActions: true,
+            });
+          }
         }}
         className="relative z-20 mt-2 w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
                    text-[11px] font-semibold flex items-center justify-center gap-1

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { COMPANY, CATALOG_CATS } from "@/lib/data";
 import { onCartChanged, onFavoritesChanged } from "@/lib/cart-events";
+import { guestCart } from "@/lib/guest-cart";
 import { AuthModal } from "@/components/AuthModal";
 import { CalculatorModal } from "@/components/CalculatorModal";
 import { FinniceLogo } from "@/components/FinniceLogo";
@@ -42,29 +43,42 @@ export function SiteHeader() {
   const [favCount,    setFavCount]    = useState(0);
   const catalogRef = useRef<HTMLDivElement>(null);
 
-  /* auth + cart + favs fetch (with event-bus refresh) */
+  /* auth + cart + favs fetch (with event-bus refresh).
+     Для гостей корзина — из localStorage (guestCart); избранное недоступно. */
   useEffect(() => {
-    const refreshCart = () =>
-      fetch("/api/cart")
-        .then(r => r.ok ? r.json() : { items: [] })
-        .then(c => setCartCount((c.items ?? []).length))
-        .catch(() => {});
-    const refreshFavs = () =>
+    let authedNow = false;
+
+    const refreshCart = () => {
+      if (authedNow) {
+        fetch("/api/cart")
+          .then(r => r.ok ? r.json() : { items: [] })
+          .then(c => setCartCount((c.items ?? []).length))
+          .catch(() => {});
+      } else {
+        setCartCount(guestCart.count());
+      }
+    };
+    const refreshFavs = () => {
+      if (!authedNow) { setFavCount(0); return; }
       fetch("/api/favorites")
         .then(r => r.ok ? r.json() : { ids: [] })
         .then(f => setFavCount((f.ids ?? []).length))
         .catch(() => {});
+    };
 
     fetch("/api/auth/me")
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         if (d?.authed) {
+          authedNow = true;
           setSession({ authed: true, firstName: d.firstName, lastName: d.lastName });
-          refreshCart();
-          refreshFavs();
         }
+        refreshCart();
+        refreshFavs();
       })
-      .catch(() => {});
+      .catch(() => {
+        refreshCart(); // всё равно покажем гостевой счётчик
+      });
 
     // Подписываемся на события — счётчики обновляются сразу при добавлении.
     const unsubCart = onCartChanged(refreshCart);

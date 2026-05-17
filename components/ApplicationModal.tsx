@@ -21,6 +21,10 @@ export interface ModalPreset {
    *  всех заявок вызывается onAllSent (например, для очистки корзины). */
   cart?: Array<{ productName: string; price: number; qty: number }>;
   onAllSent?: () => void;
+  /** Если true — под формой показываем «Перейти в корзину / Продолжить покупки».
+   *  Используется когда модалка открыта после «В корзину» у гостя: товар уже
+   *  в корзине, заявку можно оформить сейчас или отложить. */
+  showCartActions?: boolean;
 }
 
 interface Props {
@@ -475,6 +479,33 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
             <p className="text-center text-[10px] text-[#9CA3AF]">
               Ответим в ближайшее время · г. Грозный, ул. Орзамиева, 8
             </p>
+
+            {/* Доп. действия, если товар уже в корзине — даём пропустить заявку */}
+            {preset?.showCartActions && (
+              <div className="pt-3 mt-3 border-t border-[#E5E7EB] space-y-2">
+                <p className="text-center text-[11px] font-semibold text-[#0A1628]">
+                  ✓ Товар добавлен в корзину
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <a
+                    href="/cart"
+                    onClick={onClose}
+                    className="text-center py-2.5 rounded-xl bg-[#0A1628] text-white
+                               text-xs font-semibold hover:bg-[#1A3C6E] transition-colors
+                               active:scale-[0.98]">
+                    Перейти в корзину
+                  </a>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); onClose(); }}
+                    className="py-2.5 rounded-xl border border-[#D8E2F0] text-[#374151]
+                               text-xs font-semibold hover:border-[#0A1628] hover:bg-[#F4F7FC]
+                               transition-colors active:scale-[0.98]">
+                    Продолжить покупки
+                  </button>
+                </div>
+              </div>
+            )}
           </form>
         )}
       </div>
