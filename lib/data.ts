@@ -699,11 +699,13 @@ export const PHONE_PRODUCTS: Product[] = (() => {
     // Variants: каждый SKU раскрываем на цвета.
     // Цена per-color: TG_COLOR_PRICES (если есть) — MAX по подстроке-матчу,
     // иначе базовая цена SKU.
+    // Фото per-color: i-й цвет ↔ i-я картинка из img-массива; если картинок
+    // меньше, чем цветов — fallback на последнюю доступную.
     const variants: NonNullable<Product["variants"]> = [];
     for (const s of skus) {
-      const skuImg = Array.isArray(s.img) ? s.img[0] : undefined;
+      const imgArr: string[] = Array.isArray(s.img) ? s.img : (s.img ? [s.img] : []);
       const keyPrefix = `${s.brand}|${s.model}|${s.memory}|${s.sim}|`;
-      for (const c of s.colors) {
+      s.colors.forEach((c, idx) => {
         // Подстрочный матч: catalog «Cosmic Orange (...)» ↔ TG «Orange» или «Cosmic Orange».
         const catalogColor = c.replace(/\(.+?\)/g, "").trim().toLowerCase();
         let bestPrice: number | null = null;
@@ -714,14 +716,15 @@ export const PHONE_PRODUCTS: Product[] = (() => {
             if (bestPrice === null || price > bestPrice) bestPrice = price;
           }
         }
+        const imgForColor = imgArr[idx] ?? imgArr[imgArr.length - 1];
         variants.push({
           memory: s.memory,
           sim:    s.sim,
           color:  c,
           price:  bestPrice ?? s.price,
-          img:    skuImg,
+          img:    imgForColor,
         });
-      }
+      });
     }
 
     // Сортируем по memory (mem rank) → SIM → color
