@@ -1012,8 +1012,12 @@ def main():
         brand, model, memory, tg_sim = parts
         cat_sim = SIM_TO_CATALOG.get(tg_sim, tg_sim)
 
+        # biggeek — справочная цена для админа, в финальную НЕ включается
+        # (см. policy выше). MAX считаем только по TG-каналам.
         by_color: dict[str, int] = {}
-        for _src, items in (m.get("details") or {}).items():
+        for src, items in (m.get("details") or {}).items():
+            if src == "biggeek":
+                continue
             for it in items:
                 color = (it.get("color") or "").strip()
                 price = int(it.get("price", 0))
