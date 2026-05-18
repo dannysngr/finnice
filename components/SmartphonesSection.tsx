@@ -238,10 +238,22 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
     );
   };
 
-  // Уникальные значения памяти и количество SIM-вариантов для подписи
-  const memOptions = useMemo(() => {
-    const set = new Set((phone.variants ?? []).map(v => v.memory).filter(Boolean) as string[]);
-    return Array.from(set).sort((a, b) => MEMORY_ORDER.indexOf(a) - MEMORY_ORDER.indexOf(b));
+  // Память для сегментного блока под названием.
+  // По образцу MacBook'ов: если все значения ≥ 1 ТБ → выводим без единиц,
+  // ставим «ТБ» один раз в конце; иначе каждый чип — со своим юнитом.
+  const memChips = useMemo(() => {
+    const toGB = (s: string) => {
+      const n = parseInt(s.replace(/\D/g, "")) || 0;
+      return s.includes("ТБ") ? n * 1000 : n;
+    };
+    const gbs = Array.from(new Set(
+      (phone.variants ?? []).map(v => toGB(v.memory ?? "")).filter(Boolean)
+    )).sort((a, b) => a - b);
+    if (!gbs.length) return null;
+    const allTB = gbs.every(g => g >= 1000);
+    return allTB
+      ? { values: gbs.map(g => String(g / 1000)), unit: "ТБ" }
+      : { values: gbs.map(g => g >= 1000 ? `${g / 1000} ТБ` : `${g} ГБ`), unit: "" };
   }, [phone.variants]);
   const hasVariants = (phone.variants?.length ?? 0) > 0;
 
@@ -297,11 +309,22 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
         <h3 className="font-medium text-[#0A1628] text-[13px] leading-snug line-clamp-2 mt-0.5">
           {modelName}
         </h3>
-        {/* Характеристики — список доступных вариантов памяти */}
-        {memOptions.length > 0 && (
-          <p className="text-[10px] text-[#ADADAD] mt-0.5">
-            {memOptions.join(" · ")}
-          </p>
+        {/* Характеристики — сегментный блок памяти (как у MacBook). */}
+        {memChips && (
+          <div className="mt-1 inline-flex items-stretch text-[9px] font-semibold text-[#6B7280]
+                          bg-[#F4F7FC] border border-[#E5E7EB] rounded-md leading-none overflow-hidden">
+            {memChips.values.map((v, i) => (
+              <span key={v + i}
+                className={`px-1.5 py-0.5 ${i > 0 ? "border-l border-[#E5E7EB]" : ""}`}>
+                {v}
+              </span>
+            ))}
+            {memChips.unit && (
+              <span className="px-1.5 py-0.5 border-l border-[#E5E7EB] bg-[#EBF0F9] text-[#1A3C6E]">
+                {memChips.unit}
+              </span>
+            )}
+          </div>
         )}
         {/* Цена. Для variants — «от <min> ₽», иначе обычная цена. */}
         <p className="font-bold text-[#0A1628] mt-1.5 leading-none" style={{ fontSize: "15px" }}>

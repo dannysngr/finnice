@@ -912,93 +912,9 @@ export interface Product {
 }
 
 const RAW_PRODUCTS: Product[] = [
-  /* ── Телефоны ── */
-  {
-    id: "iphone-16-pro-256",
-    name: "Apple iPhone 16 Pro 256GB",
-    slug: "apple-iphone-16-pro-256gb",
-    category: "telefony",
-    brand: "Apple",
-    price: 134990, oldPrice: 149990,
-    badge: "Хит",
-    emoji: "📱",
-    memories: ["128 ГБ", "256 ГБ", "512 ГБ"],
-    colors: ["Титан", "Чёрный", "Белый", "Натуральный"],
-    inStock: true, rating: 5, reviewCount: 142,
-    description: "Новейший iPhone 16 Pro с 6.3\" OLED-дисплеем, чипом A18 Pro и системой камер Pro. Идеальный выбор для тех, кто хочет лучшее — без переплаты по шариату.",
-    specs: [
-      { key: "Экран",      val: "6.3\" Super Retina XDR, 120 Гц" },
-      { key: "Процессор",  val: "Apple A18 Pro" },
-      { key: "ОЗУ",        val: "8 ГБ" },
-      { key: "Камера",     val: "48 + 48 + 12 Мп" },
-      { key: "Аккумулятор",val: "3582 мАч" },
-      { key: "ОС",         val: "iOS 18" },
-    ],
-  },
-  {
-    id: "iphone-16-128",
-    name: "Apple iPhone 16 128GB",
-    slug: "apple-iphone-16-128gb",
-    category: "telefony",
-    brand: "Apple",
-    price: 89990,
-    emoji: "📱",
-    memories: ["128 ГБ", "256 ГБ", "512 ГБ"],
-    colors: ["Ультрамарин", "Бирюзовый", "Розовый", "Белый", "Чёрный"],
-    inStock: true, rating: 5, reviewCount: 98,
-    description: "iPhone 16 с чипом A18, динамическим островом и кнопкой управления камерой. Отличный выбор по лучшей цене.",
-    specs: [
-      { key: "Экран",      val: "6.1\" Super Retina XDR, 60 Гц" },
-      { key: "Процессор",  val: "Apple A18" },
-      { key: "ОЗУ",        val: "8 ГБ" },
-      { key: "Камера",     val: "48 + 12 Мп" },
-      { key: "Аккумулятор",val: "3561 мАч" },
-      { key: "ОС",         val: "iOS 18" },
-    ],
-  },
-  {
-    id: "samsung-s24-256",
-    name: "Samsung Galaxy S24 256GB",
-    slug: "samsung-galaxy-s24-256gb",
-    category: "telefony",
-    brand: "Samsung",
-    price: 79990, oldPrice: 89990,
-    badge: "Акция",
-    emoji: "📱",
-    memories: ["128 ГБ", "256 ГБ"],
-    colors: ["Мраморный серый", "Кобальт", "Янтарный", "Чёрный"],
-    inStock: true, rating: 4, reviewCount: 67,
-    description: "Samsung Galaxy S24 — флагманский смартфон с искусственным интеллектом Galaxy AI, процессором Snapdragon 8 Gen 3 и ярким 6.2\" дисплеем.",
-    specs: [
-      { key: "Экран",      val: "6.2\" AMOLED, 120 Гц" },
-      { key: "Процессор",  val: "Snapdragon 8 Gen 3" },
-      { key: "ОЗУ",        val: "8 ГБ" },
-      { key: "Камера",     val: "50 + 10 + 12 Мп" },
-      { key: "Аккумулятор",val: "4000 мАч" },
-      { key: "ОС",         val: "Android 14" },
-    ],
-  },
-  {
-    id: "xiaomi-14t-256",
-    name: "Xiaomi 14T 256GB",
-    slug: "xiaomi-14t-256gb",
-    category: "telefony",
-    brand: "Xiaomi",
-    price: 54990,
-    emoji: "📱",
-    memories: ["256 ГБ", "512 ГБ"],
-    colors: ["Серый", "Синий", "Чёрный"],
-    inStock: true, rating: 4, reviewCount: 41,
-    description: "Xiaomi 14T с камерой Leica, зарядкой 67 Вт и ярким AMOLED-экраном. Топовые характеристики по доступной цене.",
-    specs: [
-      { key: "Экран",      val: "6.67\" AMOLED, 144 Гц" },
-      { key: "Процессор",  val: "MediaTek Dimensity 8300-Ultra" },
-      { key: "ОЗУ",        val: "12 ГБ" },
-      { key: "Камера",     val: "50 + 50 + 12 Мп (Leica)" },
-      { key: "Аккумулятор",val: "5000 мАч" },
-      { key: "ОС",         val: "Android 14 / MIUI 14" },
-    ],
-  },
+  // ─── Телефоны берутся из PHONE_PRODUCTS (см. ниже в этом файле):
+  //     объединённые карточки на (brand, model) с variants[memory × SIM × цвет].
+  //     Источник SKU-данных — RAW_PHONES_CATALOG.
 
   /* ══════════════════════════════════════════════════════════════
      НОУТБУКИ И КОМПЬЮТЕРЫ  (год ↓, цена ↓)
@@ -1062,90 +978,10 @@ const RAW_PRODUCTS: Product[] = [
   // iMac 24" M4 — берётся из BIGGEEK_PRODUCTS (см. lib/biggeek-products.ts),
   // одна карточка с каруселью всех 4 цветов (Blue / Pink / Purple / Silver).
 
-  /* ── Телевизоры ── */
-  {
-    id: "samsung-qled-55",
-    name: "Samsung QLED 4K 55\" QE55Q80D",
-    slug: "samsung-qled-4k-55-qe55q80d",
-    category: "televizory",
-    brand: "Samsung",
-    price: 89990, oldPrice: 109990,
-    badge: "Акция",
-    emoji: "📺",
-    colors: ["Чёрный"],
-    inStock: true, rating: 5, reviewCount: 29,
-    description: "Samsung QLED 4K с технологией Quantum Dot, процессором NQ4 AI и поддержкой Dolby Atmos. Кино в вашем доме.",
-    specs: [
-      { key: "Экран",      val: "55\", QLED 4K Ultra HD" },
-      { key: "Разрешение", val: "3840×2160" },
-      { key: "Частота",    val: "120 Гц" },
-      { key: "Звук",       val: "40 Вт, Dolby Atmos" },
-      { key: "Smart TV",   val: "Tizen 8.0" },
-      { key: "HDMI",       val: "4 × HDMI 2.1" },
-    ],
-  },
-  {
-    id: "lg-oled-55",
-    name: "LG OLED evo 55\" C3",
-    slug: "lg-oled-evo-55-c3",
-    category: "televizory",
-    brand: "LG",
-    price: 119990,
-    badge: "Хит",
-    emoji: "📺",
-    colors: ["Чёрный"],
-    inStock: true, rating: 5, reviewCount: 44,
-    description: "LG OLED evo 55\" — идеальная картинка с самосветящимися пикселями, глубоким чёрным и поддержкой Dolby Vision IQ.",
-    specs: [
-      { key: "Экран",      val: "55\", OLED evo 4K" },
-      { key: "Разрешение", val: "3840×2160" },
-      { key: "Частота",    val: "120 Гц (до 144 Гц)" },
-      { key: "Звук",       val: "60 Вт, Dolby Atmos" },
-      { key: "Smart TV",   val: "webOS 23" },
-      { key: "HDMI",       val: "4 × HDMI 2.1" },
-    ],
-  },
-
-  /* ── Бытовая техника ── */
-  {
-    id: "samsung-wa-7kg",
-    name: "Samsung WW70T3040BS Стиральная машина 7 кг",
-    slug: "samsung-ww70t3040bs",
-    category: "bytovaya_tekhnika",
-    brand: "Samsung",
-    price: 34990,
-    emoji: "🫧",
-    colors: ["Серебро"],
-    inStock: true, rating: 4, reviewCount: 18,
-    description: "Стиральная машина Samsung с инверторным двигателем, функцией пузырьковой стирки и отжимом 1400 об/мин.",
-    specs: [
-      { key: "Загрузка",   val: "7 кг" },
-      { key: "Отжим",      val: "1400 об/мин" },
-      { key: "Программы",  val: "16" },
-      { key: "Класс",      val: "A+++/A" },
-      { key: "Тип",        val: "Фронтальная загрузка" },
-    ],
-  },
-  {
-    id: "lg-fridge-300",
-    name: "LG GA-B459SMUM Холодильник Total No Frost",
-    slug: "lg-ga-b459smum",
-    category: "bytovaya_tekhnika",
-    brand: "LG",
-    price: 49990, oldPrice: 59990,
-    badge: "Акция",
-    emoji: "🧊",
-    colors: ["Нержавеющая сталь", "Белый"],
-    inStock: true, rating: 4, reviewCount: 22,
-    description: "Двухкамерный холодильник LG с No Frost, линейным компрессором и функцией DoorCooling+. Объём 302 л.",
-    specs: [
-      { key: "Объём",      val: "302 л (223 + 79)" },
-      { key: "No Frost",   val: "Двойная система" },
-      { key: "Компрессор", val: "Линейный инверторный" },
-      { key: "Класс",      val: "A++" },
-      { key: "Размеры",    val: "60×68×185 см" },
-    ],
-  },
+  // ── Телевизоры / бытовая техника ──
+  //   Демо-заглушки удалены (Samsung QLED 55, LG OLED 55, Samsung WW70T3040BS,
+  //   LG GA-B459SMUM): не было реальных фото. Раздел временно пуст — добавим
+  //   когда подберём ассортимент с картинками.
 
   /* ══════════════════════════════════════════════════════════════
      СМАРТ-ЧАСЫ  (год ↓, цена ↓)
