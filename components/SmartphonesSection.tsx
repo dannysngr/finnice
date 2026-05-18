@@ -309,10 +309,15 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
         <h3 className="font-medium text-[#0A1628] text-[13px] leading-snug line-clamp-2 mt-0.5">
           {modelName}
         </h3>
-        {/* Характеристики — сегментный блок памяти (как у MacBook). */}
+        {/* Характеристики — иконка + лейбл «ПАМЯТЬ» + сегментный блок (как у MacBook). */}
         {memChips && (
-          <div className="mt-1 inline-flex items-stretch text-[9px] font-semibold text-[#6B7280]
-                          bg-[#F4F7FC] border border-[#E5E7EB] rounded-md leading-none overflow-hidden">
+          <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+            <span className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-[#1A3C6E]"
+                  title="Память">
+              <MemoryIcon /> ПАМЯТЬ
+            </span>
+            <span className="inline-flex items-stretch text-[9px] font-semibold text-[#6B7280]
+                            bg-[#F4F7FC] border border-[#E5E7EB] rounded-md leading-none overflow-hidden">
             {memChips.values.map((v, i) => (
               <span key={v + i}
                 className={`px-1.5 py-0.5 ${i > 0 ? "border-l border-[#E5E7EB]" : ""}`}>
@@ -324,6 +329,7 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
                 {memChips.unit}
               </span>
             )}
+            </span>
           </div>
         )}
         {/* Цена. Для variants — «от <min> ₽», иначе обычная цена. */}
@@ -733,5 +739,16 @@ export function SmartphonesSection() {
         })()}
       </div>
     </section>
+  );
+}
+
+/** Иконка памяти телефона — стилизованный «чип/карта памяти». */
+function MemoryIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+      <circle cx="11" cy="8" r="0.9" fill="currentColor"/>
+      <path d="M4 7h4 M4 9h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    </svg>
   );
 }
