@@ -788,7 +788,6 @@ function variantChipsFor(variants: NonNullable<CatalogItem["variants"]>):
 {
   const onlyNum = (s: string) => parseInt(s.replace(/\D/g, "")) || 0;
   const toGB = (s: string) => (s.includes("ТБ") ? onlyNum(s) * 1024 : onlyNum(s));
-  const fmtSsd = (g: number) => (g >= 1024 ? `${g / 1024} ТБ` : `${g} ГБ`);
 
   // MacBook-mode: есть ram. SSD нормализуем в единую единицу.
   if (variants[0]?.ram !== undefined) {
