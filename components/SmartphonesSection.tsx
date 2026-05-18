@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { PHONES_CATALOG, type PhoneItem, type SimType } from "@/lib/data";
+import { PHONES_CATALOG, PHONE_PRODUCTS, type PhoneItem, type SimType, type Product } from "@/lib/data";
 import { calcInstallment, fmtRub, fmtRubApprox, getMinDownPct } from "@/lib/calculator-logic";
 import { COMPANY } from "@/lib/data";
 import { useAppModal } from "@/lib/modal-context";
@@ -30,16 +30,10 @@ const SIM_ORDER: Record<string, number> = {
 
 const DEFAULT_TERM = 6;
 
-// ─── Дедупликация каталога: 1 запись на модель+память+SIM (макс. цена) ──
-const DEDUPED_CATALOG: PhoneItem[] = (() => {
-  const best = new Map<string, PhoneItem>();
-  for (const p of PHONES_CATALOG) {
-    const key = `${p.brand}|${p.model}|${p.memory}|${p.sim}`;
-    const prev = best.get(key);
-    if (!prev || p.price > prev.price) best.set(key, p);
-  }
-  return Array.from(best.values());
-})();
+// ─── Источник: объединённые телефоны (1 карточка на модель) из data.ts ──
+// PHONE_PRODUCTS уже сгруппирован по (brand, model) с variants[memory × sim × color].
+// Здесь нужен только helper `getModel` для совместимости со старой сортировкой.
+const getModel = (p: Product): string => p.name.replace(`${p.brand} `, "");
 
 // ─── Ключи сортировки ────────────────────────────────────────
 
@@ -150,7 +144,7 @@ function Badge({ text }: { text?: string }) {
 
 // ─── Карточка товара ─────────────────────────────────────────
 interface PhoneCardProps {
-  phone:        PhoneItem;
+  phone:        Product;
   authed:       boolean;
   inFavs:       boolean;
   cartQty:      number;
@@ -165,13 +159,20 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
   const perMonth = monthly(phone.price);
   const { openModal } = useAppModal();
 
+  // Производные поля для совместимости (раньше phone был PhoneItem с явными
+  // memory/sim — теперь это Product с variants, берём первый вариант).
+  const modelName = getModel(phone);
+  const firstV = phone.variants?.[0];
+  const memory = firstV?.memory ?? "";
+  const sim = firstV?.sim ?? "";
+
   function handleBuy() {
     const down       = Math.ceil(phone.price * getMinDownPct(phone.price));
     const monthlyAmt = calcInstallment({ price: phone.price, down, term: DEFAULT_TERM }).monthly;
     openModal({
-      productName: phone.model,
-      memory:      phone.memory,
-      sim:         phone.sim,
+      productName: phone.name,
+      memory,
+      sim,
       price:       phone.price,
       down,
       term:        DEFAULT_TERM,
@@ -183,10 +184,10 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
   const ActionRow = () => {
     if (inCart) {
       return (
-        <div className="mt-2 w-full flex items-stretch rounded-[10px]
+        <div className="relative z-20 mt-2 w-full flex items-stretch rounded-[10px]
                         bg-[#0C7A58] text-white text-[11px] font-semibold overflow-hidden
                         ring-1 ring-[#0a6449]/30">
-          <button onClick={() => onUpdateQty(phone.id, cartQty - 1)}
+          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUpdateQty(phone.id, cartQty - 1); }}
             aria-label="Убавить"
             className="px-3 py-1.5 hover:bg-[#0a6449] active:scale-95 transition-all touch-manipulation">
             −
@@ -194,7 +195,7 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
           <span className="flex-1 text-center py-1.5 tabular-nums">
             В корзине · {cartQty}
           </span>
-          <button onClick={() => onUpdateQty(phone.id, cartQty + 1)}
+          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUpdateQty(phone.id, cartQty + 1); }}
             aria-label="Добавить ещё"
             className="px-3 py-1.5 hover:bg-[#0a6449] active:scale-95 transition-all touch-manipulation">
             +
@@ -203,18 +204,18 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
       );
     }
     return (
-      <button onClick={() => {
+      <button onClick={(e) => {
+          e.preventDefault(); e.stopPropagation();
           onAddCart(phone.id);
           if (authed) {
-            showCartAdded({ productName: `${phone.brand} ${phone.model} ${phone.memory}` });
+            showCartAdded({ productName: phone.name });
           } else {
-            // Гость — большая модалка с доп. кнопками «Перейти в корзину / Продолжить».
             const down = Math.ceil(phone.price * getMinDownPct(phone.price));
             const monthlyAmt = calcInstallment({ price: phone.price, down, term: DEFAULT_TERM }).monthly;
             openModal({
-              productName: phone.model,
-              memory:      phone.memory,
-              sim:         phone.sim,
+              productName: phone.name,
+              memory,
+              sim,
               price:       phone.price,
               down,
               term:        DEFAULT_TERM,
@@ -223,7 +224,7 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
             });
           }
         }}
-        className="mt-2 w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
+        className="relative z-20 mt-2 w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
                    text-[11px] font-semibold flex items-center justify-center gap-1
                    hover:bg-[#1A3C6E] active:scale-95 transition-all touch-manipulation">
         <svg width="11" height="11" viewBox="0 0 20 20" fill="none">
@@ -237,6 +238,13 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
     );
   };
 
+  // Уникальные значения памяти и количество SIM-вариантов для подписи
+  const memOptions = useMemo(() => {
+    const set = new Set((phone.variants ?? []).map(v => v.memory).filter(Boolean) as string[]);
+    return Array.from(set).sort((a, b) => MEMORY_ORDER.indexOf(a) - MEMORY_ORDER.indexOf(b));
+  }, [phone.variants]);
+  const hasVariants = (phone.variants?.length ?? 0) > 0;
+
   return (
     <div
       className="bg-white flex flex-col group relative overflow-hidden
@@ -244,11 +252,18 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
                  hover:shadow-[0_4px_20px_rgba(10,22,40,0.10)]"
       style={{ borderRadius: "14px", border: "1px solid #f0f0f0" }}
     >
+      {/* Кликабельная подложка — клик по карточке ведёт на детальную */}
+      <Link
+        href={`/product/${phone.id}/`}
+        aria-label={phone.name}
+        className="absolute inset-0 z-10"
+      />
+
       <Badge text={phone.badge} />
 
       {/* ❤ — избранное */}
       <button
-        onClick={(e) => { e.stopPropagation(); onToggleFav(phone.id); }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(phone.id); }}
         aria-label={inFavs ? "Убрать из избранного" : "В избранное"}
         className={`absolute top-1.5 right-1.5 z-20 w-6 h-6 flex items-center justify-center
                     rounded-full transition-all active:scale-90
@@ -266,7 +281,7 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
       {/* Изображение — slideshow со всеми цветами */}
       <ProductSlideshow
         images={phone.img}
-        alt={`${phone.model} ${phone.memory}`}
+        alt={phone.name}
         className="w-full bg-white overflow-hidden flex items-center justify-center
                    group-hover:[&>img]:scale-[1.04]"
         imgClassName="transition-transform duration-300 p-2"
@@ -280,15 +295,26 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
           {phone.brand}
         </p>
         <h3 className="font-medium text-[#0A1628] text-[13px] leading-snug line-clamp-2 mt-0.5">
-          {phone.model}
+          {modelName}
         </h3>
-        {/* Характеристики — всегда видны */}
-        <p className="text-[10px] text-[#ADADAD] mt-0.5">
-          {phone.memory}<span className="mx-1">·</span>{phone.sim}
-        </p>
-        {/* Цена */}
+        {/* Характеристики — список доступных вариантов памяти */}
+        {memOptions.length > 0 && (
+          <p className="text-[10px] text-[#ADADAD] mt-0.5">
+            {memOptions.join(" · ")}
+          </p>
+        )}
+        {/* Цена. Для variants — «от <min> ₽», иначе обычная цена. */}
         <p className="font-bold text-[#0A1628] mt-1.5 leading-none" style={{ fontSize: "15px" }}>
-          {phone.tgSynced ? fmtRub(phone.price) : fmtRubApprox(phone.price)} ₽
+          {hasVariants ? (
+            <>
+              <span className="text-[10px] font-semibold text-[#6B7280] mr-1">от</span>
+              {fmtRub(phone.price)} ₽
+            </>
+          ) : phone.tgSynced ? (
+            `${fmtRub(phone.price)} ₽`
+          ) : (
+            `${fmtRubApprox(phone.price)} ₽`
+          )}
         </p>
         <p className="text-[10px] text-[#9CA3AF] mt-0.5">
           от {fmtRub(perMonth)} ₽/мес.
@@ -526,33 +552,32 @@ export function SmartphonesSection() {
     notifyCartChanged();
   };
 
-  // Дедуплицированный список для текущего бренда
+  // Объединённые товары для текущего бренда
   const brandItems = useMemo(
-    () => DEDUPED_CATALOG.filter(p => p.brand === brand),
+    () => PHONE_PRODUCTS.filter(p => p.brand === brand),
     [brand]
   );
 
-  // Опции фильтров — строятся динамически на основе дедуплицированных данных
+  // Опции фильтров — на уровне моделей и variants
   const modelOptions = useMemo(() => {
-    const models = Array.from(new Set(brandItems.map(p => p.model)));
+    const models = Array.from(new Set(brandItems.map(p => getModel(p))));
     return ["Все", ...models];
   }, [brandItems]);
 
   const memoryOptions = useMemo(() => {
-    const base = model !== "Все" ? brandItems.filter(p => p.model === model) : brandItems;
-    const mems = Array.from(new Set(base.map(p => p.memory)));
+    const base = model !== "Все" ? brandItems.filter(p => getModel(p) === model) : brandItems;
+    const mems = Array.from(new Set(
+      base.flatMap(p => (p.variants ?? []).map(v => v.memory).filter(Boolean) as string[])
+    ));
     mems.sort((a, b) => MEMORY_ORDER.indexOf(a) - MEMORY_ORDER.indexOf(b));
     return ["Все", ...mems];
   }, [brandItems, model]);
 
-  // Цвета берём из исходного PHONES_CATALOG (не дедуплицированного),
-  // чтобы показать все доступные варианты для выбранной модели
   const colorOptions = useMemo(() => {
-    let phones = PHONES_CATALOG.filter(p => p.brand === brand);
-    if (model !== "Все") phones = phones.filter(p => p.model === model);
-    const all = phones.flatMap(p => p.colors);
+    const base = model !== "Все" ? brandItems.filter(p => getModel(p) === model) : brandItems;
+    const all = base.flatMap(p => p.colors ?? []);
     return ["Все", ...Array.from(new Set(all))];
-  }, [brand, model]);
+  }, [brandItems, model]);
 
   // Сбрасываем память и цвет, если они недоступны для новой модели
   useEffect(() => {
@@ -571,56 +596,43 @@ export function SmartphonesSection() {
     setSim("Все");
   }
 
-  // Фильтрация + сортировка
+  // Фильтрация + сортировка (теперь на уровне моделей/variants)
   const filtered = useMemo(() => {
-    // Фильтруем дедуплицированный каталог
-    // Фильтр по цвету проверяем через исходный PHONES_CATALOG (цвета не хранятся в деду)
-    const colorSet = color !== "Все"
-      ? new Set(
-          PHONES_CATALOG
-            .filter(p => p.brand === brand && p.colors.includes(color))
-            .map(p => `${p.model}|${p.memory}|${p.sim}`)
-        )
-      : null;
-
     const result = brandItems.filter(p => {
-      if (model  !== "Все" && p.model  !== model)  return false;
-      if (memory !== "Все" && p.memory !== memory) return false;
-      if (sim    !== "Все" && p.sim    !== sim)    return false;
-      if (colorSet && !colorSet.has(`${p.model}|${p.memory}|${p.sim}`)) return false;
+      const mn = getModel(p);
+      if (model !== "Все" && mn !== model) return false;
+      if (memory !== "Все" && !(p.variants ?? []).some(v => v.memory === memory)) return false;
+      if (sim !== "Все" && !(p.variants ?? []).some(v => v.sim === sim)) return false;
+      if (color !== "Все" && !(p.colors ?? []).includes(color)) return false;
       return true;
     });
 
-    // Сортировка: серия/поколение↓ → тип модели → память↑ → SIM
+    // Сортировка: бренд-специфичный ключ по модели
     return result.sort((a, b) => {
-      // Бренд-специфичные ключи (до 3 уровней)
+      const ma = getModel(a);
+      const mb = getModel(b);
       let brandDiff = 0;
       if (a.brand === "Apple") {
-        const ka = iphoneSortKey(a.model);
-        const kb = iphoneSortKey(b.model);
+        const ka = iphoneSortKey(ma);
+        const kb = iphoneSortKey(mb);
         brandDiff = ka[0] - kb[0] || ka[1] - kb[1];
       } else if (a.brand === "Samsung") {
-        const ka = samsungSortKey(a.model);
-        const kb = samsungSortKey(b.model);
+        const ka = samsungSortKey(ma);
+        const kb = samsungSortKey(mb);
         brandDiff = ka[0] - kb[0] || ka[1] - kb[1] || ka[2] - kb[2];
       } else if (a.brand === "Xiaomi") {
-        const ka = xiaomiSortKey(a.model);
-        const kb = xiaomiSortKey(b.model);
+        const ka = xiaomiSortKey(ma);
+        const kb = xiaomiSortKey(mb);
         brandDiff = ka[0] - kb[0] || ka[1] - kb[1] || ka[2] - kb[2];
       } else if (a.brand === "Honor") {
-        const ka = honorSortKey(a.model);
-        const kb = honorSortKey(b.model);
+        const ka = honorSortKey(ma);
+        const kb = honorSortKey(mb);
         brandDiff = ka[0] - kb[0] || ka[1] - kb[1] || ka[2] - kb[2];
       }
       if (brandDiff !== 0) return brandDiff;
-      // Общие критерии: память↑ → SIM
-      const memDiff = MEMORY_ORDER.indexOf(a.memory) - MEMORY_ORDER.indexOf(b.memory);
-      if (memDiff !== 0) return memDiff;
-      const simDiff = (SIM_ORDER[a.sim] ?? 99) - (SIM_ORDER[b.sim] ?? 99);
-      if (simDiff !== 0) return simDiff;
-      return a.model.localeCompare(b.model, "ru");
+      return ma.localeCompare(mb, "ru");
     });
-  }, [brandItems, model, memory, color, sim, brand]);
+  }, [brandItems, model, memory, color, sim]);
 
   const hasFilters = model !== "Все" || memory !== "Все" || color !== "Все" || sim !== "Все";
 
