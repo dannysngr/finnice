@@ -26,6 +26,7 @@ BIG_TS   = ROOT / "lib" / "biggeek-products.ts"
 ADD_TS   = ROOT / "lib" / "tg-additions.ts"
 OUT_TS   = ROOT / "lib" / "tg-prices.ts"
 META_OUT = ROOT / "lib" / "tg-sync-meta.json"
+COLOR_PRICES_OUT = ROOT / "lib" / "tg-color-prices.json"
 
 # fetch-biggeek-prices.py содержит дефис в имени — грузим через importlib
 _BG_SPEC = importlib.util.spec_from_file_location(
@@ -994,6 +995,45 @@ def main():
     }
     META_OUT.write_text(json.dumps(meta, ensure_ascii=False, indent=2))
     print(f"📝 Метаданные → {META_OUT}")
+
+    # ── Per-color iPhone prices → lib/tg-color-prices.json ──
+    # PHONE_PRODUCTS использует этот файл, чтобы у каждого цвета была
+    # своя цена (MAX по каналам + markup). Подстрочный матч цвета
+    # делает уже сама data.ts.
+    SIM_TO_CATALOG = {"SIM": "SIM + eSIM", "eSIM": "eSIM", "—": "SIM + eSIM"}
+    color_prices: dict[str, int] = {}
+    for m in matched_items:
+        key = m.get("tgKey", "")
+        if not key.startswith("Apple|iPhone"):
+            continue
+        parts = key.split("|")
+        if len(parts) != 4:
+            continue
+        brand, model, memory, tg_sim = parts
+        cat_sim = SIM_TO_CATALOG.get(tg_sim, tg_sim)
+
+        by_color: dict[str, int] = {}
+        for _src, items in (m.get("details") or {}).items():
+            for it in items:
+                color = (it.get("color") or "").strip()
+                price = int(it.get("price", 0))
+                if not color or price <= 0:
+                    continue
+                if color not in by_color or price > by_color[color]:
+                    by_color[color] = price
+
+        for color, raw in by_color.items():
+            out_key = f"{brand}|{model}|{memory}|{cat_sim}|{color}"
+            final = raw + MARKUP
+            if out_key not in color_prices or final > color_prices[out_key]:
+                color_prices[out_key] = final
+
+    sorted_cp = dict(sorted(color_prices.items()))
+    COLOR_PRICES_OUT.write_text(
+        json.dumps(sorted_cp, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    print(f"📝 Per-color цены → {COLOR_PRICES_OUT} ({len(sorted_cp)} записей)")
 
 
 if __name__ == "__main__":

@@ -118,6 +118,8 @@ import { BIGGEEK_PRODUCTS } from "./biggeek-products";
 import { BIGGEEK_MACBOOKS } from "./biggeek-macbooks";
 import { TG_PRICES } from "./tg-prices";
 import { TG_NEW_PRODUCTS, TG_NEW_PHONES } from "./tg-additions";
+import tgColorPricesData from "./tg-color-prices.json";
+const TG_COLOR_PRICES = tgColorPricesData as Record<string, number>;
 const MANIFEST: Record<string, number> = phonesManifest as Record<string, number>;
 
 /** Возвращает массив URL картинок товара (по числу скачанных цветов).
@@ -694,16 +696,29 @@ export const PHONE_PRODUCTS: Product[] = (() => {
       }
     }
 
-    // Variants: каждый SKU раскрываем на цвета
+    // Variants: каждый SKU раскрываем на цвета.
+    // Цена per-color: TG_COLOR_PRICES (если есть) — MAX по подстроке-матчу,
+    // иначе базовая цена SKU.
     const variants: NonNullable<Product["variants"]> = [];
     for (const s of skus) {
       const skuImg = Array.isArray(s.img) ? s.img[0] : undefined;
+      const keyPrefix = `${s.brand}|${s.model}|${s.memory}|${s.sim}|`;
       for (const c of s.colors) {
+        // Подстрочный матч: catalog «Cosmic Orange (...)» ↔ TG «Orange» или «Cosmic Orange».
+        const catalogColor = c.replace(/\(.+?\)/g, "").trim().toLowerCase();
+        let bestPrice: number | null = null;
+        for (const [key, price] of Object.entries(TG_COLOR_PRICES)) {
+          if (!key.startsWith(keyPrefix)) continue;
+          const tgColor = key.slice(keyPrefix.length).toLowerCase();
+          if (catalogColor.includes(tgColor) || tgColor.includes(catalogColor)) {
+            if (bestPrice === null || price > bestPrice) bestPrice = price;
+          }
+        }
         variants.push({
           memory: s.memory,
           sim:    s.sim,
           color:  c,
-          price:  s.price,
+          price:  bestPrice ?? s.price,
           img:    skuImg,
         });
       }
