@@ -239,21 +239,21 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
   };
 
   // Память для сегментного блока под названием.
-  // По образцу MacBook'ов: если все значения ≥ 1 ТБ → выводим без единиц,
-  // ставим «ТБ» один раз в конце; иначе каждый чип — со своим юнитом.
+  // Нормализуем в единую единицу: если все ≥ 1ТБ → ТБ; иначе все ГБ
+  // (1 ТБ при смешанном наборе → 1024 ГБ).
   const memChips = useMemo(() => {
     const toGB = (s: string) => {
       const n = parseInt(s.replace(/\D/g, "")) || 0;
-      return s.includes("ТБ") ? n * 1000 : n;
+      return s.includes("ТБ") ? n * 1024 : n;
     };
     const gbs = Array.from(new Set(
       (phone.variants ?? []).map(v => toGB(v.memory ?? "")).filter(Boolean)
     )).sort((a, b) => a - b);
     if (!gbs.length) return null;
-    const allTB = gbs.every(g => g >= 1000);
+    const allTB = gbs.every(g => g >= 1024);
     return allTB
-      ? { values: gbs.map(g => String(g / 1000)), unit: "ТБ" }
-      : { values: gbs.map(g => g >= 1000 ? `${g / 1000} ТБ` : `${g} ГБ`), unit: "" };
+      ? { values: gbs.map(g => String(g / 1024)), unit: "ТБ" }
+      : { values: gbs.map(String), unit: "ГБ" };
   }, [phone.variants]);
   const hasVariants = (phone.variants?.length ?? 0) > 0;
 
@@ -309,26 +309,22 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
         <h3 className="font-medium text-[#0A1628] text-[13px] leading-snug line-clamp-2 mt-0.5">
           {modelName}
         </h3>
-        {/* Характеристики — иконка + лейбл «ПАМЯТЬ» + сегментный блок (как у MacBook). */}
+        {/* Характеристики — сегментный блок памяти (как у MacBook), без лейбла. */}
         {memChips && (
-          <div className="mt-1 flex items-center gap-1.5 flex-wrap">
-            <span className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-[#1A3C6E]"
-                  title="Память">
-              <MemoryIcon /> ПАМЯТЬ
-            </span>
+          <div className="mt-1">
             <span className="inline-flex items-stretch text-[9px] font-semibold text-[#6B7280]
                             bg-[#F4F7FC] border border-[#E5E7EB] rounded-md leading-none overflow-hidden">
-            {memChips.values.map((v, i) => (
-              <span key={v + i}
-                className={`px-1.5 py-0.5 ${i > 0 ? "border-l border-[#E5E7EB]" : ""}`}>
-                {v}
-              </span>
-            ))}
-            {memChips.unit && (
-              <span className="px-1.5 py-0.5 border-l border-[#E5E7EB] bg-[#EBF0F9] text-[#1A3C6E]">
-                {memChips.unit}
-              </span>
-            )}
+              {memChips.values.map((v, i) => (
+                <span key={v + i}
+                  className={`px-1.5 py-0.5 ${i > 0 ? "border-l border-[#E5E7EB]" : ""}`}>
+                  {v}
+                </span>
+              ))}
+              {memChips.unit && (
+                <span className="px-1.5 py-0.5 border-l border-[#E5E7EB] bg-[#EBF0F9] text-[#1A3C6E]">
+                  {memChips.unit}
+                </span>
+              )}
             </span>
           </div>
         )}

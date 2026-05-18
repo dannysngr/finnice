@@ -787,36 +787,38 @@ function variantChipsFor(variants: NonNullable<CatalogItem["variants"]>):
   | null
 {
   const onlyNum = (s: string) => parseInt(s.replace(/\D/g, "")) || 0;
-  const toGB = (s: string) => (s.includes("ТБ") ? onlyNum(s) * 1000 : onlyNum(s));
-  const fmtSsd = (g: number) => (g >= 1000 ? `${g / 1000} ТБ` : `${g} ГБ`);
+  const toGB = (s: string) => (s.includes("ТБ") ? onlyNum(s) * 1024 : onlyNum(s));
+  const fmtSsd = (g: number) => (g >= 1024 ? `${g / 1024} ТБ` : `${g} ГБ`);
 
-  // MacBook-mode: есть ram
+  // MacBook-mode: есть ram. SSD нормализуем в единую единицу.
   if (variants[0]?.ram !== undefined) {
     const rams = Array.from(new Set(variants.map(v => onlyNum(v.ram ?? ""))))
       .sort((a, b) => a - b).map(String);
     const ssdGBs = Array.from(new Set(variants.map(v => toGB(v.ssd ?? ""))))
       .sort((a, b) => a - b);
-    const allTB = ssdGBs.every(g => g >= 1000);
-    const ssds = allTB ? ssdGBs.map(g => String(g / 1000)) : ssdGBs.map(fmtSsd);
-    const ssdUnit = allTB ? "ТБ" : "";
+    const allTB = ssdGBs.every(g => g >= 1024);
+    const ssds = allTB ? ssdGBs.map(g => String(g / 1024)) : ssdGBs.map(String);
+    const ssdUnit = allTB ? "ТБ" : "ГБ";
     return {
       rowA: { label: "ОЗУ", values: rams,  unit: "ГБ" },
       rowB: { label: "SSD", values: ssds, unit: ssdUnit },
     };
   }
 
-  // Phone-mode: есть memory
+  // Phone-mode: есть memory.
+  // Нормализуем в единую единицу: если есть и ГБ и ТБ — все в ГБ (1 ТБ → 1024).
   if (variants[0]?.memory !== undefined) {
     const memGBs = Array.from(new Set(variants.map(v => toGB(v.memory ?? ""))))
       .sort((a, b) => a - b);
-    const allTB = memGBs.every(g => g >= 1000);
-    const mems = allTB ? memGBs.map(g => String(g / 1000)) : memGBs.map(fmtSsd);
-    const memUnit = allTB ? "ТБ" : "";
+    const allTB = memGBs.every(g => g >= 1024);
+    const mems = allTB ? memGBs.map(g => String(g / 1024)) : memGBs.map(String);
+    const memUnit = allTB ? "ТБ" : "ГБ";
 
     const sims = Array.from(new Set(variants.map(v => v.sim).filter(Boolean) as string[]));
     return {
-      rowA: { label: "Память", values: mems, unit: memUnit },
-      rowB: sims.length > 0 ? { label: "SIM", values: sims, unit: "" } : null,
+      // У телефонов label пуст — иконка/подпись не нужны, только сегментный блок.
+      rowA: { label: "", values: mems, unit: memUnit },
+      rowB: sims.length > 0 ? { label: "", values: sims, unit: "" } : null,
     };
   }
 
@@ -1025,18 +1027,21 @@ function ProductCard({ item: p, authed, inFavs, cartQty, onToggleFav, onAddCart,
   );
 }
 
-/** Один ряд под названием карточки: иконка + лейбл + объединённый блок
- *  значений (значения разделены вертикальными чертами, юнит — в конце). */
+/** Один ряд под названием карточки: опц. иконка + лейбл + объединённый блок
+ *  значений (значения разделены вертикальными чертами, юнит — в конце).
+ *  Если label пустой — иконка/подпись не показываются (только сегментный блок). */
 function ChipRow({ icon, label, values, unit }: {
   icon: React.ReactNode; label: string; values: string[]; unit: string;
 }) {
   if (!values.length) return null;
   return (
     <div className="flex items-center gap-1.5 flex-wrap">
-      <span className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-[#1A3C6E]"
-            title={label}>
-        {icon}{label}
-      </span>
+      {label && (
+        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-[#1A3C6E]"
+              title={label}>
+          {icon}{label}
+        </span>
+      )}
       <span className="inline-flex items-stretch text-[9px] font-semibold text-[#6B7280]
                        bg-[#F4F7FC] border border-[#E5E7EB] rounded-md leading-none overflow-hidden">
         {values.map((v, i) => (
