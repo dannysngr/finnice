@@ -187,45 +187,31 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
           format onChange={handlePriceChange}
         />
 
-        {/* Взнос — алерт о минимальном взносе. На desktop живёт в колонке
-            НАД инпутом; на mobile перенесён ПОД подпись «Первоначальный
-            взнос» (т.е. между лейблом и инпутом — компактнее). */}
-        <div className="flex flex-col gap-2">
-          {/* Desktop-вариант алерта */}
-          <div className={`hidden sm:flex items-start gap-2 rounded-xl px-3 py-2 text-[11px] sm:text-xs transition-all
-                           ${isHighPrice
-                             ? "bg-[#C8972B]/20 border border-[#C8972B]/40 text-[#E8B84B]"
-                             : "bg-white/8 border border-white/15 text-white/55"}`}>
-            <span className="shrink-0 mt-0.5">{isHighPrice ? "⚠️" : "ℹ️"}</span>
-            <span>
-              При сумме от 50&nbsp;000&nbsp;₽ первый взнос обязателен (от 25%).
-              {isHighPrice && (
-                <> Минимальный взнос: <strong>{fmtRub(result.minDown)}&nbsp;₽</strong>.</>
-              )}
-            </span>
-          </div>
-          <NumberSlider
-            label={downLabel}
-            value={down} unit="₽" trackPct={0} noTrack
-            min={result.minDown} max={maxDown} step={500}
-            format onChange={setDown}
-            warn={!result.isValidDown}
-            belowLabel={
-              <div className={`sm:hidden mb-2 flex items-start gap-2 rounded-xl px-3 py-2 text-[11px] transition-all
-                               ${isHighPrice
-                                 ? "bg-[#C8972B]/20 border border-[#C8972B]/40 text-[#E8B84B]"
-                                 : "bg-white/8 border border-white/15 text-white/55"}`}>
-                <span className="shrink-0 mt-0.5">{isHighPrice ? "⚠️" : "ℹ️"}</span>
-                <span>
-                  При сумме от 50&nbsp;000&nbsp;₽ первый взнос обязателен (от 25%).
-                  {isHighPrice && (
-                    <> Минимальный взнос: <strong>{fmtRub(result.minDown)}&nbsp;₽</strong>.</>
-                  )}
-                </span>
-              </div>
-            }
-          />
-        </div>
+        {/* Взнос. На mobile алерт «При сумме от 50к…» рендерится ПОД лейблом
+            через `belowLabel` (между подписью и инпутом). На desktop алерт
+            показывается ОТДЕЛЬНО ниже всей строки инпутов (см. ниже,
+            «Инфо: взнос при ≥50к»). */}
+        <NumberSlider
+          label={downLabel}
+          value={down} unit="₽" trackPct={0} noTrack
+          min={result.minDown} max={maxDown} step={500}
+          format onChange={setDown}
+          warn={!result.isValidDown}
+          belowLabel={
+            <div className={`sm:hidden mb-2 flex items-start gap-2 rounded-xl px-3 py-2 text-[11px] transition-all
+                             ${isHighPrice
+                               ? "bg-[#C8972B]/20 border border-[#C8972B]/40 text-[#E8B84B]"
+                               : "bg-white/8 border border-white/15 text-white/55"}`}>
+              <span className="shrink-0 mt-0.5">{isHighPrice ? "⚠️" : "ℹ️"}</span>
+              <span>
+                При сумме от 50&nbsp;000&nbsp;₽ первый взнос обязателен (от 25%).
+                {isHighPrice && (
+                  <> Минимальный взнос: <strong>{fmtRub(result.minDown)}&nbsp;₽</strong>.</>
+                )}
+              </span>
+            </div>
+          }
+        />
 
         {/* Количество платежей */}
         <NumberSlider
@@ -235,6 +221,21 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
           onChange={setTerm}
           hint="1-й платёж — взнос, остальные ежемесячно"
         />
+      </div>
+
+      {/* Инфо: взнос при ≥50к — только на desktop, на mobile живёт под лейблом
+          «Первоначальный взнос» (см. belowLabel выше) */}
+      <div className={`hidden sm:flex mb-3 items-start gap-2 rounded-xl px-3 py-2 text-[11px] sm:text-xs transition-all
+                       ${isHighPrice
+                         ? "bg-[#C8972B]/20 border border-[#C8972B]/40 text-[#E8B84B]"
+                         : "bg-white/8 border border-white/15 text-white/55"}`}>
+        <span className="shrink-0 mt-0.5">{isHighPrice ? "⚠️" : "ℹ️"}</span>
+        <span>
+          При сумме от 50&nbsp;000&nbsp;₽ первый взнос обязателен (от 25%).
+          {isHighPrice && (
+            <> Минимальный взнос: <strong>{fmtRub(result.minDown)}&nbsp;₽</strong>.</>
+          )}
+        </span>
       </div>
 
       {/* Предупреждение: взнос ниже минимума */}
