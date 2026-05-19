@@ -81,16 +81,25 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
     : calcInstallment({ price, down, term });
 
   function handlePriceChange(v: number) {
-    const wasAbove = prevPriceRef.current >= HIGH_PRICE_THRESHOLD;
+    const oldPrice = prevPriceRef.current;
+    const wasAbove = oldPrice >= HIGH_PRICE_THRESHOLD;
     const isAbove  = v >= HIGH_PRICE_THRESHOLD;
     prevPriceRef.current = v;
     setPrice(v);
     const minD = Math.ceil(v * getMinDownPct(v));
     const maxD = Math.floor(v * MAX_DOWN_PCT);
     if (!wasAbove && isAbove) {
+      // Переход через порог 50к — выставляем обязательный минимум 25%.
       setDown(minD);
     } else {
-      setDown(d => Math.max(minD, Math.min(maxD, d)));
+      // Сохраняем долю взноса от цены, чтобы ползунок не «уезжал» визуально
+      // при изменении стоимости (раньше down оставался прежним значением,
+      // но max=60% уменьшался → thumb сдвигался вправо).
+      setDown(d => {
+        const ratio = oldPrice > 0 ? d / oldPrice : 0;
+        const scaled = Math.round((v * ratio) / 500) * 500;
+        return Math.max(minD, Math.min(maxD, scaled));
+      });
     }
   }
 
