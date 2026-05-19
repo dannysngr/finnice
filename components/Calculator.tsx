@@ -89,8 +89,11 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
     const minD = Math.ceil(v * getMinDownPct(v));
     const maxD = Math.floor(v * MAX_DOWN_PCT);
     if (!wasAbove && isAbove) {
-      // Переход через порог 50к — выставляем обязательный минимум 25%.
+      // Переход через порог 50к вверх — выставляем обязательный минимум 25%.
       setDown(minD);
+    } else if (wasAbove && !isAbove) {
+      // Переход через порог 50к вниз — взнос больше не обязателен, обнуляем.
+      setDown(0);
     } else {
       // Сохраняем долю взноса от цены, чтобы ползунок не «уезжал» визуально
       // при изменении стоимости (раньше down оставался прежним значением,
