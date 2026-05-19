@@ -187,10 +187,12 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
           format onChange={handlePriceChange}
         />
 
-        {/* Взнос — оборачиваем в колонку, чтобы алерт о минимальном
-            взносе прижимался прямо над инпутом (особенно важно на мобиле). */}
+        {/* Взнос — алерт о минимальном взносе. На desktop живёт в колонке
+            НАД инпутом; на mobile перенесён ПОД подпись «Первоначальный
+            взнос» (т.е. между лейблом и инпутом — компактнее). */}
         <div className="flex flex-col gap-2">
-          <div className={`flex items-start gap-2 rounded-xl px-3 py-2 text-[11px] sm:text-xs transition-all
+          {/* Desktop-вариант алерта */}
+          <div className={`hidden sm:flex items-start gap-2 rounded-xl px-3 py-2 text-[11px] sm:text-xs transition-all
                            ${isHighPrice
                              ? "bg-[#C8972B]/20 border border-[#C8972B]/40 text-[#E8B84B]"
                              : "bg-white/8 border border-white/15 text-white/55"}`}>
@@ -208,6 +210,20 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
             min={result.minDown} max={maxDown} step={500}
             format onChange={setDown}
             warn={!result.isValidDown}
+            belowLabel={
+              <div className={`sm:hidden mb-2 flex items-start gap-2 rounded-xl px-3 py-2 text-[11px] transition-all
+                               ${isHighPrice
+                                 ? "bg-[#C8972B]/20 border border-[#C8972B]/40 text-[#E8B84B]"
+                                 : "bg-white/8 border border-white/15 text-white/55"}`}>
+                <span className="shrink-0 mt-0.5">{isHighPrice ? "⚠️" : "ℹ️"}</span>
+                <span>
+                  При сумме от 50&nbsp;000&nbsp;₽ первый взнос обязателен (от 25%).
+                  {isHighPrice && (
+                    <> Минимальный взнос: <strong>{fmtRub(result.minDown)}&nbsp;₽</strong>.</>
+                  )}
+                </span>
+              </div>
+            }
           />
         </div>
 
@@ -283,24 +299,26 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
 // Слайдер
 
 interface SliderProps {
-  label:    string;
-  value:    number;
-  unit:     string;
-  trackPct: number;
-  min:      number;
-  max:      number;
-  step:     number;
-  onChange: (v: number) => void;
-  warn?:    boolean;
-  format?:  boolean;
-  noTrack?: boolean;
-  hint?:    string;
+  label:        string;
+  value:        number;
+  unit:         string;
+  trackPct:     number;
+  min:          number;
+  max:          number;
+  step:         number;
+  onChange:     (v: number) => void;
+  warn?:        boolean;
+  format?:      boolean;
+  noTrack?:     boolean;
+  hint?:        string;
+  /** Опц. слот между label и input — для алерта/подсказки прямо под подписью. */
+  belowLabel?:  React.ReactNode;
 }
 
 function NumberSlider({
   label, value, unit, trackPct,
   min, max, step, onChange,
-  warn = false, format = false, noTrack = false, hint,
+  warn = false, format = false, noTrack = false, hint, belowLabel,
 }: SliderProps) {
   const toDisplay = (n: number) => (format ? addSpaces(n) : String(n));
   const [raw,     setRaw]     = useState(toDisplay(value));
@@ -363,6 +381,7 @@ function NumberSlider({
       >
         {label}
       </p>
+      {belowLabel}
       <div className={`flex items-center bg-white rounded-xl overflow-hidden border mb-3 transition-colors
                        ${warn ? "border-orange-400" : "border-transparent"}`}>
         <input
