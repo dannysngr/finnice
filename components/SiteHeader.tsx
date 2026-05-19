@@ -6,7 +6,6 @@ import { COMPANY, CATALOG_CATS } from "@/lib/data";
 import { onCartChanged, onFavoritesChanged } from "@/lib/cart-events";
 import { guestCart } from "@/lib/guest-cart";
 import { AuthModal } from "@/components/AuthModal";
-import { CalculatorModal } from "@/components/CalculatorModal";
 import { FinniceLogo } from "@/components/FinniceLogo";
 
 /* ── Session ────────────────────────────────────────────────── */
@@ -36,7 +35,6 @@ export function SiteHeader() {
   const [mobileOpen,  setMobileOpen]  = useState(false);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [authOpen,    setAuthOpen]    = useState(false);
-  const [calcOpen,    setCalcOpen]    = useState(false);
   const [scrolled,    setScrolled]    = useState(false);
   const [session,     setSession]     = useState<SessionInfo>({ authed: false, firstName: null, lastName: null });
   const [cartCount,   setCartCount]   = useState(0);
@@ -357,15 +355,15 @@ export function SiteHeader() {
               </button>
             )}
 
-            {/* Calculator (mobile only) */}
-            <button
-              onClick={() => setCalcOpen(true)}
+            {/* Calculator (mobile only) — отдельная страница, не модалка */}
+            <Link
+              href="/calculator"
               aria-label="Калькулятор"
               className="lg:hidden flex items-center gap-1 px-3 h-9 rounded-full text-white text-[12px] font-semibold whitespace-nowrap transition-opacity hover:opacity-90"
               style={{ background: "linear-gradient(135deg, #0C7A58, #0a6449)" }}
             >
               <CalcIcon /> Калькулятор
-            </button>
+            </Link>
 
             {/* Mobile burger */}
             <button
@@ -441,13 +439,14 @@ export function SiteHeader() {
       {/* ── Mobile slide-down ──────────────────────────── */}
       {mobileOpen && (
         <div className="lg:hidden bg-white px-5 pt-2 pb-4 border-b border-[#EBEBEB]">
-          <button
-            onClick={() => { setMobileOpen(false); setCalcOpen(true); }}
+          <Link
+            href="/calculator"
+            onClick={() => setMobileOpen(false)}
             className="flex items-center gap-2 py-3.5 text-[15px] font-semibold text-[#0C7A58]
                        border-b border-[#F3F4F6] w-full text-left"
           >
             <CalcIcon /> Калькулятор рассрочки
-          </button>
+          </Link>
 
           {/* Catalog with sub-list */}
           <details className="border-b border-[#F3F4F6]">
@@ -546,7 +545,6 @@ export function SiteHeader() {
       )}
 
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} onSuccess={handleAuthSuccess} />
-      <CalculatorModal open={calcOpen} onClose={() => setCalcOpen(false)} />
     </header>
   );
 }
