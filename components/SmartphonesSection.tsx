@@ -198,10 +198,9 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
     </button>
   );
 
-  /** Постоянная нижняя строка действия: «избранное» слева, корзина/степпер справа. */
+  /** Постоянная нижняя строка действия: корзина/степпер слева, «избранное» справа. */
   const ActionRow = () => (
     <div className="mt-2 flex items-stretch gap-1.5">
-      <FavBtn />
       {inCart ? (
         <div className="relative z-20 flex-1 flex items-stretch rounded-[10px]
                         bg-[#0C7A58] text-white text-[11px] font-semibold overflow-hidden
@@ -253,6 +252,7 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
           В корзину
         </button>
       )}
+      <FavBtn />
     </div>
   );
 

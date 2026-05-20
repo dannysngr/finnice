@@ -875,12 +875,11 @@ function ProductCard({ item: p, authed, inFavs, cartQty, onToggleFav, onAddCart,
     </button>
   );
 
-  /** Постоянная нижняя строка действия: слева — «избранное», справа — корзина
-   *  (степпер «−  qty  +» если уже в корзине, иначе «В корзину»). */
+  /** Постоянная нижняя строка действия: слева — корзина (степпер «−  qty  +»
+   *  если уже в корзине, иначе «В корзину»), справа — «избранное». */
   const ActionRow = () => {
     return (
       <div className="mt-2 flex items-stretch gap-1.5">
-        <FavBtn />
         {inCart ? (
           <div className="relative z-20 flex-1 flex items-stretch rounded-[10px]
                           bg-[#0C7A58] text-white text-[11px] font-semibold overflow-hidden
@@ -930,6 +929,7 @@ function ProductCard({ item: p, authed, inFavs, cartQty, onToggleFav, onAddCart,
             В корзину
           </button>
         )}
+        <FavBtn />
       </div>
     );
   };
