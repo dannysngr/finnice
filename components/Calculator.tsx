@@ -224,12 +224,12 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
       </div>
 
       {/* Инфо: взнос при ≥50к — только на desktop, на mobile живёт под лейблом
-          «Первоначальный взнос» (см. belowLabel выше) */}
-      <div className={`hidden sm:flex mb-3 items-start gap-2 rounded-xl px-3 py-2 text-[11px] sm:text-xs transition-all
+          «Первоначальный взнос» (см. belowLabel выше). Содержимое отцентровано. */}
+      <div className={`hidden sm:flex mb-3 items-center justify-center gap-2 rounded-xl px-3 py-2 text-[11px] sm:text-xs text-center transition-all
                        ${isHighPrice
                          ? "bg-[#C8972B]/20 border border-[#C8972B]/40 text-[#E8B84B]"
                          : "bg-white/8 border border-white/15 text-white/55"}`}>
-        <span className="shrink-0 mt-0.5">{isHighPrice ? "⚠️" : "ℹ️"}</span>
+        <span className="shrink-0">{isHighPrice ? "⚠️" : "ℹ️"}</span>
         <span>
           При сумме от 50&nbsp;000&nbsp;₽ первый взнос обязателен (от 25%).
           {isHighPrice && (
