@@ -334,6 +334,11 @@ function CatalogContent() {
   }, [activeCat, catSpecFilterDefs, specBrandFilter]);
 
   const handleToggleFav = useCallback(async (productId: string) => {
+    // Гостям избранное не доступно — отправляем на страницу входа.
+    if (!authed) {
+      router.push("/lk");
+      return;
+    }
     // Оптимистичное обновление
     setFavorites(prev =>
       prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
@@ -349,7 +354,7 @@ function CatalogContent() {
       if (d.ids) setFavorites(d.ids);
       notifyFavoritesChanged();
     } catch { /* откат не нужен — просто логируем */ }
-  }, []);
+  }, [authed, router]);
 
   const handleAddCart = useCallback(async (productId: string) => {
     const already = cart.some(c => c.productId === productId);
@@ -853,65 +858,79 @@ function ProductCard({ item: p, authed, inFavs, cartQty, onToggleFav, onAddCart,
         ...(p.sim ? [p.sim] : []),
       ].join(" · ");
 
-  /** Постоянная нижняя строка действия: если товар в корзине — степпер
-   *  «−  qty  +»; иначе кнопка «В корзину».
-   *  Авторизованным после добавления показываем маленькую модалку «Добавлено»,
-   *  гостям — большую «Купить в рассрочку» (с показом доп. кнопок «Перейти
-   *  в корзину» / «Продолжить покупки»). */
+  /** Кнопка «избранное» — рендерим в одной строке с кнопкой/степпером корзины. */
+  const FavBtn = () => (
+    <button
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(p.id); }}
+      aria-label={inFavs ? "Убрать из избранного" : "В избранное"}
+      className={`relative z-20 shrink-0 w-8 h-[30px] rounded-[10px] border flex items-center justify-center
+                  transition-all active:scale-95
+                  ${inFavs
+                    ? "bg-red-50 border-red-200 text-red-500"
+                    : "bg-white border-[#E5E7EB] text-[#C4C9D4] hover:text-[#FF6B6B] hover:border-[#FF6B6B]/40"}`}>
+      <svg width="13" height="13" viewBox="0 0 20 20" fill={inFavs ? "currentColor" : "none"}>
+        <path d="M10 17S3 12.5 3 7a4 4 0 017-2.66A4 4 0 0117 7c0 5.5-7 10-7 10z"
+              stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+      </svg>
+    </button>
+  );
+
+  /** Постоянная нижняя строка действия: слева — «избранное», справа — корзина
+   *  (степпер «−  qty  +» если уже в корзине, иначе «В корзину»). */
   const ActionRow = () => {
-    if (inCart) {
-      return (
-        <div className="relative z-20 mt-2 w-full flex items-stretch rounded-[10px]
-                        bg-[#0C7A58] text-white text-[11px] font-semibold overflow-hidden
-                        ring-1 ring-[#0a6449]/30">
-          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUpdateQty(p.id, cartQty - 1); }}
-            aria-label="Убавить"
-            className="px-3 py-1.5 hover:bg-[#0a6449] active:scale-95 transition-all touch-manipulation">
-            −
-          </button>
-          <span className="flex-1 text-center py-1.5 tabular-nums">
-            В корзине · {cartQty}
-          </span>
-          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUpdateQty(p.id, cartQty + 1); }}
-            aria-label="Добавить ещё"
-            className="px-3 py-1.5 hover:bg-[#0a6449] active:scale-95 transition-all touch-manipulation">
-            +
-          </button>
-        </div>
-      );
-    }
     return (
-      <button onClick={(e) => {
-          e.preventDefault(); e.stopPropagation();
-          onAddCart(p.id);
-          if (authed) {
-            // Авториз. — лёгкая модалка «Добавлено» (только при первом добавлении).
-            showCartAdded({ productName: p.name });
-          } else {
-            // Гость — большая модалка «Купить в рассрочку» с доп. кнопками.
-            openModal({
-              productName: p.name,
-              memory:      p.memories?.[0],
-              sim:         p.sim,
-              price:       p.price,
-              down,
-              term:        6,
-              monthly:     res.monthly,
-              showCartActions: true,
-            });
-          }
-        }}
-        className="relative z-20 mt-2 w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
-                   text-[11px] font-semibold flex items-center justify-center gap-1
-                   hover:bg-[#1A3C6E] active:scale-95 transition-all touch-manipulation">
-        <svg width="11" height="11" viewBox="0 0 20 20" fill="none">
-          <path d="M3 3h1.5l2.5 9h8l2-6H7" stroke="currentColor" strokeWidth="1.6"
-                strokeLinecap="round" strokeLinejoin="round"/>
-          <circle cx="9" cy="16.5" r="1.2" fill="currentColor"/>
-          <circle cx="15" cy="16.5" r="1.2" fill="currentColor"/>
-        </svg>
-        В корзину
-      </button>
+      <div className="mt-2 flex items-stretch gap-1.5">
+        <FavBtn />
+        {inCart ? (
+          <div className="relative z-20 flex-1 flex items-stretch rounded-[10px]
+                          bg-[#0C7A58] text-white text-[11px] font-semibold overflow-hidden
+                          ring-1 ring-[#0a6449]/30">
+            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUpdateQty(p.id, cartQty - 1); }}
+              aria-label="Убавить"
+              className="px-3 py-1.5 hover:bg-[#0a6449] active:scale-95 transition-all touch-manipulation">
+              −
+            </button>
+            <span className="flex-1 text-center py-1.5 tabular-nums">
+              В корзине · {cartQty}
+            </span>
+            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUpdateQty(p.id, cartQty + 1); }}
+              aria-label="Добавить ещё"
+              className="px-3 py-1.5 hover:bg-[#0a6449] active:scale-95 transition-all touch-manipulation">
+              +
+            </button>
+          </div>
+        ) : (
+          <button onClick={(e) => {
+              e.preventDefault(); e.stopPropagation();
+              onAddCart(p.id);
+              if (authed) {
+                showCartAdded({ productName: p.name });
+              } else {
+                openModal({
+                  productName: p.name,
+                  memory:      p.memories?.[0],
+                  sim:         p.sim,
+                  price:       p.price,
+                  down,
+                  term:        6,
+                  monthly:     res.monthly,
+                  showCartActions: true,
+                });
+              }
+            }}
+            className="relative z-20 flex-1 py-1.5 rounded-[10px] bg-[#0A1628] text-white
+                       text-[11px] font-semibold flex items-center justify-center gap-1
+                       hover:bg-[#1A3C6E] active:scale-95 transition-all touch-manipulation">
+            <svg width="11" height="11" viewBox="0 0 20 20" fill="none">
+              <path d="M3 3h1.5l2.5 9h8l2-6H7" stroke="currentColor" strokeWidth="1.6"
+                    strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="9" cy="16.5" r="1.2" fill="currentColor"/>
+              <circle cx="15" cy="16.5" r="1.2" fill="currentColor"/>
+            </svg>
+            В корзину
+          </button>
+        )}
+      </div>
     );
   };
 
@@ -929,23 +948,6 @@ function ProductCard({ item: p, authed, inFavs, cartQty, onToggleFav, onAddCart,
         aria-label={p.name}
         className="absolute inset-0 z-10"
       />
-
-      {/* Кнопка «Избранное» */}
-      <button
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(p.id); }}
-        aria-label={inFavs ? "Убрать из избранного" : "В избранное"}
-        className={`absolute top-1.5 right-1.5 z-20 w-6 h-6 flex items-center justify-center
-                    rounded-full transition-all active:scale-90
-                    ${inFavs
-                      ? "bg-red-50 text-red-500"
-                      : "bg-white/90 text-[#C4C9D4] opacity-0 group-hover:opacity-100"}`}
-        style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
-      >
-        <svg width="11" height="11" viewBox="0 0 20 20" fill={inFavs ? "currentColor" : "none"}>
-          <path d="M10 17S3 12.5 3 7a4 4 0 017-2.66A4 4 0 0117 7c0 5.5-7 10-7 10z"
-                stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
-        </svg>
-      </button>
 
       {/* Бейдж */}
       {p.badge && (

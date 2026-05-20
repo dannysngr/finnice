@@ -3,6 +3,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PHONES_CATALOG, PHONE_PRODUCTS, type PhoneItem, type SimType, type Product } from "@/lib/data";
 import { calcInstallment, fmtRub, fmtRubApprox, getMinDownPct } from "@/lib/calculator-logic";
 import { COMPANY } from "@/lib/data";
@@ -180,11 +181,29 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
     });
   }
 
-  /** Постоянная нижняя строка действия. */
-  const ActionRow = () => {
-    if (inCart) {
-      return (
-        <div className="relative z-20 mt-2 w-full flex items-stretch rounded-[10px]
+  /** Кнопка избранного — рядом с корзиной в нижней строке действия. */
+  const FavBtn = () => (
+    <button
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(phone.id); }}
+      aria-label={inFavs ? "Убрать из избранного" : "В избранное"}
+      className={`relative z-20 shrink-0 w-8 h-[30px] rounded-[10px] border flex items-center justify-center
+                  transition-all active:scale-95
+                  ${inFavs
+                    ? "bg-red-50 border-red-200 text-red-500"
+                    : "bg-white border-[#E5E7EB] text-[#C4C9D4] hover:text-[#FF6B6B] hover:border-[#FF6B6B]/40"}`}>
+      <svg width="13" height="13" viewBox="0 0 20 20" fill={inFavs ? "currentColor" : "none"}>
+        <path d="M10 17S3 12.5 3 7a4 4 0 017-2.66A4 4 0 0117 7c0 5.5-7 10-7 10z"
+              stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+      </svg>
+    </button>
+  );
+
+  /** Постоянная нижняя строка действия: «избранное» слева, корзина/степпер справа. */
+  const ActionRow = () => (
+    <div className="mt-2 flex items-stretch gap-1.5">
+      <FavBtn />
+      {inCart ? (
+        <div className="relative z-20 flex-1 flex items-stretch rounded-[10px]
                         bg-[#0C7A58] text-white text-[11px] font-semibold overflow-hidden
                         ring-1 ring-[#0a6449]/30">
           <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUpdateQty(phone.id, cartQty - 1); }}
@@ -201,42 +220,41 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
             +
           </button>
         </div>
-      );
-    }
-    return (
-      <button onClick={(e) => {
-          e.preventDefault(); e.stopPropagation();
-          onAddCart(phone.id);
-          if (authed) {
-            showCartAdded({ productName: phone.name });
-          } else {
-            const down = Math.ceil(phone.price * getMinDownPct(phone.price));
-            const monthlyAmt = calcInstallment({ price: phone.price, down, term: DEFAULT_TERM }).monthly;
-            openModal({
-              productName: phone.name,
-              memory,
-              sim,
-              price:       phone.price,
-              down,
-              term:        DEFAULT_TERM,
-              monthly:     monthlyAmt,
-              showCartActions: true,
-            });
-          }
-        }}
-        className="relative z-20 mt-2 w-full py-1.5 rounded-[10px] bg-[#0A1628] text-white
-                   text-[11px] font-semibold flex items-center justify-center gap-1
-                   hover:bg-[#1A3C6E] active:scale-95 transition-all touch-manipulation">
-        <svg width="11" height="11" viewBox="0 0 20 20" fill="none">
-          <path d="M3 3h1.5l2.5 9h8l2-6H7" stroke="currentColor" strokeWidth="1.6"
-                strokeLinecap="round" strokeLinejoin="round"/>
-          <circle cx="9" cy="16.5" r="1.2" fill="currentColor"/>
-          <circle cx="15" cy="16.5" r="1.2" fill="currentColor"/>
-        </svg>
-        В корзину
-      </button>
-    );
-  };
+      ) : (
+        <button onClick={(e) => {
+            e.preventDefault(); e.stopPropagation();
+            onAddCart(phone.id);
+            if (authed) {
+              showCartAdded({ productName: phone.name });
+            } else {
+              const down = Math.ceil(phone.price * getMinDownPct(phone.price));
+              const monthlyAmt = calcInstallment({ price: phone.price, down, term: DEFAULT_TERM }).monthly;
+              openModal({
+                productName: phone.name,
+                memory,
+                sim,
+                price:       phone.price,
+                down,
+                term:        DEFAULT_TERM,
+                monthly:     monthlyAmt,
+                showCartActions: true,
+              });
+            }
+          }}
+          className="relative z-20 flex-1 py-1.5 rounded-[10px] bg-[#0A1628] text-white
+                     text-[11px] font-semibold flex items-center justify-center gap-1
+                     hover:bg-[#1A3C6E] active:scale-95 transition-all touch-manipulation">
+          <svg width="11" height="11" viewBox="0 0 20 20" fill="none">
+            <path d="M3 3h1.5l2.5 9h8l2-6H7" stroke="currentColor" strokeWidth="1.6"
+                  strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="9" cy="16.5" r="1.2" fill="currentColor"/>
+            <circle cx="15" cy="16.5" r="1.2" fill="currentColor"/>
+          </svg>
+          В корзину
+        </button>
+      )}
+    </div>
+  );
 
   // Память для сегментного блока под названием.
   // Нормализуем в единую единицу: если все ≥ 1ТБ → ТБ; иначе все ГБ
@@ -272,23 +290,6 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
       />
 
       <Badge text={phone.badge} />
-
-      {/* ❤ — избранное */}
-      <button
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(phone.id); }}
-        aria-label={inFavs ? "Убрать из избранного" : "В избранное"}
-        className={`absolute top-1.5 right-1.5 z-20 w-6 h-6 flex items-center justify-center
-                    rounded-full transition-all active:scale-90
-                    ${inFavs
-                      ? "bg-red-50 text-red-500"
-                      : "bg-white/90 text-[#C4C9D4] opacity-0 group-hover:opacity-100"}`}
-        style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
-      >
-        <svg width="11" height="11" viewBox="0 0 20 20" fill={inFavs ? "currentColor" : "none"}>
-          <path d="M10 17S3 12.5 3 7a4 4 0 017-2.66A4 4 0 0117 7c0 5.5-7 10-7 10z"
-                stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
-        </svg>
-      </button>
 
       {/* Изображение — slideshow со всеми цветами */}
       <ProductSlideshow
@@ -482,6 +483,7 @@ interface CartEntry { productId: string; qty: number; }
 
 // ─── Главный компонент ───────────────────────────────────────
 export function SmartphonesSection() {
+  const router = useRouter();
   const [brand,  setBrand]  = useState("Apple");
   const [model,  setModel]  = useState("Все");
   const [memory, setMemory] = useState("Все");
@@ -514,7 +516,11 @@ export function SmartphonesSection() {
   }, []);
 
   const handleToggleFav = async (productId: string) => {
-    if (!authed) return; // избранное только для авторизованных
+    if (!authed) {
+      // Гостям избранное недоступно — на страницу входа.
+      router.push("/lk");
+      return;
+    }
     setFavorites(prev =>
       prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
     );
