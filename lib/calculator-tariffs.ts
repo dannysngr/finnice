@@ -62,6 +62,31 @@ export const TARIFFS: Record<TariffKey, TariffSpec> = {
 
 export const TARIFF_ORDER: TariffKey[] = ["large", "medium", "small", "light"];
 
+/** Тарифы по возрастанию суммы — для шкалы в UI. */
+export const TARIFF_SCALE: TariffKey[] = ["light", "small", "medium", "large"];
+
+/**
+ * Авто-выбор тарифа по сумме покупки — для ЕДИНОГО калькулятора.
+ * Клиенту не нужно вручную переключать тариф: ставка определяется суммой.
+ *   ≤ 50 000 ₽          → Light  (4.5%, без взноса)
+ *   50 001 – 200 000 ₽  → Small  (4.0%, взнос от 25%)
+ *   200 001 – 500 000 ₽ → Medium (3.5%, взнос от 25%, 1 поручитель)
+ *   500 001 – 1 000 000 → Large  (3.0%, взнос от 25%, 2 поручителя)
+ */
+export function tariffForPrice(price: number): TariffKey {
+  if (price <= TARIFFS.light.maxPrice)  return "light";
+  if (price <= TARIFFS.small.maxPrice)  return "small";
+  if (price <= TARIFFS.medium.maxPrice) return "medium";
+  return "large";
+}
+
+/** Диапазон сумм [мин, макс], при котором применяется тариф. */
+export function tariffPriceRange(key: TariffKey): [number, number] {
+  const idx = TARIFF_SCALE.indexOf(key);
+  const lo  = idx <= 0 ? MIN_PRICE_TARIFF : TARIFFS[TARIFF_SCALE[idx - 1]].maxPrice;
+  return [lo, TARIFFS[key].maxPrice];
+}
+
 export const MIN_PRICE_TARIFF = 8_000;
 export const MAX_PRICE_TARIFF = 1_000_000;
 export const MIN_TERM_TARIFF  = 3;

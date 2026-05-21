@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  TARIFFS, TARIFF_ORDER, type TariffKey,
-  MIN_PRICE_TARIFF,
+  TARIFFS, TARIFF_SCALE, type TariffKey,
+  MIN_PRICE_TARIFF, MAX_PRICE_TARIFF,
   MIN_TERM_TARIFF, MAX_TERM_TARIFF,
-  calcByTariff, pluralPayments,
+  calcByTariff, pluralPayments, tariffForPrice,
 } from "@/lib/calculator-tariffs";
 import { useAppModal } from "@/lib/modal-context";
 
@@ -14,58 +14,57 @@ function addSpaces(n: number): string {
   return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 function stripSpaces(s: string): number {
-  const cleaned = s.replace(/\s| /g, "");
+  const cleaned = s.replace(/\s| /g, "");
   return parseInt(cleaned, 10) || 0;
 }
 
+/** Короткая подпись диапазона сумм под шкалой тарифов. */
+const SCALE_RANGE: Record<TariffKey, string> = {
+  light:  "8–50 тыс ₽",
+  small:  "50–200 тыс ₽",
+  medium: "200–500 тыс ₽",
+  large:  "0,5–1 млн ₽",
+};
+
 export default function CalculatorTariffsPage() {
   const { openModal } = useAppModal();
-  const [tariff, setTariff] = useState<TariffKey>("medium");
-  const [price,  setPrice]  = useState(100_000);
-  const [down,   setDown]   = useState(25_000);
-  const [term,   setTerm]   = useState(6);
+  const [price, setPrice] = useState(100_000);
+  const [down,  setDown]  = useState(25_000);
+  const [term,  setTerm]  = useState(6);
 
-  const spec = TARIFFS[tariff];
+  // Тариф определяется суммой автоматически — переключать ничего не нужно
+  const tariff = useMemo(() => tariffForPrice(price), [price]);
+  const spec   = TARIFFS[tariff];
 
-  // При смене тарифа подгоняем взнос/цену под рамки тарифа
-  useEffect(() => {
-    if (!spec.needsDown) {
-      setDown(0);
-    } else {
-      const minDown = Math.round(price / 4);
-      if (down < minDown) setDown(minDown);
-    }
-    if (price > spec.maxPrice) setPrice(spec.maxPrice);
-    if (price < MIN_PRICE_TARIFF) setPrice(MIN_PRICE_TARIFF);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tariff]);
+  const minDown = spec.needsDown ? Math.round(price / 4) : 0;
+  const maxDown = Math.round(price * 0.6);
 
   const result = useMemo(
     () => calcByTariff({ tariff, price, down, term }),
     [tariff, price, down, term],
   );
 
-  const minDown = spec.needsDown ? Math.round(price / 4) : 0;
-  const maxDown = Math.round(price * 0.6);
-
+  // Изменение цены: пересобираем взнос под новый тариф (доля сохраняется)
   function handlePriceChange(v: number) {
-    const clamped = Math.min(spec.maxPrice, Math.max(MIN_PRICE_TARIFF, v));
+    const clamped  = Math.min(MAX_PRICE_TARIFF, Math.max(MIN_PRICE_TARIFF, v));
+    const newSpec  = TARIFFS[tariffForPrice(clamped)];
     setPrice(clamped);
-    if (spec.needsDown) {
-      const newMinDown = Math.round(clamped / 4);
-      const newMaxDown = Math.round(clamped * 0.6);
-      // Сохраняем долю взноса, чтобы ползунок не «уезжал»
+    if (!newSpec.needsDown) {
+      setDown(0);
+    } else {
+      const newMin = Math.round(clamped / 4);
+      const newMax = Math.round(clamped * 0.6);
       setDown(d => {
-        const ratio = price > 0 ? d / price : 0.25;
-        const scaled = Math.round((clamped * ratio) / 500) * 500;
-        return Math.max(newMinDown, Math.min(newMaxDown, scaled));
+        const ratio  = price > 0 && d > 0 ? d / price : 0.25;
+        const scaled = Math.round((clamped * Math.max(0.25, ratio)) / 500) * 500;
+        return Math.max(newMin, Math.min(newMax, scaled));
       });
     }
   }
 
   function handleBuy() {
     openModal({
-      productName: `Расчёт по тарифу ${spec.label}`,
+      productName: `Расчёт рассрочки · тариф ${spec.label}`,
       price,
       down,
       term,
@@ -79,54 +78,64 @@ export default function CalculatorTariffsPage() {
         <div className="section py-3 text-xs text-[#9CA3AF] flex items-center gap-1.5 flex-wrap">
           <Link href="/" className="hover:text-[#1A3C6E] transition-colors">Главная</Link>
           <span>/</span>
-          <span className="text-[#0A1628]">Калькулятор по тарифам</span>
+          <span className="text-[#0A1628]">Калькулятор рассрочки</span>
         </div>
       </div>
 
       <div className="section py-8 max-w-3xl mx-auto">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0A1628] mb-2">
-          Калькулятор по тарифам
+          Калькулятор рассрочки
         </h1>
-        <p className="text-[#6B7280] text-sm mb-8">
-          4 тарифа — чем больше условий выполнено (взнос, поручители), тем ниже наценка.
+        <p className="text-[#6B7280] text-sm mb-6">
+          Один калькулятор — ставка наценки подбирается автоматически по сумме
+          покупки: от 3% до 4,5% в месяц. Переключать тарифы не нужно.
         </p>
 
-        {/* ── Tariff selector ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
-          {TARIFF_ORDER.map(key => {
-            const t = TARIFFS[key];
-            const active = key === tariff;
-            return (
-              <button key={key} onClick={() => setTariff(key)}
-                className={`rounded-2xl px-3 py-3 text-left transition-all border-2
-                  ${active
-                    ? "bg-[#0A1628] text-white border-[#0A1628] shadow-md"
-                    : "bg-white text-[#0A1628] border-[#E5E7EB] hover:border-[#1A3C6E]/50"}`}>
-                <div className="font-extrabold text-sm mb-1">{t.label}</div>
-                <div className={`text-[10px] uppercase tracking-wider font-semibold mb-2
-                  ${active ? "text-[#C8972B]" : "text-[#1A3C6E]"}`}>
-                  {(t.monthRate * 100).toFixed(1)}% × N мес
+        {/* ── Шкала тарифов (только индикатор, не переключатель) ── */}
+        <div className="rounded-2xl bg-white border border-[#E5E7EB] p-4 mb-4">
+          <p className="text-xs font-semibold text-[#6B7280] mb-3">
+            Чем больше сумма — тем ниже ставка наценки:
+          </p>
+          <div className="grid grid-cols-4 gap-1.5">
+            {TARIFF_SCALE.map(key => {
+              const t = TARIFFS[key];
+              const active = key === tariff;
+              return (
+                <div key={key}
+                  className={`rounded-xl px-2 py-2.5 text-center transition-all border
+                    ${active
+                      ? "bg-[#0A1628] border-[#0A1628] shadow-md"
+                      : "bg-[#F4F7FC] border-transparent"}`}>
+                  <div className={`font-extrabold text-[11px]
+                    ${active ? "text-white" : "text-[#9CA3AF]"}`}>
+                    {t.label}
+                  </div>
+                  <div className={`text-[14px] font-extrabold tabular-nums my-0.5
+                    ${active ? "text-[#C8972B]" : "text-[#9CA3AF]"}`}>
+                    {(t.monthRate * 100).toFixed(1)}%
+                  </div>
+                  <div className={`text-[9px] leading-tight
+                    ${active ? "text-white/60" : "text-[#9CA3AF]"}`}>
+                    {SCALE_RANGE[key]}
+                  </div>
                 </div>
-                <div className={`text-[10px] leading-snug ${active ? "text-white/70" : "text-[#6B7280]"}`}>
-                  {t.description}
-                </div>
-              </button>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
-        {/* ── Card with sliders ── */}
+        {/* ── Карточка с ползунками ── */}
         <div className="rounded-3xl bg-gradient-to-br from-[#0E2344] to-[#0A1628] text-white p-6 sm:p-8 mb-6">
           {/* Price */}
           <NumField
             label="Стоимость товара или услуги:"
             value={price}
             onChange={handlePriceChange}
-            min={MIN_PRICE_TARIFF} max={spec.maxPrice} step={1_000}
-            hint={`от ${addSpaces(MIN_PRICE_TARIFF)} ₽ до ${addSpaces(spec.maxPrice)} ₽`}
+            min={MIN_PRICE_TARIFF} max={MAX_PRICE_TARIFF} step={1_000}
+            hint={`Тариф ${spec.label} · наценка ${(spec.monthRate * 100).toFixed(1)}% / мес`}
           />
 
-          {/* Down (если нужен) */}
+          {/* Down (если нужен по тарифу) */}
           {spec.needsDown ? (
             <NumField
               label="Первоначальный взнос (мин. 25%):"
@@ -141,7 +150,7 @@ export default function CalculatorTariffsPage() {
             />
           ) : (
             <div className="mb-5 px-4 py-3 rounded-xl bg-white/8 border border-white/15 text-[12px] text-white/70">
-              ℹ️ Тариф Light — без первоначального взноса.
+              ℹ️ Для суммы до 50 000 ₽ первоначальный взнос не требуется.
             </div>
           )}
 
@@ -162,7 +171,7 @@ export default function CalculatorTariffsPage() {
             <div className="mb-4 flex items-start gap-2 bg-orange-500/20 border border-orange-400/40
                             rounded-xl px-4 py-3 text-white/90 text-sm">
               <span className="shrink-0">⚠️</span>
-              Минимальный взнос для тарифа {spec.label}: {addSpaces(result.minDown)} ₽
+              Минимальный взнос для этой суммы: {addSpaces(result.minDown)} ₽
             </div>
           )}
 
@@ -201,48 +210,22 @@ export default function CalculatorTariffsPage() {
           </button>
         </div>
 
-        {/* Compare table */}
+        {/* ── Условия текущего тарифа ── */}
         <div className="rounded-2xl bg-white border border-[#E5E7EB] p-5">
-          <h2 className="font-extrabold text-[#0A1628] text-lg mb-3">Сравнение тарифов</h2>
-          <p className="text-xs text-[#6B7280] mb-3">
-            Чем строже условия — тем меньше переплата. Цифры посчитаны для текущей цены{" "}
-            <strong>{addSpaces(price)} ₽</strong> и срока{" "}
-            <strong>{pluralPayments(term)}</strong>.
-          </p>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-[#E5E7EB] text-[10px] uppercase text-[#9CA3AF] tracking-wider">
-                  <th className="text-left py-2">Тариф</th>
-                  <th className="text-right py-2">Ставка/мес</th>
-                  <th className="text-right py-2">Платёж</th>
-                  <th className="text-right py-2">Наценка</th>
-                  <th className="text-right py-2">Итого</th>
-                </tr>
-              </thead>
-              <tbody>
-                {TARIFF_ORDER.map(key => {
-                  const t = TARIFFS[key];
-                  if (price > t.maxPrice) return null;
-                  const downForTable = t.needsDown ? Math.round(price / 4) : 0;
-                  const r = calcByTariff({ tariff: key, price, down: downForTable, term });
-                  const active = key === tariff;
-                  return (
-                    <tr key={key}
-                        onClick={() => setTariff(key)}
-                        className={`cursor-pointer border-b border-[#F4F7FC] last:border-0 transition-colors
-                          ${active ? "bg-[#EBF0F9]" : "hover:bg-[#F9FAFB]"}`}>
-                      <td className="py-2.5 font-semibold text-[#0A1628]">{t.label}</td>
-                      <td className="py-2.5 text-right tabular-nums">{(t.monthRate * 100).toFixed(1)}%</td>
-                      <td className="py-2.5 text-right tabular-nums font-semibold">{addSpaces(r.monthly)} ₽</td>
-                      <td className="py-2.5 text-right tabular-nums text-[#6B7280]">{addSpaces(r.markup)} ₽</td>
-                      <td className="py-2.5 text-right tabular-nums">{addSpaces(r.total)} ₽</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <h2 className="font-extrabold text-[#0A1628] text-base mb-3">
+            Условия для суммы {addSpaces(price)} ₽ — тариф {spec.label}
+          </h2>
+          <ul className="text-sm text-[#6B7280] space-y-1.5">
+            <li>• Наценка <strong className="text-[#0A1628]">{(spec.monthRate * 100).toFixed(1)}% / мес</strong> × количество платежей</li>
+            <li>• {spec.needsDown ? "Первоначальный взнос — от 25% суммы" : "Без первоначального взноса"}</li>
+            <li>• {spec.guarantors === 0
+              ? "Без поручителей"
+              : spec.guarantors === 1 ? "1 поручитель" : "2 поручителя"}</li>
+            <li>• Сумма покупки — до {addSpaces(spec.maxPrice)} ₽</li>
+            {spec.needsDown && (
+              <li>• Взнос больше минимума → 10% от превышения возвращается скидкой с наценки</li>
+            )}
+          </ul>
         </div>
       </div>
     </main>
