@@ -145,13 +145,23 @@ export function calcInstallmentIsoIRR(
   const markup = Math.round(price * markupPct);
   const total  = price + markup;
 
-  /* Ежемесячный платёж: (total − down) / term  (iso-IRR convention) */
-  const monthly = term > 0 ? Math.ceil((total - down) / term) : 0;
+  /* Ежемесячный платёж: взнос — 1-й из term платежей, остальные (term-1)
+     равные ежемесячные. Соответствует UX-подписи под слайдером и формуле
+     calcInstallment (без iso-IRR). При down=0 — term равных платежей. */
+  let monthly: number;
+  if (down > 0) {
+    monthly = Math.ceil((total - down) / Math.max(1, term - 1));
+  } else {
+    monthly = term > 0 ? Math.ceil(total / term) : 0;
+  }
 
-  /* Implied monthly IRR — для отображения "ставки" в UI */
+  /* Implied monthly IRR — для отображения "ставки" в UI.
+     Cashflow: -K на t=0, далее monthly на t=1..N, где N — число платежей
+     ПОСЛЕ первоначального взноса. */
   const capitalT0 = price - down;
   const flows: number[] = [-capitalT0];
-  for (let i = 0; i < term; i++) flows.push(monthly);
+  const numMonthly = down > 0 ? term - 1 : term;
+  for (let i = 0; i < numMonthly; i++) flows.push(monthly);
   const rM = _irrMonthly(flows);
   const rate = isFinite(rM) ? rM : 0;
 
