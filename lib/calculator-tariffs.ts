@@ -1,101 +1,114 @@
 /**
- * lib/calculator-tariffs.ts — калькулятор по 4 тарифам в стиле khalim.ru
+ * lib/calculator-tariffs.ts — единый калькулятор рассрочки в стиле khalim.ru
  *
- * 4 тарифа: Light / Small / Medium / Large.
- * Месячная ставка наценки × количество платежей.
+ * 4 тарифа. Тариф определяется СУММОЙ покупки и НАЛИЧИЕМ взноса.
+ * Клиент не переключает тарифы вручную — он двигает сумму и решает,
+ * вносить ли первоначальный взнос. Остальное калькулятор считает сам.
  *
- *   • Light  — без взноса, ставка 4.5% / мес
- *   • Small  — взнос от 25%, ставка 4.0% / мес
- *   • Medium — взнос от 25%, ставка 3.5% / мес
- *   • Large  — взнос от 25%, 2 поручителя, до 1 млн ₽, ставка 3.0% / мес
+ *   • Light  — без взноса, 1 поручитель,    8 000–100 000 ₽, 4.5%/мес, 3–10 платежей
+ *   • Small  — взнос 25%,  без поручителей,  8 000– 70 000 ₽, 4.0%/мес, 3–12 платежей
+ *   • Medium — взнос 25%,  1 поручитель,    70 000–150 000 ₽, 3.5%/мес, 3–12 платежей
+ *   • Large  — взнос 25%,  2 поручителя,   150 000–1 000 000 ₽, 3.0%/мес, 3–12 платежей
  *
- * Бонус «addit»: если клиент платит больше минимальных 25%, ему возвращается
- * 10% от ВЫШЕ-минимума, размазанные по оставшимся (term−1) ежемесячным.
+ * Взнос фиксированный: 0 (Light) или ровно 25% от суммы (Small/Medium/Large).
+ * Диапазоны пересекаются — одну и ту же сумму можно оформить по-разному:
+ *   8–70к   → Light (без взноса) или Small (взнос 25%)
+ *   70–100к → Light (без взноса) или Medium (взнос 25%)
+ *   100–150к → только Medium (взнос обязателен)
+ *   150к–1млн → только Large
  *
- * Формулы прямо из исходника khalim:
- *   Light: monthly = ((price × 0.045 × term) + price) / term
- *   Tariff (Small/Medium/Large):
- *     minDown25 = price / 4
- *     addit = ((down − minDown25) × 0.10) / (term − 1)
- *     monthly = (((price × rate × term) + (price − down)) / (term − 1)) − addit
+ * Формулы khalim (сверены с калькулятором khalim.ru):
+ *   Light:  monthly = round100((price × 0.045 × term + price) / term)
+ *   Прочие: monthly = round100(((price × rate × term) + (price − down)) / (term − 1))
+ *           где down = 25% от price
  */
 
 export type TariffKey = "light" | "small" | "medium" | "large";
 
 export interface TariffSpec {
-  key:           TariffKey;
-  label:         string;
-  monthRate:     number;
-  needsDown:     boolean;
-  minDownPct:    number;
-  guarantors:    number;
-  maxPrice:      number;
-  description:   string;
+  key:         TariffKey;
+  label:       string;
+  monthRate:   number;
+  needsDown:   boolean;
+  guarantors:  number;
+  minPrice:    number;
+  maxPrice:    number;
+  minTerm:     number;
+  maxTerm:     number;
+  description: string;
 }
 
 export const TARIFFS: Record<TariffKey, TariffSpec> = {
-  large: {
-    key: "large", label: "Large", monthRate: 0.030,
-    needsDown: true, minDownPct: 0.25,
-    guarantors: 2, maxPrice: 1_000_000,
-    description: "2 поручителя · до 1 млн ₽",
-  },
-  medium: {
-    key: "medium", label: "Medium", monthRate: 0.035,
-    needsDown: true, minDownPct: 0.25,
-    guarantors: 1, maxPrice: 500_000,
-    description: "1 поручитель · до 500 000 ₽",
+  light: {
+    key: "light", label: "Light", monthRate: 0.045,
+    needsDown: false, guarantors: 1,
+    minPrice: 8_000, maxPrice: 100_000,
+    minTerm: 3, maxTerm: 10,
+    description: "Без взноса · 1 поручитель",
   },
   small: {
     key: "small", label: "Small", monthRate: 0.040,
-    needsDown: true, minDownPct: 0.25,
-    guarantors: 0, maxPrice: 200_000,
-    description: "Без поручителей · до 200 000 ₽",
+    needsDown: true, guarantors: 0,
+    minPrice: 8_000, maxPrice: 70_000,
+    minTerm: 3, maxTerm: 12,
+    description: "Взнос 25% · без поручителей",
   },
-  light: {
-    key: "light", label: "Light", monthRate: 0.045,
-    needsDown: false, minDownPct: 0,
-    guarantors: 0, maxPrice: 50_000,
-    description: "Без взноса · до 50 000 ₽",
+  medium: {
+    key: "medium", label: "Medium", monthRate: 0.035,
+    needsDown: true, guarantors: 1,
+    minPrice: 70_000, maxPrice: 150_000,
+    minTerm: 3, maxTerm: 12,
+    description: "Взнос 25% · 1 поручитель",
+  },
+  large: {
+    key: "large", label: "Large", monthRate: 0.030,
+    needsDown: true, guarantors: 2,
+    minPrice: 150_000, maxPrice: 1_000_000,
+    minTerm: 3, maxTerm: 12,
+    description: "Взнос 25% · 2 поручителя",
   },
 };
 
-export const TARIFF_ORDER: TariffKey[] = ["large", "medium", "small", "light"];
-
-/** Тарифы по возрастанию суммы — для шкалы в UI. */
-export const TARIFF_SCALE: TariffKey[] = ["light", "small", "medium", "large"];
-
-/**
- * Авто-выбор тарифа по сумме покупки — для ЕДИНОГО калькулятора.
- * Клиенту не нужно вручную переключать тариф: ставка определяется суммой.
- *   ≤ 50 000 ₽          → Light  (4.5%, без взноса)
- *   50 001 – 200 000 ₽  → Small  (4.0%, взнос от 25%)
- *   200 001 – 500 000 ₽ → Medium (3.5%, взнос от 25%, 1 поручитель)
- *   500 001 – 1 000 000 → Large  (3.0%, взнос от 25%, 2 поручителя)
- */
-export function tariffForPrice(price: number): TariffKey {
-  if (price <= TARIFFS.light.maxPrice)  return "light";
-  if (price <= TARIFFS.small.maxPrice)  return "small";
-  if (price <= TARIFFS.medium.maxPrice) return "medium";
-  return "large";
-}
-
-/** Диапазон сумм [мин, макс], при котором применяется тариф. */
-export function tariffPriceRange(key: TariffKey): [number, number] {
-  const idx = TARIFF_SCALE.indexOf(key);
-  const lo  = idx <= 0 ? MIN_PRICE_TARIFF : TARIFFS[TARIFF_SCALE[idx - 1]].maxPrice;
-  return [lo, TARIFFS[key].maxPrice];
-}
+export const TARIFF_ORDER: TariffKey[] = ["light", "small", "medium", "large"];
 
 export const MIN_PRICE_TARIFF = 8_000;
 export const MAX_PRICE_TARIFF = 1_000_000;
 export const MIN_TERM_TARIFF  = 3;
 export const MAX_TERM_TARIFF  = 12;
-export const DOWN_BONUS_PCT   = 0.10;   // 10% от лишнего взноса возвращается
+
+/** Выше этой суммы тариф Light недоступен — взнос обязателен. */
+export const LIGHT_MAX_PRICE = 100_000;
+/** Без взноса (Light) максимум 10 платежей, со взносом — 12. */
+export const LIGHT_MAX_TERM  = 10;
+export const FULL_MAX_TERM   = 12;
+/** Фиксированный взнос для Small/Medium/Large. */
+export const DOWN_PCT = 0.25;
 
 /** Округление до сотен — как у khalim (MyRound100). */
 function round100(n: number): number {
   return Math.round(n / 100) * 100;
+}
+
+/** Фиксированный взнос 25%, округлённый до сотен. 0 — если без взноса. */
+export function downForPrice(price: number, hasDown: boolean): number {
+  return hasDown ? round100(price * DOWN_PCT) : 0;
+}
+
+/**
+ * Тариф для единого калькулятора: определяется суммой + наличием взноса.
+ *   hasDown=false → Light  (только при price ≤ 100 000 ₽)
+ *   hasDown=true  → Small / Medium / Large по сумме покупки
+ */
+export function resolveTariff(price: number, hasDown: boolean): TariffKey {
+  if (!hasDown) return "light";
+  if (price <= TARIFFS.small.maxPrice)  return "small";   // ≤ 70 000
+  if (price <= TARIFFS.medium.maxPrice) return "medium";  // ≤ 150 000
+  return "large";
+}
+
+/** Доступен ли тариф Light для этой суммы (взнос можно не делать). */
+export function lightAvailable(price: number): boolean {
+  return price <= LIGHT_MAX_PRICE;
 }
 
 export interface TariffCalcInput {
@@ -110,9 +123,6 @@ export interface TariffCalcResult {
   total:       number;
   markup:      number;
   feePerMonth: number;   // наценка на 1 платёж
-  minDown:     number;
-  isValidDown: boolean;
-  bonus:       number;   // суммарный бонус за взнос больше минимума
 }
 
 export function calcByTariff(input: TariffCalcInput): TariffCalcResult {
@@ -125,40 +135,24 @@ export function calcByTariff(input: TariffCalcInput): TariffCalcResult {
     const monthly = round100((price * rate * term + price) / term);
     const total   = monthly * term;
     const markup  = total - price;
-    const feePer  = Math.round(markup / term);
     return {
       monthly, total, markup,
-      feePerMonth: feePer,
-      minDown:     0,
-      isValidDown: true,
-      bonus:       0,
+      feePerMonth: Math.round(markup / term),
     };
   }
 
   // Tariff со взносом: Small / Medium / Large
-  const down       = Math.max(0, input.down);
-  const minDown25  = round100(price / 4);
-  const minDown    = minDown25;
-  const isValidDown = down >= minDown;
+  const down = Math.max(0, input.down);
 
-  // addit — 10% от «лишнего» взноса, размазано по (term-1) платежам
-  const extraDown  = Math.max(0, down - minDown25);
-  const additPer   = (extraDown * DOWN_BONUS_PCT) / Math.max(1, term - 1);
-  const bonus      = Math.round(extraDown * DOWN_BONUS_PCT);
-
-  // monthly = (((price × rate × term) + (price − down)) / (term − 1)) − addit
-  const remaining  = price - down;
-  const monthlyRaw = ((price * rate * term) + remaining) / Math.max(1, term - 1);
-  const monthly    = round100(monthlyRaw - additPer);
-  const total      = monthly * (term - 1) + down;
-  const markup     = total - price;
-  const feePer     = Math.round(markup / term);
+  // monthly = (((price × rate × term) + (price − down)) / (term − 1))
+  const remaining = price - down;
+  const monthly   = round100(((price * rate * term) + remaining) / Math.max(1, term - 1));
+  const total     = monthly * (term - 1) + down;
+  const markup    = total - price;
 
   return {
     monthly, total, markup,
-    feePerMonth: feePer,
-    minDown, isValidDown,
-    bonus,
+    feePerMonth: Math.round(markup / term),
   };
 }
 
@@ -167,7 +161,14 @@ export function pluralPayments(n: number): string {
   const last = n % 10;
   const last2 = n % 100;
   if (last2 >= 11 && last2 <= 14) return `${n} платежей`;
-  if (last === 1) return `${n} платеж`;
+  if (last === 1) return `${n} платёж`;
   if (last >= 2 && last <= 4) return `${n} платежа`;
   return `${n} платежей`;
+}
+
+/** «1 поручитель / 2 поручителя / без поручителей» */
+export function pluralGuarantors(n: number): string {
+  if (n === 0) return "без поручителей";
+  if (n === 1) return "1 поручитель";
+  return `${n} поручителя`;
 }
