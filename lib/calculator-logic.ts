@@ -1,24 +1,22 @@
 /* ================================================================
-   calculator-logic.ts — математика рассрочки Финнайс v2
-   Правила:
-   • < 50 000 ₽  → взнос необязателен (0)
-   • ≥ 50 000 ₽  → минимальный взнос 25%
-   • Ставки (зависят только от суммы товара):
-     - < 150 000 ₽        → 4% / мес
-     - 150 000–500 000 ₽  → 3.5% / мес
-     - > 500 000 ₽        → 3% / мес
-     - Исключение: < 50 000 ₽ и взнос 0 → 4.5% / мес
-   • Наценка = Сумма × (Ставка × Срок)
-   • Итого = Сумма + Наценка
-   • Платёж/мес:
-     - взнос > 0 → (Итого − Взнос) / (Срок − 1)
-     - взнос = 0 → Итого / Срок
-   • Поручители: < 80 000 → 0, < 200 000 → 1, ≥ 200 000 → 2
+   calculator-logic.ts — математика рассрочки Финнайс (модель khalim)
+   ----------------------------------------------------------------
+   Тариф Light убран — первоначальный взнос 25% обязателен для всех сумм.
+   Ставка наценки зависит только от суммы товара:
+     • ≤ 70 000 ₽          → 4.0% / мес
+     • 70 001 – 150 000 ₽  → 3.5% / мес
+     • > 150 000 ₽         → 3.0% / мес
+   Формула (как у khalim):
+     взнос   = max(25% от суммы, введённый взнос)
+     monthly = round100( ((Сумма·Ставка·Срок) + (Сумма−Взнос)) / (Срок−1) − addit )
+     addit   = 10% от взноса сверх минимума, размазано по (Срок−1) платежам
+     Итого   = monthly·(Срок−1) + Взнос
+   Поручители: ≤ 70к → 0, ≤ 150к → 1, > 150к → 2
    ================================================================ */
 
 // ─── Константы ─────────────────────────────────────────────────
 
-export const HIGH_PRICE_THRESHOLD = 50_000;
+export const HIGH_PRICE_THRESHOLD = 50_000;   // вспом., оставлено для совместимости
 export const MIN_DOWN_PCT_HIGH    = 0.25;
 
 export const MIN_PRICE = 1_000;
@@ -31,27 +29,34 @@ export const MIN_DOWN_PCT = 0.25;
 export const MARKUP_RATE  = 0.04;
 export const MIN_MARKUP   = 0;
 
-// ─── Ставка ─────────────────────────────────────────────────────
+/** Бонус: 10% от взноса сверх минимальных 25% возвращается скидкой с наценки. */
+export const DOWN_BONUS_PCT = 0.10;
 
-export function getRate(price: number, down: number): number {
-  if (price < HIGH_PRICE_THRESHOLD && down === 0) return 0.045;
-  if (price >= 500_000) return 0.030;
-  if (price >= 150_000) return 0.035;
+/** Округление до сотен — как у khalim (MyRound100). */
+function round100(n: number): number {
+  return Math.round(n / 100) * 100;
+}
+
+// ─── Ставка наценки (khalim, по сумме товара) ───────────────────
+
+export function getRate(price: number): number {
+  if (price > 150_000) return 0.030;
+  if (price >  70_000) return 0.035;
   return 0.040;
 }
 
-// ─── Минимальный взнос ──────────────────────────────────────────
+// ─── Минимальный взнос — 25% всегда (тариф Light убран) ──────────
 
 export function getMinDownPct(price: number): number {
-  return price >= HIGH_PRICE_THRESHOLD ? MIN_DOWN_PCT_HIGH : 0;
+  return price > 0 ? MIN_DOWN_PCT : 0;
 }
 
-// ─── Поручители ─────────────────────────────────────────────────
+// ─── Поручители (khalim) ────────────────────────────────────────
 
 export function getGuarantors(price: number): number {
-  if (price < 80_000)  return 0;
-  if (price < 200_000) return 1;
-  return 2;
+  if (price > 150_000) return 2;
+  if (price >  70_000) return 1;
+  return 0;
 }
 
 // ─── Типы ───────────────────────────────────────────────────────
@@ -66,33 +71,46 @@ export interface CalcResult {
   monthly:     number;
   markup:      number;
   total:       number;
-  rate:        number;
+  rate:        number;       // ставка наценки / мес (4 / 3.5 / 3 %)
+  irrMonthly:  number;       // подразумеваемый IRR / мес (для loan-record)
   minDown:     number;
   minDownPct:  number;
   isValidDown: boolean;
   guarantors:  number;
+  bonus:       number;       // скидка с наценки за взнос выше минимума
 }
 
-// ─── Основная функция ───────────────────────────────────────────
+// ─── Основная функция (модель khalim) ───────────────────────────
 
 export function calcInstallment({ price, down, term }: CalcInput): CalcResult {
+  const rate        = getRate(price);
   const minDownPct  = getMinDownPct(price);
-  const minDown     = Math.ceil(price * minDownPct);
+  const minDown     = round100(price * minDownPct);
+  const effDown     = Math.max(minDown, down);       // взнос 25% обязателен
   const isValidDown = down >= minDown;
   const guarantors  = getGuarantors(price);
 
-  const rate   = getRate(price, down);
-  const markup = Math.round(price * rate * term);
-  const total  = price + markup;
+  // addit — 10% от взноса сверх минимума, размазано по (term−1) платежам
+  const extraDown = Math.max(0, effDown - minDown);
+  const additPer  = (extraDown * DOWN_BONUS_PCT) / Math.max(1, term - 1);
+  const bonus     = Math.round(extraDown * DOWN_BONUS_PCT);
 
-  let monthly: number;
-  if (down > 0) {
-    monthly = Math.ceil((total - down) / Math.max(1, term - 1));
-  } else {
-    monthly = Math.ceil(total / term);
-  }
+  const monthly = round100(
+    ((price * rate * term) + (price - effDown)) / Math.max(1, term - 1) - additPer,
+  );
+  const total  = monthly * (term - 1) + effDown;
+  const markup = total - price;
 
-  return { monthly, markup, total, rate, minDown, minDownPct, isValidDown, guarantors };
+  // Подразумеваемый месячный IRR — для targetIrrAtCreation в заявке
+  const flows: number[] = [-(price - effDown)];
+  for (let i = 0; i < term - 1; i++) flows.push(monthly);
+  const rM = _irrMonthly(flows);
+  const irrMonthly = isFinite(rM) ? rM : 0;
+
+  return {
+    monthly, markup, total, rate, irrMonthly,
+    minDown, minDownPct, isValidDown, guarantors, bonus,
+  };
 }
 
 // ─── iso-IRR вариант (использует политику из admin) ──────────────
@@ -165,7 +183,10 @@ export function calcInstallmentIsoIRR(
   const rM = _irrMonthly(flows);
   const rate = isFinite(rM) ? rM : 0;
 
-  return { monthly, markup, total, rate, minDown, minDownPct, isValidDown, guarantors };
+  return {
+    monthly, markup, total, rate, irrMonthly: rate,
+    minDown, minDownPct, isValidDown, guarantors, bonus: 0,
+  };
 }
 
 /** Helper: возвращает annual IRR для расчёта targetIrrAtCreation в заявке */

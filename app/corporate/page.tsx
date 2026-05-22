@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useAppModal } from "@/lib/modal-context";
-import { calcInstallment, calcInstallmentIsoIRR, getMinDownPct } from "@/lib/calculator-logic";
+import { calcInstallment, getMinDownPct } from "@/lib/calculator-logic";
 import { corporateMarkupRounded, corporateIrrMonthly, corporateIrrAnnual } from "@/lib/finance/iso-irr";
 const MAX_PRICE           = 150_000;
 const MIN_PRICE           = 5_000;
@@ -55,30 +55,13 @@ export default function CorporateCalculatorPage() {
     return { markup, total, monthly, markupPct };
   }, [price, down, term]);
 
-  /* Загружаем iso-IRR политику (как на главной) для честного сравнения */
-  const [policy, setPolicy] = useState<{ inflation: number; overrides: Record<string, number>; loaded: boolean }>({
-    inflation: 0.12, overrides: {}, loaded: false,
-  });
-  useEffect(() => {
-    fetch("/api/finance/public-config")
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
-        if (d && typeof d.expectedInflationAnnual === "number") {
-          setPolicy({ inflation: d.expectedInflationAnnual, overrides: d.matrixOverrides ?? {}, loaded: true });
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  /* Стандартный сценарий: тот же расчёт что на главной + требуемый стандартом
-     минимальный взнос (25% при ≥50к), т.к. с меньшим стандарт не дал бы рассрочку */
+  /* Стандартный сценарий: тот же расчёт что на главной (модель khalim) +
+     обязательный взнос 25% — для честного сравнения с корпоративным тарифом */
   const standard = useMemo(() => {
     const stdMinDown = Math.ceil(price * getMinDownPct(price));
     const stdDown    = Math.max(down, stdMinDown);
-    return policy.loaded
-      ? calcInstallmentIsoIRR(price, stdDown, term, policy.inflation, policy.overrides)
-      : calcInstallment({ price, down: stdDown, term });
-  }, [price, down, term, policy]);
+    return calcInstallment({ price, down: stdDown, term });
+  }, [price, down, term]);
 
   const savingsTotal = Math.max(0, standard.total - result.total);
 

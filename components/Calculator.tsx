@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
   calcInstallment,
-  calcInstallmentIsoIRR,
   fmtRub,
   pluralPayment,
   getMinDownPct,
@@ -12,7 +11,6 @@ import {
   MAX_PRICE,
   MIN_TERM,
   MAX_TERM,
-  HIGH_PRICE_THRESHOLD,
 } from "@/lib/calculator-logic";
 import { useAppModal } from "@/lib/modal-context";
 
@@ -26,7 +24,8 @@ function stripSpaces(s: string): number {
   return Number(s.replace(/[\s ]/g, ""));
 }
 
-const MAX_DOWN_PCT = 0.60;
+const MAX_DOWN_PCT = 0.90;
+const round100 = (n: number) => Math.round(n / 100) * 100;
 
 interface Props {
   withLink?:     boolean;
@@ -53,68 +52,27 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
       .catch(() => {});
   }, []);
 
-  /* ── iso-IRR публичная политика ──────────────────────── */
-  const [policy, setPolicy] = useState<{
-    inflation: number;
-    overrides: Record<string, number>;
-    loaded:    boolean;
-  }>({ inflation: 0.12, overrides: {}, loaded: false });
-
-  useEffect(() => {
-    fetch("/api/finance/public-config")
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
-        if (d && typeof d.expectedInflationAnnual === "number") {
-          setPolicy({
-            inflation: d.expectedInflationAnnual,
-            overrides: d.matrixOverrides ?? {},
-            loaded:    true,
-          });
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  /* Используем iso-IRR когда политика загрузилась, иначе legacy */
-  const result = policy.loaded
-    ? calcInstallmentIsoIRR(price, down, term, policy.inflation, policy.overrides)
-    : calcInstallment({ price, down, term });
+  /* Расчёт по модели khalim (тариф Light убран, взнос 25% обязателен) */
+  const result = calcInstallment({ price, down, term });
 
   function handlePriceChange(v: number) {
     const oldPrice = prevPriceRef.current;
-    const wasAbove = oldPrice >= HIGH_PRICE_THRESHOLD;
-    const isAbove  = v >= HIGH_PRICE_THRESHOLD;
     prevPriceRef.current = v;
     setPrice(v);
-    const minD = Math.ceil(v * getMinDownPct(v));
+    // Взнос тянется пропорционально, удерживаясь в рамках 25–90%
+    const minD = round100(v * 0.25);
     const maxD = Math.floor(v * MAX_DOWN_PCT);
-    if (!wasAbove && isAbove) {
-      // Переход через порог 50к вверх — выставляем обязательный минимум 25%.
-      setDown(minD);
-    } else if (wasAbove && !isAbove) {
-      // Переход через порог 50к вниз — взнос больше не обязателен, обнуляем.
-      setDown(0);
-    } else {
-      // Сохраняем долю взноса от цены, чтобы ползунок не «уезжал» визуально
-      // при изменении стоимости (раньше down оставался прежним значением,
-      // но max=60% уменьшался → thumb сдвигался вправо).
-      setDown(d => {
-        const ratio = oldPrice > 0 ? d / oldPrice : 0;
-        const scaled = Math.round((v * ratio) / 500) * 500;
-        return Math.max(minD, Math.min(maxD, scaled));
-      });
-    }
+    setDown(d => {
+      const ratio  = oldPrice > 0 ? d / oldPrice : 0.25;
+      const scaled = Math.round((v * Math.max(0.25, ratio)) / 500) * 500;
+      return Math.max(minD, Math.min(maxD, scaled));
+    });
   }
 
-  const isHighPrice = price >= HIGH_PRICE_THRESHOLD;
-  const maxDown     = Math.floor(price * MAX_DOWN_PCT);
-  const pricePct    = ((price - MIN_PRICE) / (MAX_PRICE - MIN_PRICE)) * 100;
-  const termPct     = ((term  - MIN_TERM)  / (MAX_TERM  - MIN_TERM))  * 100;
-  const guarantors  = getGuarantors(price);
-
-  const downLabel = isHighPrice
-    ? "Первоначальный взнос (мин. 25%):"
-    : "Первоначальный взнос (по желанию):";
+  const maxDown    = Math.floor(price * MAX_DOWN_PCT);
+  const pricePct   = ((price - MIN_PRICE) / (MAX_PRICE - MIN_PRICE)) * 100;
+  const termPct    = ((term  - MIN_TERM)  / (MAX_TERM  - MIN_TERM))  * 100;
+  const guarantors = getGuarantors(price);
 
   return (
     <div
@@ -187,30 +145,16 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
           format onChange={handlePriceChange}
         />
 
-        {/* Взнос. На mobile алерт «При сумме от 50к…» рендерится ПОД лейблом
-            через `belowLabel` (между подписью и инпутом). На desktop алерт
-            показывается ОТДЕЛЬНО ниже всей строки инпутов (см. ниже,
-            «Инфо: взнос при ≥50к»). */}
+        {/* Первоначальный взнос — от 25%, можно поднять до 90%. */}
         <NumberSlider
-          label={downLabel}
+          label="Первоначальный взнос (от 25%):"
           value={down} unit="₽" trackPct={0} noTrack
           min={result.minDown} max={maxDown} step={500}
           format onChange={setDown}
           warn={!result.isValidDown}
-          belowLabel={
-            <div className={`sm:hidden mb-2 flex items-start gap-2 rounded-xl px-3 py-2 text-[11px] transition-all
-                             ${isHighPrice
-                               ? "bg-[#C8972B]/20 border border-[#C8972B]/40 text-[#E8B84B]"
-                               : "bg-white/8 border border-white/15 text-white/55"}`}>
-              <span className="shrink-0 mt-0.5">{isHighPrice ? "⚠️" : "ℹ️"}</span>
-              <span>
-                При сумме от 50&nbsp;000&nbsp;₽ первый взнос обязателен (от 25%).
-                {isHighPrice && (
-                  <> Минимальный взнос: <strong>{fmtRub(result.minDown)}&nbsp;₽</strong>.</>
-                )}
-              </span>
-            </div>
-          }
+          hint={result.bonus > 0
+            ? `Бонус за крупный взнос: −${fmtRub(result.bonus)} ₽ с наценки`
+            : `Минимум ${fmtRub(result.minDown)} ₽ (25%) · больше взнос — меньше переплата`}
         />
 
         {/* Количество платежей */}
@@ -221,21 +165,6 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
           onChange={setTerm}
           hint="1-й платёж — взнос, остальные ежемесячно"
         />
-      </div>
-
-      {/* Инфо: взнос при ≥50к — только на desktop, на mobile живёт под лейблом
-          «Первоначальный взнос» (см. belowLabel выше). Содержимое отцентровано. */}
-      <div className={`hidden sm:flex mb-3 items-center justify-center gap-2 rounded-xl px-3 py-2 text-[11px] sm:text-xs text-center transition-all
-                       ${isHighPrice
-                         ? "bg-[#C8972B]/20 border border-[#C8972B]/40 text-[#E8B84B]"
-                         : "bg-white/8 border border-white/15 text-white/55"}`}>
-        <span className="shrink-0">{isHighPrice ? "⚠️" : "ℹ️"}</span>
-        <span>
-          При сумме от 50&nbsp;000&nbsp;₽ первый взнос обязателен (от 25%).
-          {isHighPrice && (
-            <> Минимальный взнос: <strong>{fmtRub(result.minDown)}&nbsp;₽</strong>.</>
-          )}
-        </span>
       </div>
 
       {/* Предупреждение: взнос ниже минимума */}

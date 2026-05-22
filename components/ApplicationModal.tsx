@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FinniceLogo } from "@/components/FinniceLogo";
 import {
-  fmtRub, pluralPayment, calcInstallment, calcInstallmentIsoIRR, impliedAnnualIrr,
+  fmtRub, pluralPayment, calcInstallment, impliedAnnualIrr,
   getMinDownPct, MIN_TERM, MAX_TERM,
 } from "@/lib/calculator-logic";
 
@@ -90,21 +90,6 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  /* iso-IRR публичная политика — ВАЖНО: хуки должны идти ДО раннего return */
-  const [policy, setPolicy] = useState<{ inflation: number; overrides: Record<string, number>; loaded: boolean }>({
-    inflation: 0.12, overrides: {}, loaded: false,
-  });
-  useEffect(() => {
-    fetch("/api/finance/public-config")
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
-        if (d && typeof d.expectedInflationAnnual === "number") {
-          setPolicy({ inflation: d.expectedInflationAnnual, overrides: d.matrixOverrides ?? {}, loaded: true });
-        }
-      })
-      .catch(() => {});
-  }, []);
-
   if (!open) return null;
 
   const isAuthed  = authUser?.authed === true;
@@ -112,10 +97,9 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
   const down      = preset?.down  ?? Math.ceil(price * getMinDownPct(price));
 
   const res = price > 0
-    ? (policy.loaded
-        ? calcInstallmentIsoIRR(price, down, term, policy.inflation, policy.overrides)
-        : calcInstallment({ price, down, term }))
-    : { monthly: 0, markup: 0, total: 0, isValidDown: true, minDown: 0, minDownPct: 0, rate: 0, guarantors: 0 };
+    ? calcInstallment({ price, down, term })
+    : { monthly: 0, markup: 0, total: 0, rate: 0, irrMonthly: 0,
+        minDown: 0, minDownPct: 0, isValidDown: true, guarantors: 0, bonus: 0 };
 
   // Отображаемое имя из профиля
   const profileName = [authUser?.firstName, authUser?.lastName].filter(Boolean).join(" ") || "—";
@@ -154,9 +138,7 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
       if (preset?.cart && preset.cart.length > 0) {
         const items = preset.cart.map(item => {
           const itemDown = Math.ceil(item.price * getMinDownPct(item.price));
-          const itemRes  = policy.loaded
-            ? calcInstallmentIsoIRR(item.price, itemDown, term, policy.inflation, policy.overrides)
-            : calcInstallment({ price: item.price, down: itemDown, term });
+          const itemRes  = calcInstallment({ price: item.price, down: itemDown, term });
           const itemMarkupPct = item.price > 0 ? itemRes.markup / item.price : 0;
           const itemTotalPrice = item.price + itemRes.markup;
           return {
@@ -218,7 +200,7 @@ export function ApplicationModal({ open, onClose, preset }: Props) {
       /* Обычный режим — одна заявка */
       const markupPct = price > 0 ? res.markup / price : 0;
       const totalPrice = price + res.markup;
-      const targetIrrAtCreation = res.rate > 0 ? impliedAnnualIrr(res.rate) : 0;
+      const targetIrrAtCreation = res.irrMonthly > 0 ? impliedAnnualIrr(res.irrMonthly) : 0;
 
       const r = await fetch("/api/applications", {
         method:  "POST",
