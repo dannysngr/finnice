@@ -75,7 +75,7 @@ export default function CalculatorTariffsPage() {
         </div>
       </div>
 
-      <div className="section py-8 max-w-3xl mx-auto">
+      <div className="section py-8 max-w-5xl mx-auto">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0A1628] mb-2">
           Калькулятор рассрочки
         </h1>
@@ -84,8 +84,9 @@ export default function CalculatorTariffsPage() {
           взнос — тариф и ставка подберутся автоматически.
         </p>
 
+        <div className="grid lg:grid-cols-[1fr_300px] gap-6 items-start">
         {/* ── Карточка калькулятора ── */}
-        <div className="rounded-3xl bg-gradient-to-br from-[#0E2344] to-[#0A1628] text-white p-6 sm:p-8 mb-6">
+        <div className="rounded-3xl bg-gradient-to-br from-[#0E2344] to-[#0A1628] text-white p-6 sm:p-8">
           {/* Сумма */}
           <NumField
             label="Стоимость товара или услуги:"
@@ -190,12 +191,11 @@ export default function CalculatorTariffsPage() {
           </button>
         </div>
 
-        {/* ── Справка по тарифам ── */}
-        <div className="rounded-2xl bg-white border border-[#E5E7EB] p-5">
-          <h2 className="font-extrabold text-[#0A1628] text-lg mb-1">Тарифы</h2>
-          <p className="text-xs text-[#6B7280] mb-3">
-            Тариф определяется суммой покупки и тем, вносите ли вы первоначальный взнос.
-            Сейчас активен — <strong className="text-[#0A1628]">{spec.label}</strong>.
+        {/* ── Справка по тарифам (сайдбар справа) ── */}
+        <aside className="rounded-2xl bg-white border border-[#E5E7EB] p-4 lg:sticky lg:top-4">
+          <h2 className="font-extrabold text-[#0A1628] text-base mb-1">Тарифы</h2>
+          <p className="text-[11px] text-[#6B7280] mb-3 leading-snug">
+            Загорается тот, что подобран под вашу сумму и взнос.
           </p>
           <div className="space-y-2">
             {TARIFF_ORDER.map(key => {
@@ -203,28 +203,33 @@ export default function CalculatorTariffsPage() {
               const active = key === tariff;
               return (
                 <div key={key}
-                  className={`rounded-xl px-4 py-3 border transition-colors
+                  className={`rounded-xl px-4 py-3 border-2 transition-all
                     ${active
-                      ? "bg-[#EBF0F9] border-[#1A3C6E]/30"
+                      ? "bg-gradient-to-br from-[#0E2344] to-[#0A1628] border-[#C8972B] shadow-lg"
                       : "bg-[#F9FAFB] border-transparent"}`}>
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <span className="font-extrabold text-[#0A1628] text-sm">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`font-extrabold text-sm
+                      ${active ? "text-white" : "text-[#0A1628]"}`}>
                       {t.label}
-                      <span className="ml-2 text-[#1A3C6E] font-bold">
-                        {(t.monthRate * 100).toFixed(1)}% / мес
-                      </span>
                     </span>
-                    <span className="text-xs text-[#6B7280] tabular-nums">
-                      {addSpaces(t.minPrice)} – {addSpaces(t.maxPrice)} ₽
+                    <span className={`font-extrabold text-sm tabular-nums
+                      ${active ? "text-[#C8972B]" : "text-[#1A3C6E]"}`}>
+                      {(t.monthRate * 100).toFixed(1)}%
                     </span>
                   </div>
-                  <div className="text-[11px] text-[#9CA3AF] mt-0.5">
+                  <div className={`text-[11px] mt-1 tabular-nums
+                    ${active ? "text-white/75" : "text-[#6B7280]"}`}>
+                    {addSpaces(t.minPrice)} – {addSpaces(t.maxPrice)} ₽
+                  </div>
+                  <div className={`text-[10px] mt-0.5 leading-snug
+                    ${active ? "text-white/55" : "text-[#9CA3AF]"}`}>
                     {t.description} · {t.minTerm}–{t.maxTerm} платежей
                   </div>
                 </div>
               );
             })}
           </div>
+        </aside>
         </div>
       </div>
     </main>
