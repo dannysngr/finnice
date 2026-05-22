@@ -39,18 +39,10 @@ function round100(n: number): number {
 
 // ─── Ставка наценки (khalim, по сумме товара) ───────────────────
 
-/** Ставки наценки по тарифам — единственный источник истины.
- *  Чтобы изменить живую ставку сайта — правьте здесь. */
-export const TARIFF_RATES = {
-  small:  0.040,   // ≤ 70 000 ₽
-  medium: 0.035,   // 70 001 – 150 000 ₽
-  large:  0.030,   // > 150 000 ₽
-} as const;
-
 export function getRate(price: number): number {
-  if (price > 150_000) return TARIFF_RATES.large;
-  if (price >  70_000) return TARIFF_RATES.medium;
-  return TARIFF_RATES.small;
+  if (price > 150_000) return 0.030;
+  if (price >  70_000) return 0.035;
+  return 0.040;
 }
 
 // ─── Минимальный взнос — 25% всегда (тариф Light убран) ──────────
@@ -200,20 +192,6 @@ export function calcInstallmentIsoIRR(
 /** Helper: возвращает annual IRR для расчёта targetIrrAtCreation в заявке */
 export function impliedAnnualIrr(rate: number): number {
   return _annualFromMonthly(rate);
-}
-
-/**
- * IRR / мес для произвольной ставки наценки и срока — при взносе 25%.
- * Используется админ-монитором доходности (прикидка «что-если»).
- */
-export function irrForRate(rate: number, term: number): number {
-  const price   = 100_000;
-  const down    = round100(price * MIN_DOWN_PCT);
-  const monthly = round100(((price * rate * term) + (price - down)) / Math.max(1, term - 1));
-  const flows: number[] = [-(price - down)];
-  for (let i = 0; i < term - 1; i++) flows.push(monthly);
-  const r = _irrMonthly(flows);
-  return isFinite(r) ? r : 0;
 }
 
 // ─── Форматирование ─────────────────────────────────────────────
