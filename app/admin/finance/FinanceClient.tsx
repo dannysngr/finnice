@@ -8,11 +8,11 @@ import {
   targetIrrMonthlyForTerm,
   inflationPremiumInfo,
   annualFromMonthly,
+  monthlyFromAnnual,
   realFromNominal,
   computeDealMetrics,
   BASELINE_TERM,
   BASELINE_DOWN,
-  BASELINE_MARKUP,
 } from "@/lib/finance/iso-irr";
 import type { FinanceConfig } from "@/lib/finance/config-store";
 import { CohortsSimulator } from "./CohortsSimulator";
@@ -49,6 +49,10 @@ export function FinanceClient({
   const [saving, setSaving] = useState(false);
   const [saved, setSaved]   = useState(false);
 
+  /* ── Целевой IRR — редактируемый (прикидка, на боевой сайт не влияет) ── */
+  const [targetIrr, setTargetIrr] = useState<number>(baseline.monthlyIrr);
+  const irrEdited = Math.abs(targetIrr - baseline.monthlyIrr) > 1e-9;
+
   /* ── Сохранение ──────────────────────────────────────── */
   const save = useCallback(async () => {
     setSaving(true);
@@ -80,29 +84,29 @@ export function FinanceClient({
   /* ── Матрица ─────────────────────────────────────────── */
   const matrix = useMemo(() => {
     return TERMS.map(n => {
-      const premium = inflationPremiumInfo(n, cfg.expectedInflationAnnual);
+      const premium = inflationPremiumInfo(n, cfg.expectedInflationAnnual, targetIrr);
       const cells = DOWN_PCT.map(d => {
         const key = `${n}:${d}`;
         const override = cfg.matrixOverrides?.[key];
-        const exact    = markupExact(n, d, cfg.expectedInflationAnnual);
-        const rounded  = override !== undefined ? override : markupRounded(n, d, cfg.expectedInflationAnnual);
+        const exact    = markupExact(n, d, cfg.expectedInflationAnnual, targetIrr);
+        const rounded  = override !== undefined ? override : markupRounded(n, d, cfg.expectedInflationAnnual, targetIrr);
         return { n, d, exact, rounded, isOverride: override !== undefined };
       });
       return { n, premium, cells };
     });
-  }, [cfg.expectedInflationAnnual, cfg.matrixOverrides]);
+  }, [cfg.expectedInflationAnnual, cfg.matrixOverrides, targetIrr]);
 
   /* ── Preview сделки (со слайдерами) ─────────────────── */
   const [pvCost, setPvCost] = useState(100_000);
   const [pvTerm, setPvTerm] = useState(6);
   const [pvDown, setPvDown] = useState(0.25);
 
-  const pvPremium  = inflationPremiumInfo(pvTerm, cfg.expectedInflationAnnual);
-  const pvMarkupExact = useMemo(() => markupExact(pvTerm, pvDown, cfg.expectedInflationAnnual), [pvTerm, pvDown, cfg.expectedInflationAnnual]);
+  const pvPremium  = inflationPremiumInfo(pvTerm, cfg.expectedInflationAnnual, targetIrr);
+  const pvMarkupExact = useMemo(() => markupExact(pvTerm, pvDown, cfg.expectedInflationAnnual, targetIrr), [pvTerm, pvDown, cfg.expectedInflationAnnual, targetIrr]);
   const pvMarkupRounded = useMemo(() => {
     const key = `${pvTerm}:${pvDown}`;
-    return cfg.matrixOverrides?.[key] ?? markupRounded(pvTerm, pvDown, cfg.expectedInflationAnnual);
-  }, [pvTerm, pvDown, cfg.expectedInflationAnnual, cfg.matrixOverrides]);
+    return cfg.matrixOverrides?.[key] ?? markupRounded(pvTerm, pvDown, cfg.expectedInflationAnnual, targetIrr);
+  }, [pvTerm, pvDown, cfg.expectedInflationAnnual, cfg.matrixOverrides, targetIrr]);
 
   const pvMetrics = useMemo(() => computeDealMetrics({
     costAmount:  pvCost,
@@ -154,21 +158,30 @@ export function FinanceClient({
           </div>
         </header>
 
-        {/* ── Baseline (read-only) ───────────────────────── */}
+        {/* ── Эталон / целевой IRR (редактируемый) ───────── */}
         <section className="bg-white rounded-2xl p-6 shadow-sm">
           <h2 className="text-base font-bold text-[#0A1628] mb-1">
             Эталон модели (анкер)
           </h2>
           <p className="text-xs text-[#6B7280] mb-4">
-            Эта сделка — наша «север-звезда». Её IRR используется как целевая доходность для всех остальных конфигураций.
+            Целевой IRR — «север-звезда» модели. Правьте поля «IRR / мес» или «IRR / год» — вся матрица и расчёты подстроятся.
           </p>
 
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-            <DerivedCell label="Срок"               value={`${BASELINE_TERM} мес`} />
-            <DerivedCell label="Взнос"              value={fmtPctInt(BASELINE_DOWN)} />
-            <DerivedCell label="Наценка"            value={fmtPctInt(BASELINE_MARKUP)} />
-            <DerivedCell label="IRR / мес"          value={fmtPct(baseline.monthlyIrr, 2)} accent />
-            <DerivedCell label="IRR / год"          value={fmtPct(baseline.annualIrr, 1)} accent />
+            <DerivedCell label="Срок"   value={`${BASELINE_TERM} мес`} />
+            <DerivedCell label="Взнос"  value={fmtPctInt(BASELINE_DOWN)} />
+            <DerivedCell
+              label="Наценка"
+              value={fmtPctInt(markupRounded(BASELINE_TERM, BASELINE_DOWN, cfg.expectedInflationAnnual, targetIrr))}
+            />
+            <EditableIrrCell
+              label="IRR / мес" pctValue={targetIrr * 100} digits={2}
+              onCommit={(f) => setTargetIrr(f)}
+            />
+            <EditableIrrCell
+              label="IRR / год" pctValue={annualFromMonthly(targetIrr) * 100} digits={1}
+              onCommit={(f) => setTargetIrr(monthlyFromAnnual(f))}
+            />
           </div>
 
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -176,11 +189,19 @@ export function FinanceClient({
               <span className="text-[#6B7280]">Реальная доходность (после инфляции {fmtPct(cfg.expectedInflationAnnual, 0)}):</span>
               {" "}
               <b className="text-[#0A1628]">
-                {fmtPct(realFromNominal(baseline.annualIrr, cfg.expectedInflationAnnual), 1)} год.
+                {fmtPct(realFromNominal(annualFromMonthly(targetIrr), cfg.expectedInflationAnnual), 1)} год.
               </b>
             </div>
-            <div className="rounded-lg p-3 bg-[#FFF7ED] border border-[#FED7AA] text-[#7c2d12]">
-              ℹ️ Чтобы изменить эталон — отредактируйте константы в <code>lib/finance/iso-irr.ts</code>. Это сознательное архитектурное решение: эталон не должен крутиться слайдером.
+            <div className="rounded-lg p-3 bg-[#EFF6FF] border border-[#BFDBFE] text-[#1E3A8A] flex items-center justify-between gap-3">
+              <span>ℹ️ Это прикидка — на боевой сайт не влияет (сайт считает по фикс-ставкам).</span>
+              {irrEdited && (
+                <button
+                  onClick={() => setTargetIrr(baseline.monthlyIrr)}
+                  className="shrink-0 px-2.5 py-1 rounded bg-white border border-[#BFDBFE] font-semibold hover:border-[#1E3A8A] transition-colors"
+                >
+                  сброс
+                </button>
+              )}
             </div>
           </div>
         </section>
@@ -317,7 +338,7 @@ export function FinanceClient({
           {!pvPremium.applied && pvTerm < BASELINE_TERM && (
             <div className="mb-4 rounded-lg p-3 text-xs"
                  style={{ background: "#ECFDF5", border: "1px solid #A7F3D0", color: "#065F46" }}>
-              ✓ Срок {pvTerm} мес ≤ эталон. Используется базовый IRR без премиума: <b>{fmtPct(baseline.annualIrr, 1)}/год</b>.
+              ✓ Срок {pvTerm} мес ≤ эталон. Используется базовый IRR без премиума: <b>{fmtPct(annualFromMonthly(targetIrr), 1)}/год</b>.
             </div>
           )}
 
@@ -387,7 +408,7 @@ export function FinanceClient({
               </thead>
               <tbody>
                 {matrix.flatMap(r => r.cells).map(c => {
-                  const targetMonthly = targetIrrMonthlyForTerm(c.n, cfg.expectedInflationAnnual);
+                  const targetMonthly = targetIrrMonthlyForTerm(c.n, cfg.expectedInflationAnnual, targetIrr);
                   const targetAnnual  = annualFromMonthly(targetMonthly);
                   const dm = computeDealMetrics({
                     costAmount: 100_000, termMonths: c.n, downPct: c.d, markupPct: c.rounded,
@@ -435,6 +456,48 @@ function DerivedCell({ label, value, accent }: { label: string; value: string; a
       <div className="text-[10px] uppercase tracking-wide text-[#6B7280]">{label}</div>
       <div className="text-base font-extrabold mt-0.5" style={{ color: accent ? "#065F46" : "#0A1628" }}>
         {value}
+      </div>
+    </div>
+  );
+}
+
+/** Редактируемая ячейка IRR в процентах. onCommit получает долю (v/100). */
+function EditableIrrCell({
+  label, pctValue, digits, onCommit,
+}: {
+  label: string;
+  pctValue: number;
+  digits: number;
+  onCommit: (fraction: number) => void;
+}) {
+  const [raw, setRaw] = useState(pctValue.toFixed(digits));
+  const [focused, setFocused] = useState(false);
+  useEffect(() => {
+    if (!focused) setRaw(pctValue.toFixed(digits));
+  }, [pctValue, focused, digits]);
+
+  const commit = () => {
+    setFocused(false);
+    const v = parseFloat(raw.replace(",", "."));
+    if (isFinite(v) && v > 0) onCommit(v / 100);
+    else setRaw(pctValue.toFixed(digits));
+  };
+
+  return (
+    <div className="rounded-lg p-3" style={{ background: "#ECFDF5", border: "1px solid #A7F3D0" }}>
+      <div className="text-[10px] uppercase tracking-wide text-[#6B7280]">{label}</div>
+      <div className="flex items-baseline gap-0.5 mt-0.5">
+        <input
+          value={raw}
+          inputMode="decimal"
+          onFocus={() => setFocused(true)}
+          onChange={e => setRaw(e.target.value)}
+          onBlur={commit}
+          onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+          className="w-14 bg-transparent text-base font-extrabold text-[#065F46] outline-none
+                     border-b border-[#A7F3D0] focus:border-[#065F46]"
+        />
+        <span className="text-base font-extrabold text-[#065F46]">%</span>
       </div>
     </div>
   );

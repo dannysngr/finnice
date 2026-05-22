@@ -91,8 +91,12 @@ export function baselineIrrAnnual(): number {
  *
  * Премиум: target_annual = baseline_annual × (1 + (n−6) × inflation/12)
  */
-export function targetIrrMonthlyForTerm(termMonths: number, inflationAnnual: number): number {
-  const baseMonthly = baselineIrrMonthly();
+export function targetIrrMonthlyForTerm(
+  termMonths: number,
+  inflationAnnual: number,
+  baseMonthlyOverride?: number,
+): number {
+  const baseMonthly = baseMonthlyOverride ?? baselineIrrMonthly();
   if (termMonths <= BASELINE_TERM) return baseMonthly;
 
   const baseAnnual = annualFromMonthly(baseMonthly);
@@ -117,8 +121,9 @@ export function markupExact(
   termMonths: number,
   downPct: number,
   inflationAnnual: number,
+  baseMonthlyOverride?: number,
 ): number {
-  const r = targetIrrMonthlyForTerm(termMonths, inflationAnnual);
+  const r = targetIrrMonthlyForTerm(termMonths, inflationAnnual, baseMonthlyOverride);
   return markupForTargetIRR(termMonths, downPct, r);
 }
 
@@ -127,8 +132,9 @@ export function markupRounded(
   termMonths: number,
   downPct: number,
   inflationAnnual: number,
+  baseMonthlyOverride?: number,
 ): number {
-  return Math.round(markupExact(termMonths, downPct, inflationAnnual) * 100) / 100;
+  return Math.round(markupExact(termMonths, downPct, inflationAnnual, baseMonthlyOverride) * 100) / 100;
 }
 
 /* ── Информация об инфляционном премиуме ────────────────────── */
@@ -144,9 +150,10 @@ export interface InflationPremiumInfo {
 export function inflationPremiumInfo(
   termMonths: number,
   inflationAnnual: number,
+  baseMonthlyOverride?: number,
 ): InflationPremiumInfo {
-  const baseAnnual  = baselineIrrAnnual();
-  const baseMonthly = baselineIrrMonthly();
+  const baseMonthly = baseMonthlyOverride ?? baselineIrrMonthly();
+  const baseAnnual  = annualFromMonthly(baseMonthly);
   if (termMonths <= BASELINE_TERM) {
     return {
       applied: false,
