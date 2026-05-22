@@ -521,6 +521,82 @@ export function CohortsSimulator({ inflationAnnual }: Props) {
         )}
       </div>
 
+      {/* ════════ Итог для инвестора — выжимка из симуляции ════════ */}
+      {hasInvestor && (
+        <div className="mb-6">
+          <h3 className="text-xs font-semibold uppercase text-[#6B7280] mb-3">
+            💎 Итог для инвестора
+          </h3>
+          <div
+            className="rounded-xl p-5"
+            style={{ background: "linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%)", border: "1px solid #C4B5FD" }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div>
+                <div className="text-[10px] uppercase tracking-wider text-[#7C3AED] font-bold mb-1">Вклад</div>
+                <div className="text-2xl font-extrabold text-[#5B21B6]">
+                  {fmtRubFull(sim.investorCapital)}&nbsp;₽
+                </div>
+                <div className="text-[11px] text-[#7C3AED]/70 mt-0.5">на {horizon} мес</div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-wider text-[#7C3AED] font-bold mb-1">Доходность</div>
+                <div className="text-2xl font-extrabold text-[#5B21B6]">
+                  {fmtPct(sim.investorRoiAnnual, 1)}{" "}
+                  <span className="text-base font-bold">/ год</span>
+                </div>
+                <div className="text-[11px] text-[#7C3AED]/70 mt-0.5">
+                  режим:{" "}
+                  {profitSplitMode === "prorata"
+                    ? "pro-rata"
+                    : profitSplitMode === "carried"
+                      ? `carried ${fmtPctInt(investorProfitShare)} / ${fmtPctInt(1 - investorProfitShare)}`
+                      : `isolated · сплит Pool 2 ${fmtPctInt(investorProfitShare)} / ${fmtPctInt(1 - investorProfitShare)}`}
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-wider text-[#7C3AED] font-bold mb-1">Прибыль</div>
+                <div className="text-2xl font-extrabold text-[#5B21B6]">
+                  {fmtRubFull(sim.investorProfit)}&nbsp;₽
+                </div>
+                <div className="text-[11px] text-[#7C3AED]/70 mt-0.5">за {horizon} мес</div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-4 border-t border-[#C4B5FD]/50">
+              <div>
+                <div className="text-[10px] uppercase tracking-wider text-[#7C3AED]/80 font-bold mb-0.5">
+                  Выплачено на руки
+                </div>
+                <div className="text-base font-extrabold text-[#5B21B6]">
+                  {fmtRubFull(sim.investorWithdrawn)}&nbsp;₽
+                  {sim.investorWithdrawn > 0 && horizon > 0 && (
+                    <span className="text-[11px] font-normal text-[#7C3AED]/70 ml-2">
+                      ≈ {fmtRubFull(sim.investorWithdrawn / horizon)}&nbsp;₽/мес
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-wider text-[#7C3AED]/80 font-bold mb-0.5">
+                  Финальный баланс капитала
+                </div>
+                <div className="text-base font-extrabold text-[#5B21B6]">
+                  {fmtRubFull(sim.investorBalanceFinal)}&nbsp;₽
+                  <span className="text-[11px] font-normal text-[#7C3AED]/70 ml-2">
+                    (старт + реинвест)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-[#7C3AED]/70 mt-4 italic leading-snug">
+              ℹ️ Меняйте сплит и реинвест в полях выше — здесь сразу видно итог. Это та цифра доходности, которую разумно предлагать инвестору (с поправкой на запас).
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* ════════ Isolated Pools — детальная декомпозиция ════════ */}
       {sim.isolated && (
         <div className="mb-6">
