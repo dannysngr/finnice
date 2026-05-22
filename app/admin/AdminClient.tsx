@@ -9,9 +9,7 @@ import {
   maskPassportSeries, maskPassportNumber, maskDepartmentCode,
   PASSPORT_SERIES_PLACEHOLDER, PASSPORT_NUMBER_PLACEHOLDER, DEPT_CODE_PLACEHOLDER,
 } from "@/lib/passport-mask";
-import {
-  markupRounded, irrMonthly, annualFromMonthly, baselineIrrAnnual,
-} from "@/lib/finance/iso-irr";
+import { irrMonthly, annualFromMonthly } from "@/lib/finance/iso-irr";
 import type { LoanRecord } from "@/app/api/lk/me/route";
 
 /* ══════════════════════════════════════════════════════════════
@@ -754,16 +752,6 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
   isLoading: boolean;
   onOpenClientProfile: (phone: string) => void;
 }) {
-  /* ── Финансовая политика ─────────────────────────────── */
-  const [inflation, setInflation] = useState(0.12);
-
-  useEffect(() => {
-    fetch("/api/admin/finance-config")
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (typeof d?.expectedInflationAnnual === "number") setInflation(d.expectedInflationAnnual); })
-      .catch(() => {});
-  }, []);
-
   /* ── Профиль клиента — для проверки заполненности ────── */
   const [clientProfile, setClientProfile] = useState<Record<string, unknown> | null>(null);
   const [hasPassportDocApp, setHasPassportDocApp] = useState(false);
@@ -810,18 +798,23 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
     : 0.25;
   const [downPct, setDownPct] = useState<number>(initialDownPct);
 
-  /* ── Вычисляемое ─────────────────────────────────────── */
-  const suggestedMarkup = markupRounded(term, downPct, inflation);
+  /* ── Вычисляемое (модель khalim) ─────────────────────── */
+  const downAmount = Math.round(cost * downPct);
+  const khalimRes  = calcInstallment({ price: cost, down: downAmount, term });
+  const suggestedMarkup = cost > 0 ? khalimRes.markup / cost : 0;
+
   const [useOverride, setUseOverride] = useState(false);
   const [overrideMarkup, setOverrideMarkup] = useState(suggestedMarkup);
   const markupPct = useOverride ? overrideMarkup : suggestedMarkup;
 
-  const markupAmount  = cost * markupPct;
-  const totalPrice    = cost + markupAmount;
-  const downAmount    = cost * downPct;
-  const remainingPay  = totalPrice - downAmount;
-  const monthlyPayment = remainingPay / term;
-  const capitalT0     = cost - downAmount;
+  const markupAmount   = useOverride ? Math.round(cost * overrideMarkup) : khalimRes.markup;
+  const totalPrice     = cost + markupAmount;
+  const remainingPay   = totalPrice - downAmount;
+  /* Взнос — 1-й из term платежей, далее (term−1) равных ежемесячных */
+  const monthlyPayment = useOverride
+    ? remainingPay / Math.max(1, term - 1)
+    : khalimRes.monthly;
+  const capitalT0      = cost - downAmount;
 
   /* Сколько поручителей нужно при данной сумме (totalPrice — цена для клиента).
      0..2. Используется ту же логику, что в публичном калькуляторе. */
@@ -851,14 +844,11 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
     missingGuarantorParts.push(`Поручитель № 2 (${miss.join(", ")})`);
   }
 
-  /* Фактический IRR этой сделки */
+  /* Фактический IRR этой сделки (взнос — 1-й из term платежей) */
   const flows: number[] = [-capitalT0];
-  for (let i = 0; i < term; i++) flows.push(monthlyPayment);
+  for (let i = 0; i < term - 1; i++) flows.push(monthlyPayment);
   const irrM    = irrMonthly(flows);
   const irrYear = isFinite(irrM) ? annualFromMonthly(irrM) : NaN;
-
-  const targetIrr = baselineIrrAnnual();   /* эталон не зависит от инфляции при ≤6мес */
-  const irrDelta  = isFinite(irrYear) ? irrYear - targetIrr : NaN;
 
   const fmtR = (n: number) => Math.round(n).toLocaleString("ru-RU");
   const fmtP = (n: number, d = 1) => (isFinite(n) ? (n * 100).toFixed(d) + "%" : "—");
@@ -875,7 +865,7 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
       markupAmount:        Math.round(markupAmount),
       markupPct,
       downAmount:          Math.round(downAmount),
-      targetIrrAtCreation: targetIrr,
+      targetIrrAtCreation: isFinite(irrYear) ? irrYear : 0,
       /* Передаём состав заявки целиком — это будет частью loanRecord */
       ...(isMulti ? { items: app.items } : {}),
     });
@@ -966,11 +956,11 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
           <div className="space-y-3">
             <h3 className="text-[10px] uppercase font-bold tracking-wider text-[#0C7A58]">Финансовый расчёт</h3>
 
-            {/* iso-IRR policy */}
+            {/* Наценка и IRR сделки (модель khalim) */}
             <div className="rounded-lg p-3 bg-[#0A1628]/60 border border-[#0C7A58]/30">
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <div className="text-[9px] uppercase text-white/50">Реком. наценка</div>
+                  <div className="text-[9px] uppercase text-white/50">Наценка по тарифу</div>
                   <div className="text-white font-bold">{fmtPInt(suggestedMarkup)}</div>
                 </div>
                 <div>
@@ -980,29 +970,14 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
                   </div>
                 </div>
                 <div>
-                  <div className="text-[9px] uppercase text-white/50">Целевой IRR</div>
-                  <div className="text-white font-bold">{fmtP(targetIrr, 0)}/год</div>
+                  <div className="text-[9px] uppercase text-white/50">IRR / мес</div>
+                  <div className="text-white font-bold">{fmtP(irrM, 1)}</div>
                 </div>
                 <div>
-                  <div className="text-[9px] uppercase text-white/50">Факт. IRR</div>
-                  <div className="font-bold"
-                       style={{ color: !isFinite(irrYear) ? "#9CA3AF" :
-                                       Math.abs(irrDelta) < 0.05 ? "#86EFAC" :
-                                       irrDelta > 0 ? "#86EFAC" : "#FCA5A5" }}>
-                    {fmtP(irrYear, 0)}/год
-                  </div>
+                  <div className="text-[9px] uppercase text-white/50">IRR / год</div>
+                  <div className="font-bold text-[#86EFAC]">{fmtP(irrYear, 0)}</div>
                 </div>
               </div>
-              {isFinite(irrDelta) && (
-                <div className="mt-2 pt-2 border-t border-white/10">
-                  <span className="text-[10px] text-white/50">Δ vs target: </span>
-                  <span className="text-xs font-bold"
-                        style={{ color: Math.abs(irrDelta) < 0.05 ? "#86EFAC" :
-                                        irrDelta > 0 ? "#86EFAC" : "#FCA5A5" }}>
-                    {irrDelta >= 0 ? "+" : ""}{(irrDelta * 100).toFixed(1)} пп
-                  </span>
-                </div>
-              )}
             </div>
 
             {/* Cash split */}
@@ -1015,7 +990,7 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
               <div className="border-t border-white/10 pt-1.5">
                 <Row2 k="− Взнос клиента" v={fmtR(downAmount) + " ₽"} />
                 <Row2 k="= Остаток в рассрочку" v={fmtR(remainingPay) + " ₽"} />
-                <Row2 k={`÷ ${term} = платёж/мес`} v={fmtR(monthlyPayment) + " ₽"} bold />
+                <Row2 k={`÷ ${term - 1} = платёж/мес`} v={fmtR(monthlyPayment) + " ₽"} bold />
               </div>
               <div className="border-t border-white/10 pt-1.5">
                 <Row2 k="Наш капитал T0" v={fmtR(capitalT0) + " ₽"} accent="orange" />
@@ -1023,14 +998,14 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
               </div>
             </div>
 
-            {!useOverride && Math.abs(suggestedMarkup - markupPct) < 1e-6 && (
+            {!useOverride && (
               <p className="text-[10px] text-[#86EFAC] italic">
-                ✓ Цена соответствует iso-IRR политике
+                ✓ Наценка по тарифу (модель khalim)
               </p>
             )}
             {useOverride && (
               <p className="text-[10px] text-[#FCD34D] italic">
-                ⚠ Наценка переопределена вручную. Сделка отклоняется от целевой IRR.
+                ⚠ Наценка задана вручную — отклонение от тарифа.
               </p>
             )}
           </div>
