@@ -98,42 +98,60 @@ export default function CalculatorTariffsPage() {
 
           {/* Первоначальный взнос — переключатель */}
           <div className="mb-5">
-            <p className="text-white/70 text-xs font-medium mb-2">Первоначальный взнос:</p>
-            <div className="grid grid-cols-2 gap-2">
+            <p className="text-white/70 text-xs font-medium mb-2">
+              Первоначальный взнос — нажмите, чтобы выбрать:
+            </p>
+            <div className="grid grid-cols-2 gap-2.5">
+              {/* Без взноса */}
               <button
                 type="button"
                 onClick={() => handleDownToggle(false)}
                 disabled={!canSkipDown}
-                className={`rounded-xl px-3 py-3 text-center transition-all border-2
+                className={`relative rounded-2xl px-4 py-3.5 text-left border-2 transition-all
                   ${!hasDown
-                    ? "bg-white text-[#0A1628] border-white shadow-md"
+                    ? "bg-[#EDE7DA] border-[#C8972B] shadow-[0_10px_26px_-8px_rgba(200,151,43,0.75)]"
                     : canSkipDown
-                      ? "bg-white/8 text-white border-white/15 hover:border-white/40"
-                      : "bg-white/5 text-white/30 border-white/10 cursor-not-allowed"}`}>
-                <span className="block font-extrabold text-sm">Без взноса</span>
-                <span className={`block text-[10px] mt-0.5
-                  ${!hasDown ? "text-[#1A3C6E]/70" : "text-white/45"}`}>
+                      ? "bg-white/10 border-white/40 hover:bg-white/20 hover:border-white/70 active:scale-[0.98] cursor-pointer"
+                      : "bg-white/5 border-white/10 opacity-40 cursor-not-allowed"}`}>
+                <span className="flex items-center gap-2">
+                  <span className={`shrink-0 grid place-items-center w-[18px] h-[18px] rounded-full border-2
+                    ${!hasDown ? "border-[#C8972B]" : "border-white/60"}`}>
+                    {!hasDown && <span className="w-2 h-2 rounded-full bg-[#C8972B]" />}
+                  </span>
+                  <span className={`font-extrabold text-sm ${!hasDown ? "text-[#0A1628]" : "text-white"}`}>
+                    Без взноса
+                  </span>
+                </span>
+                <span className={`block text-[10px] leading-snug mt-1 pl-[26px]
+                  ${!hasDown ? "text-[#1A3C6E]/75" : "text-white/60"}`}>
                   тариф Light · 4,5% / мес
                 </span>
               </button>
+              {/* Взнос 25% */}
               <button
                 type="button"
                 onClick={() => handleDownToggle(true)}
-                className={`rounded-xl px-3 py-3 text-center transition-all border-2
+                className={`relative rounded-2xl px-4 py-3.5 text-left border-2 transition-all
                   ${hasDown
-                    ? "bg-white text-[#0A1628] border-white shadow-md"
-                    : "bg-white/8 text-white border-white/15 hover:border-white/40"}`}>
-                <span className="block font-extrabold text-sm">
-                  Взнос 25% · {addSpaces(downForPrice(price, true))} ₽
+                    ? "bg-[#EDE7DA] border-[#C8972B] shadow-[0_10px_26px_-8px_rgba(200,151,43,0.75)]"
+                    : "bg-white/10 border-white/40 hover:bg-white/20 hover:border-white/70 active:scale-[0.98] cursor-pointer"}`}>
+                <span className="flex items-center gap-2">
+                  <span className={`shrink-0 grid place-items-center w-[18px] h-[18px] rounded-full border-2
+                    ${hasDown ? "border-[#C8972B]" : "border-white/60"}`}>
+                    {hasDown && <span className="w-2 h-2 rounded-full bg-[#C8972B]" />}
+                  </span>
+                  <span className={`font-extrabold text-sm ${hasDown ? "text-[#0A1628]" : "text-white"}`}>
+                    Взнос 25%
+                  </span>
                 </span>
-                <span className={`block text-[10px] mt-0.5
-                  ${hasDown ? "text-[#1A3C6E]/70" : "text-white/45"}`}>
-                  ставка ниже · до 12 платежей
+                <span className={`block text-[10px] leading-snug mt-1 pl-[26px]
+                  ${hasDown ? "text-[#1A3C6E]/75" : "text-white/60"}`}>
+                  {addSpaces(downForPrice(price, true))} ₽ · ставка ниже, до 12 платежей
                 </span>
               </button>
             </div>
             {!canSkipDown && (
-              <p className="text-[#F0C674] text-[10px] mt-1.5 leading-snug">
+              <p className="text-[#F0C674] text-[10px] mt-2 leading-snug">
                 ⓘ Для суммы свыше {addSpaces(LIGHT_MAX_PRICE)} ₽ первоначальный взнос обязателен.
               </p>
             )}
