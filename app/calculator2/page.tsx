@@ -7,7 +7,7 @@ import {
   MIN_PRICE_TARIFF, MAX_PRICE_TARIFF, MIN_TERM_TARIFF,
   LIGHT_MAX_PRICE, LIGHT_MAX_TERM, FULL_MAX_TERM,
   calcByTariff, minDownFor, maxDownFor, resolveTariff, lightAvailable,
-  pluralPayments, pluralGuarantors,
+  pluralPayments, pluralGuarantors, tariffIrrRange,
 } from "@/lib/calculator-tariffs";
 import { useAppModal } from "@/lib/modal-context";
 
@@ -17,6 +17,14 @@ function addSpaces(n: number): string {
 function stripSpaces(s: string): number {
   const cleaned = s.replace(/\s| /g, "");
   return parseInt(cleaned, 10) || 0;
+}
+/** 6,6 — процент с одним знаком, запятая */
+function pct1(n: number): string {
+  return (n * 100).toFixed(1).replace(".", ",");
+}
+/** 138 — процент без знаков */
+function pct0(n: number): string {
+  return String(Math.round(n * 100));
 }
 
 export default function CalculatorTariffsPage() {
@@ -247,12 +255,14 @@ export default function CalculatorTariffsPage() {
         <aside className="rounded-2xl bg-white border border-[#E5E7EB] p-4 lg:sticky lg:top-4">
           <h2 className="font-extrabold text-[#0A1628] text-base mb-1">Тарифы</h2>
           <p className="text-[11px] text-[#6B7280] mb-3 leading-snug">
-            Загорается тот, что подобран под вашу сумму и взнос.
+            Загорается тот, что подобран под вашу сумму и взнос. IRR — доходность
+            на вложенный капитал (диапазон по срокам, при взносе 25%).
           </p>
           <div className="space-y-2">
             {TARIFF_ORDER.map(key => {
               const t = TARIFFS[key];
               const active = key === tariff;
+              const irr = tariffIrrRange(key);
               return (
                 <div key={key}
                   className={`rounded-xl px-4 py-3 border-2 transition-all
@@ -276,6 +286,15 @@ export default function CalculatorTariffsPage() {
                   <div className={`text-[10px] mt-0.5 leading-snug
                     ${active ? "text-white/55" : "text-[#9CA3AF]"}`}>
                     {t.description} · {t.minTerm}–{t.maxTerm} платежей
+                  </div>
+                  <div className={`mt-1.5 pt-1.5 border-t text-[10px] tabular-nums
+                    ${active ? "border-white/15" : "border-[#E5E7EB]"}`}>
+                    <span className={`font-bold ${active ? "text-[#C8972B]" : "text-[#1A3C6E]"}`}>
+                      IRR {pct1(irr.loMonthly)}–{pct1(irr.hiMonthly)}%/мес
+                    </span>
+                    <span className={active ? "text-white/55" : "text-[#9CA3AF]"}>
+                      {" · "}{pct0(irr.loAnnual)}–{pct0(irr.hiAnnual)}%/год
+                    </span>
                   </div>
                 </div>
               );

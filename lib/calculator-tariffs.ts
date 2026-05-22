@@ -25,6 +25,8 @@
  *           где down = 25% от price
  */
 
+import { irrMonthly, annualFromMonthly } from "@/lib/finance/iso-irr";
+
 export type TariffKey = "light" | "small" | "medium" | "large";
 
 export interface TariffSpec {
@@ -177,6 +179,46 @@ export function calcByTariff(input: TariffCalcInput): TariffCalcResult {
     monthly, total, markup,
     feePerMonth: Math.round(markup / term),
     bonus,
+  };
+}
+
+/* ── IRR (доходность) тарифа ───────────────────────────────────────────
+   IRR показывает доходность на вложенный капитал. Cashflow:
+   −капитал на t=0, далее равные платежи. Для тарифов со взносом капитал
+   = price − взнос, платежей (term−1); для Light капитал = price, term. */
+
+/** Репрезентативная сумма для расчёта IRR (IRR почти не зависит от суммы). */
+const IRR_SAMPLE_PRICE: Record<TariffKey, number> = {
+  light: 70_000, small: 70_000, medium: 100_000, large: 300_000,
+};
+
+export interface TariffIrr {
+  loMonthly: number;  hiMonthly: number;
+  loAnnual:  number;  hiAnnual:  number;
+}
+
+/** Диапазон IRR тарифа по всем срокам — при минимальном взносе 25%. */
+export function tariffIrrRange(key: TariffKey): TariffIrr {
+  const spec  = TARIFFS[key];
+  const price = IRR_SAMPLE_PRICE[key];
+  const down  = spec.needsDown ? round100(price * MIN_DOWN_PCT) : 0;
+
+  const monthlyIrrs: number[] = [];
+  for (let term = spec.minTerm; term <= spec.maxTerm; term++) {
+    const { monthly } = calcByTariff({ tariff: key, price, down, term });
+    const flows = spec.needsDown
+      ? [-(price - down), ...Array(term - 1).fill(monthly)]
+      : [-price, ...Array(term).fill(monthly)];
+    const r = irrMonthly(flows);
+    if (isFinite(r)) monthlyIrrs.push(r);
+  }
+
+  const loMonthly = Math.min(...monthlyIrrs);
+  const hiMonthly = Math.max(...monthlyIrrs);
+  return {
+    loMonthly, hiMonthly,
+    loAnnual: annualFromMonthly(loMonthly),
+    hiAnnual: annualFromMonthly(hiMonthly),
   };
 }
 
