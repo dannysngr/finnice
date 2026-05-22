@@ -10,7 +10,9 @@
  *   • Medium — взнос 25%,  1 поручитель,    70 000–150 000 ₽, 3.5%/мес, 3–12 платежей
  *   • Large  — взнос 25%,  2 поручителя,   150 000–1 000 000 ₽, 3.0%/мес, 3–12 платежей
  *
- * Взнос фиксированный: 0 (Light) или ровно 25% от суммы (Small/Medium/Large).
+ * Взнос: 0 (Light) или от 25% суммы (Small/Medium/Large) — его можно
+ * увеличить вплоть до 90%. Каждый рубль взноса сверх 25% возвращает 10%
+ * скидкой с наценки (бонус addit).
  * Диапазоны пересекаются — одну и ту же сумму можно оформить по-разному:
  *   8–70к   → Light (без взноса) или Small (взнос 25%)
  *   70–100к → Light (без взноса) или Medium (взнос 25%)
@@ -81,17 +83,30 @@ export const LIGHT_MAX_PRICE = 100_000;
 /** Без взноса (Light) максимум 10 платежей, со взносом — 12. */
 export const LIGHT_MAX_TERM  = 10;
 export const FULL_MAX_TERM   = 12;
-/** Фиксированный взнос для Small/Medium/Large. */
-export const DOWN_PCT = 0.25;
+/** Взнос для Small/Medium/Large: минимум 25%, поднять можно до 90%. */
+export const MIN_DOWN_PCT   = 0.25;
+export const MAX_DOWN_PCT   = 0.90;
+/** Бонус: 10% от взноса сверх минимума возвращается скидкой с наценки. */
+export const DOWN_BONUS_PCT = 0.10;
 
 /** Округление до сотен — как у khalim (MyRound100). */
 function round100(n: number): number {
   return Math.round(n / 100) * 100;
 }
 
-/** Фиксированный взнос 25%, округлённый до сотен. 0 — если без взноса. */
+/** Минимальный взнос (25%), округлён до сотен. 0 — если без взноса. */
 export function downForPrice(price: number, hasDown: boolean): number {
-  return hasDown ? round100(price * DOWN_PCT) : 0;
+  return hasDown ? round100(price * MIN_DOWN_PCT) : 0;
+}
+
+/** Нижняя граница взноса для слайдера (25% суммы). */
+export function minDownFor(price: number): number {
+  return round100(price * MIN_DOWN_PCT);
+}
+
+/** Верхняя граница взноса для слайдера (90% суммы). */
+export function maxDownFor(price: number): number {
+  return round100(price * MAX_DOWN_PCT);
 }
 
 /**
@@ -123,6 +138,7 @@ export interface TariffCalcResult {
   total:       number;
   markup:      number;
   feePerMonth: number;   // наценка на 1 платёж
+  bonus:       number;   // скидка с наценки за взнос больше минимума
 }
 
 export function calcByTariff(input: TariffCalcInput): TariffCalcResult {
@@ -138,21 +154,29 @@ export function calcByTariff(input: TariffCalcInput): TariffCalcResult {
     return {
       monthly, total, markup,
       feePerMonth: Math.round(markup / term),
+      bonus: 0,
     };
   }
 
   // Tariff со взносом: Small / Medium / Large
-  const down = Math.max(0, input.down);
+  const down      = Math.max(0, input.down);
+  const minDown25 = round100(price * MIN_DOWN_PCT);
 
-  // monthly = (((price × rate × term) + (price − down)) / (term − 1))
+  // addit — 10% от взноса сверх минимума, размазано по (term−1) платежам
+  const extraDown = Math.max(0, down - minDown25);
+  const additPer  = (extraDown * DOWN_BONUS_PCT) / Math.max(1, term - 1);
+  const bonus     = Math.round(extraDown * DOWN_BONUS_PCT);
+
+  // monthly = (((price × rate × term) + (price − down)) / (term − 1)) − addit
   const remaining = price - down;
-  const monthly   = round100(((price * rate * term) + remaining) / Math.max(1, term - 1));
+  const monthly   = round100(((price * rate * term) + remaining) / Math.max(1, term - 1) - additPer);
   const total     = monthly * (term - 1) + down;
   const markup    = total - price;
 
   return {
     monthly, total, markup,
     feePerMonth: Math.round(markup / term),
+    bonus,
   };
 }
 

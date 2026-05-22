@@ -6,7 +6,7 @@ import {
   TARIFFS, TARIFF_ORDER,
   MIN_PRICE_TARIFF, MAX_PRICE_TARIFF, MIN_TERM_TARIFF,
   LIGHT_MAX_PRICE, LIGHT_MAX_TERM, FULL_MAX_TERM,
-  calcByTariff, downForPrice, resolveTariff, lightAvailable,
+  calcByTariff, minDownFor, maxDownFor, resolveTariff, lightAvailable,
   pluralPayments, pluralGuarantors,
 } from "@/lib/calculator-tariffs";
 import { useAppModal } from "@/lib/modal-context";
@@ -23,23 +23,36 @@ export default function CalculatorTariffsPage() {
   const { openModal } = useAppModal();
   const [price,   setPrice]   = useState(70_000);
   const [hasDown, setHasDown] = useState(true);
+  const [down,    setDown]    = useState(17_500);   // взнос в рублях (25% от 70 000)
   const [term,    setTerm]    = useState(6);
 
   // Тариф определяется суммой + наличием взноса
   const tariff  = useMemo(() => resolveTariff(price, hasDown), [price, hasDown]);
   const spec    = TARIFFS[tariff];
-  const down    = downForPrice(price, hasDown);
   const maxTerm = hasDown ? FULL_MAX_TERM : LIGHT_MAX_TERM;
   const canSkipDown = lightAvailable(price);
 
+  // Границы взноса (25–90% суммы) и фактический взнос для расчёта
+  const clampDownTo = (d: number, p: number) =>
+    Math.min(maxDownFor(p), Math.max(minDownFor(p), d));
+  const minDown = minDownFor(price);
+  const maxDown = maxDownFor(price);
+  const effDown = hasDown ? clampDownTo(down, price) : 0;
+
   const result = useMemo(
-    () => calcByTariff({ tariff, price, down, term }),
-    [tariff, price, down, term],
+    () => calcByTariff({ tariff, price, down: effDown, term }),
+    [tariff, price, effDown, term],
   );
 
   // Сумма выше 100 000 ₽ — взнос обязателен (Light недоступен)
   function handlePriceChange(v: number) {
     const clamped = Math.min(MAX_PRICE_TARIFF, Math.max(MIN_PRICE_TARIFF, v));
+    // взнос тянется пропорционально, удерживаясь в рамках 25–90%
+    setDown(prev => {
+      const ratio  = price > 0 ? prev / price : 0.25;
+      const scaled = Math.round((clamped * ratio) / 500) * 500;
+      return clampDownTo(scaled, clamped);
+    });
     setPrice(clamped);
     if (clamped > LIGHT_MAX_PRICE && !hasDown) setHasDown(true);
   }
@@ -48,7 +61,12 @@ export default function CalculatorTariffsPage() {
   function handleDownToggle(next: boolean) {
     if (!next && !canSkipDown) return;        // выше 100к взнос убрать нельзя
     setHasDown(next);
+    if (next) setDown(d => clampDownTo(d, price));
     if (!next && term > LIGHT_MAX_TERM) setTerm(LIGHT_MAX_TERM);  // Light — макс 10
+  }
+
+  function handleDownChange(v: number) {
+    setDown(clampDownTo(v, price));
   }
 
   function handleTermChange(v: number) {
@@ -59,7 +77,7 @@ export default function CalculatorTariffsPage() {
     openModal({
       productName: `Расчёт рассрочки · тариф ${spec.label}`,
       price,
-      down,
+      down: effDown,
       term,
       monthly: result.monthly,
     });
@@ -141,15 +159,31 @@ export default function CalculatorTariffsPage() {
                     {hasDown && <span className="w-2 h-2 rounded-full bg-[#C8972B]" />}
                   </span>
                   <span className={`font-extrabold text-sm ${hasDown ? "text-[#0A1628]" : "text-white"}`}>
-                    Взнос 25%
+                    Со взносом
                   </span>
                 </span>
                 <span className={`block text-[10px] leading-snug mt-1 pl-[26px]
                   ${hasDown ? "text-[#1A3C6E]/75" : "text-white/60"}`}>
-                  {addSpaces(downForPrice(price, true))} ₽ · ставка ниже, до 12 платежей
+                  от 25% · ставка ниже, до 12 платежей
                 </span>
               </button>
             </div>
+
+            {/* Слайдер взноса — появляется при «Со взносом» */}
+            {hasDown && (
+              <div className="mt-4">
+                <NumField
+                  label="Сумма первоначального взноса:"
+                  value={effDown}
+                  onChange={handleDownChange}
+                  min={minDown} max={maxDown} step={500}
+                  hint={result.bonus > 0
+                    ? `🎁 Бонус за крупный взнос: −${addSpaces(result.bonus)} ₽ с наценки`
+                    : `Минимум ${addSpaces(minDown)} ₽ (25%) · двигайте ползунок — чем больше взнос, тем меньше переплата`}
+                />
+              </div>
+            )}
+
             {!canSkipDown && (
               <p className="text-[#F0C674] text-[10px] mt-2 leading-snug">
                 ⓘ Для суммы свыше {addSpaces(LIGHT_MAX_PRICE)} ₽ первоначальный взнос обязателен.
