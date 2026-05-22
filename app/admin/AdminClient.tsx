@@ -3,7 +3,10 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { pluralPayment, calcInstallment, getGuarantors } from "@/lib/calculator-logic";
-import { formatPhone, phoneInputOnChange, shouldBlockPhoneKeyDown } from "@/lib/phone-mask";
+import {
+  formatPhone, phoneInputOnChange, shouldBlockPhoneKeyDown,
+  extractPhoneDigits, phoneToE164, PHONE_PREFIX,
+} from "@/lib/phone-mask";
 import { computeProfileCompletion } from "@/lib/profile-completion";
 import {
   maskPassportSeries, maskPassportNumber, maskDepartmentCode,
@@ -592,7 +595,7 @@ function UsersTab({
     try {
       const res = await fetch("/api/admin/users/create", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(createForm),
+        body: JSON.stringify({ ...createForm, phone: phoneToE164(createForm.phone) }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -704,8 +707,37 @@ function UsersTab({
           <div className="w-full max-w-md bg-[#0E2344] rounded-2xl shadow-2xl border border-[#1A3C6E]/60 p-6">
             <h2 className="text-lg font-bold text-white mb-5">Новый пользователь</h2>
             <div className="space-y-3 mb-5">
-              <FieldRow label="Телефон *" placeholder="+79001234567" value={createForm.phone}
-                        onChange={v => setCreateForm(f => ({ ...f, phone: v }))} />
+              {/* Телефон — с маской +7 9XX XXX XX XX (как везде на сайте) */}
+              <div>
+                <p className="text-[10px] text-[#9CA3AF] font-semibold uppercase tracking-wider mb-1">
+                  Телефон *
+                </p>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  placeholder="+7 9XX XXX XX XX"
+                  value={createForm.phone}
+                  onChange={e => setCreateForm(f => ({ ...f, phone: phoneInputOnChange(e.target.value) }))}
+                  onKeyDown={e => {
+                    if (shouldBlockPhoneKeyDown(e.key, e.currentTarget.selectionStart, e.currentTarget.selectionEnd)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  onFocus={e => {
+                    if (!e.currentTarget.value) {
+                      setCreateForm(f => ({ ...f, phone: PHONE_PREFIX }));
+                    }
+                  }}
+                  onBlur={e => {
+                    if (e.currentTarget.value === PHONE_PREFIX || e.currentTarget.value === PHONE_PREFIX.trim()) {
+                      setCreateForm(f => ({ ...f, phone: "" }));
+                    }
+                  }}
+                  className="w-full px-2.5 py-2 rounded-lg bg-[#0A1628] text-white text-sm
+                             border border-[#1A3C6E] focus:border-[#C8972B] outline-none transition-colors
+                             placeholder:text-[#9CA3AF]/50"
+                />
+              </div>
               <div className="grid grid-cols-3 gap-2">
                 <FieldRow placeholder="Фамилия"  value={createForm.lastName}
                           onChange={v => setCreateForm(f => ({ ...f, lastName: v }))} />
@@ -726,7 +758,7 @@ function UsersTab({
                                  font-semibold text-sm hover:bg-[#1A3C6E]/40 transition-colors">
                 Отмена
               </button>
-              <button onClick={handleCreate} disabled={createBusy || !createForm.phone.trim()}
+              <button onClick={handleCreate} disabled={createBusy || extractPhoneDigits(createForm.phone).length !== 10}
                       className="flex-1 py-2 rounded-full bg-[#C8972B] text-[#0A1628] font-bold text-sm
                                  hover:bg-[#E8B84B] transition-colors disabled:opacity-60 active:scale-95">
                 {createBusy ? "Создаю..." : "Создать"}
