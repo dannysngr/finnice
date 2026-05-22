@@ -52,7 +52,7 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
       .catch(() => {});
   }, []);
 
-  /* Расчёт по модели khalim (тариф Light убран, взнос 25% обязателен) */
+  /* Расчёт рассрочки (первоначальный взнос 25% обязателен) */
   const result = calcInstallment({ price, down, term });
 
   function handlePriceChange(v: number) {

@@ -55,7 +55,7 @@ export default function CorporateCalculatorPage() {
     return { markup, total, monthly, markupPct };
   }, [price, down, term]);
 
-  /* Стандартный сценарий: тот же расчёт что на главной (модель khalim) +
+  /* Стандартный сценарий: тот же расчёт что на главной +
      обязательный взнос 25% — для честного сравнения с корпоративным тарифом */
   const standard = useMemo(() => {
     const stdMinDown = Math.ceil(price * getMinDownPct(price));

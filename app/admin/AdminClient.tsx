@@ -798,22 +798,22 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
     : 0.25;
   const [downPct, setDownPct] = useState<number>(initialDownPct);
 
-  /* ── Вычисляемое (модель khalim) ─────────────────────── */
+  /* ── Вычисляемое ─────────────────────────────────────── */
   const downAmount = Math.round(cost * downPct);
-  const khalimRes  = calcInstallment({ price: cost, down: downAmount, term });
-  const suggestedMarkup = cost > 0 ? khalimRes.markup / cost : 0;
+  const calcRes  = calcInstallment({ price: cost, down: downAmount, term });
+  const suggestedMarkup = cost > 0 ? calcRes.markup / cost : 0;
 
   const [useOverride, setUseOverride] = useState(false);
   const [overrideMarkup, setOverrideMarkup] = useState(suggestedMarkup);
   const markupPct = useOverride ? overrideMarkup : suggestedMarkup;
 
-  const markupAmount   = useOverride ? Math.round(cost * overrideMarkup) : khalimRes.markup;
+  const markupAmount   = useOverride ? Math.round(cost * overrideMarkup) : calcRes.markup;
   const totalPrice     = cost + markupAmount;
   const remainingPay   = totalPrice - downAmount;
   /* Взнос — 1-й из term платежей, далее (term−1) равных ежемесячных */
   const monthlyPayment = useOverride
     ? remainingPay / Math.max(1, term - 1)
-    : khalimRes.monthly;
+    : calcRes.monthly;
   const capitalT0      = cost - downAmount;
 
   /* Сколько поручителей нужно при данной сумме (totalPrice — цена для клиента).
@@ -956,7 +956,7 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
           <div className="space-y-3">
             <h3 className="text-[10px] uppercase font-bold tracking-wider text-[#0C7A58]">Финансовый расчёт</h3>
 
-            {/* Наценка и IRR сделки (модель khalim) */}
+            {/* Наценка и IRR сделки */}
             <div className="rounded-lg p-3 bg-[#0A1628]/60 border border-[#0C7A58]/30">
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
@@ -1000,7 +1000,7 @@ function ApproveModal({ app, onConfirm, onCancel, isLoading, onOpenClientProfile
 
             {!useOverride && (
               <p className="text-[10px] text-[#86EFAC] italic">
-                ✓ Наценка по тарифу (модель khalim)
+                ✓ Наценка по тарифу
               </p>
             )}
             {useOverride && (
