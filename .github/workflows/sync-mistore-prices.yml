@@ -113,7 +113,7 @@ jobs:
           RUN_URL:   ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           SUMMARY=$(cat diff-summary.txt)
-          MESSAGE=$(printf "🔄 *Цены mistore синхронизированы*\n\n\`\`\`\n%s\n\`\`\`\n[Run #${{ github.run_number }}](%s) · автодеплой Vercel запущен" "$SUMMARY" "$RUN_URL")
+          MESSAGE=$(printf "🔄 *Цены партнёров синхронизированы*\n_Mi Store · iStore Grozny · biggeek_\n\n\`\`\`\n%s\n\`\`\`\n[Run #${{ github.run_number }}](%s) · автодеплой Vercel запущен" "$SUMMARY" "$RUN_URL")
           curl -sS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
             -d "chat_id=${CHAT_ID}" \
             -d "parse_mode=Markdown" \
@@ -127,7 +127,7 @@ jobs:
           CHAT_ID:   ${{ secrets.ADMIN_CHAT_ID }}
           RUN_URL:   ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          MESSAGE=$(printf "⚠️ *Sync mistore упал*\n[Run #${{ github.run_number }}](%s) — проверь логи" "$RUN_URL")
+          MESSAGE=$(printf "⚠️ *Синхронизация цен упала*\n[Run #${{ github.run_number }}](%s) — проверь логи" "$RUN_URL")
           curl -sS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
             -d "chat_id=${CHAT_ID}" \
             -d "parse_mode=Markdown" \
