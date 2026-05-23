@@ -123,7 +123,7 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
           }
           .calc-inputs-row > * { flex: 1 1 0; min-width: 0; }
           .slider-label { min-height: 3rem !important; }
-          .slider-hint { min-height: 28px !important; }
+          .slider-hint { height: 28px !important; overflow: hidden; }
         }
         .slider-hint { min-height: 0; }
       `}</style>
@@ -145,8 +145,8 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
           format onChange={setDown}
           warn={!result.isValidDown}
           hint={result.bonus > 0
-            ? `Бонус за крупный взнос: −${fmtRub(result.bonus)} ₽ с наценки`
-            : `Минимум ${fmtRub(result.minDown)} ₽ (25%) · больше взнос — меньше переплата`}
+            ? `🎁 Бонус: −${fmtRub(result.bonus)} ₽ с наценки`
+            : `Минимум: ${fmtRub(result.minDown)} ₽ (25%)`}
         />
 
         {/* Количество платежей */}
