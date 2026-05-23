@@ -122,6 +122,12 @@ export function ProductHero({ product, stars }: Props) {
 
   const displayPrice = selectedVariant?.price ?? product.price;
 
+  // Платёж при рассрочке для выбранной вариации (на 6 платежей, минимальный взнос).
+  const displayMonthly = useMemo(() => {
+    const down = Math.ceil(displayPrice * getMinDownPct(displayPrice));
+    return calcInstallment({ price: displayPrice, down, term: 6 }).monthly;
+  }, [displayPrice]);
+
   const isCombo = (a: string, b: string) =>
     !axisB ? variants.some(v => getA(v) === a) : variants.some(v => getA(v) === a && getB(v) === b);
   const isColorAvailable = (cl: string) =>
@@ -217,19 +223,29 @@ export function ProductHero({ product, stars }: Props) {
         </div>
 
         <div className="mb-5">
-          <span className="text-4xl font-extrabold text-[#0A1628]">
-            {hasVariants
-              ? `${fmtRub(displayPrice)} ₽`
-              : `${product.tgSynced ? fmtRub(product.price) : fmtRubApprox(product.price)} ₽`}
-          </span>
-          {product.oldPrice && (
-            <>
-              <span className="ml-3 text-lg text-[#9CA3AF] line-through">{fmtRub(product.oldPrice)} ₽</span>
-              <span className="ml-2 text-sm font-bold text-[#DC2626]">
-                −{fmtRub(product.oldPrice - product.price)} ₽
-              </span>
-            </>
-          )}
+          {/* Цена при рассрочке — крупно. */}
+          <div className="leading-none">
+            <span className="text-4xl font-extrabold text-[#0A1628]">
+              {fmtRub(displayMonthly)} ₽
+            </span>
+            <span className="ml-2 text-base font-semibold text-[#6B7280]">/ 6 мес</span>
+          </div>
+          {/* Полная цена + скидка — мелко снизу. */}
+          <div className="mt-2 flex items-baseline gap-3 flex-wrap">
+            <span className="text-lg text-[#6B7280]">
+              {hasVariants
+                ? `${fmtRub(displayPrice)} ₽`
+                : `${product.tgSynced ? fmtRub(product.price) : fmtRubApprox(product.price)} ₽`}
+            </span>
+            {product.oldPrice && (
+              <>
+                <span className="text-base text-[#9CA3AF] line-through">{fmtRub(product.oldPrice)} ₽</span>
+                <span className="text-sm font-bold text-[#DC2626]">
+                  −{fmtRub(product.oldPrice - product.price)} ₽
+                </span>
+              </>
+            )}
+          </div>
         </div>
 
         {hasVariants ? (
