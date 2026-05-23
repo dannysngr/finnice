@@ -86,6 +86,14 @@ CATEGORIES: list[str] = [
     "apple-iphone-17-pro-max",
     "apple-iphone-air",
     "iphone-17e",
+    # Apple-аксессуары (чехлы, ремешки, MagSafe, AirTag, переходники).
+    # Структура карточек та же — обычный biggeek catalog-card.
+    "aksessuary-dlya-apple-airpods",      # чехлы для AirPods
+    "aksessuary-dlya--apple-watch",       # ремешки и чехлы для Apple Watch (двойной дефис — так на biggeek)
+    "aksessuary-magsafe",                 # держатели/зарядки/павербанки MagSafe
+    "aksessuary-dlya-airtag",             # брелоки/петли для AirTag
+    "apple-airtag",                       # сам AirTag (1-pack / 4-pack)
+    "adaptery-i-perekhodniki-apple",      # Apple-переходники Lightning/USB-C/3.5мм
 ]
 
 
