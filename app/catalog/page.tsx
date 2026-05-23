@@ -1006,11 +1006,7 @@ function ProductCard({ item: p, authed, inFavs, cartQty, onToggleFav, onAddCart,
           <span className="text-[10px] font-semibold text-[#6B7280] ml-1">/ 6 мес</span>
         </p>
         <p className="text-[10px] text-[#9CA3AF] mt-0.5">
-          {p.variants && p.variants.length > 0
-            ? `от ${fmtRub(p.price)} ₽`
-            : p.tgSynced
-              ? `${fmtRub(p.price)} ₽`
-              : `${fmtRubApprox(p.price)} ₽`}
+          {p.tgSynced ? `${fmtRub(p.price)} ₽` : `${fmtRubApprox(p.price)} ₽`}
           {p.oldPrice && (
             <span className="ml-1.5 text-[#C4C9D4] line-through font-normal">
               {fmtRub(p.oldPrice)} ₽

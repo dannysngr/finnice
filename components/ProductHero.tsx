@@ -122,11 +122,15 @@ export function ProductHero({ product, stars }: Props) {
 
   const displayPrice = selectedVariant?.price ?? product.price;
 
-  // Платёж при рассрочке для выбранной вариации (на 6 платежей, минимальный взнос).
+  // Срок рассрочки — открывается дефолтом в 6 платежей, можно менять.
+  const [term, setTerm] = useState<number>(6);
+  const [termOpen, setTermOpen] = useState(false);
+
+  // Платёж при рассрочке для выбранной вариации (минимальный взнос).
   const displayMonthly = useMemo(() => {
     const down = Math.ceil(displayPrice * getMinDownPct(displayPrice));
-    return calcInstallment({ price: displayPrice, down, term: 6 }).monthly;
-  }, [displayPrice]);
+    return calcInstallment({ price: displayPrice, down, term }).monthly;
+  }, [displayPrice, term]);
 
   const isCombo = (a: string, b: string) =>
     !axisB ? variants.some(v => getA(v) === a) : variants.some(v => getA(v) === a && getB(v) === b);
@@ -139,7 +143,7 @@ export function ProductHero({ product, stars }: Props) {
   function handleBuy() {
     const price = displayPrice;
     const down = Math.ceil(price * getMinDownPct(price));
-    const res = calcInstallment({ price, down, term: 6 });
+    const res = calcInstallment({ price, down, term });
     const memoryLabel = hasVariants && selectedVariant
       ? mode === "mac"
         ? `${selectedVariant.ram} / ${selectedVariant.ssd}`
@@ -151,7 +155,7 @@ export function ProductHero({ product, stars }: Props) {
       sim: selectedVariant?.sim,
       price,
       down,
-      term: 6,
+      term,
       monthly: res.monthly,
     });
   }
@@ -228,7 +232,49 @@ export function ProductHero({ product, stars }: Props) {
             <span className="text-4xl font-extrabold text-[#0A1628]">
               {fmtRub(displayMonthly)} ₽
             </span>
-            <span className="ml-2 text-base font-semibold text-[#6B7280]">/ 6 мес</span>
+            <span className="relative inline-block ml-2 align-baseline">
+              <button
+                type="button"
+                onClick={() => setTermOpen(o => !o)}
+                className="text-base font-semibold text-[#6B7280] hover:text-[#0A1628] transition-colors inline-flex items-center gap-1"
+                aria-haspopup="listbox"
+                aria-expanded={termOpen}
+              >
+                / {term} мес
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+                     className={`transition-transform ${termOpen ? "rotate-180" : ""}`}>
+                  <path d="M2 4l3 3 3-3" stroke="currentColor" strokeWidth="1.5"
+                        strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              {termOpen && (
+                <>
+                  {/* Backdrop для закрытия по клику вне */}
+                  <div className="fixed inset-0 z-10" onClick={() => setTermOpen(false)} />
+                  <div role="listbox"
+                       className="absolute top-full left-0 mt-1.5 bg-white shadow-lg rounded-lg
+                                  border border-[#E5E7EB] py-1 z-20 min-w-[110px]">
+                    {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => { setTerm(n); setTermOpen(false); }}
+                        role="option"
+                        aria-selected={n === term}
+                        className={`block w-full text-left px-3 py-1.5 text-sm transition-colors
+                                    hover:bg-[#F4F7FC] ${
+                          n === term
+                            ? "font-bold text-[#0A1628]"
+                            : "text-[#6B7280]"
+                        }`}
+                      >
+                        {n} мес
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </span>
           </div>
           {/* Полная цена + скидка — мелко снизу. */}
           <div className="mt-2 flex items-baseline gap-3 flex-wrap">

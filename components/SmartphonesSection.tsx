@@ -336,11 +336,7 @@ function PhoneCard({ phone, authed, inFavs, cartQty, onToggleFav, onAddCart, onU
           <span className="text-[10px] font-semibold text-[#6B7280] ml-1">/ 6 мес</span>
         </p>
         <p className="text-[10px] text-[#9CA3AF] mt-0.5">
-          {hasVariants
-            ? `от ${fmtRub(phone.price)} ₽`
-            : phone.tgSynced
-              ? `${fmtRub(phone.price)} ₽`
-              : `${fmtRubApprox(phone.price)} ₽`}
+          {phone.tgSynced ? `${fmtRub(phone.price)} ₽` : `${fmtRubApprox(phone.price)} ₽`}
         </p>
 
         {/* Действие — всегда видно, со счётчиком qty если в корзине */}
