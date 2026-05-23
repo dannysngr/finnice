@@ -999,26 +999,23 @@ function ProductCard({ item: p, authed, inFavs, cartQty, onToggleFav, onAddCart,
         ) : specsText ? (
           <p className="text-[10px] text-[#ADADAD] mt-0.5">{specsText}</p>
         ) : null}
-        {/* Цена. Если есть variants — это «от <min>», иначе обычная цена. */}
+        {/* Цена при рассрочке — крупным; общая цена снизу мелким. */}
         <p className="font-bold text-[#0A1628] mt-1.5 leading-none" style={{ fontSize: "15px" }}>
-          {p.variants && p.variants.length > 0 ? (
-            <>
-              <span className="text-[10px] font-semibold text-[#6B7280] mr-1">от</span>
-              {fmtRub(p.price)} ₽
-            </>
-          ) : p.tgSynced ? (
-            `${fmtRub(p.price)} ₽`
-          ) : (
-            `${fmtRubApprox(p.price)} ₽`
-          )}
+          <span className="text-[10px] font-semibold text-[#6B7280] mr-1">от</span>
+          {fmtRub(res.monthly)} ₽
+          <span className="text-[10px] font-semibold text-[#6B7280] ml-1">/ 6 мес</span>
+        </p>
+        <p className="text-[10px] text-[#9CA3AF] mt-0.5">
+          {p.variants && p.variants.length > 0
+            ? `от ${fmtRub(p.price)} ₽`
+            : p.tgSynced
+              ? `${fmtRub(p.price)} ₽`
+              : `${fmtRubApprox(p.price)} ₽`}
           {p.oldPrice && (
-            <span className="ml-1.5 text-[11px] text-[#C4C9D4] line-through font-normal">
+            <span className="ml-1.5 text-[#C4C9D4] line-through font-normal">
               {fmtRub(p.oldPrice)} ₽
             </span>
           )}
-        </p>
-        <p className="text-[10px] text-[#9CA3AF] mt-0.5">
-          от {fmtRub(res.monthly)} ₽/мес.
         </p>
 
         {/* Действие — всегда видно, со счётчиком qty если в корзине */}

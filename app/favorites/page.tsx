@@ -239,8 +239,12 @@ function FavCard({
       </div>
 
       <div className="mt-auto">
-        <p className="font-extrabold text-[#0A1628] text-sm">{p.tgSynced ? fmtRub(p.price) : fmtRubApprox(p.price)} ₽</p>
-        <p className="text-[10px] text-[#0C7A58] font-semibold mt-0.5">от {fmtRub(res.monthly)} ₽/мес.</p>
+        <p className="font-extrabold text-[#0A1628] text-sm">
+          <span className="text-[10px] font-semibold text-[#6B7280] mr-1">от</span>
+          {fmtRub(res.monthly)} ₽
+          <span className="text-[10px] font-semibold text-[#6B7280] ml-1">/ 6 мес</span>
+        </p>
+        <p className="text-[10px] text-[#9CA3AF] mt-0.5">{p.tgSynced ? fmtRub(p.price) : fmtRubApprox(p.price)} ₽</p>
       </div>
 
       {/* Кнопки */}
