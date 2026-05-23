@@ -707,6 +707,53 @@ def main():
         print(f"  ⚠️  Biggeek fetch упал: {e} — продолжаем без него")
         bg_prices = {}
 
+    # ── BigGeek → авто-обновление цен в lib/biggeek-products.ts ─────
+    # Регулярная синхронизация (2x/сутки): для SKU нашего каталога, которые
+    # НЕ матчатся ни с одним TG-каналом, тянем актуальную цену с biggeek.ru.
+    # Меняем только числовое поле price — структуру/имена/изображения
+    # не трогаем (их регенерирует import-biggeek-products.py вручную).
+    print("\n→ Обновляем lib/biggeek-products.ts (только цены, не-TG SKU)…")
+    big_updates: dict[str, tuple[int, int]] = {}  # id → (old, new)
+    for sku in bigs:
+        sku_id = sku.get("id")     # в lib/biggeek-products.ts id == slug
+        if not sku_id:
+            continue
+        # SKU уже отдаёт цену через TG-канал → пропускаем (TG задаёт маржу)
+        tg_key = sku_to_key.get(sku_id)
+        if tg_key and tg_key in matched_keys:
+            continue
+        bg = bg_prices.get(sku_id)
+        if not bg:
+            continue
+        new_price = bg["price"] if isinstance(bg, dict) else bg
+        if not isinstance(new_price, int) or new_price <= 0:
+            continue
+        old_price = int(sku.get("price", 0))
+        if old_price == new_price:
+            continue
+        big_updates[sku_id] = (old_price, new_price)
+
+    if big_updates:
+        big_txt = BIG_TS.read_text()
+        n_changed = 0
+        for sku_id, (_, new_p) in big_updates.items():
+            pat = re.compile(r'(id:"' + re.escape(sku_id) + r'"[^}]*?price:)(\d+)')
+            new_txt, count = pat.subn(rf'\g<1>{new_p}', big_txt, count=1)
+            if count > 0:
+                big_txt = new_txt
+                n_changed += 1
+        if n_changed:
+            BIG_TS.write_text(big_txt)
+            print(f"  ✓ Обновлено {n_changed} цен в lib/biggeek-products.ts")
+            for slug, (op, np) in list(big_updates.items())[:5]:
+                print(f"    • {slug}: {op:,}→{np:,} ₽ ({np-op:+,})")
+            if len(big_updates) > 5:
+                print(f"    … и ещё {len(big_updates)-5}")
+        else:
+            print("  → regex не сматчил ни одной записи (формат файла мог измениться).")
+    else:
+        print("  → Нечего обновлять — цены актуальные или нет живых данных.")
+
     # Извлечение цвета из biggeek-имени (форматы у них разные):
     # 1) «… (Русский | English)» — берём английский (iPhone/AirPods)
     # 2) «… цвета «русский цвет»» — берём русский в Title Case (Watch)

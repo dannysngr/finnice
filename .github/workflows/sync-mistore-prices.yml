@@ -33,7 +33,7 @@ jobs:
       - name: Check for changes
         id: diff
         run: |
-          if git diff --quiet lib/tg-prices.ts lib/tg-sync-meta.json lib/tg-color-prices.json; then
+          if git diff --quiet lib/tg-prices.ts lib/tg-sync-meta.json lib/tg-color-prices.json lib/biggeek-products.ts; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "Цены не изменились."
           else
@@ -83,7 +83,7 @@ jobs:
         run: |
           git config user.name  "mistore-sync-bot"
           git config user.email "noreply@finnice.ru"
-          git add lib/tg-prices.ts lib/tg-sync-meta.json lib/tg-color-prices.json
+          git add lib/tg-prices.ts lib/tg-sync-meta.json lib/tg-color-prices.json lib/biggeek-products.ts
           {
             echo "chore(prices): sync from TG channels"
             echo
