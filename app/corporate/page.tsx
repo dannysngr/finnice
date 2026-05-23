@@ -74,15 +74,10 @@ export default function CorporateCalculatorPage() {
 
   function handlePriceChange(v: number) {
     setPrice(v);
-    const wasHigh = price > HIGH_PRICE_THRESHOLD;
-    const isHigh  = v > HIGH_PRICE_THRESHOLD;
-    const newMinD = isHigh ? Math.ceil(v * MIN_DOWN_PCT_HIGH) : 0;
-    const newMaxD = Math.floor(v * MAX_DOWN_PCT);
-    if (!wasHigh && isHigh) {
-      setDown(newMinD);
-    } else {
-      setDown(d => Math.max(newMinD, Math.min(newMaxD, d)));
-    }
+    // При любом изменении суммы взнос сбрасывается на минимум —
+    // если клиент хочет повысить, он двигает ползунок взноса отдельно.
+    const newMinD = v > HIGH_PRICE_THRESHOLD ? Math.ceil(v * MIN_DOWN_PCT_HIGH) : 0;
+    setDown(newMinD);
   }
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   calcInstallment,
   fmtRub,
@@ -33,8 +33,7 @@ interface Props {
 }
 
 export function Calculator({ withLink = false, initialPrice }: Props) {
-  const startPrice   = initialPrice ?? 30_000;
-  const prevPriceRef = useRef(startPrice);
+  const startPrice = initialPrice ?? 30_000;
 
   const [price, setPrice] = useState(startPrice);
   const [down,  setDown]  = useState(Math.ceil(startPrice * getMinDownPct(startPrice)));
@@ -56,17 +55,10 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
   const result = calcInstallment({ price, down, term });
 
   function handlePriceChange(v: number) {
-    const oldPrice = prevPriceRef.current;
-    prevPriceRef.current = v;
     setPrice(v);
-    // Взнос тянется пропорционально, удерживаясь в рамках 25–90%
-    const minD = round100(v * 0.25);
-    const maxD = Math.floor(v * MAX_DOWN_PCT);
-    setDown(d => {
-      const ratio  = oldPrice > 0 ? d / oldPrice : 0.25;
-      const scaled = Math.round((v * Math.max(0.25, ratio)) / 500) * 500;
-      return Math.max(minD, Math.min(maxD, scaled));
-    });
+    // При любом изменении суммы взнос сбрасывается на минимум (25%) —
+    // если клиент хочет повысить, он двигает ползунок взноса отдельно.
+    setDown(round100(v * 0.25));
   }
 
   const maxDown    = Math.floor(price * MAX_DOWN_PCT);
@@ -131,7 +123,7 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
           }
           .calc-inputs-row > * { flex: 1 1 0; min-width: 0; }
           .slider-label { min-height: 3rem !important; }
-          .slider-hint { min-height: 14px !important; }
+          .slider-hint { min-height: 28px !important; }
         }
         .slider-hint { min-height: 0; }
       `}</style>
