@@ -257,15 +257,30 @@ function NumberSlider({
 
   function handleFocus() {
     setFocused(true);
-    if (format) setRaw(String(value));
+    // Не сбрасываем форматирование на focus — при печати сразу
+    // подставляем пробелы (см. handleChange).
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const str = e.target.value;
-    setRaw(str);
-    if (str === "") return;
-    const n = parse(str);
-    if (!isNaN(n) && n >= 0) onChange(Math.max(min, Math.min(max, n)));
+    if (format) {
+      // Live-форматирование: чистим до цифр, кламп, переформатируем.
+      const digits = str.replace(/\D/g, "");
+      if (digits === "") {
+        setRaw("");
+        return;
+      }
+      const n = Number(digits);
+      if (!isFinite(n)) return;
+      const clamped = Math.max(min, Math.min(max, n));
+      setRaw(addSpaces(clamped));
+      onChange(clamped);
+    } else {
+      setRaw(str);
+      if (str === "") return;
+      const n = parse(str);
+      if (!isNaN(n) && n >= 0) onChange(Math.max(min, Math.min(max, n)));
+    }
   }
 
   function handleBlur() {
@@ -279,6 +294,9 @@ function NumberSlider({
       onChange(clamped);
     }
   }
+
+  const dec = () => onChange(Math.max(min, value - step));
+  const inc = () => onChange(Math.min(max, value + step));
 
   // Для слайдера "Количество платежей" показываем склонение в unit-бейдже
   const displayUnit = unit === "платежей" ? pluralPayment(value).split(" ")[1] : unit;
@@ -320,13 +338,29 @@ function NumberSlider({
           {displayUnit}
         </span>
       </div>
-      <input
-        type="range"
-        min={min} max={max} step={step} value={value}
-        onChange={e => onChange(Number(e.target.value))}
-        className="w-full"
-        style={trackStyle}
-      />
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={dec}
+          aria-label="Уменьшить"
+          className="w-7 h-7 shrink-0 rounded-full bg-white/15 hover:bg-white/25 active:scale-95
+                     text-white font-bold text-base flex items-center justify-center transition-colors"
+        >−</button>
+        <input
+          type="range"
+          min={min} max={max} step={step} value={value}
+          onChange={e => onChange(Number(e.target.value))}
+          className="flex-1"
+          style={trackStyle}
+        />
+        <button
+          type="button"
+          onClick={inc}
+          aria-label="Увеличить"
+          className="w-7 h-7 shrink-0 rounded-full bg-white/15 hover:bg-white/25 active:scale-95
+                     text-white font-bold text-base flex items-center justify-center transition-colors"
+        >+</button>
+      </div>
       {/* Hint placeholder — рендерится всегда для одинакового низа всех слайдеров */}
       <p className="slider-hint text-white/40 text-[10px] mt-1.5 leading-snug">
         {hint || " "}

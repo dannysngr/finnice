@@ -310,11 +310,22 @@ function Slider({ label, value, unit, trackPct, min, max, step, onChange, format
           inputMode="numeric"
           value={raw}
           onChange={e => {
-            setRaw(e.target.value);
-            const n = format ? stripSpaces(e.target.value) : Number(e.target.value);
-            if (!isNaN(n) && n >= 0) onChange(Math.max(min, Math.min(max, n)));
+            const str = e.target.value;
+            if (format) {
+              const digits = str.replace(/\D/g, "");
+              if (digits === "") { setRaw(""); return; }
+              const n = Number(digits);
+              if (!isFinite(n)) return;
+              const c = Math.max(min, Math.min(max, n));
+              setRaw(addSpaces(c));
+              onChange(c);
+            } else {
+              setRaw(str);
+              const n = Number(str);
+              if (!isNaN(n) && n >= 0) onChange(Math.max(min, Math.min(max, n)));
+            }
           }}
-          onFocus={() => { setFocused(true); if (format) setRaw(String(value)); }}
+          onFocus={() => { setFocused(true); }}
           onBlur={() => {
             setFocused(false);
             const n = format ? stripSpaces(raw) : Number(raw);
@@ -329,13 +340,29 @@ function Slider({ label, value, unit, trackPct, min, max, step, onChange, format
         />
         <span className="px-3 text-[#6B7280] text-xs font-medium border-l border-[#D8E2F0] shrink-0">{unit}</span>
       </div>
-      <input
-        type="range"
-        min={min} max={max} step={step} value={value}
-        onChange={e => onChange(Number(e.target.value))}
-        className="w-full"
-        style={trackStyle}
-      />
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onChange(Math.max(min, value - step))}
+          aria-label="Уменьшить"
+          className="w-7 h-7 shrink-0 rounded-full bg-white/15 hover:bg-white/25 active:scale-95
+                     text-white font-bold text-base flex items-center justify-center transition-colors"
+        >−</button>
+        <input
+          type="range"
+          min={min} max={max} step={step} value={value}
+          onChange={e => onChange(Number(e.target.value))}
+          className="flex-1"
+          style={trackStyle}
+        />
+        <button
+          type="button"
+          onClick={() => onChange(Math.min(max, value + step))}
+          aria-label="Увеличить"
+          className="w-7 h-7 shrink-0 rounded-full bg-white/15 hover:bg-white/25 active:scale-95
+                     text-white font-bold text-base flex items-center justify-center transition-colors"
+        >+</button>
+      </div>
       <p className="text-[10px] mt-1.5" style={{ color: "rgba(237,231,218,0.40)" }}>
         {hint || " "}
       </p>
