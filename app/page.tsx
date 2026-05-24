@@ -86,7 +86,7 @@ function BannerCard() {
           style={{ background: "rgba(237,231,218,0.10)", color: "#EDE7DA", border: "1px solid rgba(237,231,218,0.22)" }}
         >
           <span className="banner-pulse" />
-          Халяль · Без риба · Прозрачно
+          Прозрачно · Без риба · Халяль
         </span>
         <h2 className="text-xl sm:text-2xl font-bold leading-tight mb-1.5" style={{ color: "#EDE7DA" }}>
           Бери сегодня —{" "}<br />плати потом
