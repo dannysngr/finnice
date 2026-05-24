@@ -312,17 +312,18 @@ function Slider({ label, value, unit, trackPct, min, max, step, onChange, format
           onChange={e => {
             const str = e.target.value;
             if (format) {
+              // Live-форматирование: только MAX-кламп при печати, MIN — на blur.
               const digits = str.replace(/\D/g, "");
               if (digits === "") { setRaw(""); return; }
               const n = Number(digits);
               if (!isFinite(n)) return;
-              const c = Math.max(min, Math.min(max, n));
+              const c = Math.min(max, n);
               setRaw(addSpaces(c));
               onChange(c);
             } else {
               setRaw(str);
               const n = Number(str);
-              if (!isNaN(n) && n >= 0) onChange(Math.max(min, Math.min(max, n)));
+              if (!isNaN(n) && n >= 0) onChange(Math.min(max, n));
             }
           }}
           onFocus={() => { setFocused(true); }}

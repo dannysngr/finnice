@@ -264,7 +264,10 @@ function NumberSlider({
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const str = e.target.value;
     if (format) {
-      // Live-форматирование: чистим до цифр, кламп, переформатируем.
+      // Live-форматирование: чистим до цифр, кламплим только к MAX, переформатируем.
+      // МИН не применяем при печати — иначе после выделения всего текста и набора
+      // одной цифры значение мгновенно прыгнет к min и дальше нельзя нормально
+      // набрать большую сумму. Min дотянется на blur.
       const digits = str.replace(/\D/g, "");
       if (digits === "") {
         setRaw("");
@@ -272,14 +275,14 @@ function NumberSlider({
       }
       const n = Number(digits);
       if (!isFinite(n)) return;
-      const clamped = Math.max(min, Math.min(max, n));
-      setRaw(addSpaces(clamped));
-      onChange(clamped);
+      const visual = Math.min(max, n);
+      setRaw(addSpaces(visual));
+      onChange(visual);
     } else {
       setRaw(str);
       if (str === "") return;
       const n = parse(str);
-      if (!isNaN(n) && n >= 0) onChange(Math.max(min, Math.min(max, n)));
+      if (!isNaN(n) && n >= 0) onChange(Math.min(max, n));
     }
   }
 
