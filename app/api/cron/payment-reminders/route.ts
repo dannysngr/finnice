@@ -19,6 +19,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getRedis }    from "@/lib/redis";
 import { sendToChat }  from "@/lib/telegram";
+import { renderMessage } from "@/lib/telegram-templates";
 import { findByPhone } from "@/lib/user-store";
 import type { LoanRecord, ProfileRecord } from "@/app/api/lk/me/route";
 
@@ -145,20 +146,18 @@ export async function GET(req: NextRequest) {
         const dateStr = fmtDateRu(p.dueDate);
         const amountStr = fmtMoney(p.amount);
         const whatIs = p.kind === "down" ? "первоначальный взнос" : `платёж № ${p.idx}`;
-        let header = "";
-        if (kind === "today") header = `🔔 *Сегодня платёж*`;
-        else if (kind === "1d") header = `⏰ *Завтра платёж*`;
-        else header = `📅 *Через 2 дня платёж*`;
+        const templateKey =
+          kind === "today" ? "payment_reminder_today" :
+          kind === "1d"    ? "payment_reminder_1d"    :
+                             "payment_reminder_2d";
 
-        const msg = [
-          header,
-          ``,
-          `${greeting}напоминаем: ${dateStr} — ${whatIs} по рассрочке.`,
-          `Сумма: *${amountStr}*`,
-          `Товар: ${loan.product}`,
-          ``,
-          `Детали и график — в вашем *Личном кабинете.*`,
-        ].join("\n");
+        const { text: msg } = await renderMessage(templateKey, {
+          greeting,
+          date:    dateStr,
+          what:    whatIs,
+          amount:  amountStr,
+          product: loan.product,
+        });
 
         try {
           await sendToChat(userRecord.chatId, msg);

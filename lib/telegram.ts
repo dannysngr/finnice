@@ -14,6 +14,7 @@
  */
 
 import { Telegraf } from "telegraf";
+import { renderMessage } from "@/lib/telegram-templates";
 
 /* ── singleton ────────────────────────────────────────────── */
 const globalWithBot = globalThis as typeof globalThis & {
@@ -70,23 +71,8 @@ export async function sendOtpCode(
   phone: string
 ): Promise<void> {
   const bot = getBot();
-
-  const message = [
-    `🔐 *Код подтверждения Финнайс*`,
-    ``,
-    `Ваш одноразовый код:`,
-    ``,
-    `\`${code}\``,
-    ``,
-    `Действителен *5 минут*.`,
-    `Номер: ${phone}`,
-    ``,
-    `_Если вы не запрашивали код — проигнорируйте это сообщение._`,
-  ].join("\n");
-
-  await bot.telegram.sendMessage(chatId, message, {
-    parse_mode: "Markdown",
-  });
+  const { text, parseMode } = await renderMessage("otp", { code, phone });
+  await bot.telegram.sendMessage(chatId, text, { parse_mode: parseMode as "Markdown" });
 }
 
 /**
@@ -104,9 +90,6 @@ export async function sendOtpToSupport(
   }
 
   const bot = getBot();
-  await bot.telegram.sendMessage(
-    supportChatId,
-    `📲 Запрос OTP\nТелефон: ${phone}\nКод: \`${code}\``,
-    { parse_mode: "Markdown" }
-  );
+  const { text, parseMode } = await renderMessage("otp_admin_fallback", { phone, code });
+  await bot.telegram.sendMessage(supportChatId, text, { parse_mode: parseMode as "Markdown" });
 }

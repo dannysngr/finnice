@@ -3,6 +3,7 @@ import { isAdminRequest } from "@/lib/adminAuth";
 import { getRedis } from "@/lib/redis";
 import { findByPhone } from "@/lib/user-store";
 import { sendToChat } from "@/lib/telegram";
+import { renderMessage } from "@/lib/telegram-templates";
 import { pluralPayment } from "@/lib/calculator-logic";
 import { v4 as uuidv4 } from "uuid";
 import { appendLedger, buildInitialLedger } from "@/lib/finance/ledger";
@@ -101,22 +102,17 @@ export async function POST(req: Request) {
           ? [`📦 *Товары* (${items.length}):`, ...items.map((it: { productName: string; qty: number; totalAmount: number }) =>
               `   • ${it.productName}${it.qty > 1 ? ` × ${it.qty}` : ""} — ${fmt(it.totalAmount)}`)].join("\n")
           : `📦 *Товар:* ${product}`;
-        const msg1 = [
-          `🎉 *Хорошие новости!* Ваша рассрочка одобрена.`,
-          ``,
-          productBlock,
-          ``,
-          `💰 *Общая сумма:* ${fmt(price)}`,
-          `💳 *Первый платёж (взнос):* ${fmt(downAmt)}`,
-          `📅 *Ежемесячный платёж:* ${fmt(monthly ?? 0)}`,
-          `🔢 *Всего платежей:* ${paymentsLabel}`,
-          ``,
-          `Детальный график также доступен в вашем *Личном кабинете.*`,
-        ].join("\n");
+        const { text: msg1 } = await renderMessage("loan_approved", {
+          products:      productBlock,
+          price:         fmt(price),
+          downAmount:    fmt(downAmt),
+          monthly:       fmt(monthly ?? 0),
+          paymentsLabel,
+        });
         await sendToChat(userRecord.chatId, msg1);
 
         // Второе сообщение — график платежей
-        const scheduleLines: string[] = [`📅 *График платежей*`, ``];
+        const scheduleLines: string[] = [];
         const start = new Date(loan.startDate);
         scheduleLines.push(
           `• ${start.toLocaleDateString("ru-RU")} — *${fmt(downAmt)}* — первый взнос`,
@@ -128,8 +124,10 @@ export async function POST(req: Request) {
             `${i}. ${d.toLocaleDateString("ru-RU")} — *${fmt(monthly ?? 0)}* — ежемесячный платёж`,
           );
         }
-        scheduleLines.push(``, `💡 Мы напомним за 2 дня, за 1 день и в день каждого платежа.`);
-        await sendToChat(userRecord.chatId, scheduleLines.join("\n"));
+        const { text: msg2 } = await renderMessage("loan_schedule", {
+          schedule: scheduleLines.join("\n"),
+        });
+        await sendToChat(userRecord.chatId, msg2);
       }
     } catch (notifyErr) {
       console.warn("[approve] Не удалось уведомить клиента:", notifyErr);

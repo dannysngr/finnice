@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
 import { getRedis } from "@/lib/redis";
 import { findByPhone, upsertUser } from "@/lib/user-store";
 import { sendToChat } from "@/lib/telegram";
+import { renderMessage } from "@/lib/telegram-templates";
 import { v4 as uuidv4 } from "uuid";
 import type { ProfileRecord } from "@/app/api/lk/me/route";
 
@@ -164,21 +165,21 @@ export async function POST(req: Request) {
     const productLines = hasItems
       ? items!.map(i => `  • ${escapeMarkdown(i.productName)}${i.qty > 1 ? ` × ${i.qty}` : ""} — ${escapeMarkdown(formatMoney(i.totalAmount))}`).join("\n")
       : null;
+    const productBlock = hasItems
+      ? `📦 *Товары* \\(${items!.length}\\):\n${productLines}`
+      : (product ? `📦 *Товар:* ${escapeMarkdown(product)}` : "");
 
-    const text = [
-      "🛍 *Новая заявка на рассрочку*",
-      "",
-      `👤 *Имя:* ${escapeMarkdown(name.trim())}`,
-      `📞 *Телефон:* ${escapeMarkdown(phone.trim())}`,
-      hasItems
-        ? `📦 *Товары* \\(${items!.length}\\):\n${productLines}`
-        : (product ? `📦 *Товар:* ${escapeMarkdown(product)}` : null),
-      price   ? `💰 *Сумма:* ${escapeMarkdown(formatMoney(price))}` : null,
-      down    ? `💳 *Первый взнос:* ${escapeMarkdown(formatMoney(down))}` : null,
-      term    ? `📅 *Срок:* ${term} мес → ${escapeMarkdown(formatMoney(monthly))}/мес` : null,
-      "",
-      `⏱ ${escapeMarkdown(now)} МСК`,
-    ].filter(Boolean).join("\n");
+    // Шаблон в MarkdownV2: значения экранируются ДО подстановки.
+    const { text } = await renderMessage("admin_new_application", {
+      name:         escapeMarkdown(name.trim()),
+      phone:        escapeMarkdown(phone.trim()),
+      productBlock,
+      price:        escapeMarkdown(formatMoney(price)),
+      down:         escapeMarkdown(formatMoney(down)),
+      term:         String(term ?? ""),
+      monthly:      escapeMarkdown(formatMoney(monthly)),
+      time:         escapeMarkdown(now),
+    });
 
     const tgRes = await fetch(
       `https://api.telegram.org/bot${token}/sendMessage`,
@@ -204,10 +205,8 @@ export async function POST(req: Request) {
     try {
       const userRecord = await findByPhone(phone.trim());
       if (userRecord?.chatId) {
-        await sendToChat(
-          userRecord.chatId,
-          `✅ *Заявка принята!*\n\nМы уже начали её рассматривать. Скоро пришлём решение.\n\nСпасибо, что выбрали *Финнайс!*`
-        );
+        const { text: clientText } = await renderMessage("application_received");
+        await sendToChat(userRecord.chatId, clientText);
       }
     } catch (notifyErr) {
       console.warn("[applications] Не удалось уведомить клиента:", notifyErr);

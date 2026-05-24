@@ -25,6 +25,7 @@ import { isAdminRequest } from "@/lib/adminAuth";
 import { getRedis } from "@/lib/redis";
 import { findByPhone } from "@/lib/user-store";
 import { sendToChat } from "@/lib/telegram";
+import { renderMessage } from "@/lib/telegram-templates";
 import { pluralPayment } from "@/lib/calculator-logic";
 import { v4 as uuidv4 } from "uuid";
 import { appendLedger, buildInitialLedger } from "@/lib/finance/ledger";
@@ -107,16 +108,13 @@ export async function POST(req: Request) {
           const downAmt = typeof downAmount === "number"
             ? downAmount
             : Math.max(0, price - monthly * (term - 1));
-          const msg = [
-            `🎉 *Вам оформлена рассрочка*`,
-            ``,
-            `📦 *Товар:* ${product}`,
-            `💳 *Первый платёж (взнос):* ${fmt(downAmt)}`,
-            `📅 *Ежемесячный платёж:* ${fmt(monthly)}`,
-            `🔢 *Всего платежей:* ${pluralPayment(term)}`,
-            ``,
-            `Детальный график доступен в *Личном кабинете.*`,
-          ].join("\n");
+          const { text: msg } = await renderMessage("loan_approved", {
+            products:      `📦 *Товар:* ${product}`,
+            price:         fmt(price),
+            downAmount:    fmt(downAmt),
+            monthly:       fmt(monthly),
+            paymentsLabel: pluralPayment(term),
+          });
           await sendToChat(userRecord.chatId, msg);
         }
       } catch (notifyErr) {

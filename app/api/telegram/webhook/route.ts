@@ -18,6 +18,7 @@
 import { NextRequest, NextResponse }                from "next/server";
 import { Telegraf, Context }                        from "telegraf";
 import { linkTelegramChatId, normalizePhoneStrict } from "@/lib/user-store";
+import { renderMessage }                            from "@/lib/telegram-templates";
 
 let _bot: Telegraf | null = null;
 
@@ -35,10 +36,11 @@ function setupHandlers(bot: Telegraf) {
 
   // /start — запрашиваем контакт
   bot.start(async (ctx: Context) => {
+    const { text, parseMode } = await renderMessage("bot_start");
     await ctx.reply(
-      "Привет! Я бот верификации *FinNice*.\n\nНажмите кнопку ниже, чтобы привязать номер телефона к аккаунту.",
+      text,
       {
-        parse_mode: "Markdown",
+        parse_mode: parseMode as "Markdown",
         reply_markup: {
           keyboard: [[
             {
@@ -83,10 +85,11 @@ function setupHandlers(bot: Telegraf) {
       return;
     }
 
+    const linked = await renderMessage("bot_phone_linked");
     await ctx.reply(
-      `✅ *Номер подтверждён*\n\nТеперь вы можете войти на [finnice.ru](https://finnice.ru).`,
+      linked.text,
       {
-        parse_mode:   "Markdown",
+        parse_mode:   linked.parseMode as "Markdown",
         reply_markup: { remove_keyboard: true },
       }
     );
