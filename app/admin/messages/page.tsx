@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { isAdminRequest } from "@/lib/adminAuth";
+import { canViewFinance } from "@/lib/adminAuth";
 import { TEMPLATES, getTemplateText } from "@/lib/telegram-templates";
 import { MessagesClient } from "./MessagesClient";
 
@@ -9,7 +9,9 @@ export const metadata = {
 };
 
 export default async function MessagesAdminPage() {
-  if (!(await isAdminRequest())) redirect("/admin");
+  // Доступ root + admin (как у /admin/finance) — модератор не редактирует
+  // тексты, которые бот шлёт всем клиентам.
+  if (!(await canViewFinance())) redirect("/admin");
 
   const initialTemplates = await Promise.all(TEMPLATES.map(async (t) => {
     const currentText = await getTemplateText(t.key);

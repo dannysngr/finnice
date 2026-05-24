@@ -7,13 +7,13 @@
  */
 
 import { NextResponse } from "next/server";
-import { isAdminRequest } from "@/lib/adminAuth";
+import { canViewFinance } from "@/lib/adminAuth";
 import {
   TEMPLATES, getTemplateText, setTemplateText, resetTemplate, getTemplateDef,
 } from "@/lib/telegram-templates";
 
 export async function GET() {
-  if (!(await isAdminRequest())) {
+  if (!(await canViewFinance())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -27,7 +27,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  if (!(await isAdminRequest())) {
+  if (!(await canViewFinance())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  if (!(await isAdminRequest())) {
+  if (!(await canViewFinance())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const key = new URL(req.url).searchParams.get("key");
