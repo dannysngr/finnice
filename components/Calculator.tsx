@@ -13,6 +13,7 @@ import {
   MAX_TERM,
 } from "@/lib/calculator-logic";
 import { useAppModal } from "@/lib/modal-context";
+import { RollingNumber } from "@/components/RollingNumber";
 
 // helpers
 
@@ -178,8 +179,9 @@ export function Calculator({ withLink = false, initialPrice }: Props) {
       {/* Наценка · Ставка (только для админов) · Поручители — строкой текстом */}
       <p className="text-white/55 text-[11px] sm:text-xs mb-3 sm:mb-4 text-center leading-relaxed">
         Наценка:{" "}
-        <span className="text-white font-semibold tabular-nums">
-          {fmtRub(result.markup)}&nbsp;₽
+        <span className="text-white font-semibold inline-flex items-baseline">
+          <RollingNumber value={result.markup} digitHeight={16} style={{ fontSize: "12px" }} />
+          <span className="ml-0.5">&nbsp;₽</span>
         </span>
         {isAdmin && (
           <>
@@ -378,8 +380,13 @@ function ResultCell({ label, value }: { label: string; value: number }) {
   return (
     <div className="min-w-0 bg-white/10 border border-white/15 rounded-xl px-2 py-2.5 text-center">
       <p className="text-white/55 text-[10px] leading-tight mb-1 whitespace-nowrap">{label}</p>
-      <p className="text-base sm:text-lg lg:text-xl font-extrabold text-white leading-tight tabular-nums">
-        {fmtRub(value)}<span className="text-[9px] sm:text-[10px] font-medium text-white/50"> ₽</span>
+      <p className="font-extrabold text-white leading-tight inline-flex items-baseline justify-center">
+        <RollingNumber
+          value={value}
+          digitHeight={24}
+          style={{ fontSize: "20px" }}
+        />
+        <span className="text-[9px] sm:text-[10px] font-medium text-white/50 ml-1"> ₽</span>
       </p>
     </div>
   );
