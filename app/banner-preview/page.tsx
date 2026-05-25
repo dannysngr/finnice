@@ -60,6 +60,37 @@ export default function BannerPreviewPage() {
           >
             <BannerV5 />
           </Slot>
+
+          <Slot label="V6 · Liquid Morph" desc="SVG goo-filter, ртутно-золотой blob морфит вечно">
+            <BannerV6 />
+          </Slot>
+          <Slot label="V7 · Neon Brutalist" desc="Чёрный + неоновый лайм/маджента, моноширинный big-type">
+            <BannerV7 />
+          </Slot>
+          <Slot label="V8 · Coin Pyramid" desc="Стопка золотых монет с 3D-наклоном, очень halal-vibe">
+            <BannerV8 />
+          </Slot>
+          <Slot label="V9 · Digit Counter" desc="Бесконечно крутящиеся цифры как одометр / стоп-таймер">
+            <BannerV9 />
+          </Slot>
+          <Slot label="V10 · Stripe-style Mesh" desc="Многоцветный mesh из Stripe.com + парящие фигуры">
+            <BannerV10 />
+          </Slot>
+          <Slot label="V11 · Glass Stack" desc="5 стеклянных слоёв в перспективе — Apple Vision Pro vibe">
+            <BannerV11 />
+          </Slot>
+          <Slot label="V12 · Constellation" desc="Точки и линии соединяются в звезду, ночное небо">
+            <BannerV12 />
+          </Slot>
+          <Slot label="V13 · Aurora Borealis" desc="Вертикальные северные сияния — cyan/magenta/lime">
+            <BannerV13 />
+          </Slot>
+          <Slot label="V14 · Card Fan" desc="3 карточки веером с глассморфизмом, lifestyle-fintech">
+            <BannerV14 />
+          </Slot>
+          <Slot label="V15 · Marquee Ticker" desc="Стоп-таймер: цифры бегут вверх как тикер на бирже">
+            <BannerV15 />
+          </Slot>
         </div>
       </div>
     </main>
@@ -676,6 +707,967 @@ function BannerV5() {
           background-clip: text;
           -webkit-text-fill-color: transparent;
           letter-spacing: -0.03em;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+ * V6 · Liquid Morph — SVG goo-filter, ртутно-золотой blob
+ * ═══════════════════════════════════════════════════════════════════════════ */
+function BannerV6() {
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden flex flex-col justify-between"
+      style={{
+        height: "100%",
+        padding: "22px",
+        background: "linear-gradient(160deg, #0A1410 0%, #0C2A1F 100%)",
+        border: "1px solid rgba(201,168,76,0.18)",
+        boxShadow: "0 30px 80px -20px rgba(0,0,0,0.6)",
+      }}
+    >
+      <svg width="0" height="0" style={{ position: "absolute" }}>
+        <defs>
+          <filter id="v6-goo">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
+            <feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10" />
+          </filter>
+          <linearGradient id="v6-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#FFE39C" />
+            <stop offset="60%" stopColor="#C9A84C" />
+            <stop offset="100%" stopColor="#5FC9A7" />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center" aria-hidden>
+        <svg width="280" height="280" style={{ filter: "url(#v6-goo)" }}>
+          <circle cx="140" cy="140" r="46" fill="url(#v6-grad)" className="v6-b1" />
+          <circle cx="140" cy="140" r="36" fill="url(#v6-grad)" className="v6-b2" />
+          <circle cx="140" cy="140" r="30" fill="url(#v6-grad)" className="v6-b3" />
+          <circle cx="140" cy="140" r="24" fill="url(#v6-grad)" className="v6-b4" />
+        </svg>
+      </div>
+
+      <div className="relative z-10">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold"
+          style={{ background: "rgba(201,168,76,0.14)", color: "#FFE39C", border: "1px solid rgba(201,168,76,0.32)" }}>
+          ⚭ Халяльная рассрочка
+        </span>
+        <h2 className="text-lg font-bold leading-tight mt-3" style={{ color: "#FFF" }}>
+          Жидкое<br />золото финансов
+        </h2>
+      </div>
+
+      <div className="relative z-10">
+        <Link href="/catalog/"
+          className="block w-full text-center py-2.5 rounded-full text-xs font-bold transition-all hover:opacity-90 active:scale-[.98]"
+          style={{
+            background: "linear-gradient(135deg, #FFE39C 0%, #C9A84C 100%)",
+            color: "#0A1410",
+            boxShadow: "0 8px 24px rgba(201,168,76,0.40)",
+          }}
+        >
+          В каталог →
+        </Link>
+      </div>
+
+      <style>{`
+        .v6-b1 { animation: v6m1 7s ease-in-out infinite; transform-origin: 140px 140px; }
+        .v6-b2 { animation: v6m2 5s ease-in-out infinite; transform-origin: 140px 140px; }
+        .v6-b3 { animation: v6m3 6s ease-in-out infinite; transform-origin: 140px 140px; }
+        .v6-b4 { animation: v6m4 8s ease-in-out infinite; transform-origin: 140px 140px; }
+        @keyframes v6m1 { 0%,100%{transform:translate(0,0);} 50%{transform:translate(50px,-30px);} }
+        @keyframes v6m2 { 0%,100%{transform:translate(0,0);} 50%{transform:translate(-45px,35px);} }
+        @keyframes v6m3 { 0%,100%{transform:translate(0,0);} 50%{transform:translate(40px,40px);} }
+        @keyframes v6m4 { 0%,100%{transform:translate(0,0);} 50%{transform:translate(-30px,-40px);} }
+        @media (prefers-reduced-motion: reduce) {
+          .v6-b1, .v6-b2, .v6-b3, .v6-b4 { animation: none !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+ * V7 · Neon Brutalist — чёрный фон, неоновый лайм, моноширинный
+ * ═══════════════════════════════════════════════════════════════════════════ */
+function BannerV7() {
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden flex flex-col justify-between"
+      style={{
+        height: "100%",
+        padding: "22px",
+        background: "#000",
+        border: "1px solid #1A1A1A",
+        boxShadow: "0 30px 80px -20px rgba(0,255,148,0.10)",
+        fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+      }}
+    >
+      {/* Grid lines */}
+      <div className="absolute inset-0 pointer-events-none v7-grid" aria-hidden />
+      {/* Scanline */}
+      <div className="absolute inset-0 pointer-events-none v7-scan" aria-hidden />
+
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] mb-2" style={{ color: "#00FF94" }}>
+          <span className="v7-blink">●</span> halal_finance.exe
+        </div>
+        <div className="text-[10px]" style={{ color: "#5A5A5A" }}>{"> calculate_monthly()"}</div>
+      </div>
+
+      <div className="relative z-10">
+        <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: "#5A5A5A" }}>monthly =</div>
+        <div className="v7-big" style={{ color: "#00FF94" }}>
+          3490<span style={{ color: "#FFF", fontWeight: 400 }}>₽</span>
+        </div>
+        <div className="text-[10px] mt-2" style={{ color: "#5A5A5A" }}>
+          term: <span style={{ color: "#FF3CC8" }}>12</span> · interest: <span style={{ color: "#FF3CC8" }}>0%</span>
+        </div>
+      </div>
+
+      <div className="relative z-10">
+        <Link href="/catalog/"
+          className="block w-full text-center py-2.5 rounded-md text-xs font-bold transition-all hover:opacity-90"
+          style={{
+            background: "transparent",
+            color: "#00FF94",
+            border: "2px solid #00FF94",
+            boxShadow: "0 0 20px rgba(0,255,148,0.35), inset 0 0 12px rgba(0,255,148,0.10)",
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+          }}
+        >
+          → run_catalog
+        </Link>
+      </div>
+
+      <style>{`
+        .v7-grid {
+          background-image:
+            linear-gradient(rgba(0,255,148,0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,255,148,0.05) 1px, transparent 1px);
+          background-size: 18px 18px;
+        }
+        .v7-scan {
+          background: repeating-linear-gradient(0deg, rgba(0,255,148,0.04) 0 1px, transparent 1px 4px);
+          animation: v7Scan 6s linear infinite;
+        }
+        @keyframes v7Scan { from {background-position-y:0;} to {background-position-y:200px;} }
+        .v7-big {
+          font-size: 56px; font-weight: 800; line-height: 1;
+          letter-spacing: -0.03em;
+          text-shadow: 0 0 12px rgba(0,255,148,0.6), 0 0 32px rgba(0,255,148,0.25);
+        }
+        .v7-blink { animation: v7Blink 1.2s steps(2) infinite; }
+        @keyframes v7Blink { 50% { opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) {
+          .v7-scan, .v7-blink { animation: none !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+ * V8 · Coin Pyramid — стопка золотых монет
+ * ═══════════════════════════════════════════════════════════════════════════ */
+function BannerV8() {
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden flex flex-col justify-between"
+      style={{
+        height: "100%",
+        padding: "22px",
+        background: "radial-gradient(ellipse at 50% 100%, #2A1A05 0%, #0F0A02 80%)",
+        border: "1px solid rgba(201,168,76,0.20)",
+        boxShadow: "0 30px 80px -20px rgba(0,0,0,0.7)",
+      }}
+    >
+      <div className="relative z-10">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold"
+          style={{ background: "rgba(201,168,76,0.16)", color: "#FFE39C", border: "1px solid rgba(201,168,76,0.36)" }}>
+          ☽ 100% Халяль
+        </span>
+        <h2 className="text-lg font-bold leading-tight mt-3" style={{ color: "#FFE39C" }}>
+          Чистые монеты —<br />честная цена
+        </h2>
+      </div>
+
+      <div className="relative z-10 flex items-end justify-center pb-2" style={{ perspective: "600px" }}>
+        <div className="v8-pyramid">
+          <div className="v8-coin v8-c5" />
+          <div className="v8-coin v8-c4" />
+          <div className="v8-coin v8-c3" />
+          <div className="v8-coin v8-c2" />
+          <div className="v8-coin v8-c1">
+            <span className="v8-mark">☽</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-10">
+        <Link href="/catalog/"
+          className="block w-full text-center py-2.5 rounded-full text-xs font-bold transition-all hover:opacity-90 active:scale-[.98]"
+          style={{
+            background: "linear-gradient(135deg, #FFE39C 0%, #C9A84C 60%, #8B6E22 100%)",
+            color: "#0F0A02",
+            boxShadow: "0 10px 28px rgba(201,168,76,0.45), inset 0 1px 0 rgba(255,255,255,0.5)",
+          }}
+        >
+          В каталог →
+        </Link>
+      </div>
+
+      <style>{`
+        .v8-pyramid {
+          position: relative;
+          width: 140px; height: 130px;
+          transform-style: preserve-3d;
+          animation: v8Spin 14s linear infinite;
+        }
+        .v8-coin {
+          position: absolute;
+          left: 50%;
+          width: 110px; height: 22px;
+          margin-left: -55px;
+          border-radius: 50%;
+          background:
+            radial-gradient(ellipse at 30% 30%, #FFF4D6, transparent 55%),
+            linear-gradient(135deg, #FFE39C 0%, #C9A84C 40%, #8B6E22 100%);
+          box-shadow:
+            0 6px 14px rgba(0,0,0,0.5),
+            inset 0 -3px 0 rgba(0,0,0,0.3),
+            inset 0 2px 0 rgba(255,255,255,0.45);
+          display: flex; align-items: center; justify-content: center;
+        }
+        .v8-c5 { bottom: 0;   transform: scale(1.10); opacity: 0.92; }
+        .v8-c4 { bottom: 18px; transform: scale(1.05); opacity: 0.95; }
+        .v8-c3 { bottom: 36px; transform: scale(1.00); }
+        .v8-c2 { bottom: 54px; transform: scale(0.95); }
+        .v8-c1 { bottom: 72px; transform: scale(0.90); }
+        .v8-mark {
+          font-size: 14px; color: #0F0A02; font-weight: 800;
+          text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+        }
+        @keyframes v8Spin {
+          from { transform: rotateY(0) rotateX(8deg); }
+          to   { transform: rotateY(360deg) rotateX(8deg); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .v8-pyramid { animation: none !important; transform: rotateX(8deg); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+ * V9 · Digit Counter — крутящийся одометр
+ * ═══════════════════════════════════════════════════════════════════════════ */
+function BannerV9() {
+  // Цифры на барабане — 0..9
+  const digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  // 3490: «3», «4», «9», «0» — задаём финальные позиции
+  const stops = [3, 4, 9, 0];
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden flex flex-col justify-between"
+      style={{
+        height: "100%",
+        padding: "22px",
+        background: "linear-gradient(160deg, #1C1C28 0%, #0E0E16 100%)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 30px 80px -20px rgba(0,0,0,0.6)",
+      }}
+    >
+      <div className="relative z-10">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold"
+          style={{ background: "rgba(255,255,255,0.08)", color: "#FFF", border: "1px solid rgba(255,255,255,0.14)" }}>
+          ⏱ Платёж в месяц
+        </span>
+      </div>
+
+      <div className="relative z-10 flex flex-col items-center">
+        <div className="text-[10px] uppercase tracking-[0.18em] mb-1" style={{ color: "rgba(255,255,255,0.55)" }}>от</div>
+        <div className="flex items-end gap-0">
+          {stops.map((stop, idx) => (
+            <div key={idx} className="v9-window">
+              <div className="v9-reel" style={{ animationDelay: `${idx * 0.2}s`, transform: `translateY(-${stop * 100}%)` }}>
+                {digits.map((d) => (
+                  <span key={d} className="v9-digit">{d}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+          <span className="v9-suffix">&nbsp;₽</span>
+        </div>
+        <div className="text-xs font-bold mt-2" style={{ color: "rgba(255,255,255,0.7)" }}>
+          в месяц · до 12 мес
+        </div>
+      </div>
+
+      <div className="relative z-10">
+        <Link href="/catalog/"
+          className="block w-full text-center py-2.5 rounded-full text-xs font-bold transition-all hover:opacity-90"
+          style={{
+            background: "linear-gradient(135deg, #FFD63C 0%, #FFA53C 100%)",
+            color: "#1C1C28",
+            boxShadow: "0 8px 24px rgba(255,165,60,0.45)",
+          }}
+        >
+          В каталог →
+        </Link>
+      </div>
+
+      <style>{`
+        .v9-window {
+          width: 32px; height: 48px;
+          overflow: hidden;
+          position: relative;
+          background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.4));
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 6px;
+          margin: 0 1px;
+        }
+        .v9-window::before, .v9-window::after {
+          content: ""; position: absolute; left: 0; right: 0; height: 12px;
+          z-index: 2; pointer-events: none;
+        }
+        .v9-window::before { top: 0;    background: linear-gradient(180deg, #0E0E16, transparent); }
+        .v9-window::after  { bottom: 0; background: linear-gradient(0deg,   #0E0E16, transparent); }
+        .v9-reel {
+          display: flex; flex-direction: column;
+          animation: v9Spin 5s cubic-bezier(.7,0,.3,1) 1 forwards;
+        }
+        .v9-digit {
+          height: 48px; line-height: 48px;
+          text-align: center;
+          font-size: 36px; font-weight: 800; color: #FFF;
+          font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+          font-feature-settings: "tnum";
+        }
+        @keyframes v9Spin {
+          0%   { transform: translateY(0); }
+          100% { /* финальный transform задан inline */ }
+        }
+        .v9-suffix {
+          font-size: 32px; font-weight: 700; color: rgba(255,255,255,0.7);
+          line-height: 48px; margin-left: 4px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .v9-reel { animation: none !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+ * V10 · Stripe-style Mesh — фирменный градиент Stripe.com
+ * ═══════════════════════════════════════════════════════════════════════════ */
+function BannerV10() {
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden flex flex-col justify-between"
+      style={{
+        height: "100%",
+        padding: "22px",
+        background: "linear-gradient(135deg, #00D4FF 0%, #7A3CFF 35%, #FF3CC8 70%, #FFA53C 100%)",
+        boxShadow: "0 30px 80px -20px rgba(122,60,255,0.45)",
+      }}
+    >
+      {/* Парящие фигуры */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden>
+        <div className="v10-shape v10-circle" />
+        <div className="v10-shape v10-square" />
+        <div className="v10-shape v10-triangle" />
+      </div>
+      {/* Frosted overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        aria-hidden
+        style={{
+          background: "linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0))",
+        }}
+      />
+
+      <div className="relative z-10">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold"
+          style={{ background: "rgba(255,255,255,0.22)", color: "#FFF", border: "1px solid rgba(255,255,255,0.32)", backdropFilter: "blur(8px)" }}>
+          ⚡ Мгновенное одобрение
+        </span>
+      </div>
+
+      <div className="relative z-10">
+        <h2 className="text-2xl font-extrabold leading-tight" style={{ color: "#FFF", letterSpacing: "-0.02em" }}>
+          Финансы.<br/>На халяль.<br/>Без слов.
+        </h2>
+        <p className="text-xs mt-2 font-medium" style={{ color: "rgba(255,255,255,0.85)" }}>
+          от 3 490 ₽/мес · до 12 мес
+        </p>
+      </div>
+
+      <div className="relative z-10">
+        <Link href="/catalog/"
+          className="block w-full text-center py-2.5 rounded-full text-xs font-bold transition-all hover:opacity-90"
+          style={{
+            background: "#FFF",
+            color: "#7A3CFF",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
+          }}
+        >
+          В каталог →
+        </Link>
+      </div>
+
+      <style>{`
+        .v10-shape { position: absolute; opacity: 0.6; }
+        .v10-circle {
+          width: 60px; height: 60px; border-radius: 50%;
+          background: rgba(255,255,255,0.25);
+          backdrop-filter: blur(8px);
+          top: 20%; right: 8%;
+          animation: v10Float1 8s ease-in-out infinite;
+        }
+        .v10-square {
+          width: 40px; height: 40px;
+          background: rgba(255,255,255,0.18);
+          backdrop-filter: blur(8px);
+          border-radius: 8px;
+          top: 50%; left: 8%;
+          transform: rotate(20deg);
+          animation: v10Float2 7s ease-in-out infinite;
+        }
+        .v10-triangle {
+          width: 0; height: 0;
+          border-left: 24px solid transparent;
+          border-right: 24px solid transparent;
+          border-bottom: 40px solid rgba(255,255,255,0.22);
+          bottom: 30%; right: 20%;
+          animation: v10Float3 9s ease-in-out infinite;
+        }
+        @keyframes v10Float1 { 0%,100%{transform:translate(0,0);} 50%{transform:translate(-12px,18px);} }
+        @keyframes v10Float2 { 0%,100%{transform:rotate(20deg) translate(0,0);} 50%{transform:rotate(40deg) translate(14px,-12px);} }
+        @keyframes v10Float3 { 0%,100%{transform:translate(0,0);} 50%{transform:translate(10px,-16px);} }
+        @media (prefers-reduced-motion: reduce) {
+          .v10-circle, .v10-square, .v10-triangle { animation: none !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+ * V11 · Glass Stack — Apple Vision Pro vibe
+ * ═══════════════════════════════════════════════════════════════════════════ */
+function BannerV11() {
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden flex flex-col justify-between"
+      style={{
+        height: "100%",
+        padding: "22px",
+        background: "linear-gradient(160deg, #1A2438 0%, #2A3656 50%, #3A4878 100%)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 30px 80px -20px rgba(0,0,0,0.55)",
+      }}
+    >
+      <div
+        className="absolute inset-0 pointer-events-none"
+        aria-hidden
+        style={{
+          background: "radial-gradient(ellipse at 30% 20%, rgba(180,210,255,0.25), transparent 55%)",
+        }}
+      />
+
+      <div className="relative z-10">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold"
+          style={{ background: "rgba(255,255,255,0.10)", color: "#FFF", border: "1px solid rgba(255,255,255,0.22)", backdropFilter: "blur(12px)" }}>
+          ◯ Прозрачно
+        </span>
+        <h2 className="text-base font-bold leading-tight mt-3" style={{ color: "#FFF" }}>
+          Каждый платёж<br/>как на ладони
+        </h2>
+      </div>
+
+      <div className="relative z-10 flex items-center justify-center" style={{ perspective: "800px" }}>
+        <div className="v11-stack">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="v11-glass" style={{ ['--i' as string]: i }}>
+              <div className="v11-row">
+                <span>Месяц {i + 1}</span>
+                <span>3 490 ₽</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="relative z-10">
+        <Link href="/catalog/"
+          className="block w-full text-center py-2.5 rounded-full text-xs font-bold transition-all hover:opacity-90"
+          style={{
+            background: "rgba(255,255,255,0.92)",
+            color: "#1A2438",
+            backdropFilter: "blur(10px)",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+          }}
+        >
+          В каталог →
+        </Link>
+      </div>
+
+      <style>{`
+        .v11-stack {
+          position: relative;
+          width: 200px; height: 140px;
+          transform-style: preserve-3d;
+          animation: v11Hover 6s ease-in-out infinite;
+        }
+        .v11-glass {
+          position: absolute;
+          left: 0; right: 0;
+          height: 32px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+          border: 1px solid rgba(255,255,255,0.30);
+          backdrop-filter: blur(14px);
+          box-shadow: 0 6px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+          transform: translateZ(calc(var(--i) * 18px)) translateY(calc(var(--i) * -6px));
+          opacity: calc(0.5 + var(--i) * 0.12);
+        }
+        .v11-row {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 0 12px; height: 100%;
+          font-size: 11px; font-weight: 600; color: #FFF;
+        }
+        @keyframes v11Hover {
+          0%,100% { transform: rotateX(15deg) rotateY(-8deg); }
+          50%     { transform: rotateX(18deg) rotateY(-12deg); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .v11-stack { animation: none !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+ * V12 · Constellation — точки и линии складываются в звезду
+ * ═══════════════════════════════════════════════════════════════════════════ */
+function BannerV12() {
+  // 8 точек по кругу + центр — упрощённая 8-конечная звезда
+  const R = 50;
+  const dots = Array.from({ length: 8 }, (_, i) => {
+    const a = (i / 8) * Math.PI * 2;
+    return { x: 70 + Math.cos(a) * R, y: 70 + Math.sin(a) * R };
+  });
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden flex flex-col justify-between"
+      style={{
+        height: "100%",
+        padding: "22px",
+        background: "radial-gradient(ellipse at 50% 50%, #0E1A2E 0%, #04080F 100%)",
+        border: "1px solid rgba(0,200,255,0.18)",
+        boxShadow: "0 30px 80px -20px rgba(0,0,0,0.6)",
+      }}
+    >
+      <div className="absolute inset-0 pointer-events-none" aria-hidden>
+        {/* Звёздная пыль */}
+        {Array.from({ length: 20 }).map((_, i) => (
+          <span key={i} className="v12-dot" style={{
+            top: `${(i * 47) % 100}%`,
+            left: `${(i * 31) % 100}%`,
+            animationDelay: `${(i * 0.3) % 3}s`,
+          }} />
+        ))}
+      </div>
+
+      <div className="relative z-10">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold"
+          style={{ background: "rgba(0,200,255,0.10)", color: "#7AE0FF", border: "1px solid rgba(0,200,255,0.30)" }}>
+          ✦ Чистая сделка
+        </span>
+        <h2 className="text-lg font-bold leading-tight mt-3" style={{ color: "#FFF" }}>
+          Звёздная<br/>прозрачность
+        </h2>
+      </div>
+
+      <div className="relative z-10 flex items-center justify-center">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          {/* Линии от центра к каждой точке + смежные */}
+          {dots.map((d, i) => (
+            <g key={i}>
+              <line x1="70" y1="70" x2={d.x} y2={d.y}
+                stroke="rgba(0,200,255,0.45)" strokeWidth="0.8"
+                className="v12-line" style={{ animationDelay: `${i * 0.15}s` }} />
+              <line x1={d.x} y1={d.y} x2={dots[(i + 2) % 8].x} y2={dots[(i + 2) % 8].y}
+                stroke="rgba(255,255,255,0.20)" strokeWidth="0.5"
+                className="v12-line" style={{ animationDelay: `${i * 0.15 + 1}s` }} />
+            </g>
+          ))}
+          {dots.map((d, i) => (
+            <circle key={`c${i}`} cx={d.x} cy={d.y} r="3"
+              fill="#7AE0FF"
+              className="v12-node"
+              style={{ animationDelay: `${i * 0.2}s` }} />
+          ))}
+          <circle cx="70" cy="70" r="5" fill="#FFF" style={{ filter: "drop-shadow(0 0 8px #7AE0FF)" }} />
+        </svg>
+      </div>
+
+      <div className="relative z-10">
+        <Link href="/catalog/"
+          className="block w-full text-center py-2.5 rounded-full text-xs font-bold transition-all hover:opacity-90"
+          style={{
+            background: "linear-gradient(135deg, #7AE0FF 0%, #4A9CFF 100%)",
+            color: "#04080F",
+            boxShadow: "0 8px 24px rgba(122,224,255,0.45)",
+          }}
+        >
+          В каталог →
+        </Link>
+      </div>
+
+      <style>{`
+        .v12-dot {
+          position: absolute;
+          width: 2px; height: 2px; border-radius: 50%;
+          background: #FFF;
+          box-shadow: 0 0 6px #FFF;
+          animation: v12Tw 3s ease-in-out infinite;
+        }
+        @keyframes v12Tw { 0%,100%{opacity:0.15;} 50%{opacity:1;} }
+        .v12-line {
+          stroke-dasharray: 100;
+          stroke-dashoffset: 100;
+          animation: v12Draw 3s ease-out infinite;
+        }
+        @keyframes v12Draw {
+          0%   { stroke-dashoffset: 100; opacity: 0; }
+          30%  { opacity: 1; }
+          70%  { stroke-dashoffset: 0;   opacity: 1; }
+          100% { stroke-dashoffset: 0;   opacity: 0; }
+        }
+        .v12-node {
+          animation: v12Pulse 2.4s ease-in-out infinite;
+        }
+        @keyframes v12Pulse { 0%,100%{r:2; opacity:0.5;} 50%{r:3.5; opacity:1;} }
+        @media (prefers-reduced-motion: reduce) {
+          .v12-dot, .v12-line, .v12-node { animation: none !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+ * V13 · Aurora Borealis — вертикальные северные сияния
+ * ═══════════════════════════════════════════════════════════════════════════ */
+function BannerV13() {
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden flex flex-col justify-between"
+      style={{
+        height: "100%",
+        padding: "22px",
+        background: "linear-gradient(180deg, #04081A 0%, #0A1438 80%, #1A2858 100%)",
+        border: "1px solid rgba(255,255,255,0.06)",
+        boxShadow: "0 30px 80px -20px rgba(0,0,0,0.6)",
+      }}
+    >
+      {/* Aurora streaks */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+        <div className="v13-streak v13-s1" />
+        <div className="v13-streak v13-s2" />
+        <div className="v13-streak v13-s3" />
+      </div>
+      {/* Stars */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden>
+        {Array.from({ length: 15 }).map((_, i) => (
+          <span key={i} className="v13-star" style={{
+            top: `${(i * 23) % 100}%`,
+            left: `${(i * 41) % 100}%`,
+            animationDelay: `${(i * 0.4) % 4}s`,
+          }} />
+        ))}
+      </div>
+
+      <div className="relative z-10">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold"
+          style={{ background: "rgba(255,255,255,0.10)", color: "#FFF", border: "1px solid rgba(255,255,255,0.22)" }}>
+          ✦ Сказочная рассрочка
+        </span>
+        <h2 className="text-lg font-bold leading-tight mt-3" style={{ color: "#FFF" }}>
+          Северное<br/>сияние финансов
+        </h2>
+      </div>
+
+      <div className="relative z-10 text-center">
+        <div className="text-[10px] uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(255,255,255,0.55)" }}>от</div>
+        <div className="v13-price">3&nbsp;490&nbsp;₽</div>
+        <div className="text-xs font-bold mt-1" style={{ color: "rgba(255,255,255,0.65)" }}>в месяц</div>
+      </div>
+
+      <div className="relative z-10">
+        <Link href="/catalog/"
+          className="block w-full text-center py-2.5 rounded-full text-xs font-bold transition-all hover:opacity-90"
+          style={{
+            background: "linear-gradient(135deg, #00FF94 0%, #00D4FF 50%, #B43CFF 100%)",
+            color: "#04081A",
+            boxShadow: "0 10px 28px rgba(0,212,255,0.4)",
+          }}
+        >
+          В каталог →
+        </Link>
+      </div>
+
+      <style>{`
+        .v13-streak {
+          position: absolute;
+          left: 0; right: 0; height: 200%;
+          filter: blur(28px);
+          opacity: 0.7;
+          mix-blend-mode: screen;
+        }
+        .v13-s1 {
+          background: linear-gradient(180deg, transparent, #00FF94 35%, transparent 70%);
+          top: -50%; transform: translateX(-30%) skewX(-10deg);
+          animation: v13Drift1 12s ease-in-out infinite;
+        }
+        .v13-s2 {
+          background: linear-gradient(180deg, transparent, #00D4FF 40%, transparent 75%);
+          top: -50%; transform: translateX(20%) skewX(8deg);
+          animation: v13Drift2 14s ease-in-out infinite;
+        }
+        .v13-s3 {
+          background: linear-gradient(180deg, transparent, #B43CFF 45%, transparent 80%);
+          top: -50%; transform: translateX(60%) skewX(-5deg);
+          animation: v13Drift3 16s ease-in-out infinite;
+        }
+        @keyframes v13Drift1 { 0%,100%{transform:translateX(-30%) skewX(-10deg);} 50%{transform:translateX(10%) skewX(-14deg);} }
+        @keyframes v13Drift2 { 0%,100%{transform:translateX(20%) skewX(8deg);} 50%{transform:translateX(-20%) skewX(12deg);} }
+        @keyframes v13Drift3 { 0%,100%{transform:translateX(60%) skewX(-5deg);} 50%{transform:translateX(20%) skewX(-9deg);} }
+
+        .v13-star {
+          position: absolute;
+          width: 2px; height: 2px; border-radius: 50%;
+          background: #FFF;
+          box-shadow: 0 0 4px #FFF;
+          animation: v13Tw 3s ease-in-out infinite;
+        }
+        @keyframes v13Tw { 0%,100%{opacity:0.2;} 50%{opacity:1;} }
+
+        .v13-price {
+          font-size: 32px; font-weight: 800; line-height: 1;
+          letter-spacing: -0.02em;
+          background: linear-gradient(135deg, #00FF94, #00D4FF, #B43CFF);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .v13-streak, .v13-star { animation: none !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+ * V14 · Card Fan — 3 карты веером
+ * ═══════════════════════════════════════════════════════════════════════════ */
+function BannerV14() {
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden flex flex-col justify-between v14-card"
+      style={{
+        height: "100%",
+        padding: "22px",
+        background: "linear-gradient(160deg, #160C2E 0%, #2E1A56 60%, #4A1F7A 100%)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 30px 80px -20px rgba(0,0,0,0.6)",
+      }}
+    >
+      <div
+        className="absolute inset-0 pointer-events-none"
+        aria-hidden
+        style={{ background: "radial-gradient(ellipse at 80% 20%, rgba(180,60,255,0.30), transparent 55%)" }}
+      />
+
+      <div className="relative z-10">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold"
+          style={{ background: "rgba(255,255,255,0.12)", color: "#FFF", border: "1px solid rgba(255,255,255,0.22)" }}>
+          ✦ Свободный выбор
+        </span>
+        <h2 className="text-base font-bold leading-tight mt-3" style={{ color: "#FFF" }}>
+          Один платёж в месяц.<br/>Сотни товаров.
+        </h2>
+      </div>
+
+      <div className="relative z-10 flex items-center justify-center" style={{ perspective: "700px" }}>
+        <div className="v14-fan">
+          <div className="v14-c v14-c-l">
+            <div className="v14-c-label">3 мес</div>
+            <div className="v14-c-amt">от 7 990 ₽</div>
+          </div>
+          <div className="v14-c v14-c-m">
+            <div className="v14-c-label">6 мес</div>
+            <div className="v14-c-amt">от 4 990 ₽</div>
+          </div>
+          <div className="v14-c v14-c-r">
+            <div className="v14-c-label">12 мес</div>
+            <div className="v14-c-amt">от 3 490 ₽</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-10">
+        <Link href="/catalog/"
+          className="block w-full text-center py-2.5 rounded-full text-xs font-bold transition-all hover:opacity-90"
+          style={{
+            background: "linear-gradient(135deg, #FFFFFF 0%, #E0D0FF 100%)",
+            color: "#160C2E",
+            boxShadow: "0 10px 28px rgba(180,60,255,0.4)",
+          }}
+        >
+          В каталог →
+        </Link>
+      </div>
+
+      <style>{`
+        .v14-fan {
+          position: relative;
+          width: 200px; height: 130px;
+        }
+        .v14-c {
+          position: absolute;
+          left: 50%; top: 0;
+          margin-left: -55px;
+          width: 110px; height: 130px;
+          border-radius: 14px;
+          padding: 14px 12px;
+          background: linear-gradient(160deg, rgba(255,255,255,0.20), rgba(255,255,255,0.06));
+          border: 1px solid rgba(255,255,255,0.28);
+          backdrop-filter: blur(16px);
+          box-shadow:
+            0 18px 36px -10px rgba(0,0,0,0.5),
+            inset 0 1px 0 rgba(255,255,255,0.4);
+          color: #FFF;
+          display: flex; flex-direction: column; justify-content: flex-end;
+          transform-origin: 50% 110%;
+        }
+        .v14-c-l { transform: rotate(-18deg) translateX(-22px); background: linear-gradient(160deg, rgba(180,60,255,0.40), rgba(180,60,255,0.10)); animation: v14L 6s ease-in-out infinite; }
+        .v14-c-m { transform: rotate(0) translateY(-10px);      background: linear-gradient(160deg, rgba(255,255,255,0.30), rgba(255,255,255,0.10)); animation: v14M 5s ease-in-out infinite; z-index: 2; }
+        .v14-c-r { transform: rotate(18deg) translateX(22px);   background: linear-gradient(160deg, rgba(95,201,167,0.40), rgba(95,201,167,0.10)); animation: v14R 7s ease-in-out infinite; }
+        .v14-c-label { font-size: 10px; font-weight: 600; opacity: 0.85; }
+        .v14-c-amt   { font-size: 13px; font-weight: 800; margin-top: 2px; }
+        @keyframes v14L { 0%,100%{transform:rotate(-18deg) translateX(-22px);} 50%{transform:rotate(-20deg) translateX(-26px) translateY(-3px);} }
+        @keyframes v14M { 0%,100%{transform:rotate(0) translateY(-10px);} 50%{transform:rotate(0) translateY(-14px);} }
+        @keyframes v14R { 0%,100%{transform:rotate(18deg) translateX(22px);} 50%{transform:rotate(20deg) translateX(26px) translateY(-3px);} }
+        @media (prefers-reduced-motion: reduce) {
+          .v14-c-l, .v14-c-m, .v14-c-r { animation: none !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+ * V15 · Marquee Ticker — стоп-таймер с бегущими цифрами
+ * ═══════════════════════════════════════════════════════════════════════════ */
+function BannerV15() {
+  const ticks = ["3 490 ₽", "4 990 ₽", "6 990 ₽", "9 990 ₽", "12 490 ₽"];
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden flex flex-col justify-between"
+      style={{
+        height: "100%",
+        padding: "22px",
+        background: "linear-gradient(180deg, #0A0E14 0%, #0F1722 100%)",
+        border: "1px solid rgba(255,255,255,0.06)",
+        boxShadow: "0 30px 80px -20px rgba(0,0,0,0.6)",
+        fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+      }}
+    >
+      <div className="relative z-10">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold"
+          style={{ background: "rgba(0,255,148,0.12)", color: "#00FF94", border: "1px solid rgba(0,255,148,0.32)" }}>
+          ▲ LIVE прайс
+        </span>
+        <h2 className="text-base font-bold leading-tight mt-3" style={{ color: "#FFF", fontFamily: "system-ui, sans-serif" }}>
+          Платёж по тарифу,<br/>как тебе удобно
+        </h2>
+      </div>
+
+      <div className="relative z-10 flex flex-col items-center">
+        <div className="text-[10px] uppercase tracking-[0.2em] mb-2" style={{ color: "rgba(255,255,255,0.45)" }}>
+          от
+        </div>
+        <div className="v15-ticker">
+          <div className="v15-reel">
+            {[...ticks, ...ticks].map((t, i) => (
+              <div key={i} className="v15-tick">{t}</div>
+            ))}
+          </div>
+        </div>
+        <div className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>
+          / мес — пересчитывается мгновенно
+        </div>
+      </div>
+
+      <div className="relative z-10">
+        <Link href="/catalog/"
+          className="block w-full text-center py-2.5 rounded-md text-xs font-bold transition-all hover:opacity-90"
+          style={{
+            background: "#00FF94",
+            color: "#0A0E14",
+            boxShadow: "0 0 24px rgba(0,255,148,0.4)",
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+          }}
+        >
+          → купить
+        </Link>
+      </div>
+
+      <style>{`
+        .v15-ticker {
+          width: 200px; height: 48px;
+          overflow: hidden;
+          border: 1px solid rgba(255,255,255,0.10);
+          border-radius: 8px;
+          background: rgba(0,0,0,0.4);
+          position: relative;
+        }
+        .v15-ticker::before, .v15-ticker::after {
+          content: ""; position: absolute; left: 0; right: 0; height: 10px;
+          z-index: 2; pointer-events: none;
+        }
+        .v15-ticker::before { top: 0;    background: linear-gradient(180deg, rgba(0,0,0,0.7), transparent); }
+        .v15-ticker::after  { bottom: 0; background: linear-gradient(0deg,   rgba(0,0,0,0.7), transparent); }
+        .v15-reel {
+          animation: v15Roll 10s linear infinite;
+        }
+        .v15-tick {
+          height: 48px; line-height: 48px;
+          text-align: center;
+          font-size: 24px; font-weight: 800; color: #00FF94;
+          font-feature-settings: "tnum";
+          text-shadow: 0 0 12px rgba(0,255,148,0.5);
+        }
+        @keyframes v15Roll {
+          from { transform: translateY(0); }
+          to   { transform: translateY(-${48 * 5}px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .v15-reel { animation: none !important; }
         }
       `}</style>
     </div>
