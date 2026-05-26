@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-05-25T20:18:10+00:00",
+  "syncedAt": "2026-05-26T12:51:44+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -864,7 +864,7 @@
           },
           {
             "color": "Teal",
-            "price": 65990,
+            "price": 68990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 256 ГБ («Морская бирюза» | Teal)"
           }
@@ -2679,7 +2679,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 29500,
-        "biggeek": 31990
+        "biggeek": 30990
       },
       "details": {
         "mistore095": [
@@ -2711,7 +2711,7 @@
         "biggeek": [
           {
             "color": "Blue",
-            "price": 31990,
+            "price": 30990,
             "simType": "—",
             "raw": "Планшет Apple iPad 11”, 128 ГБ, Wi-Fi (Синий | Blue) (A16 | 2025)"
           }
