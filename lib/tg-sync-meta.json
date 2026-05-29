@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-05-29T14:19:19+00:00",
+  "syncedAt": "2026-05-29T21:31:20+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -184,7 +184,7 @@
           },
           {
             "color": "Midnight",
-            "price": 50990,
+            "price": 49990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 («Тёмная ночь» | Midnight) (2026)"
           },
@@ -232,7 +232,7 @@
           },
           {
             "color": "Orange",
-            "price": 51990,
+            "price": 50990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Оранжевый | Orange) (2026)"
           }
@@ -2227,7 +2227,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 23500,
-        "biggeek": 22990
+        "biggeek": 23490
       },
       "details": {
         "mistore095": [
@@ -2247,7 +2247,7 @@
         "biggeek": [
           {
             "color": "Тёмная ночь",
-            "price": 22990,
+            "price": 23490,
             "simType": "—",
             "raw": "Часы Apple Watch SE 3, 44 мм, алюминий цвета «тёмная ночь», ремешок Sport Band цвета «тёмная ночь» (2025)"
           }
@@ -2545,7 +2545,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 29500,
-        "biggeek": 30990
+        "biggeek": 29990
       },
       "details": {
         "mistore095": [
@@ -2571,7 +2571,7 @@
         "biggeek": [
           {
             "color": "Blue",
-            "price": 30990,
+            "price": 29990,
             "simType": "—",
             "raw": "Планшет Apple iPad 11”, 128 ГБ, Wi-Fi (Синий | Blue) (A16 | 2025)"
           }
