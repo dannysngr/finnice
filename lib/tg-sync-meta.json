@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-05-30T10:22:56+00:00",
+  "syncedAt": "2026-05-30T18:50:49+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -291,7 +291,7 @@
       "source": "istoregroznyy",
       "perChannel": {
         "istoregroznyy": 46500,
-        "biggeek": 48990
+        "biggeek": 50990
       },
       "details": {
         "istoregroznyy": [
@@ -305,73 +305,73 @@
         "biggeek": [
           {
             "color": "Midnight",
-            "price": 51990,
+            "price": 50990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 256 ГБ («Тёмная ночь» | Midnight)"
           },
           {
             "color": "Starlight",
-            "price": 51990,
+            "price": 50990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 256 ГБ («Сияющая звезда» | Starlight)"
           },
           {
             "color": "Blue",
-            "price": 57990,
+            "price": 50990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 256 ГБ (Синий | Blue)"
           },
           {
             "color": "Red",
-            "price": 54990,
+            "price": 50990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 256 ГБ (PRODUCT)RED"
           },
           {
             "color": "Purple",
-            "price": 55990,
+            "price": 50990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 256 ГБ (Фиолетовый | Purple)"
           },
           {
             "color": "Yellow",
-            "price": 54990,
+            "price": 50990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 256 ГБ (Жёлтый | Yellow)"
           },
           {
             "color": "Midnight",
-            "price": 59990,
+            "price": 53990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 Plus 256 ГБ («Тёмная ночь» | Midnight)"
           },
           {
             "color": "Starlight",
-            "price": 59990,
+            "price": 53990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 Plus 256 ГБ («Сияющая звезда» | Starlight)"
           },
           {
             "color": "Blue",
-            "price": 48990,
+            "price": 53990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 Plus 256 ГБ (Синий | Blue)"
           },
           {
             "color": "Red",
-            "price": 48990,
+            "price": 53990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 Plus 256 ГБ (PRODUCT)RED"
           },
           {
             "color": "Purple",
-            "price": 48990,
+            "price": 53990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 Plus 256 ГБ (Фиолетовый | Purple)"
           },
           {
             "color": "Yellow",
-            "price": 49990,
+            "price": 53990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 Plus 256 ГБ (Жёлтый | Yellow)"
           }
@@ -409,13 +409,13 @@
           },
           {
             "color": "Starlight",
-            "price": 54990,
+            "price": 52990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 512 ГБ («Сияющая звезда» | Starlight)"
           },
           {
             "color": "Blue",
-            "price": 48990,
+            "price": 52990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 512 ГБ (Синий | Blue)"
           },
@@ -427,13 +427,13 @@
           },
           {
             "color": "Purple",
-            "price": 56990,
+            "price": 52990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 512 ГБ (Фиолетовый | Purple)"
           },
           {
             "color": "Yellow",
-            "price": 58990,
+            "price": 49990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 512 ГБ (Жёлтый | Yellow)"
           },
@@ -552,7 +552,7 @@
           },
           {
             "color": "Black",
-            "price": 63990,
+            "price": 62990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 128 ГБ (Чёрный | Black)"
           },
@@ -629,13 +629,13 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 58990,
+            "price": 57990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 256 ГБ (Чёрный | Black)"
           },
           {
             "color": "Blue",
-            "price": 59990,
+            "price": 57990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 256 ГБ (Голубой | Blue)"
           },
@@ -659,31 +659,31 @@
           },
           {
             "color": "Black",
-            "price": 72990,
+            "price": 59990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Чёрный | Black)"
           },
           {
             "color": "Blue",
-            "price": 70990,
+            "price": 59990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Голубой | Blue)"
           },
           {
             "color": "Pink",
-            "price": 69990,
+            "price": 59990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Розовый | Pink)"
           },
           {
             "color": "Green",
-            "price": 62990,
+            "price": 59990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Зелёный | Green)"
           },
           {
             "color": "Yellow",
-            "price": 67990,
+            "price": 59990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Жёлтый | Yellow)"
           }
@@ -702,7 +702,7 @@
       "perChannel": {
         "mistore095": 53000,
         "istoregroznyy": 52900,
-        "biggeek": 51990
+        "biggeek": 52990
       },
       "details": {
         "mistore095": [
@@ -772,19 +772,19 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 51990,
+            "price": 54990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Чёрный | Black)"
           },
           {
             "color": "White",
-            "price": 55990,
+            "price": 54990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Белый | White)"
           },
           {
             "color": "Ultramarine",
-            "price": 52990,
+            "price": 54990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ («Ультрамарин» | Ultramarine)"
           },
@@ -796,7 +796,7 @@
           },
           {
             "color": "Teal",
-            "price": 55990,
+            "price": 54990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ («Морская бирюза» | Teal)"
           }
@@ -815,7 +815,7 @@
       "perChannel": {
         "mistore095": 59400,
         "istoregroznyy": 59900,
-        "biggeek": 64990
+        "biggeek": 65990
       },
       "details": {
         "mistore095": [
@@ -855,7 +855,7 @@
           },
           {
             "color": "Pink",
-            "price": 64990,
+            "price": 65990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 256 ГБ (Розовый | Pink)"
           },
