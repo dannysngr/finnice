@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-05-30T18:50:49+00:00",
+  "syncedAt": "2026-05-31T10:35:17+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1548,
+      "linesTotal": 1556,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -291,7 +291,7 @@
       "source": "istoregroznyy",
       "perChannel": {
         "istoregroznyy": 46500,
-        "biggeek": 50990
+        "biggeek": 48990
       },
       "details": {
         "istoregroznyy": [
@@ -317,7 +317,7 @@
           },
           {
             "color": "Blue",
-            "price": 50990,
+            "price": 48990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 256 ГБ (Синий | Blue)"
           },
@@ -1003,7 +1003,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 104500,
-        "biggeek": 111990
+        "biggeek": 109990
       },
       "details": {
         "mistore095": [
@@ -1017,25 +1017,25 @@
         "biggeek": [
           {
             "color": "Black Titanium",
-            "price": 111990,
+            "price": 109990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 Pro Max 512 ГБ («Чёрный титан» | Black Titanium)"
           },
           {
             "color": "Desert Titanium",
-            "price": 118990,
+            "price": 115990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 Pro Max 512 ГБ («Пустынный титан» | Desert Titanium)"
           },
           {
             "color": "Natural Titanium",
-            "price": 111990,
+            "price": 109990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 Pro Max 512 ГБ («Натуральный титан» | Natural Titanium)"
           },
           {
             "color": "White Titanium",
-            "price": 111990,
+            "price": 109990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 Pro Max 512 ГБ («Белый титан» | White Titanium)"
           }
