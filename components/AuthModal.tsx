@@ -474,28 +474,142 @@ function OTPScreen({
         </div>
       </div>
 
-      {/* 4 cells */}
-      <div className="flex gap-3 justify-between mb-4" onPaste={handlePaste}>
+      {/* 4 cells — тёмная панель с неоновой glow-обводкой каждой ячейки */}
+      <div
+        className="otp-pad relative flex gap-2 sm:gap-3 justify-center mb-4 p-3 sm:p-4 rounded-2xl"
+        onPaste={handlePaste}
+        style={{
+          background: "radial-gradient(ellipse at 50% 0%, #142822 0%, #08120F 90%)",
+          border: "1px solid rgba(95,201,167,0.18)",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 32px -12px rgba(0,0,0,0.5)",
+        }}
+        data-status={status}
+      >
         {digits.map((d, i) => (
-          <motion.input
+          <motion.div
             key={i}
-            ref={el => { refs.current[i] = el; }}
-            type="tel"
-            inputMode="numeric"
-            maxLength={1}
-            value={d}
-            onChange={e => handleDigit(i, e.target.value)}
-            onKeyDown={e => handleKey(i, e)}
+            className="otp-cell-wrap"
+            data-filled={d ? "true" : "false"}
+            data-error={status === "error" ? "true" : "false"}
             animate={status === "error" ? { x: [0, -5, 5, -5, 5, 0] } : {}}
             transition={{ duration: 0.3 }}
-            className={`w-full aspect-square max-w-[72px] text-center text-2xl font-black
-                        rounded-[14px] outline-none transition-all duration-150 caret-transparent
-                        ${d
-                          ? "bg-[#0C7A58]/10 text-[#0C7A58] ring-2 ring-[#0C7A58]/40"
-                          : "bg-[#F3F3F7] text-[#0A1628] focus:ring-2 focus:ring-[#0C7A58]/40"}
-                        ${status === "error" ? "ring-2 ring-red-400 bg-red-50" : ""}`}
-          />
+          >
+            <span className="otp-glow" aria-hidden />
+            <input
+              ref={el => { refs.current[i] = el; }}
+              type="tel"
+              inputMode="numeric"
+              maxLength={1}
+              value={d}
+              onChange={e => handleDigit(i, e.target.value)}
+              onKeyDown={e => handleKey(i, e)}
+              className="otp-cell"
+              aria-label={`Цифра ${i + 1}`}
+            />
+            {/* Pop-in цифры для драматичного появления */}
+            {d && <motion.span
+              key={`digit-${i}-${d}`}
+              className="otp-ghost"
+              initial={{ scale: 0.4, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.22, ease: [0.16, 1.4, 0.6, 1] }}
+              aria-hidden
+            >{d}</motion.span>}
+          </motion.div>
         ))}
+
+        <style>{`
+          .otp-cell-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 72px;
+            aspect-ratio: 1 / 1;
+            border-radius: 14px;
+          }
+          .otp-glow {
+            position: absolute;
+            inset: -3px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #5FC9A7 0%, #C9A84C 100%);
+            filter: blur(8px);
+            opacity: 0;
+            z-index: 0;
+            transition: opacity .35s ease;
+            pointer-events: none;
+          }
+          .otp-cell-wrap:focus-within .otp-glow {
+            opacity: 0.55;
+            animation: otpPulse 1.8s ease-in-out infinite;
+          }
+          .otp-cell-wrap[data-filled="true"] .otp-glow {
+            opacity: 0.8;
+            background: linear-gradient(135deg, #C9A84C 0%, #FFE39C 100%);
+            animation: otpBreath 2.4s ease-in-out infinite;
+          }
+          .otp-cell-wrap[data-error="true"] .otp-glow {
+            opacity: 0.85 !important;
+            background: linear-gradient(135deg, #FF4D4D 0%, #FF8A3C 100%);
+            animation: none !important;
+          }
+
+          .otp-cell {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            border-radius: 14px;
+            background: rgba(8,18,15,0.85);
+            border: 1.5px solid rgba(95,201,167,0.30);
+            color: transparent;
+            caret-color: transparent;
+            text-align: center;
+            font-size: 0; /* скрываем нативный рендер, показываем .otp-ghost */
+            outline: none;
+            transition: border-color .2s ease, background .2s ease;
+          }
+          .otp-cell:focus {
+            border-color: #5FC9A7;
+            background: rgba(8,18,15,0.95);
+          }
+          .otp-cell-wrap[data-filled="true"] .otp-cell {
+            border-color: #C9A84C;
+            background: rgba(201,168,76,0.10);
+          }
+          .otp-cell-wrap[data-error="true"] .otp-cell {
+            border-color: #FF4D4D !important;
+            background: rgba(255,77,77,0.10) !important;
+          }
+
+          .otp-ghost {
+            position: absolute;
+            inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px;
+            font-weight: 800;
+            color: #FFF4D6;
+            text-shadow: 0 0 12px rgba(201,168,76,0.85), 0 0 24px rgba(201,168,76,0.45);
+            pointer-events: none;
+            z-index: 2;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
+          }
+          .otp-cell-wrap[data-error="true"] .otp-ghost {
+            color: #FFD0D0;
+            text-shadow: 0 0 12px rgba(255,77,77,0.85);
+          }
+
+          @keyframes otpPulse {
+            0%,100% { opacity: 0.30; }
+            50%     { opacity: 0.75; }
+          }
+          @keyframes otpBreath {
+            0%,100% { opacity: 0.55; }
+            50%     { opacity: 0.95; }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .otp-glow { animation: none !important; }
+          }
+        `}</style>
       </div>
 
       {/* Status */}
