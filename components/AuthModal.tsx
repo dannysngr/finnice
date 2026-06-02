@@ -526,60 +526,71 @@ function OTPScreen({
             aspect-ratio: 1 / 1;
             border-radius: 14px;
           }
-          .otp-glow {
-            position: absolute;
-            inset: -3px;
-            border-radius: 18px;
-            background: linear-gradient(135deg, #5FC9A7 0%, #C9A84C 100%);
-            filter: blur(8px);
-            opacity: 0;
-            z-index: 0;
-            transition: opacity .35s ease;
-            pointer-events: none;
-          }
-          .otp-cell-wrap:focus-within .otp-glow {
-            opacity: 0.55;
-            animation: otpPulse 1.8s ease-in-out infinite;
-          }
-          .otp-cell-wrap[data-filled="true"] .otp-glow {
-            opacity: 0.8;
-            background: linear-gradient(135deg, #C9A84C 0%, #FFE39C 100%);
-            animation: otpBreath 2.4s ease-in-out infinite;
-          }
-          .otp-cell-wrap[data-error="true"] .otp-glow {
-            opacity: 0.85 !important;
-            background: linear-gradient(135deg, #FF4D4D 0%, #FF8A3C 100%);
-            animation: none !important;
-          }
+          /* .otp-glow слой больше не используем — глоу в самой ячейке.
+             Оставляем span в DOM, но делаем невидимым. */
+          .otp-glow { display: none; }
 
+          /* ── Базовая ячейка ─────────────────────────────────────── */
           .otp-cell {
             position: relative;
             z-index: 1;
             width: 100%;
             height: 100%;
             border-radius: 14px;
-            background: rgba(8,18,15,0.85);
-            border: 1.5px solid rgba(95,201,167,0.30);
+            background:
+              radial-gradient(ellipse at 50% 100%, rgba(20,40,34,0.6), rgba(8,18,15,0.95) 75%);
+            border: 1.5px solid rgba(95,201,167,0.22);
             color: transparent;
             caret-color: transparent;
             text-align: center;
-            font-size: 0; /* скрываем нативный рендер, показываем .otp-ghost */
+            font-size: 0; /* нативный рендер цифры скрыт — показываем .otp-ghost */
             outline: none;
-            transition: border-color .2s ease, background .2s ease;
-          }
-          .otp-cell:focus {
-            border-color: #5FC9A7;
-            background: rgba(8,18,15,0.95);
-          }
-          .otp-cell-wrap[data-filled="true"] .otp-cell {
-            border-color: #C9A84C;
-            background: rgba(201,168,76,0.10);
-          }
-          .otp-cell-wrap[data-error="true"] .otp-cell {
-            border-color: #FF4D4D !important;
-            background: rgba(255,77,77,0.10) !important;
+            transition: border-color .25s ease, background .25s ease, box-shadow .25s ease;
+            box-shadow:
+              inset 0 0 0 1px rgba(255,255,255,0.02),
+              inset 0 6px 14px rgba(0,0,0,0.45);
           }
 
+          /* ── Фокус (пусто): изумрудный «горящий» fill ────────────── */
+          .otp-cell:focus {
+            border-color: #5FC9A7;
+            background:
+              radial-gradient(ellipse at 50% 50%, rgba(95,201,167,0.35) 0%, rgba(95,201,167,0.12) 55%, rgba(8,18,15,0.85) 100%);
+            box-shadow:
+              inset 0 0 22px rgba(95,201,167,0.55),
+              inset 0 0 4px rgba(95,201,167,0.85),
+              0 0 14px rgba(95,201,167,0.45),
+              0 0 28px rgba(95,201,167,0.20);
+            animation: otpPulse 1.6s ease-in-out infinite;
+          }
+
+          /* ── Заполненная: золотая «лава» ────────────────────────── */
+          .otp-cell-wrap[data-filled="true"] .otp-cell {
+            border-color: #C9A84C;
+            background:
+              radial-gradient(ellipse at 50% 50%, rgba(255,196,72,0.40) 0%, rgba(201,168,76,0.18) 55%, rgba(28,18,4,0.75) 100%);
+            box-shadow:
+              inset 0 0 26px rgba(255,200,80,0.70),
+              inset 0 0 6px rgba(255,228,140,0.95),
+              0 0 18px rgba(201,168,76,0.55),
+              0 0 36px rgba(201,168,76,0.30);
+            animation: otpBreath 2.4s ease-in-out infinite;
+          }
+
+          /* ── Ошибка: красная «лава» ─────────────────────────────── */
+          .otp-cell-wrap[data-error="true"] .otp-cell {
+            border-color: #FF4D4D !important;
+            background:
+              radial-gradient(ellipse at 50% 50%, rgba(255,90,90,0.45) 0%, rgba(255,77,77,0.18) 55%, rgba(40,8,8,0.80) 100%) !important;
+            box-shadow:
+              inset 0 0 26px rgba(255,90,90,0.75),
+              inset 0 0 6px rgba(255,160,160,0.95),
+              0 0 18px rgba(255,77,77,0.55),
+              0 0 36px rgba(255,77,77,0.30) !important;
+            animation: none !important;
+          }
+
+          /* ── Цифра — крупная, светящаяся ────────────────────────── */
           .otp-ghost {
             position: absolute;
             inset: 0;
@@ -587,27 +598,59 @@ function OTPScreen({
             font-size: 28px;
             font-weight: 800;
             color: #FFF4D6;
-            text-shadow: 0 0 12px rgba(201,168,76,0.85), 0 0 24px rgba(201,168,76,0.45);
+            text-shadow:
+              0 0 8px  rgba(255,228,140,0.95),
+              0 0 18px rgba(255,196,72,0.70),
+              0 0 32px rgba(201,168,76,0.40);
             pointer-events: none;
             z-index: 2;
             font-variant-numeric: tabular-nums;
             letter-spacing: -0.02em;
           }
           .otp-cell-wrap[data-error="true"] .otp-ghost {
-            color: #FFD0D0;
-            text-shadow: 0 0 12px rgba(255,77,77,0.85);
+            color: #FFE0E0;
+            text-shadow:
+              0 0 8px  rgba(255,160,160,0.95),
+              0 0 18px rgba(255,77,77,0.70),
+              0 0 32px rgba(255,77,77,0.40);
           }
 
           @keyframes otpPulse {
-            0%,100% { opacity: 0.30; }
-            50%     { opacity: 0.75; }
+            0%,100% {
+              box-shadow:
+                inset 0 0 18px rgba(95,201,167,0.40),
+                inset 0 0 4px rgba(95,201,167,0.85),
+                0 0 10px rgba(95,201,167,0.30),
+                0 0 22px rgba(95,201,167,0.12);
+            }
+            50% {
+              box-shadow:
+                inset 0 0 28px rgba(95,201,167,0.75),
+                inset 0 0 6px rgba(95,201,167,1),
+                0 0 18px rgba(95,201,167,0.55),
+                0 0 36px rgba(95,201,167,0.30);
+            }
           }
           @keyframes otpBreath {
-            0%,100% { opacity: 0.55; }
-            50%     { opacity: 0.95; }
+            0%,100% {
+              box-shadow:
+                inset 0 0 22px rgba(255,200,80,0.55),
+                inset 0 0 5px rgba(255,228,140,0.85),
+                0 0 14px rgba(201,168,76,0.40),
+                0 0 28px rgba(201,168,76,0.20);
+            }
+            50% {
+              box-shadow:
+                inset 0 0 32px rgba(255,200,80,0.95),
+                inset 0 0 8px rgba(255,236,170,1),
+                0 0 22px rgba(201,168,76,0.65),
+                0 0 44px rgba(201,168,76,0.35);
+            }
           }
           @media (prefers-reduced-motion: reduce) {
-            .otp-glow { animation: none !important; }
+            .otp-cell, .otp-cell-wrap[data-filled="true"] .otp-cell {
+              animation: none !important;
+            }
           }
         `}</style>
       </div>
