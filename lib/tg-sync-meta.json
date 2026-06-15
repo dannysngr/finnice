@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-06-14T16:26:26+00:00",
+  "syncedAt": "2026-06-15T09:27:30+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1521,
+      "linesTotal": 1520,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -116,7 +116,7 @@
           },
           {
             "color": "Midnight",
-            "price": 49990,
+            "price": 48990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 («Тёмная ночь» | Midnight) (2026)"
           },
@@ -128,7 +128,7 @@
           },
           {
             "color": "Starlight",
-            "price": 49990,
+            "price": 48990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 («Сияющая звезда» | Starlight) (2026)"
           },
@@ -140,7 +140,7 @@
           },
           {
             "color": "Blue",
-            "price": 49990,
+            "price": 48990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Голубой | Blue) (2026)"
           },
@@ -152,7 +152,7 @@
           },
           {
             "color": "Purple",
-            "price": 49990,
+            "price": 48990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Фиолетовый | Purple) (2026)"
           },
@@ -164,7 +164,7 @@
           },
           {
             "color": "Orange",
-            "price": 49990,
+            "price": 48990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Оранжевый | Orange) (2026)"
           }
@@ -282,7 +282,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 49000,
-        "biggeek": 47990
+        "biggeek": 50990
       },
       "details": {
         "mistore095": [
@@ -308,7 +308,7 @@
           },
           {
             "color": "Blue",
-            "price": 47990,
+            "price": 50990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 256 ГБ (Синий | Blue)"
           },
