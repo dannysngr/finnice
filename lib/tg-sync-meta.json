@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-06-16T08:49:27+00:00",
+  "syncedAt": "2026-06-16T18:57:21+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1520,
+      "linesTotal": 1521,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -58,7 +58,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 10500,
-        "biggeek": 11490
+        "biggeek": 10990
       },
       "details": {
         "mistore095": [
@@ -72,7 +72,7 @@
         "biggeek": [
           {
             "color": "",
-            "price": 11490,
+            "price": 10990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods 4 без активного шумоподавления (2024)"
           }
@@ -134,7 +134,7 @@
           },
           {
             "color": "Blue",
-            "price": 41990,
+            "price": 42990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max (USB-C) (Голубой | Blue) (2024)"
           },
@@ -732,7 +732,7 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 74990,
+            "price": 78990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 Plus 256 ГБ (Чёрный | Black)"
           },
@@ -1652,7 +1652,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 50400,
-        "biggeek": 49990
+        "biggeek": 48990
       },
       "details": {
         "mistore095": [
@@ -1666,7 +1666,7 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 51990,
+            "price": 52990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17e 256 ГБ (Чёрный | Black)"
           },
@@ -1678,7 +1678,7 @@
           },
           {
             "color": "Soft Pink",
-            "price": 49990,
+            "price": 48990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17e 256 ГБ (Бледно-розовый | Soft Pink)"
           }
@@ -2153,7 +2153,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 96000,
-        "biggeek": 104990
+        "biggeek": 100990
       },
       "details": {
         "mistore095": [
@@ -2173,7 +2173,7 @@
         "biggeek": [
           {
             "color": "Space Black",
-            "price": 104990,
+            "price": 100990,
             "simType": "—",
             "raw": "Планшет Apple iPad Pro 13\", 256 ГБ, Wi-Fi + Cellular («Чёрный космос» | Space Black) (M5 | 2025)"
           }
