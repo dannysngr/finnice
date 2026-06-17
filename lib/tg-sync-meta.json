@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-06-17T08:32:18+00:00",
+  "syncedAt": "2026-06-17T17:51:39+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -2153,7 +2153,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 96000,
-        "biggeek": 100990
+        "biggeek": 99990
       },
       "details": {
         "mistore095": [
@@ -2173,7 +2173,7 @@
         "biggeek": [
           {
             "color": "Space Black",
-            "price": 100990,
+            "price": 99990,
             "simType": "—",
             "raw": "Планшет Apple iPad Pro 13\", 256 ГБ, Wi-Fi + Cellular («Чёрный космос» | Space Black) (M5 | 2025)"
           }
@@ -2191,7 +2191,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 91500,
-        "biggeek": 125990
+        "biggeek": 119990
       },
       "details": {
         "mistore095": [
@@ -2205,7 +2205,7 @@
         "biggeek": [
           {
             "color": "Space Black",
-            "price": 125990,
+            "price": 119990,
             "simType": "—",
             "raw": "Планшет Apple iPad Pro 13\", 512 ГБ, Wi-Fi («Чёрный космос» | Space Black) (M5 | 2025)"
           }
@@ -2223,7 +2223,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 119000,
-        "biggeek": 127990
+        "biggeek": 122990
       },
       "details": {
         "mistore095": [
@@ -2237,7 +2237,7 @@
         "biggeek": [
           {
             "color": "Space Black",
-            "price": 127990,
+            "price": 122990,
             "simType": "—",
             "raw": "Планшет Apple iPad Pro 13\", 512 ГБ, Wi-Fi + Cellular («Чёрный космос» | Space Black) (M5 | 2025)"
           }
