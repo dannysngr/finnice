@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-06-21T08:03:46+00:00",
+  "syncedAt": "2026-06-21T16:48:57+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -116,7 +116,7 @@
           },
           {
             "color": "Midnight",
-            "price": 48990,
+            "price": 47990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 («Тёмная ночь» | Midnight) (2026)"
           },
@@ -128,7 +128,7 @@
           },
           {
             "color": "Starlight",
-            "price": 48990,
+            "price": 47990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 («Сияющая звезда» | Starlight) (2026)"
           },
@@ -140,7 +140,7 @@
           },
           {
             "color": "Blue",
-            "price": 48990,
+            "price": 47990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Голубой | Blue) (2026)"
           },
@@ -152,7 +152,7 @@
           },
           {
             "color": "Purple",
-            "price": 48990,
+            "price": 47990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Фиолетовый | Purple) (2026)"
           },
@@ -164,7 +164,7 @@
           },
           {
             "color": "Orange",
-            "price": 48990,
+            "price": 47990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Оранжевый | Orange) (2026)"
           }
@@ -314,7 +314,7 @@
           },
           {
             "color": "Red",
-            "price": 54990,
+            "price": 50990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 256 ГБ (PRODUCT)RED"
           },
@@ -326,7 +326,7 @@
           },
           {
             "color": "Yellow",
-            "price": 54990,
+            "price": 50990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 256 ГБ (Жёлтый | Yellow)"
           },
@@ -380,7 +380,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 51000,
-        "biggeek": 48990
+        "biggeek": 51990
       },
       "details": {
         "mistore095": [
@@ -412,19 +412,19 @@
         "biggeek": [
           {
             "color": "Midnight",
-            "price": 48990,
+            "price": 53990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 512 ГБ («Тёмная ночь» | Midnight)"
           },
           {
             "color": "Starlight",
-            "price": 52990,
+            "price": 53990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 512 ГБ («Сияющая звезда» | Starlight)"
           },
           {
             "color": "Blue",
-            "price": 49990,
+            "price": 53990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 512 ГБ (Синий | Blue)"
           },
@@ -436,13 +436,13 @@
           },
           {
             "color": "Purple",
-            "price": 52990,
+            "price": 53990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 512 ГБ (Фиолетовый | Purple)"
           },
           {
             "color": "Yellow",
-            "price": 52990,
+            "price": 51990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 512 ГБ (Жёлтый | Yellow)"
           },
@@ -738,19 +738,19 @@
           },
           {
             "color": "White",
-            "price": 73990,
+            "price": 72990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 Plus 256 ГБ (Белый | White)"
           },
           {
             "color": "Ultramarine",
-            "price": 73990,
+            "price": 72990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 Plus 256 ГБ («Ультрамарин» | Ultramarine)"
           },
           {
             "color": "Pink",
-            "price": 73990,
+            "price": 72990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 Plus 256 ГБ (Розовый | Pink)"
           },
@@ -806,7 +806,7 @@
           },
           {
             "color": "Desert Titanium",
-            "price": 98990,
+            "price": 96990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 Pro Max 256 ГБ («Пустынный титан» | Desert Titanium)"
           },
