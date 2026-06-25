@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-06-24T17:08:43+00:00",
+  "syncedAt": "2026-06-25T06:52:45+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1522,
+      "linesTotal": 1507,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -543,36 +543,6 @@
             "price": 58990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 256 ГБ (Жёлтый | Yellow)"
-          },
-          {
-            "color": "Black",
-            "price": 62990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Чёрный | Black)"
-          },
-          {
-            "color": "Blue",
-            "price": 59990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Голубой | Blue)"
-          },
-          {
-            "color": "Pink",
-            "price": 59990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Розовый | Pink)"
-          },
-          {
-            "color": "Green",
-            "price": 59990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Зелёный | Green)"
-          },
-          {
-            "color": "Yellow",
-            "price": 59990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Жёлтый | Yellow)"
           }
         ]
       }
