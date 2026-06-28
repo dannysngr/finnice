@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-06-28T07:06:25+00:00",
+  "syncedAt": "2026-06-28T16:14:30+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -812,13 +812,13 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 88990,
+            "price": 82990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 Plus 256 ГБ (Чёрный | Black)"
           },
           {
             "color": "White",
-            "price": 88990,
+            "price": 82990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 Plus 256 ГБ (Белый | White)"
           },
@@ -1882,7 +1882,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 29900,
-        "biggeek": 34990
+        "biggeek": 31990
       },
       "details": {
         "mistore095": [
@@ -1896,7 +1896,7 @@
         "biggeek": [
           {
             "color": "Розовое золото",
-            "price": 34990,
+            "price": 31990,
             "simType": "—",
             "raw": "Часы Apple Watch Series 11, 42 мм, алюминий цвета «розовое золото», ремешок Sport Band цвета «светлые румяна»"
           }
@@ -2093,7 +2093,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 40000,
-        "biggeek": 46990
+        "biggeek": 51990
       },
       "details": {
         "mistore095": [
@@ -2107,7 +2107,7 @@
         "biggeek": [
           {
             "color": "Blue",
-            "price": 46990,
+            "price": 51990,
             "simType": "—",
             "raw": "Планшет Apple iPad 11”, 128 ГБ, Wi-Fi + Cellular (Синий | Blue) (A16 | 2025)"
           }
@@ -2125,7 +2125,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 38900,
-        "biggeek": 45990
+        "biggeek": 44990
       },
       "details": {
         "mistore095": [
@@ -2151,7 +2151,7 @@
         "biggeek": [
           {
             "color": "Silver",
-            "price": 45990,
+            "price": 44990,
             "simType": "—",
             "raw": "Планшет Apple iPad 11”, 256 ГБ, Wi-Fi (Серебристый | Silver) (A16 | 2025)"
           }
@@ -2207,7 +2207,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 76900,
-        "biggeek": 104990
+        "biggeek": 99990
       },
       "details": {
         "mistore095": [
@@ -2221,7 +2221,7 @@
         "biggeek": [
           {
             "color": "Space Black",
-            "price": 104990,
+            "price": 99990,
             "simType": "—",
             "raw": "Планшет Apple iPad Pro 11\", 256 ГБ, Wi-Fi («Чёрный космос» | Space Black) (M5 | 2025)"
           }
