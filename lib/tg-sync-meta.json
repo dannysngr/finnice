@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-07-12T06:08:22+00:00",
+  "syncedAt": "2026-07-12T16:03:47+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -17,8 +17,8 @@
         1108,
         1112
       ],
-      "linesTotal": 422,
-      "winsMax": 28
+      "linesTotal": 434,
+      "winsMax": 27
     },
     {
       "name": "istoregroznyy",
@@ -36,35 +36,35 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1516,
+      "linesTotal": 1518,
       "winsMax": 0,
       "displayOnly": true
     }
   ],
   "totals": {
-    "matched": 25,
+    "matched": 23,
     "unmatchedKeys": 9,
-    "unmatchedRaw": 359
+    "unmatchedRaw": 376
   },
   "matched": [
     {
       "sku": "airpods4",
       "name": "AirPods 4",
       "basePrice": 14990,
-      "tgPrice": 11800,
-      "finalPrice": 12800,
-      "delta": -2190,
+      "tgPrice": 12000,
+      "finalPrice": 13000,
+      "delta": -1990,
       "tgKey": "Apple|AirPods 4|нет",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 11800,
+        "mistore095": 12000,
         "biggeek": 11990
       },
       "details": {
         "mistore095": [
           {
             "color": "",
-            "price": 11800,
+            "price": 12000,
             "simType": "SIM",
             "raw": "Air pods 4"
           }
@@ -121,13 +121,13 @@
       "sku": "airpods-max2",
       "name": "AirPods Max 2",
       "basePrice": 59990,
-      "tgPrice": 45000,
-      "finalPrice": 46000,
-      "delta": -13990,
+      "tgPrice": 44400,
+      "finalPrice": 45400,
+      "delta": -14590,
       "tgKey": "Apple|AirPods Max|нет",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 45000,
+        "mistore095": 44400,
         "biggeek": 41990
       },
       "details": {
@@ -140,13 +140,13 @@
           },
           {
             "color": "Midnight",
-            "price": 45000,
+            "price": 44400,
             "simType": "SIM",
             "raw": "Air Pods Max 2 2026 Midnight"
           },
           {
             "color": "Blue",
-            "price": 45000,
+            "price": 44400,
             "simType": "SIM",
             "raw": "Air Pods Max 2 2026 Blue"
           }
@@ -219,20 +219,20 @@
       "sku": "airpods-pro3",
       "name": "AirPods Pro 3",
       "basePrice": 29990,
-      "tgPrice": 18700,
-      "finalPrice": 19700,
-      "delta": -10290,
+      "tgPrice": 18800,
+      "finalPrice": 19800,
+      "delta": -10190,
       "tgKey": "Apple|AirPods Pro 3|нет",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 18700,
+        "mistore095": 18800,
         "biggeek": 19490
       },
       "details": {
         "mistore095": [
           {
             "color": "",
-            "price": 18700,
+            "price": 18800,
             "simType": "SIM",
             "raw": "Air Pods Pro 3"
           }
@@ -263,22 +263,16 @@
       "details": {
         "mistore095": [
           {
-            "color": "Black",
-            "price": 44500,
-            "simType": "SIM",
-            "raw": "iPhone 13 128GB Black"
-          },
-          {
             "color": "Midnight",
             "price": 44800,
             "simType": "SIM",
-            "raw": "iPhone 13 128GB Midnight"
+            "raw": "🇯🇵 Apple iPhone 13 128 Midnight"
           },
           {
             "color": "",
             "price": 46000,
             "simType": "SIM",
-            "raw": "iPhone 13 Pro 128GB Graphite"
+            "raw": "🇪🇺 Apple iPhone 13 Pro 128 Graphite"
           }
         ],
         "biggeek": [
@@ -340,19 +334,19 @@
             "color": "Gold",
             "price": 50000,
             "simType": "SIM",
-            "raw": "iPhone 13 Pro 256GB Gold"
+            "raw": "🇪🇺 Apple iPhone 13 Pro 256 Gold"
           },
           {
             "color": "",
             "price": 50000,
             "simType": "SIM",
-            "raw": "iPhone 13 Pro 256GB Graphite"
+            "raw": "🇪🇺 Apple iPhone 13 Pro 256 Graphite"
           },
           {
             "color": "Silver",
             "price": 50000,
             "simType": "SIM",
-            "raw": "iPhone 13 Pro 256GB Silver"
+            "raw": "🇪🇺 Apple iPhone 13 Pro 256 Silver"
           }
         ],
         "biggeek": [
@@ -405,22 +399,28 @@
       "sku": "ip15-128-sim",
       "name": "Apple iPhone 15 128 ГБ",
       "basePrice": 47500,
-      "tgPrice": 53500,
-      "finalPrice": 54500,
-      "delta": 7000,
+      "tgPrice": 53000,
+      "finalPrice": 54000,
+      "delta": 6500,
       "tgKey": "Apple|iPhone 15|128 ГБ",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 53500,
+        "mistore095": 53000,
         "biggeek": 49990
       },
       "details": {
         "mistore095": [
           {
-            "color": "Blue",
-            "price": 53500,
+            "color": "Black",
+            "price": 53000,
             "simType": "SIM",
-            "raw": "iPhone 15 128GB Blue"
+            "raw": "🇮🇳 Apple iPhone 15 128GB Black"
+          },
+          {
+            "color": "Blue",
+            "price": 53000,
+            "simType": "SIM",
+            "raw": "🇮🇳 Apple iPhone 15 128GB Blue"
           }
         ],
         "biggeek": [
@@ -506,19 +506,19 @@
             "color": "Black",
             "price": 60500,
             "simType": "SIM",
-            "raw": "iPhone 15 256GB Black"
+            "raw": "🇦🇪 Apple iPhone 15 256GB Black"
           },
           {
             "color": "Blue",
             "price": 60500,
             "simType": "SIM",
-            "raw": "iPhone 15 256GB Blue"
+            "raw": "🇦🇪 Apple iPhone 15 256GB Blue"
           },
           {
             "color": "Pink",
             "price": 61000,
             "simType": "SIM",
-            "raw": "iPhone 15 256GB Pink"
+            "raw": "🇦🇪 Apple iPhone 15 256GB Pink"
           }
         ],
         "biggeek": [
@@ -589,22 +589,34 @@
       "sku": "ip16-128-sim",
       "name": "Apple iPhone 16 128 ГБ",
       "basePrice": 55500,
-      "tgPrice": 61000,
-      "finalPrice": 62000,
-      "delta": 6500,
+      "tgPrice": 60500,
+      "finalPrice": 61500,
+      "delta": 6000,
       "tgKey": "Apple|iPhone 16|128 ГБ",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 61000,
+        "mistore095": 60500,
         "biggeek": 58990
       },
       "details": {
         "mistore095": [
           {
-            "color": "Black",
-            "price": 61000,
+            "color": "Teal",
+            "price": 57000,
             "simType": "SIM",
-            "raw": "iPhone 16 128GB Black"
+            "raw": "🇮🇳 Apple iPhone 16 128 Teal"
+          },
+          {
+            "color": "Ultramarine",
+            "price": 57400,
+            "simType": "SIM",
+            "raw": "🇮🇳 Apple iPhone 16 128 Ultramarine"
+          },
+          {
+            "color": "Black",
+            "price": 60500,
+            "simType": "SIM",
+            "raw": "🇯🇵 Apple iPhone 16 128GB Black"
           }
         ],
         "biggeek": [
@@ -642,105 +654,61 @@
       }
     },
     {
-      "sku": "ip16-512-sim",
-      "name": "Apple iPhone 16 512 ГБ",
-      "basePrice": 76000,
-      "tgPrice": 57000,
-      "finalPrice": 58000,
-      "delta": -18000,
-      "tgKey": "Apple|iPhone 16|512 ГБ",
-      "source": "mistore095",
-      "perChannel": {
-        "mistore095": 57000,
-        "biggeek": 86990
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "Black",
-            "price": 57000,
-            "simType": "SIM",
-            "raw": "13 16/512GB Black"
-          }
-        ],
-        "biggeek": [
-          {
-            "color": "Black",
-            "price": 98990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 16 512 ГБ (Чёрный | Black)"
-          },
-          {
-            "color": "White",
-            "price": 86990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 16 512 ГБ (Белый | White)"
-          },
-          {
-            "color": "Ultramarine",
-            "price": 88990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 16 512 ГБ («Ультрамарин» | Ultramarine)"
-          },
-          {
-            "color": "Pink",
-            "price": 98990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 16 512 ГБ (Розовый | Pink)"
-          },
-          {
-            "color": "Teal",
-            "price": 88990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 16 512 ГБ («Морская бирюза» | Teal)"
-          }
-        ]
-      }
-    },
-    {
       "sku": "ip17-256-esim",
       "name": "Apple iPhone 17 256 ГБ · eSIM",
       "basePrice": 60000,
-      "tgPrice": 71500,
-      "finalPrice": 72500,
-      "delta": 12500,
+      "tgPrice": 73900,
+      "finalPrice": 74900,
+      "delta": 14900,
       "tgKey": "Apple|iPhone 17|256 ГБ|SIM",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 71500,
+        "mistore095": 73900,
         "biggeek": 71990
       },
       "details": {
         "mistore095": [
           {
+            "color": "Lavender",
+            "price": 71900,
+            "simType": "SIM",
+            "raw": "🇮🇳 Apple iPhone 17 256 Lavender"
+          },
+          {
             "color": "Black",
             "price": 71000,
             "simType": "SIM",
-            "raw": "iPhone 17 256GB Black"
-          },
-          {
-            "color": "Lavender",
-            "price": 71500,
-            "simType": "SIM",
-            "raw": "iPhone 17 256GB Lavender"
+            "raw": "🇮🇳 Apple iPhone 17 256GB Black"
           },
           {
             "color": "Blue",
             "price": 71000,
             "simType": "SIM",
-            "raw": "iPhone 17 256GB Mist Blue"
+            "raw": "🇮🇳 Apple iPhone 17 256GB Mist Blue"
           },
           {
             "color": "Sage",
             "price": 71000,
             "simType": "SIM",
-            "raw": "iPhone 17 256GB Sage"
+            "raw": "🇮🇳 Apple iPhone 17 256GB Sage"
           },
           {
             "color": "White",
             "price": 71000,
             "simType": "SIM",
-            "raw": "iPhone 17 256GB White"
+            "raw": "🇮🇳 Apple iPhone 17 256GB White"
+          },
+          {
+            "color": "Black",
+            "price": 72900,
+            "simType": "SIM",
+            "raw": "🇪🇺 Apple iPhone 17 Air 256 Black"
+          },
+          {
+            "color": "White",
+            "price": 73900,
+            "simType": "SIM",
+            "raw": "🇪🇺 Apple iPhone 17 Air 256 White"
           }
         ],
         "biggeek": [
@@ -781,46 +749,58 @@
       "sku": "ip17-256-sim",
       "name": "Apple iPhone 17 256 ГБ · SIM + eSIM",
       "basePrice": 65000,
-      "tgPrice": 71500,
-      "finalPrice": 72500,
-      "delta": 7500,
+      "tgPrice": 73900,
+      "finalPrice": 74900,
+      "delta": 9900,
       "tgKey": "Apple|iPhone 17|256 ГБ|SIM",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 71500,
+        "mistore095": 73900,
         "biggeek": 71990
       },
       "details": {
         "mistore095": [
           {
+            "color": "Lavender",
+            "price": 71900,
+            "simType": "SIM",
+            "raw": "🇮🇳 Apple iPhone 17 256 Lavender"
+          },
+          {
             "color": "Black",
             "price": 71000,
             "simType": "SIM",
-            "raw": "iPhone 17 256GB Black"
-          },
-          {
-            "color": "Lavender",
-            "price": 71500,
-            "simType": "SIM",
-            "raw": "iPhone 17 256GB Lavender"
+            "raw": "🇮🇳 Apple iPhone 17 256GB Black"
           },
           {
             "color": "Blue",
             "price": 71000,
             "simType": "SIM",
-            "raw": "iPhone 17 256GB Mist Blue"
+            "raw": "🇮🇳 Apple iPhone 17 256GB Mist Blue"
           },
           {
             "color": "Sage",
             "price": 71000,
             "simType": "SIM",
-            "raw": "iPhone 17 256GB Sage"
+            "raw": "🇮🇳 Apple iPhone 17 256GB Sage"
           },
           {
             "color": "White",
             "price": 71000,
             "simType": "SIM",
-            "raw": "iPhone 17 256GB White"
+            "raw": "🇮🇳 Apple iPhone 17 256GB White"
+          },
+          {
+            "color": "Black",
+            "price": 72900,
+            "simType": "SIM",
+            "raw": "🇪🇺 Apple iPhone 17 Air 256 Black"
+          },
+          {
+            "color": "White",
+            "price": 73900,
+            "simType": "SIM",
+            "raw": "🇪🇺 Apple iPhone 17 Air 256 White"
           }
         ],
         "biggeek": [
@@ -861,28 +841,28 @@
       "sku": "ip17pro-1tb-esim",
       "name": "Apple iPhone 17 Pro 1 ТБ · eSIM",
       "basePrice": 132000,
-      "tgPrice": 132500,
-      "finalPrice": 133500,
-      "delta": 1500,
+      "tgPrice": 131900,
+      "finalPrice": 132900,
+      "delta": 900,
       "tgKey": "Apple|iPhone 17 Pro|1 ТБ|SIM",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 132500,
+        "mistore095": 131900,
         "biggeek": 133990
       },
       "details": {
         "mistore095": [
           {
             "color": "Blue",
-            "price": 132500,
+            "price": 131900,
             "simType": "SIM",
-            "raw": "iPhone 17 Pro 1TB Blue"
+            "raw": "🇭🇰 Apple iPhone 17 Pro 1TB Blue"
           },
           {
             "color": "Silver",
-            "price": 132500,
+            "price": 131900,
             "simType": "SIM",
-            "raw": "iPhone 17 Pro 1TB Silver"
+            "raw": "🇭🇰 Apple iPhone 17 Pro 1TB Silver"
           }
         ],
         "biggeek": [
@@ -911,28 +891,28 @@
       "sku": "ip17pro-1tb-sim",
       "name": "Apple iPhone 17 Pro 1 ТБ · SIM + eSIM",
       "basePrice": 140000,
-      "tgPrice": 132500,
-      "finalPrice": 133500,
-      "delta": -6500,
+      "tgPrice": 131900,
+      "finalPrice": 132900,
+      "delta": -7100,
       "tgKey": "Apple|iPhone 17 Pro|1 ТБ|SIM",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 132500,
+        "mistore095": 131900,
         "biggeek": 133990
       },
       "details": {
         "mistore095": [
           {
             "color": "Blue",
-            "price": 132500,
+            "price": 131900,
             "simType": "SIM",
-            "raw": "iPhone 17 Pro 1TB Blue"
+            "raw": "🇭🇰 Apple iPhone 17 Pro 1TB Blue"
           },
           {
             "color": "Silver",
-            "price": 132500,
+            "price": 131900,
             "simType": "SIM",
-            "raw": "iPhone 17 Pro 1TB Silver"
+            "raw": "🇭🇰 Apple iPhone 17 Pro 1TB Silver"
           }
         ],
         "biggeek": [
@@ -974,15 +954,15 @@
         "mistore095": [
           {
             "color": "Blue",
-            "price": 116500,
+            "price": 115500,
             "simType": "SIM",
-            "raw": "iPhone 17 Pro 512GB Blue"
+            "raw": "🇭🇰 Apple iPhone 17 Pro 512 Blue"
           },
           {
             "color": "Silver",
             "price": 116500,
             "simType": "SIM",
-            "raw": "iPhone 17 Pro 512GB Silver"
+            "raw": "🇭🇰 Apple iPhone 17 Pro 512 Silver"
           }
         ],
         "biggeek": [
@@ -1024,15 +1004,15 @@
         "mistore095": [
           {
             "color": "Blue",
-            "price": 116500,
+            "price": 115500,
             "simType": "SIM",
-            "raw": "iPhone 17 Pro 512GB Blue"
+            "raw": "🇭🇰 Apple iPhone 17 Pro 512 Blue"
           },
           {
             "color": "Silver",
             "price": 116500,
             "simType": "SIM",
-            "raw": "iPhone 17 Pro 512GB Silver"
+            "raw": "🇭🇰 Apple iPhone 17 Pro 512 Silver"
           }
         ],
         "biggeek": [
@@ -1061,28 +1041,28 @@
       "sku": "ip17promax-1tb-esim",
       "name": "Apple iPhone 17 Pro Max 1 ТБ · eSIM",
       "basePrice": 143000,
-      "tgPrice": 143900,
-      "finalPrice": 144900,
-      "delta": 1900,
+      "tgPrice": 142900,
+      "finalPrice": 143900,
+      "delta": 900,
       "tgKey": "Apple|iPhone 17 Pro Max|1 ТБ|SIM",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 143900,
+        "mistore095": 142900,
         "biggeek": 140990
       },
       "details": {
         "mistore095": [
           {
             "color": "Blue",
-            "price": 143900,
+            "price": 142900,
             "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 1TB Blue"
+            "raw": "🇭🇰 Apple iPhone 17 Pro Max 1TB Blue"
           },
           {
             "color": "Silver",
-            "price": 143900,
+            "price": 142900,
             "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 1TB Silver"
+            "raw": "🇰🇷 Apple iPhone 17 Pro Max 1TB Silver"
           }
         ],
         "biggeek": [
@@ -1111,28 +1091,28 @@
       "sku": "ip17promax-1tb-sim",
       "name": "Apple iPhone 17 Pro Max 1 ТБ · SIM + eSIM",
       "basePrice": 149000,
-      "tgPrice": 143900,
-      "finalPrice": 144900,
-      "delta": -4100,
+      "tgPrice": 142900,
+      "finalPrice": 143900,
+      "delta": -5100,
       "tgKey": "Apple|iPhone 17 Pro Max|1 ТБ|SIM",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 143900,
+        "mistore095": 142900,
         "biggeek": 140990
       },
       "details": {
         "mistore095": [
           {
             "color": "Blue",
-            "price": 143900,
+            "price": 142900,
             "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 1TB Blue"
+            "raw": "🇭🇰 Apple iPhone 17 Pro Max 1TB Blue"
           },
           {
             "color": "Silver",
-            "price": 143900,
+            "price": 142900,
             "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 1TB Silver"
+            "raw": "🇰🇷 Apple iPhone 17 Pro Max 1TB Silver"
           }
         ],
         "biggeek": [
@@ -1173,22 +1153,10 @@
       "details": {
         "mistore095": [
           {
-            "color": "Blue",
-            "price": 107900,
-            "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 256GB Blue"
-          },
-          {
-            "color": "Orange",
-            "price": 106900,
-            "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 256GB Orange"
-          },
-          {
             "color": "Silver",
             "price": 108500,
             "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 256GB Silver"
+            "raw": "🇭🇰 Apple iPhone 17 Pro Max 256GB Silver"
           }
         ],
         "biggeek": [
@@ -1229,22 +1197,10 @@
       "details": {
         "mistore095": [
           {
-            "color": "Blue",
-            "price": 107900,
-            "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 256GB Blue"
-          },
-          {
-            "color": "Orange",
-            "price": 106900,
-            "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 256GB Orange"
-          },
-          {
             "color": "Silver",
             "price": 108500,
             "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 256GB Silver"
+            "raw": "🇭🇰 Apple iPhone 17 Pro Max 256GB Silver"
           }
         ],
         "biggeek": [
@@ -1270,106 +1226,6 @@
       }
     },
     {
-      "sku": "ip17promax-512-esim",
-      "name": "Apple iPhone 17 Pro Max 512 ГБ · eSIM",
-      "basePrice": 124000,
-      "tgPrice": 126500,
-      "finalPrice": 127500,
-      "delta": 3500,
-      "tgKey": "Apple|iPhone 17 Pro Max|512 ГБ|SIM",
-      "source": "mistore095",
-      "perChannel": {
-        "mistore095": 126500,
-        "biggeek": 124990
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "Blue",
-            "price": 126000,
-            "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 512GB Blue"
-          },
-          {
-            "color": "Silver",
-            "price": 126500,
-            "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 512GB Silver"
-          }
-        ],
-        "biggeek": [
-          {
-            "color": "Silver",
-            "price": 124990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 17 Pro Max 512 ГБ (Серебристый | Silver)"
-          },
-          {
-            "color": "Cosmic Orange",
-            "price": 124990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 17 Pro Max 512 ГБ («Космический оранжевый» | Cosmic Orange)"
-          },
-          {
-            "color": "Deep Blue",
-            "price": 124990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 17 Pro Max 512 ГБ («Насыщенный синий» | Deep Blue)"
-          }
-        ]
-      }
-    },
-    {
-      "sku": "ip17promax-512-sim",
-      "name": "Apple iPhone 17 Pro Max 512 ГБ · SIM + eSIM",
-      "basePrice": 132000,
-      "tgPrice": 126500,
-      "finalPrice": 127500,
-      "delta": -4500,
-      "tgKey": "Apple|iPhone 17 Pro Max|512 ГБ|SIM",
-      "source": "mistore095",
-      "perChannel": {
-        "mistore095": 126500,
-        "biggeek": 124990
-      },
-      "details": {
-        "mistore095": [
-          {
-            "color": "Blue",
-            "price": 126000,
-            "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 512GB Blue"
-          },
-          {
-            "color": "Silver",
-            "price": 126500,
-            "simType": "SIM",
-            "raw": "iPhone 17 Pro Max 512GB Silver"
-          }
-        ],
-        "biggeek": [
-          {
-            "color": "Silver",
-            "price": 124990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 17 Pro Max 512 ГБ (Серебристый | Silver)"
-          },
-          {
-            "color": "Cosmic Orange",
-            "price": 124990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 17 Pro Max 512 ГБ («Космический оранжевый» | Cosmic Orange)"
-          },
-          {
-            "color": "Deep Blue",
-            "price": 124990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 17 Pro Max 512 ГБ («Насыщенный синий» | Deep Blue)"
-          }
-        ]
-      }
-    },
-    {
       "sku": "tg-ip17e-256",
       "name": "Apple iPhone 17e 256 ГБ",
       "basePrice": 53000,
@@ -1388,7 +1244,7 @@
             "color": "Pink",
             "price": 55000,
             "simType": "SIM",
-            "raw": "iPhone 17e 256GB Pink"
+            "raw": "🇮🇳 Apple iPhone 17e 256 Pink"
           }
         ],
         "biggeek": [
@@ -1414,6 +1270,38 @@
       }
     },
     {
+      "sku": "casy-apple-watch-series-11-42-mm-aluminij-cveta-rozovoe-zoloto-remesok-sport-band-cveta-svetlye-rumana",
+      "name": "Apple Watch Series 11, 42 мм",
+      "basePrice": 29990,
+      "tgPrice": 30500,
+      "finalPrice": 31500,
+      "delta": 1510,
+      "tgKey": "Apple|Apple Watch Series 11|42 мм",
+      "source": "mistore095",
+      "perChannel": {
+        "mistore095": 30500,
+        "biggeek": 29990
+      },
+      "details": {
+        "mistore095": [
+          {
+            "color": "Black",
+            "price": 30500,
+            "simType": "SIM",
+            "raw": "Apple Watch 11 42mm Black"
+          }
+        ],
+        "biggeek": [
+          {
+            "color": "Розовое золото",
+            "price": 29990,
+            "simType": "—",
+            "raw": "Часы Apple Watch Series 11, 42 мм, алюминий цвета «розовое золото», ремешок Sport Band цвета «светлые румяна»"
+          }
+        ]
+      }
+    },
+    {
       "sku": "apple-watch-ultra-2-49mm-korpus-iz-titana-remesok-ocean-sinego-cveta",
       "name": "Apple Watch Ultra 2, 49 мм",
       "basePrice": 53990,
@@ -1431,7 +1319,7 @@
             "color": "Green",
             "price": 53500,
             "simType": "SIM",
-            "raw": "Watch Ultra 2 49mm Black Green Alpine Loop"
+            "raw": "🇺🇸 Apple Watch Ultra 2 49mm Black Green Alpine Loop"
           }
         ]
       }
@@ -1455,19 +1343,19 @@
             "color": "Black",
             "price": 61500,
             "simType": "SIM",
-            "raw": "Watch Ultra 3 49mm Black Ocean Band"
+            "raw": "🇺🇸 Apple Watch Ultra 3 49mm Black Ocean Band"
           },
           {
             "color": "Charcoal",
             "price": 62000,
             "simType": "SIM",
-            "raw": "Watch Ultra 3 49mm Black Titan Black/Charcoal Trail Loop M/L"
+            "raw": "Apple Watch Ultra 3 49mm Black Titan Black/Charcoal Trail Loop M/L"
           },
           {
             "color": "Charcoal",
             "price": 61500,
             "simType": "SIM",
-            "raw": "Watch Ultra 3 49mm Black/Charcoal Trail Loop M/L"
+            "raw": "🇺🇸 Apple Watch Ultra 3 49mm Black/Charcoal Trail Loop M/L"
           }
         ],
         "biggeek": [
@@ -1483,6 +1371,12 @@
   ],
   "unmatchedKeys": [
     {
+      "key": "Apple|AirPods 3|нет",
+      "tgPrice": 10500,
+      "finalPrice": 11500,
+      "source": "mistore095"
+    },
+    {
       "key": "Apple|Apple Watch SE|42 мм",
       "tgPrice": 30500,
       "finalPrice": 31500,
@@ -1496,14 +1390,8 @@
     },
     {
       "key": "Apple|Apple Watch SE|46 мм",
-      "tgPrice": 32900,
-      "finalPrice": 33900,
-      "source": "mistore095"
-    },
-    {
-      "key": "Apple|Apple Watch Ultra|47 мм",
-      "tgPrice": 28500,
-      "finalPrice": 29500,
+      "tgPrice": 32700,
+      "finalPrice": 33700,
       "source": "mistore095"
     },
     {
@@ -1526,8 +1414,8 @@
     },
     {
       "key": "Apple|MacBook Air 15 M5|512 ГБ",
-      "tgPrice": 120500,
-      "finalPrice": 121500,
+      "tgPrice": 119000,
+      "finalPrice": 120000,
       "source": "mistore095"
     },
     {
@@ -1550,11 +1438,11 @@
     ],
     "Apple": [
       {
-        "raw": "MacBook Neo 13 8/256GB Silver",
+        "raw": "🇮🇳 Apple MacBook Neo 13 8/256GB Silver",
         "tgPrice": 60400
       },
       {
-        "raw": "MacBook Neo 13 8/256GB Indigo",
+        "raw": "🇮🇳 Apple MacBook Neo 13 8/256GB Indigo",
         "tgPrice": 59400
       }
     ],
@@ -1592,30 +1480,6 @@
     ],
     "Google": [
       {
-        "raw": "Pixel 10 Pro XL 16/256 Obsidian",
-        "tgPrice": 72900
-      },
-      {
-        "raw": "Pixel 10 Pro XL 16/256 Moonstone",
-        "tgPrice": 72900
-      },
-      {
-        "raw": "Pixel 10 Pro XL 16/256 Porcelain",
-        "tgPrice": 72900
-      },
-      {
-        "raw": "Pixel 10 Pro 16/256 Moonstone",
-        "tgPrice": 70900
-      },
-      {
-        "raw": "Pixel 10 12/256 Indigo",
-        "tgPrice": 52400
-      },
-      {
-        "raw": "Pixel 10 12/256 Frost",
-        "tgPrice": 52400
-      },
-      {
         "raw": "Наушники БП Pixel Buds Pro Charcoal",
         "tgPrice": 16500
       }
@@ -1624,6 +1488,10 @@
       {
         "raw": "Honor MagicBook X16 Plus 16/512 (r7-8845HS) Silver (CN)",
         "tgPrice": 69900
+      },
+      {
+        "raw": "🇷🇺 Honor Magic V2 Pro 16/512GB Black Leather",
+        "tgPrice": 69000
       },
       {
         "raw": "Honor MagicBook X16 2024 16/512 (r5-7640HS) Silver (CN)",
@@ -1642,8 +1510,72 @@
         "tgPrice": 45900
       },
       {
+        "raw": "🇷🇺 Honor 600 12/256GB Beige",
+        "tgPrice": 36500
+      },
+      {
+        "raw": "🇷🇺 Honor 600 12/256GB Black",
+        "tgPrice": 36500
+      },
+      {
+        "raw": "🇷🇺 Honor 200 Pro 5G 12/512GB Blue",
+        "tgPrice": 34000
+      },
+      {
+        "raw": "🇷🇺 Honor 200 Pro 5G 12/512GB White",
+        "tgPrice": 34000
+      },
+      {
+        "raw": "🇷🇺 Honor 600 8/256GB Beige",
+        "tgPrice": 34000
+      },
+      {
+        "raw": "🇷🇺 Honor 600 8/256GB Black",
+        "tgPrice": 34000
+      },
+      {
+        "raw": "🇷🇺 Honor X9C 8/256GB Titanium Purple",
+        "tgPrice": 21500
+      },
+      {
+        "raw": "🇷🇺 Honor 600 Lite 8/256GB Black",
+        "tgPrice": 21300
+      },
+      {
+        "raw": "🇷🇺 Honor X8D 8/128GB Blue",
+        "tgPrice": 15900
+      },
+      {
+        "raw": "🇷🇺 Honor X8D 8/128GB Gray",
+        "tgPrice": 15900
+      },
+      {
+        "raw": "🇷🇺 Honor X5C Plus 4/128GB Black",
+        "tgPrice": 10100
+      },
+      {
+        "raw": "🇷🇺 Honor X5C Plus 4/128GB Blue",
+        "tgPrice": 10100
+      },
+      {
+        "raw": "🇷🇺 Honor X5C Plus 4/128GB Gray",
+        "tgPrice": 10100
+      },
+      {
         "raw": "Honor Magic Watch 2 46mm Black",
         "tgPrice": 9900
+      },
+      {
+        "raw": "🇷🇺 Honor X5C 4/64GB Black",
+        "tgPrice": 8900
+      },
+      {
+        "raw": "🇷🇺 Honor X5C 4/64GB Blue",
+        "tgPrice": 8900
+      },
+      {
+        "raw": "🇷🇺 Honor X5C 4/64GB Silver",
+        "tgPrice": 8900
       }
     ],
     "Huawei": [
@@ -1822,6 +1754,10 @@
     ],
     "Nothing": [
       {
+        "raw": "🇪🇺 Nothing Phone 4A 12/256 Black",
+        "tgPrice": 35900
+      },
+      {
         "raw": "Nothing Phone 3A 12/256 Black",
         "tgPrice": 34000
       },
@@ -1874,7 +1810,49 @@
         "tgPrice": 6900
       }
     ],
+    "OPPO": [
+      {
+        "raw": "🇪🇺 Oppo Reno 15 Pro Max 12/512GB Brown",
+        "tgPrice": 56000
+      },
+      {
+        "raw": "🇪🇺 Oppo Reno 15 Pro Max 12/512GB Gold",
+        "tgPrice": 56000
+      },
+      {
+        "raw": "🇪🇺 Oppo Reno 15F 12/512GB Blue",
+        "tgPrice": 37500
+      }
+    ],
     "OnePlus": [
+      {
+        "raw": "🇪🇺 OnePlus 15 16/512GB Infinite Black",
+        "tgPrice": 71500
+      },
+      {
+        "raw": "🇪🇺 OnePlus Pad 4 12/512GB Dune",
+        "tgPrice": 61500
+      },
+      {
+        "raw": "🇪🇺 OnePlus Pad 4 12/512GB Sage",
+        "tgPrice": 61500
+      },
+      {
+        "raw": "🇮🇳 OnePlus 13 16/512 Black",
+        "tgPrice": 57000
+      },
+      {
+        "raw": "🇪🇺 OnePlus Nord 5 12/512 Gray",
+        "tgPrice": 34500
+      },
+      {
+        "raw": "🇪🇺 OnePlus Watch 2 Black Steel",
+        "tgPrice": 23500
+      },
+      {
+        "raw": "🇪🇺 OnePlus Watch 2 Radiant Steel",
+        "tgPrice": 23500
+      },
       {
         "raw": "Наушники БП OnePlus Buds Pro Glossy Matte Black",
         "tgPrice": 9200
@@ -1902,19 +1880,19 @@
         "tgPrice": 135900
       },
       {
-        "raw": "iPad Pro 13 2025 M5 256GB Cellular Black",
-        "tgPrice": 103900
+        "raw": "🇺🇸 Apple iPad Pro 13 2025 M5 256GB Cellular Black",
+        "tgPrice": 103500
       },
       {
-        "raw": "iPad Pro 13 M5 LTE 256GB Black",
+        "raw": "🇱🇷 Apple iPad Pro 13 M5 LTE 256GB Black",
         "tgPrice": 103000
       },
       {
-        "raw": "iPad Pro 13 M4 Wi-Fi 512GB Black",
+        "raw": "🇱🇷 Apple iPad Pro 13 M4 Wi-Fi 512GB Black",
         "tgPrice": 96500
       },
       {
-        "raw": "iPad Pro 11 M5 Wi-Fi 256GB Silver",
+        "raw": "🇱🇷 Apple iPad Pro 11 M5 Wi-Fi 256GB Silver",
         "tgPrice": 95000
       },
       {
@@ -1926,91 +1904,35 @@
         "tgPrice": 89900
       },
       {
-        "raw": "iPad Pro 11 2024 M4 256GB Wi-Fi Silver",
+        "raw": "🇺🇸 Apple iPad Pro 11 2024 M4 256GB Wi-Fi Silver",
         "tgPrice": 79500
-      },
-      {
-        "raw": "Magic V2 Pro 16/512GB Black Leather",
-        "tgPrice": 69000
       },
       {
         "raw": "Machenike Light 16 Air (R7-7735H) 16/512",
         "tgPrice": 64900
       },
       {
-        "raw": "17T Pro 12/1TB Black",
-        "tgPrice": 62400
-      },
-      {
-        "raw": "GT 8 Pro 12/256GB Blue",
-        "tgPrice": 62000
-      },
-      {
-        "raw": "GT 8 Pro 12/256GB White",
-        "tgPrice": 62000
-      },
-      {
-        "raw": "Pad 4 12/512GB Dune",
-        "tgPrice": 61500
-      },
-      {
-        "raw": "Pad 4 12/512GB Sage",
-        "tgPrice": 61500
-      },
-      {
-        "raw": "iPad Air 11 2026 M4 128GB Wi-Fi Starlight",
+        "raw": "🇺🇸 Apple iPad Air 11 2026 M4 128GB Wi-Fi Starlight",
         "tgPrice": 60000
       },
       {
-        "raw": "iPad Air 11 2026 M4 128GB Wi-Fi Blue",
+        "raw": "🇺🇸 Apple iPad Air 11 2026 M4 128GB Wi-Fi Blue",
         "tgPrice": 59000
       },
       {
-        "raw": "iPad Air 11 2026 M4 128GB Wi-Fi Gray",
+        "raw": "🇺🇸 Apple iPad Air 11 2026 M4 128GB Wi-Fi Gray",
         "tgPrice": 59000
-      },
-      {
-        "raw": "Reno 15 Pro Max 12/512GB Brown",
-        "tgPrice": 56000
-      },
-      {
-        "raw": "Reno 15 Pro Max 12/512GB Gold",
-        "tgPrice": 56000
-      },
-      {
-        "raw": "Tab S10 FE+ 8/128GB Blue Wi-Fi",
-        "tgPrice": 55500
-      },
-      {
-        "raw": "17T Pro 12/512GB Black",
-        "tgPrice": 54400
-      },
-      {
-        "raw": "15T Pro 12/512GB Black",
-        "tgPrice": 53400
-      },
-      {
-        "raw": "Pad 4 12/256GB Dune",
-        "tgPrice": 52400
-      },
-      {
-        "raw": "17T Pro 12/256GB Black",
-        "tgPrice": 51000
-      },
-      {
-        "raw": "Pad 8 Pro 12/512GB Gray",
-        "tgPrice": 50500
       },
       {
         "raw": "Neobihier (i7-1165G7-MX450 2Gb) 32/512 Gray",
         "tgPrice": 49900
       },
       {
-        "raw": "11 Air 12/256GB Phantom",
+        "raw": "🇪🇺 RedMagic 11 Air 12/256 Phantom",
         "tgPrice": 47000
       },
       {
-        "raw": "11 Air 12/256GB Prism",
+        "raw": "🇪🇺 RedMagic 11 Air 12/256 Prism",
         "tgPrice": 47000
       },
       {
@@ -2018,128 +1940,48 @@
         "tgPrice": 45900
       },
       {
-        "raw": "F8 Pro 12/512GB Black",
-        "tgPrice": 45400
-      },
-      {
-        "raw": "F8 Pro 12/512GB Blue",
-        "tgPrice": 45400
-      },
-      {
-        "raw": "F8 Pro 12/256GB Black",
+        "raw": "🇺🇸 Apple iPad 11 2025 256GB Wi-Fi Pink",
         "tgPrice": 42900
       },
       {
-        "raw": "F8 Pro 12/256GB Silver",
+        "raw": "🇺🇸 Apple iPad 11 2025 256GB Wi-Fi Silver",
         "tgPrice": 42900
       },
       {
-        "raw": "iPad 11 2025 256GB Wi-Fi Pink",
-        "tgPrice": 42900
-      },
-      {
-        "raw": "iPad A16 Wi-Fi 256GB Pink",
+        "raw": "🇮🇳 Apple iPad A16 Wi-Fi 256GB Pink",
         "tgPrice": 42500
-      },
-      {
-        "raw": "15T 12/512GB Gray",
-        "tgPrice": 41900
-      },
-      {
-        "raw": "X8 Pro Max 12/512GB Black",
-        "tgPrice": 41000
-      },
-      {
-        "raw": "X8 Pro Max 12/512GB White",
-        "tgPrice": 41000
-      },
-      {
-        "raw": "Pad Mini 12/512GB Gray",
-        "tgPrice": 40500
       },
       {
         "raw": "Flaptop 15.6 R 8/512 (r5-5600U) Light Grey",
         "tgPrice": 39900
       },
       {
-        "raw": "15T 12/256GB Black",
-        "tgPrice": 39500
-      },
-      {
-        "raw": "Nord 6 12/256GB Black",
-        "tgPrice": 39500
-      },
-      {
-        "raw": "X8 Pro 12/512GB Iron Man",
-        "tgPrice": 38500
-      },
-      {
-        "raw": "17T 12/256GB Black",
-        "tgPrice": 37900
-      },
-      {
-        "raw": "Reno 15F 12/512GB Blue",
-        "tgPrice": 37500
-      },
-      {
-        "raw": "600 12/256GB Beige",
-        "tgPrice": 36500
-      },
-      {
-        "raw": "600 12/256GB Black",
-        "tgPrice": 36500
-      },
-      {
-        "raw": "iPad A16 Wi-Fi 128GB Silver",
+        "raw": "🇮🇳 Apple iPad A16 Wi-Fi 128GB Pink",
         "tgPrice": 36000
       },
       {
-        "raw": "Phone 4A 12/256GB Black",
+        "raw": "🇮🇳 Apple iPad A16 Wi-Fi 128GB Silver",
+        "tgPrice": 36000
+      },
+      {
+        "raw": "🇺🇸 Apple iPad 11 2025 128GB Wi-Fi Pink",
         "tgPrice": 35900
       },
       {
-        "raw": "iPad 11 2025 128GB Wi-Fi Pink",
+        "raw": "🇺🇸 Apple iPad 11 2025 128GB Wi-Fi Silver",
         "tgPrice": 35900
       },
       {
-        "raw": "iPad A16 Wi-Fi 128GB Blue",
+        "raw": "🇺🇸 Apple iPad 11 2025 128GB Wi-Fi Blue",
         "tgPrice": 35500
       },
       {
-        "raw": "Note 15 Pro+ 5G 12/512GB Black",
-        "tgPrice": 34900
-      },
-      {
-        "raw": "Note 15 Pro+ 5G 12/512GB Mocha Brown",
-        "tgPrice": 34900
-      },
-      {
-        "raw": "Pad 8 8/256GB Gray",
-        "tgPrice": 34900
+        "raw": "🇮🇳 Apple iPad A16 Wi-Fi 128GB Blue",
+        "tgPrice": 35500
       },
       {
         "raw": "15.6inch\" PJ156-D10 (i5-1035G1) 16/512 Gray",
         "tgPrice": 34900
-      },
-      {
-        "raw": "Nord 5 12/512GB Gray",
-        "tgPrice": 34500
-      },
-      {
-        "raw": "200 Pro 5G 12/512GB Blue",
-        "tgPrice": 34000
-      },
-      {
-        "raw": "200 Pro 5G 12/512GB White",
-        "tgPrice": 34000
-      },
-      {
-        "raw": "600 8/256GB Beige",
-        "tgPrice": 34000
-      },
-      {
-        "raw": "600 8/256GB Black",
-        "tgPrice": 34000
       },
       {
         "raw": "Machcreator One (i3-1005G1) 8/256Gb",
@@ -2148,282 +1990,6 @@
       {
         "raw": "16inch\" PJ160-8 (Intel Alder-N Lake N95) 16/512 Gray",
         "tgPrice": 32900
-      },
-      {
-        "raw": "Pad 8 8/128GB Gray",
-        "tgPrice": 31500
-      },
-      {
-        "raw": "X8 Pro 8/512GB Black",
-        "tgPrice": 30500
-      },
-      {
-        "raw": "X8 Pro 8/512GB White",
-        "tgPrice": 30500
-      },
-      {
-        "raw": "Pad 2 Pro 5G 8/256GB Silver",
-        "tgPrice": 30500
-      },
-      {
-        "raw": "X8 Pro 8/512GB Green",
-        "tgPrice": 30300
-      },
-      {
-        "raw": "F6 Pro 12/512GB Black",
-        "tgPrice": 29500
-      },
-      {
-        "raw": "X7 Pro 12/512GB Black",
-        "tgPrice": 29500
-      },
-      {
-        "raw": "X7 Pro 12/512GB Green",
-        "tgPrice": 29500
-      },
-      {
-        "raw": "X7 Pro 12/512GB Yellow",
-        "tgPrice": 29500
-      },
-      {
-        "raw": "Pad X1 8/512GB Blue",
-        "tgPrice": 29300
-      },
-      {
-        "raw": "Pad X1 8/512GB Gray",
-        "tgPrice": 29300
-      },
-      {
-        "raw": "X8 Pro 8/256GB Black",
-        "tgPrice": 29000
-      },
-      {
-        "raw": "X8 Pro 8/256GB Green",
-        "tgPrice": 29000
-      },
-      {
-        "raw": "X8 Pro 8/256GB White",
-        "tgPrice": 29000
-      },
-      {
-        "raw": "Pad 7 8/256GB Blue",
-        "tgPrice": 26900
-      },
-      {
-        "raw": "Pad 7 8/256GB Green",
-        "tgPrice": 26900
-      },
-      {
-        "raw": "M8 Pro 12/512GB Black",
-        "tgPrice": 26700
-      },
-      {
-        "raw": "M8 Pro 12/512GB Green",
-        "tgPrice": 26700
-      },
-      {
-        "raw": "M8 Pro 12/512GB Silver",
-        "tgPrice": 26700
-      },
-      {
-        "raw": "Pad 2 Pro 5G 6/128GB Gray",
-        "tgPrice": 26500
-      },
-      {
-        "raw": "X7 Pro 8/256GB Black",
-        "tgPrice": 25500
-      },
-      {
-        "raw": "Pad 2 Pro 8/256GB Purple",
-        "tgPrice": 25500
-      },
-      {
-        "raw": "Note 15 Pro 5G 8/256GB Purple",
-        "tgPrice": 25000
-      },
-      {
-        "raw": "Tab A11+ 5G 8/256GB Gray",
-        "tgPrice": 25000
-      },
-      {
-        "raw": "M8 Pro 5G 8/256GB Black",
-        "tgPrice": 24000
-      },
-      {
-        "raw": "Note 15 Pro 4G 12/256GB Black",
-        "tgPrice": 23900
-      },
-      {
-        "raw": "Watch 8 Classic 46mm White",
-        "tgPrice": 23500
-      },
-      {
-        "raw": "Watch 2 Black Steel",
-        "tgPrice": 23500
-      },
-      {
-        "raw": "Watch 2 Radiant Steel",
-        "tgPrice": 23500
-      },
-      {
-        "raw": "M8 Pro 8/256GB Black",
-        "tgPrice": 22000
-      },
-      {
-        "raw": "X9C 8/256GB Titanium Purple",
-        "tgPrice": 21500
-      },
-      {
-        "raw": "Pad M1 8/256GB Gray",
-        "tgPrice": 21400
-      },
-      {
-        "raw": "600 Lite 8/256GB Black",
-        "tgPrice": 21300
-      },
-      {
-        "raw": "600 Lite 8/256GB Gray",
-        "tgPrice": 21300
-      },
-      {
-        "raw": "Note 15 Pro 8/256GB Black",
-        "tgPrice": 21100
-      },
-      {
-        "raw": "Watch 8 44mm Graphite",
-        "tgPrice": 21000
-      },
-      {
-        "raw": "Pad 2 Pro 6/128GB Gray",
-        "tgPrice": 21000
-      },
-      {
-        "raw": "Pad 2 Pro 6/128GB Purple",
-        "tgPrice": 21000
-      },
-      {
-        "raw": "Pad 2 Pro 6/128GB Silver",
-        "tgPrice": 21000
-      },
-      {
-        "raw": "M8 5G 8/512GB Silver",
-        "tgPrice": 20700
-      },
-      {
-        "raw": "Watch 8 44mm Silver",
-        "tgPrice": 20000
-      },
-      {
-        "raw": "M8 8/512GB Black",
-        "tgPrice": 20000
-      },
-      {
-        "raw": "M8 8/512GB Green",
-        "tgPrice": 20000
-      },
-      {
-        "raw": "M8 8/512GB Silver",
-        "tgPrice": 20000
-      },
-      {
-        "raw": "Pad 2 4G 8/256GB Gray",
-        "tgPrice": 20000
-      },
-      {
-        "raw": "Pad 2 LTE 8/256GB Green",
-        "tgPrice": 19500
-      },
-      {
-        "raw": "Pad 2 4G 4/256GB Gray",
-        "tgPrice": 18400
-      },
-      {
-        "raw": "Pad 2 4G 4/256GB Green",
-        "tgPrice": 18400
-      },
-      {
-        "raw": "Pad 2 Wi-Fi 8/256GB Gray",
-        "tgPrice": 18200
-      },
-      {
-        "raw": "Pad 2 Wi-Fi 8/256GB Green",
-        "tgPrice": 18200
-      },
-      {
-        "raw": "Note 15 8/256GB Black",
-        "tgPrice": 17400
-      },
-      {
-        "raw": "Note 15 8/256GB Blue",
-        "tgPrice": 17400
-      },
-      {
-        "raw": "Pad 2 4/256GB Green",
-        "tgPrice": 16800
-      },
-      {
-        "raw": "Pad 2 4/256GB Purple",
-        "tgPrice": 16800
-      },
-      {
-        "raw": "Pad 2 Wi-Fi 4/256GB Gray",
-        "tgPrice": 16700
-      },
-      {
-        "raw": "Pad 2 Wi-Fi 4/256GB Green",
-        "tgPrice": 16700
-      },
-      {
-        "raw": "Pad 2 Wi-Fi 4/256GB Lavender Purple",
-        "tgPrice": 16700
-      },
-      {
-        "raw": "Pad 2 Wi-Fi 6/128GB Gray",
-        "tgPrice": 16700
-      },
-      {
-        "raw": "C100X 4/256GB Blue",
-        "tgPrice": 16000
-      },
-      {
-        "raw": "C100X 4/256GB White",
-        "tgPrice": 16000
-      },
-      {
-        "raw": "X8D 8/128GB Blue",
-        "tgPrice": 15900
-      },
-      {
-        "raw": "X8D 8/128GB Gray",
-        "tgPrice": 15900
-      },
-      {
-        "raw": "Pad 2 Wi-Fi 4/128GB Gray",
-        "tgPrice": 15100
-      },
-      {
-        "raw": "Pad 2 Wi-Fi 4/128GB Green",
-        "tgPrice": 15100
-      },
-      {
-        "raw": "Note 15 6/128GB Black",
-        "tgPrice": 14900
-      },
-      {
-        "raw": "Note 15 6/128GB Blue",
-        "tgPrice": 14900
-      },
-      {
-        "raw": "Note 15 6/128GB Purple",
-        "tgPrice": 14900
-      },
-      {
-        "raw": "C100X 4/128GB Blue",
-        "tgPrice": 14700
-      },
-      {
-        "raw": "C100X 4/128GB White",
-        "tgPrice": 14700
       },
       {
         "raw": "Buds 4 Pro White",
@@ -2442,88 +2008,12 @@
         "tgPrice": 13400
       },
       {
-        "raw": "C81 Pro 4/256GB Black",
-        "tgPrice": 12300
-      },
-      {
-        "raw": "C81 Pro 4/256GB Gold",
-        "tgPrice": 12300
-      },
-      {
-        "raw": "C81 Pro 4/256GB Green",
-        "tgPrice": 12300
-      },
-      {
-        "raw": "15C 4/128GB Orange",
-        "tgPrice": 10800
-      },
-      {
-        "raw": "C81 Pro 4/128GB",
-        "tgPrice": 10800
-      },
-      {
-        "raw": "C81 Pro 4/128GB Black",
-        "tgPrice": 10800
-      },
-      {
-        "raw": "C81 Pro 4/128GB Gold",
-        "tgPrice": 10800
-      },
-      {
-        "raw": "A7 Pro 4/128GB Blue",
-        "tgPrice": 10400
-      },
-      {
-        "raw": "C71 4/128GB Black",
-        "tgPrice": 10000
-      },
-      {
-        "raw": "C71 4/128GB Blue",
-        "tgPrice": 10000
-      },
-      {
-        "raw": "C71 4/128GB Gold",
-        "tgPrice": 10000
-      },
-      {
-        "raw": "C81 Pro 4/64GB Black",
-        "tgPrice": 10000
-      },
-      {
-        "raw": "C81 Pro 4/64GB Gold",
-        "tgPrice": 10000
-      },
-      {
-        "raw": "C81 Pro 4/64GB Green",
-        "tgPrice": 10000
-      },
-      {
         "raw": "Ear 3 2024 Black",
         "tgPrice": 10000
       },
       {
         "raw": "Ear 3 2024 White",
         "tgPrice": 10000
-      },
-      {
-        "raw": "Note 80 4/128GB Black",
-        "tgPrice": 9800
-      },
-      {
-        "raw": "A7 Pro 4/64GB Blue",
-        "tgPrice": 9100
-      },
-      {
-        "raw": "Note 80 4/64GB Black",
-        "tgPrice": 8900
-      },
-      {
-        "raw": "Note 80 4/64GB Blue",
-        "tgPrice": 8900
-      },
-      {
-        "raw": "X5C 4/64GB Black",
-        "tgPrice": 8900
       },
       {
         "raw": "Наушники БП Stincoo GS401",
@@ -2626,7 +2116,217 @@
         "tgPrice": 1200
       }
     ],
+    "POCO": [
+      {
+        "raw": "🇪🇺 Poco F8 Pro 12/512 Black",
+        "tgPrice": 45400
+      },
+      {
+        "raw": "🇪🇺 Poco F8 Pro 12/512 Blue",
+        "tgPrice": 45400
+      },
+      {
+        "raw": "🇪🇺 Poco F8 Pro 12/512GB Blue",
+        "tgPrice": 45400
+      },
+      {
+        "raw": "🇪🇺 Poco F8 Pro 12/256 Black",
+        "tgPrice": 42900
+      },
+      {
+        "raw": "🇪🇺 Poco F8 Pro 12/256 Silver",
+        "tgPrice": 42900
+      },
+      {
+        "raw": "🇷🇺 Poco X8 Pro Max 12/512GB Black",
+        "tgPrice": 40800
+      },
+      {
+        "raw": "🇷🇺 Poco X8 Pro Max 12/512GB White",
+        "tgPrice": 40800
+      },
+      {
+        "raw": "🇪🇺 Poco X8 Pro 12/512 Iron Man",
+        "tgPrice": 38500
+      },
+      {
+        "raw": "🇪🇺 Poco X8 Pro 8/512 Black",
+        "tgPrice": 30300
+      },
+      {
+        "raw": "🇪🇺 Poco X8 Pro 8/512 Green",
+        "tgPrice": 30300
+      },
+      {
+        "raw": "🇪🇺 Poco X8 Pro 8/512 White",
+        "tgPrice": 30300
+      },
+      {
+        "raw": "🇪🇺 Poco X7 Pro 12/512 Black",
+        "tgPrice": 29500
+      },
+      {
+        "raw": "🇪🇺 Poco X7 Pro 12/512 Green",
+        "tgPrice": 29500
+      },
+      {
+        "raw": "🇪🇺 Poco X7 Pro 12/512 Yellow",
+        "tgPrice": 29500
+      },
+      {
+        "raw": "🇪🇺 Poco Pad X1 8/512 Blue",
+        "tgPrice": 29300
+      },
+      {
+        "raw": "🇪🇺 Poco Pad X1 8/512 Gray",
+        "tgPrice": 29300
+      },
+      {
+        "raw": "🇪🇺 Poco X8 Pro 8/256 Black",
+        "tgPrice": 29000
+      },
+      {
+        "raw": "🇪🇺 Poco X8 Pro 8/256 Green",
+        "tgPrice": 29000
+      },
+      {
+        "raw": "🇪🇺 Poco X8 Pro 8/256 White",
+        "tgPrice": 29000
+      },
+      {
+        "raw": "🇷🇺 Poco X8 Pro 8/256GB Black",
+        "tgPrice": 29000
+      },
+      {
+        "raw": "🇷🇺 Poco M8 Pro 12/512GB Black",
+        "tgPrice": 26700
+      },
+      {
+        "raw": "🇷🇺 Poco M8 Pro 12/512GB Green",
+        "tgPrice": 26700
+      },
+      {
+        "raw": "🇷🇺 Poco M8 Pro 12/512GB Silver",
+        "tgPrice": 26700
+      },
+      {
+        "raw": "🇪🇺 Poco X7 Pro 8/256 Black",
+        "tgPrice": 25500
+      },
+      {
+        "raw": "🇪🇺 Poco M8 Pro 5G 8/256GB Black",
+        "tgPrice": 24000
+      },
+      {
+        "raw": "🇪🇺 Poco M8 Pro 8/256 Black",
+        "tgPrice": 22000
+      },
+      {
+        "raw": "🇪🇺 Poco Pad M1 8/256 Gray",
+        "tgPrice": 21400
+      },
+      {
+        "raw": "🇪🇺 Poco M8 5G 8/512GB Silver",
+        "tgPrice": 20700
+      },
+      {
+        "raw": "🇪🇺 Poco M8 8/512 Black",
+        "tgPrice": 20000
+      },
+      {
+        "raw": "🇪🇺 Poco M8 8/512 Green",
+        "tgPrice": 20000
+      },
+      {
+        "raw": "🇪🇺 Poco M8 8/512 Silver",
+        "tgPrice": 20000
+      },
+      {
+        "raw": "🇪🇺 Poco M8 8/256 Black",
+        "tgPrice": 17400
+      },
+      {
+        "raw": "🇷🇺 Poco M7 6/128GB Black",
+        "tgPrice": 13300
+      },
+      {
+        "raw": "🇷🇺 Poco M7 6/128GB Blue",
+        "tgPrice": 13300
+      },
+      {
+        "raw": "🇷🇺 Poco M7 6/128GB Silver",
+        "tgPrice": 13300
+      },
+      {
+        "raw": "🇷🇺 Poco C81 Pro 4/256GB Black",
+        "tgPrice": 12300
+      },
+      {
+        "raw": "🇷🇺 Poco C81 Pro 4/256GB Gold",
+        "tgPrice": 12300
+      },
+      {
+        "raw": "🇷🇺 Poco C81 Pro 4/256GB Green",
+        "tgPrice": 12300
+      },
+      {
+        "raw": "🇷🇺 Poco C81 Pro 4/128GB Black",
+        "tgPrice": 10800
+      },
+      {
+        "raw": "🇷🇺 Poco C81 Pro 4/128GB Gold",
+        "tgPrice": 10800
+      },
+      {
+        "raw": "🇷🇺 Poco C81 Pro 4/64GB Black",
+        "tgPrice": 10000
+      },
+      {
+        "raw": "🇷🇺 Poco C81 Pro 4/64GB Gold",
+        "tgPrice": 10000
+      },
+      {
+        "raw": "🇷🇺 Poco C81 Pro 4/64GB Green",
+        "tgPrice": 10000
+      }
+    ],
     "Realme": [
+      {
+        "raw": "🇪🇺 Realme GT 8 Pro 12/256 Blue",
+        "tgPrice": 62000
+      },
+      {
+        "raw": "🇷🇺 Realme GT 8 Pro 12/256 White",
+        "tgPrice": 62000
+      },
+      {
+        "raw": "🇷🇺 Realme C100X 4/256GB Blue",
+        "tgPrice": 16000
+      },
+      {
+        "raw": "🇷🇺 Realme C100X 4/256GB White",
+        "tgPrice": 16000
+      },
+      {
+        "raw": "🇷🇺 Realme C100X 4/128GB Blue",
+        "tgPrice": 14700
+      },
+      {
+        "raw": "🇷🇺 Realme C100X 4/128GB White",
+        "tgPrice": 14700
+      },
+      {
+        "raw": "🇷🇺 Realme Note 80 4/128GB Black",
+        "tgPrice": 9800
+      },
+      {
+        "raw": "🇷🇺 Realme Note 80 4/64GB Black",
+        "tgPrice": 8900
+      },
+      {
+        "raw": "🇷🇺 Realme Note 80 4/64GB Blue",
+        "tgPrice": 8900
+      },
       {
         "raw": "Наушники БП Realme Buds Air 5 Pro (бежевые)",
         "tgPrice": 7900
@@ -2646,220 +2346,268 @@
     ],
     "Samsung": [
       {
-        "raw": "S26 Ultra 12/512GB Black",
-        "tgPrice": 91900
+        "raw": "🇪🇺 Samsung Fold 7 12/512 Black",
+        "tgPrice": 110500
       },
       {
-        "raw": "S26 Ultra 12/512GB Violet",
+        "raw": "🇪🇺 Samsung Fold 7 12/512 Silver",
+        "tgPrice": 109500
+      },
+      {
+        "raw": "🇦🇪 Samsung Fold 7 12/256 Black",
+        "tgPrice": 98900
+      },
+      {
+        "raw": "🇲🇨 Samsung S26 Ultra 12/512GB Black",
         "tgPrice": 91000
       },
       {
-        "raw": "Flip 7 12/512GB Black",
+        "raw": "🇱🇷 Samsung S26 Ultra 12/512GB Violet",
+        "tgPrice": 91000
+      },
+      {
+        "raw": "🇦🇪 Samsung Flip 7 12/512 Black",
         "tgPrice": 74900
       },
       {
-        "raw": "S25 Ultra 12/1TB Black",
+        "raw": "🇪🇺 Samsung S25 Ultra 12/1TB Black",
         "tgPrice": 74500
       },
       {
-        "raw": "S25 Ultra 12/1TB Gray",
+        "raw": "🇪🇺 Samsung S25 Ultra 12/1TB Gray",
         "tgPrice": 74500
       },
       {
-        "raw": "S26 Ultra 12/256GB Black",
-        "tgPrice": 74500
+        "raw": "🇲🇨 Samsung S26 Ultra 12/256GB Black",
+        "tgPrice": 74000
       },
       {
-        "raw": "S26 Ultra 12/256GB Sky Blue",
+        "raw": "🇪🇺 Samsung S26 Ultra 12/256GB Sky Blue",
         "tgPrice": 73500
       },
       {
-        "raw": "S26 Ultra 12/256GB Violet",
+        "raw": "🇰🇼 Samsung S26 Ultra 12/256GB Violet",
         "tgPrice": 73500
       },
       {
-        "raw": "S25 Ultra 12/1TB Silver Blue",
+        "raw": "🇱🇷 Samsung S25 Ultra 12/1TB Silver Blue",
         "tgPrice": 73000
       },
       {
-        "raw": "S25 Ultra 12/1TB White",
+        "raw": "🇱🇷 Samsung S25 Ultra 12/1TB White",
         "tgPrice": 73000
       },
       {
-        "raw": "S25 Ultra 12/512GB Gray",
-        "tgPrice": 71500
-      },
-      {
-        "raw": "S25 Ultra 12/512GB Black",
+        "raw": "🇱🇷 Samsung S25 Ultra 12/512GB Black",
         "tgPrice": 70000
       },
       {
-        "raw": "Flip 7 12/256GB Blue",
+        "raw": "🇦🇪 Samsung Flip 7 12/256 Blue",
         "tgPrice": 69900
       },
       {
-        "raw": "Flip 7 12/256GB Coral Red",
+        "raw": "🇦🇪 Samsung Flip 7 12/256 Coral Red",
         "tgPrice": 69900
       },
       {
-        "raw": "S25 Ultra 12/512GB Silver Blue",
+        "raw": "🇱🇷 Samsung S25 Ultra 12/512GB Silver Blue",
         "tgPrice": 69500
       },
       {
-        "raw": "S25 Ultra 12/512GB White",
+        "raw": "🇱🇷 Samsung S25 Ultra 12/512GB White",
         "tgPrice": 69500
       },
       {
-        "raw": "S26 12/512GB Black",
-        "tgPrice": 68000
+        "raw": "🇪🇺 Samsung S26 12/512GB Black",
+        "tgPrice": 67800
       },
       {
-        "raw": "S25 Ultra 12/256GB Black",
+        "raw": "🇰🇼 Samsung S26 Plus 12/256GB Black",
         "tgPrice": 64500
       },
       {
-        "raw": "S25 Ultra 12/256GB White",
+        "raw": "🇮🇳 Samsung S25 Ultra 12/256GB White",
         "tgPrice": 64500
       },
       {
-        "raw": "S26 Plus 12/256GB Black",
-        "tgPrice": 64500
+        "raw": "🇰🇼 Samsung S25 Ultra 12/256GB Gray",
+        "tgPrice": 64000
       },
       {
-        "raw": "S25 Ultra 12/256GB Gray",
-        "tgPrice": 63500
+        "raw": "🇮🇳 Samsung S25 Ultra 12/256GB Silver Blue",
+        "tgPrice": 64000
       },
       {
-        "raw": "S25 Ultra 12/256GB Silver Blue",
-        "tgPrice": 63500
+        "raw": "🇷🇺 Samsung Tab S10 FE+ 8/128GB Blue Wi-Fi",
+        "tgPrice": 55500
       },
       {
-        "raw": "S26 12/256GB Black",
-        "tgPrice": 54500
-      },
-      {
-        "raw": "S26 12/256GB Sky Blue",
+        "raw": "🇪🇺 Samsung S26 12/256 Black",
         "tgPrice": 54400
       },
       {
-        "raw": "S25 Plus 12/256GB Navy",
+        "raw": "🇪🇺 Samsung S26 12/256 Violet",
+        "tgPrice": 54400
+      },
+      {
+        "raw": "🇰🇼 Samsung S25 Plus 12/256GB Navy",
         "tgPrice": 53500
       },
       {
-        "raw": "S25 FE 8/256GB Black",
+        "raw": "🇮🇩 Samsung S25 FE 8/256 Black",
         "tgPrice": 42900
       },
       {
-        "raw": "A56 12/256GB Light Gray",
+        "raw": "🇪🇺 Samsung A56 12/256 Light Gray",
         "tgPrice": 31300
       },
       {
-        "raw": "A57 8/256GB Ice Blue",
-        "tgPrice": 31000
-      },
-      {
-        "raw": "A57 8/256GB Navy",
+        "raw": "🇷🇺 Samsung A57 8/256 Grey",
         "tgPrice": 30700
       },
       {
-        "raw": "A56 8/256GB Graphite",
+        "raw": "🇷🇺 Samsung A57 8/256 Navy",
+        "tgPrice": 30700
+      },
+      {
+        "raw": "🇦🇪 Samsung A56 8/256 Graphite",
         "tgPrice": 28700
       },
       {
-        "raw": "A57 8/128GB Gray",
+        "raw": "🇦🇪 Samsung Watch Ultra Titanium Gray 47mm 2025",
+        "tgPrice": 28500
+      },
+      {
+        "raw": "🇦🇪 Samsung Watch Ultra Blue 47mm 2025",
+        "tgPrice": 28000
+      },
+      {
+        "raw": "🇰🇿 Samsung A57 8/128 Gray",
         "tgPrice": 27800
       },
       {
-        "raw": "A57 8/128GB Ice Blue",
+        "raw": "🇰🇿 Samsung A57 8/128 Navy",
         "tgPrice": 27800
       },
       {
-        "raw": "A57 8/128GB Navy",
-        "tgPrice": 27800
+        "raw": "Samsung Watch Ultra 47mm 2025 Gray Titan / Orange Band",
+        "tgPrice": 27500
       },
       {
-        "raw": "A37 8/256GB Charcoal",
+        "raw": "🇰🇿 Samsung A57 5G 8/128GB Ice Blue",
+        "tgPrice": 27500
+      },
+      {
+        "raw": "🇦🇪 Samsung Watch Ultra Titanium White 47mm 2024",
+        "tgPrice": 27000
+      },
+      {
+        "raw": "🇰🇿 Samsung A37 8/256 Charcoal",
         "tgPrice": 26000
       },
       {
-        "raw": "A37 8/256GB Green-Grey",
+        "raw": "🇷🇺 Samsung A37 8/256GB Green Grey",
         "tgPrice": 26000
       },
       {
-        "raw": "A37 8/256GB Lavender",
+        "raw": "🇷🇺 Samsung A37 8/256GB Lavender",
         "tgPrice": 26000
       },
       {
-        "raw": "A37 8/256GB White",
+        "raw": "🇷🇺 Samsung A37 8/256GB White",
         "tgPrice": 26000
       },
       {
-        "raw": "A36 8/256GB White",
+        "raw": "🇪🇺 Samsung A36 8/256 White",
         "tgPrice": 24500
       },
       {
-        "raw": "A36 8/256GB Black",
+        "raw": "🇷🇺 Samsung A36 8/256GB Black",
         "tgPrice": 24300
       },
       {
-        "raw": "A36 8/256GB Lavender",
+        "raw": "🇷🇺 Samsung A36 8/256GB Lavender",
         "tgPrice": 24300
       },
       {
-        "raw": "A36 8/256GB Lime",
+        "raw": "🇷🇺 Samsung A36 8/256GB Lime",
         "tgPrice": 24300
       },
       {
-        "raw": "A37 8/128GB Black",
+        "raw": "🇦🇪 Samsung Watch 8 Classic 46mm White",
+        "tgPrice": 23500
+      },
+      {
+        "raw": "🇷🇺 Samsung A37 8/128GB Black",
         "tgPrice": 23000
       },
       {
-        "raw": "A37 8/128GB Green",
+        "raw": "🇷🇺 Samsung A37 8/128GB Green",
         "tgPrice": 23000
       },
       {
-        "raw": "A37 8/128GB Lavender",
+        "raw": "🇷🇺 Samsung A37 8/128GB Lavender",
         "tgPrice": 23000
       },
       {
-        "raw": "A37 8/128GB White",
+        "raw": "🇷🇺 Samsung A37 8/128GB White",
         "tgPrice": 23000
       },
       {
-        "raw": "A26 8/256GB Black",
+        "raw": "🇦🇪 Samsung Watch 8 44mm Graphite",
+        "tgPrice": 21000
+      },
+      {
+        "raw": "🇰🇼 Samsung A26 8/256GB Black",
         "tgPrice": 20700
       },
       {
-        "raw": "A26 8/256GB White",
+        "raw": "🇰🇼 Samsung A26 8/256GB White",
         "tgPrice": 20700
       },
       {
-        "raw": "A36 8/128GB Black",
+        "raw": "🇷🇺 Samsung A36 8/128GB Black",
         "tgPrice": 20500
       },
       {
-        "raw": "A26 8/256GB Pink",
+        "raw": "🇰🇼 Samsung A26 8/256GB Pink",
         "tgPrice": 20400
       },
       {
-        "raw": "A26 6/128GB Black",
+        "raw": "Samsung Watch 8 44mm L330 Silver",
+        "tgPrice": 20000
+      },
+      {
+        "raw": "🇦🇪 Samsung A26 6/128 Black",
         "tgPrice": 17200
       },
       {
-        "raw": "A26 6/128GB White",
+        "raw": "🇦🇪 Samsung A26 6/128 White",
         "tgPrice": 17200
       },
       {
-        "raw": "A26 6/128GB Pink",
+        "raw": "🇰🇼 Samsung A26 6/128GB Pink",
         "tgPrice": 17100
       },
       {
-        "raw": "A17 8/256GB Black",
+        "raw": "🇷🇺 Samsung A17 8/256 Black",
         "tgPrice": 17000
       },
       {
-        "raw": "A17 8/256GB Blue",
+        "raw": "🇷🇺 Samsung A17 8/256GB Blue",
         "tgPrice": 16800
+      },
+      {
+        "raw": "🇰🇿 Samsung A17 6/128GB Black",
+        "tgPrice": 15100
+      },
+      {
+        "raw": "🇰🇿 Samsung A17 6/128GB Blue",
+        "tgPrice": 15100
+      },
+      {
+        "raw": "🇰🇿 Samsung A17 6/128GB Gray",
+        "tgPrice": 15100
       }
     ],
     "Tecno": [
@@ -2878,8 +2626,220 @@
         "tgPrice": 68900
       },
       {
+        "raw": "🇷🇺 Xiaomi 17T Pro 12/1TB Black",
+        "tgPrice": 62400
+      },
+      {
         "raw": "Redmi Book 16 2024 (i5-12450H) 16/512 Gray",
         "tgPrice": 59000
+      },
+      {
+        "raw": "🇷🇺 Xiaomi 17T Pro 12/512 Black",
+        "tgPrice": 54400
+      },
+      {
+        "raw": "🇪🇺 Xiaomi 15T Pro 12/512 Black",
+        "tgPrice": 53400
+      },
+      {
+        "raw": "🇪🇺 Xiaomi 15 12/256 Green",
+        "tgPrice": 52000
+      },
+      {
+        "raw": "🇵🇼 Xiaomi Pad 8 Pro 12/512GB Gray",
+        "tgPrice": 50500
+      },
+      {
+        "raw": "🇷🇺 Xiaomi 17T Pro 12/256GB Black",
+        "tgPrice": 50200
+      },
+      {
+        "raw": "🇪🇺 Xiaomi 15T 12/512 Gray",
+        "tgPrice": 41900
+      },
+      {
+        "raw": "🇪🇺 Xiaomi Pad Mini 12/512GB Gray",
+        "tgPrice": 40500
+      },
+      {
+        "raw": "🇪🇺 Xiaomi 15T 12/256 Black",
+        "tgPrice": 39500
+      },
+      {
+        "raw": "🇷🇺 Xiaomi 17T 12/256GB Black",
+        "tgPrice": 37500
+      },
+      {
+        "raw": "🇪🇺 Redmi Note 15 Pro+ 5G 12/512 Black",
+        "tgPrice": 34900
+      },
+      {
+        "raw": "🇪🇺 Redmi Note 15 Pro+ 5G 12/512 Mocha Brown",
+        "tgPrice": 34900
+      },
+      {
+        "raw": "🇪🇺 Xiaomi Pad 8 8/256 Gray",
+        "tgPrice": 34900
+      },
+      {
+        "raw": "🇷🇺 Xiaomi Pad 8 8/128 Gray",
+        "tgPrice": 31500
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Pro 5G 8/256 Silver",
+        "tgPrice": 30500
+      },
+      {
+        "raw": "🇪🇺 Xiaomi Pad 7 8/256GB Blue",
+        "tgPrice": 26900
+      },
+      {
+        "raw": "🇪🇺 Xiaomi Pad 7 8/256GB Green",
+        "tgPrice": 26900
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Pro 5G 6/128 Gray",
+        "tgPrice": 26500
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Pro 8/256 Purple",
+        "tgPrice": 25500
+      },
+      {
+        "raw": "🇪🇺 Redmi Note 15 Pro 5G 8/256 Purple",
+        "tgPrice": 25000
+      },
+      {
+        "raw": "🇰🇿 Redmi Note 15 Pro 12/256GB Black",
+        "tgPrice": 24000
+      },
+      {
+        "raw": "🇪🇺 Redmi Note 15 Pro 4G 8/256 Black",
+        "tgPrice": 21300
+      },
+      {
+        "raw": "🇷🇺 Redmi Note 15 Pro 8/256GB Black",
+        "tgPrice": 21100
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Pro 6/128 Gray",
+        "tgPrice": 21000
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Pro 6/128 Purple",
+        "tgPrice": 21000
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Pro 6/128 Silver",
+        "tgPrice": 21000
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Pro 6/128GB Gray",
+        "tgPrice": 20900
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 8/256 4G Gray",
+        "tgPrice": 20000
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 4/256 4G Gray",
+        "tgPrice": 18400
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Wi-Fi 8/256GB Gray",
+        "tgPrice": 18200
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Wi-Fi 8/256GB Green",
+        "tgPrice": 18200
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 4G 4/256GB Gray",
+        "tgPrice": 18000
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 4G 4/256GB Green",
+        "tgPrice": 18000
+      },
+      {
+        "raw": "🇪🇺 Redmi Note 15 8/256 Black",
+        "tgPrice": 17400
+      },
+      {
+        "raw": "🇷🇺 Redmi Note 15 8/256 Blue",
+        "tgPrice": 17400
+      },
+      {
+        "raw": "🇪🇺 Redmi Note 15 8/256 Purple",
+        "tgPrice": 17400
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 4/256 Gray",
+        "tgPrice": 16800
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 4/256 Purple",
+        "tgPrice": 16800
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Wi-Fi 4/256GB Gray",
+        "tgPrice": 16700
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Wi-Fi 4/256GB Green",
+        "tgPrice": 16700
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Wi-Fi 4/256GB Lavender Purple",
+        "tgPrice": 16700
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Wi-Fi 6/128GB Gray",
+        "tgPrice": 16700
+      },
+      {
+        "raw": "🇷🇺 Redmi Note 15 8/128 Black",
+        "tgPrice": 15800
+      },
+      {
+        "raw": "🇷🇺 Redmi Note 15 8/128 Blue",
+        "tgPrice": 15800
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Wi-Fi 4/128GB Gray",
+        "tgPrice": 15100
+      },
+      {
+        "raw": "🇷🇺 Redmi Pad 2 Wi-Fi 4/128GB Green",
+        "tgPrice": 15100
+      },
+      {
+        "raw": "🇰🇿 Redmi Note 15 6/128GB Black",
+        "tgPrice": 15000
+      },
+      {
+        "raw": "🇰🇿 Redmi Note 15 6/128GB Blue",
+        "tgPrice": 15000
+      },
+      {
+        "raw": "🇰🇿 Redmi Note 15 6/128GB Purple",
+        "tgPrice": 15000
+      },
+      {
+        "raw": "🇷🇺 Redmi 15C 4/128GB Orange",
+        "tgPrice": 10800
+      },
+      {
+        "raw": "🇷🇺 Redmi A7 Pro 4/128 Black",
+        "tgPrice": 10400
+      },
+      {
+        "raw": "🇷🇺 Redmi A7 Pro 4/64 Black",
+        "tgPrice": 9300
+      },
+      {
+        "raw": "🇷🇺 Redmi A7 Pro 4/64GB Blue",
+        "tgPrice": 9200
       },
       {
         "raw": "Часы Xiaomi MiBand 8 Pro Black",
