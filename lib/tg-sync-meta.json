@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-07-12T16:03:47+00:00",
+  "syncedAt": "2026-07-13T06:24:03+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1518,
+      "linesTotal": 1504,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -58,7 +58,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 12000,
-        "biggeek": 11990
+        "biggeek": 10990
       },
       "details": {
         "mistore095": [
@@ -72,7 +72,7 @@
         "biggeek": [
           {
             "color": "",
-            "price": 11990,
+            "price": 10990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods 4 без активного шумоподавления (2024)"
           }
@@ -90,7 +90,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 16500,
-        "biggeek": 16990
+        "biggeek": 15490
       },
       "details": {
         "mistore095": [
@@ -110,7 +110,7 @@
         "biggeek": [
           {
             "color": "",
-            "price": 16990,
+            "price": 15490,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods 4 с активным шумоподавлением (ANC) и беспроводным зарядным футляром (2024)"
           }
@@ -160,7 +160,7 @@
           },
           {
             "color": "Midnight",
-            "price": 47990,
+            "price": 43990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 («Тёмная ночь» | Midnight) (2026)"
           },
@@ -172,7 +172,7 @@
           },
           {
             "color": "Starlight",
-            "price": 47990,
+            "price": 43990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 («Сияющая звезда» | Starlight) (2026)"
           },
@@ -184,7 +184,7 @@
           },
           {
             "color": "Blue",
-            "price": 47990,
+            "price": 43990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Голубой | Blue) (2026)"
           },
@@ -196,7 +196,7 @@
           },
           {
             "color": "Purple",
-            "price": 47990,
+            "price": 45990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Фиолетовый | Purple) (2026)"
           },
@@ -208,7 +208,7 @@
           },
           {
             "color": "Orange",
-            "price": 47990,
+            "price": 45990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Оранжевый | Orange) (2026)"
           }
@@ -226,7 +226,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 18800,
-        "biggeek": 19490
+        "biggeek": 18490
       },
       "details": {
         "mistore095": [
@@ -240,7 +240,7 @@
         "biggeek": [
           {
             "color": "",
-            "price": 19490,
+            "price": 18490,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Pro 3 (2025)"
           }
@@ -258,7 +258,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 46000,
-        "biggeek": 43990
+        "biggeek": 41990
       },
       "details": {
         "mistore095": [
@@ -278,7 +278,7 @@
         "biggeek": [
           {
             "color": "Midnight",
-            "price": 43990,
+            "price": 41990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 13 128 ГБ («Тёмная ночь» | Midnight)"
           },
@@ -406,7 +406,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 53000,
-        "biggeek": 49990
+        "biggeek": 45990
       },
       "details": {
         "mistore095": [
@@ -426,19 +426,19 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 49990,
+            "price": 45990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 128 ГБ (Чёрный | Black)"
           },
           {
             "color": "Blue",
-            "price": 53990,
+            "price": 50990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 128 ГБ (Голубой | Blue)"
           },
           {
             "color": "Pink",
-            "price": 58990,
+            "price": 54990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 128 ГБ (Розовый | Pink)"
           },
@@ -468,13 +468,13 @@
           },
           {
             "color": "Pink",
-            "price": 58990,
+            "price": 54990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 128 ГБ (Розовый | Pink)"
           },
           {
             "color": "Green",
-            "price": 58990,
+            "price": 54990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 128 ГБ (Зелёный | Green)"
           },
@@ -498,7 +498,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 61000,
-        "biggeek": 62990
+        "biggeek": 59990
       },
       "details": {
         "mistore095": [
@@ -524,13 +524,13 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 62990,
+            "price": 59990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 256 ГБ (Чёрный | Black)"
           },
           {
             "color": "Blue",
-            "price": 62990,
+            "price": 59990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 256 ГБ (Голубой | Blue)"
           },
@@ -596,7 +596,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 60500,
-        "biggeek": 58990
+        "biggeek": 56990
       },
       "details": {
         "mistore095": [
@@ -622,19 +622,19 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 58990,
+            "price": 57990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Чёрный | Black)"
           },
           {
             "color": "White",
-            "price": 61990,
+            "price": 58990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Белый | White)"
           },
           {
             "color": "Ultramarine",
-            "price": 59990,
+            "price": 57990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ («Ультрамарин» | Ultramarine)"
           },
@@ -646,7 +646,7 @@
           },
           {
             "color": "Teal",
-            "price": 58990,
+            "price": 56990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ («Морская бирюза» | Teal)"
           }
@@ -664,7 +664,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 73900,
-        "biggeek": 71990
+        "biggeek": 68990
       },
       "details": {
         "mistore095": [
@@ -714,31 +714,31 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 73990,
+            "price": 70990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Чёрный | Black)"
           },
           {
             "color": "Lavender",
-            "price": 74990,
+            "price": 70990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Лавандовый | Lavender)"
           },
           {
             "color": "Sage",
-            "price": 72990,
+            "price": 69990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Шалфейный | Sage)"
           },
           {
             "color": "White",
-            "price": 74990,
+            "price": 70990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Белый | White)"
           },
           {
             "color": "Mist Blue",
-            "price": 71990,
+            "price": 68990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Туманно-голубой | Mist Blue)"
           }
@@ -756,7 +756,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 73900,
-        "biggeek": 71990
+        "biggeek": 68990
       },
       "details": {
         "mistore095": [
@@ -806,31 +806,31 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 73990,
+            "price": 70990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Чёрный | Black)"
           },
           {
             "color": "Lavender",
-            "price": 74990,
+            "price": 70990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Лавандовый | Lavender)"
           },
           {
             "color": "Sage",
-            "price": 72990,
+            "price": 69990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Шалфейный | Sage)"
           },
           {
             "color": "White",
-            "price": 74990,
+            "price": 70990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Белый | White)"
           },
           {
             "color": "Mist Blue",
-            "price": 71990,
+            "price": 68990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Туманно-голубой | Mist Blue)"
           }
@@ -848,7 +848,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 131900,
-        "biggeek": 133990
+        "biggeek": 130990
       },
       "details": {
         "mistore095": [
@@ -868,19 +868,19 @@
         "biggeek": [
           {
             "color": "Silver",
-            "price": 134990,
+            "price": 131990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 1 ТБ (Серебристый | Silver)"
           },
           {
             "color": "Cosmic Orange",
-            "price": 134990,
+            "price": 130990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 1 ТБ («Космический оранжевый» | Cosmic Orange)"
           },
           {
             "color": "Deep Blue",
-            "price": 133990,
+            "price": 130990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 1 ТБ («Насыщенный синий» | Deep Blue)"
           }
@@ -898,7 +898,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 131900,
-        "biggeek": 133990
+        "biggeek": 130990
       },
       "details": {
         "mistore095": [
@@ -918,19 +918,19 @@
         "biggeek": [
           {
             "color": "Silver",
-            "price": 134990,
+            "price": 131990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 1 ТБ (Серебристый | Silver)"
           },
           {
             "color": "Cosmic Orange",
-            "price": 134990,
+            "price": 130990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 1 ТБ («Космический оранжевый» | Cosmic Orange)"
           },
           {
             "color": "Deep Blue",
-            "price": 133990,
+            "price": 130990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 1 ТБ («Насыщенный синий» | Deep Blue)"
           }
@@ -948,7 +948,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 116500,
-        "biggeek": 116990
+        "biggeek": 112990
       },
       "details": {
         "mistore095": [
@@ -968,19 +968,19 @@
         "biggeek": [
           {
             "color": "Silver",
-            "price": 117990,
+            "price": 113990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 512 ГБ (Серебристый | Silver)"
           },
           {
             "color": "Cosmic Orange",
-            "price": 116990,
+            "price": 112990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 512 ГБ («Космический оранжевый» | Cosmic Orange)"
           },
           {
             "color": "Deep Blue",
-            "price": 116990,
+            "price": 113990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 512 ГБ («Насыщенный синий» | Deep Blue)"
           }
@@ -998,7 +998,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 116500,
-        "biggeek": 116990
+        "biggeek": 112990
       },
       "details": {
         "mistore095": [
@@ -1018,19 +1018,19 @@
         "biggeek": [
           {
             "color": "Silver",
-            "price": 117990,
+            "price": 113990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 512 ГБ (Серебристый | Silver)"
           },
           {
             "color": "Cosmic Orange",
-            "price": 116990,
+            "price": 112990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 512 ГБ («Космический оранжевый» | Cosmic Orange)"
           },
           {
             "color": "Deep Blue",
-            "price": 116990,
+            "price": 113990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 512 ГБ («Насыщенный синий» | Deep Blue)"
           }
@@ -1048,7 +1048,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 142900,
-        "biggeek": 140990
+        "biggeek": 136990
       },
       "details": {
         "mistore095": [
@@ -1068,19 +1068,19 @@
         "biggeek": [
           {
             "color": "Silver",
-            "price": 140990,
+            "price": 138990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 1 ТБ (Серебристый | Silver)"
           },
           {
             "color": "Cosmic Orange",
-            "price": 140990,
+            "price": 136990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 1 ТБ («Космический оранжевый» | Cosmic Orange)"
           },
           {
             "color": "Deep Blue",
-            "price": 141990,
+            "price": 136990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 1 ТБ («Насыщенный синий» | Deep Blue)"
           }
@@ -1098,7 +1098,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 142900,
-        "biggeek": 140990
+        "biggeek": 136990
       },
       "details": {
         "mistore095": [
@@ -1118,19 +1118,19 @@
         "biggeek": [
           {
             "color": "Silver",
-            "price": 140990,
+            "price": 138990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 1 ТБ (Серебристый | Silver)"
           },
           {
             "color": "Cosmic Orange",
-            "price": 140990,
+            "price": 136990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 1 ТБ («Космический оранжевый» | Cosmic Orange)"
           },
           {
             "color": "Deep Blue",
-            "price": 141990,
+            "price": 136990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 1 ТБ («Насыщенный синий» | Deep Blue)"
           }
@@ -1148,7 +1148,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 108500,
-        "biggeek": 105990
+        "biggeek": 100990
       },
       "details": {
         "mistore095": [
@@ -1162,19 +1162,19 @@
         "biggeek": [
           {
             "color": "Cosmic Orange",
-            "price": 105990,
+            "price": 100990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 256 ГБ («Космический оранжевый» | Cosmic Orange)"
           },
           {
             "color": "Deep Blue",
-            "price": 105990,
+            "price": 100990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 256 ГБ («Насыщенный синий» | Deep Blue)"
           },
           {
             "color": "Silver",
-            "price": 105990,
+            "price": 101990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 256 ГБ (Серебристый | Silver)"
           }
@@ -1192,7 +1192,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 108500,
-        "biggeek": 105990
+        "biggeek": 100990
       },
       "details": {
         "mistore095": [
@@ -1206,19 +1206,19 @@
         "biggeek": [
           {
             "color": "Cosmic Orange",
-            "price": 105990,
+            "price": 100990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 256 ГБ («Космический оранжевый» | Cosmic Orange)"
           },
           {
             "color": "Deep Blue",
-            "price": 105990,
+            "price": 100990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 256 ГБ («Насыщенный синий» | Deep Blue)"
           },
           {
             "color": "Silver",
-            "price": 105990,
+            "price": 101990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 256 ГБ (Серебристый | Silver)"
           }
@@ -1236,7 +1236,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 55000,
-        "biggeek": 56990
+        "biggeek": 50990
       },
       "details": {
         "mistore095": [
@@ -1250,19 +1250,19 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 56990,
+            "price": 51990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17e 256 ГБ (Чёрный | Black)"
           },
           {
             "color": "White",
-            "price": 56990,
+            "price": 51990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17e 256 ГБ (Белый | White)"
           },
           {
             "color": "Soft Pink",
-            "price": 57990,
+            "price": 50990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17e 256 ГБ (Бледно-розовый | Soft Pink)"
           }
@@ -1280,7 +1280,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 30500,
-        "biggeek": 29990
+        "biggeek": 28990
       },
       "details": {
         "mistore095": [
@@ -1294,7 +1294,7 @@
         "biggeek": [
           {
             "color": "Розовое золото",
-            "price": 29990,
+            "price": 28990,
             "simType": "—",
             "raw": "Часы Apple Watch Series 11, 42 мм, алюминий цвета «розовое золото», ремешок Sport Band цвета «светлые румяна»"
           }
@@ -1335,7 +1335,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 62000,
-        "biggeek": 66990
+        "biggeek": 64990
       },
       "details": {
         "mistore095": [
@@ -1361,7 +1361,7 @@
         "biggeek": [
           {
             "color": "Синий/ярко-синий",
-            "price": 66990,
+            "price": 64990,
             "simType": "—",
             "raw": "Часы Apple Watch Ultra 3, 49 мм, титан светлого цвета, ремешок Trail цвета «синий/ярко-синий» (2025)"
           }
