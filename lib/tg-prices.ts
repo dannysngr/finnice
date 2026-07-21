@@ -8,7 +8,6 @@ export const TG_PRICES: Record<string, number> = {
   "airpods4": 13300,
   "airpods4-anc": 17300,
   "apple-watch-ultra-2-49mm-korpus-iz-titana-remesok-ocean-sinego-cveta": 57400,
-  "casy-apple-watch-se-3-44-mm-aluminij-cveta-temnaa-noc-remesok-sport-band-temnaa-noc-2025": 26000,
   "casy-apple-watch-ultra-3-49-mm-titan-svetlogo-cveta-remesok-trail-cveta-sinijarko-sinij-2025": 73500,
   "ip13-128-2sim": 47000,
   "ip13-256-2sim": 51000,
@@ -31,7 +30,7 @@ export const TG_PRICES: Record<string, number> = {
   "ip17promax-1tb-sim": 148500,
   "ip17promax-256-esim": 113500,
   "ip17promax-256-sim": 113500,
-  "ip17promax-512-esim": 131900,
-  "ip17promax-512-sim": 131900,
+  "ip17promax-512-esim": 131500,
+  "ip17promax-512-sim": 131500,
   "tg-ip17e-256": 59000,
 };
