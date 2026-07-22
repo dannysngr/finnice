@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-07-21T16:26:12+00:00",
+  "syncedAt": "2026-07-22T05:54:13+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1512,
+      "linesTotal": 1513,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -154,7 +154,7 @@
           },
           {
             "color": "Midnight",
-            "price": 45990,
+            "price": 46990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 («Тёмная ночь» | Midnight) (2026)"
           },
@@ -166,7 +166,7 @@
           },
           {
             "color": "Starlight",
-            "price": 45990,
+            "price": 46990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 («Сияющая звезда» | Starlight) (2026)"
           },
@@ -178,7 +178,7 @@
           },
           {
             "color": "Blue",
-            "price": 45990,
+            "price": 46990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Голубой | Blue) (2026)"
           },
@@ -190,7 +190,7 @@
           },
           {
             "color": "Purple",
-            "price": 45990,
+            "price": 46990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Фиолетовый | Purple) (2026)"
           },
@@ -202,7 +202,7 @@
           },
           {
             "color": "Orange",
-            "price": 45990,
+            "price": 46990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Оранжевый | Orange) (2026)"
           }
