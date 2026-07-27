@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-07-26T16:05:52+00:00",
+  "syncedAt": "2026-07-27T06:34:32+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1492,
+      "linesTotal": 1512,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -373,6 +373,12 @@
             "price": 54990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 13 256 ГБ (Зелёный | Green)"
+          },
+          {
+            "color": "Pink",
+            "price": 65990,
+            "simType": "—",
+            "raw": "Смартфон Apple iPhone 13 mini 256 ГБ (Розовый | Pink)"
           }
         ]
       }
@@ -388,7 +394,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 54500,
-        "biggeek": 55990
+        "biggeek": 52990
       },
       "details": {
         "mistore095": [
@@ -400,6 +406,42 @@
           }
         ],
         "biggeek": [
+          {
+            "color": "Midnight",
+            "price": 56990,
+            "simType": "—",
+            "raw": "Смартфон Apple iPhone 14 512 ГБ («Тёмная ночь» | Midnight)"
+          },
+          {
+            "color": "Starlight",
+            "price": 56990,
+            "simType": "—",
+            "raw": "Смартфон Apple iPhone 14 512 ГБ («Сияющая звезда» | Starlight)"
+          },
+          {
+            "color": "Blue",
+            "price": 56990,
+            "simType": "—",
+            "raw": "Смартфон Apple iPhone 14 512 ГБ (Синий | Blue)"
+          },
+          {
+            "color": "Red",
+            "price": 52990,
+            "simType": "—",
+            "raw": "Смартфон Apple iPhone 14 512 ГБ (PRODUCT)RED"
+          },
+          {
+            "color": "Purple",
+            "price": 56990,
+            "simType": "—",
+            "raw": "Смартфон Apple iPhone 14 512 ГБ (Фиолетовый | Purple)"
+          },
+          {
+            "color": "Yellow",
+            "price": 52990,
+            "simType": "—",
+            "raw": "Смартфон Apple iPhone 14 512 ГБ (Жёлтый | Yellow)"
+          },
           {
             "color": "Midnight",
             "price": 63990,
@@ -500,7 +542,7 @@
           },
           {
             "color": "Black",
-            "price": 61990,
+            "price": 65990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 128 ГБ (Чёрный | Black)"
           },
