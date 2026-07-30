@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-07-29T16:24:36+00:00",
+  "syncedAt": "2026-07-30T05:44:51+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1515,
+      "linesTotal": 1488,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -272,7 +272,7 @@
           },
           {
             "color": "Starlight",
-            "price": 47990,
+            "price": 49990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 13 128 ГБ («Сияющая звезда» | Starlight)"
           },
