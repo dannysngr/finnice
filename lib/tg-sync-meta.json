@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-08-02T06:06:13+00:00",
+  "syncedAt": "2026-08-02T16:04:20+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -1158,7 +1158,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 99500,
-        "biggeek": 96990
+        "biggeek": 95990
       },
       "details": {
         "mistore095": [
@@ -1184,13 +1184,13 @@
         "biggeek": [
           {
             "color": "Silver",
-            "price": 99990,
+            "price": 98990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 256 ГБ (Серебристый | Silver)"
           },
           {
             "color": "Cosmic Orange",
-            "price": 96990,
+            "price": 95990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 256 ГБ («Космический оранжевый» | Cosmic Orange)"
           },
@@ -1214,7 +1214,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 99500,
-        "biggeek": 96990
+        "biggeek": 95990
       },
       "details": {
         "mistore095": [
@@ -1240,13 +1240,13 @@
         "biggeek": [
           {
             "color": "Silver",
-            "price": 99990,
+            "price": 98990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 256 ГБ (Серебристый | Silver)"
           },
           {
             "color": "Cosmic Orange",
-            "price": 96990,
+            "price": 95990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 256 ГБ («Космический оранжевый» | Cosmic Orange)"
           },
