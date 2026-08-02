@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-08-01T16:04:28+00:00",
+  "syncedAt": "2026-08-02T06:06:13+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -518,25 +518,25 @@
           },
           {
             "color": "Blue",
-            "price": 53990,
+            "price": 54990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 128 ГБ (Голубой | Blue)"
           },
           {
             "color": "Pink",
-            "price": 53990,
+            "price": 62990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 128 ГБ (Розовый | Pink)"
           },
           {
             "color": "Green",
-            "price": 53990,
+            "price": 59990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 128 ГБ (Зелёный | Green)"
           },
           {
             "color": "Yellow",
-            "price": 53990,
+            "price": 59990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 128 ГБ (Жёлтый | Yellow)"
           },
@@ -584,7 +584,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 61400,
-        "biggeek": 63990
+        "biggeek": 64990
       },
       "details": {
         "mistore095": [
@@ -604,13 +604,13 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 63990,
+            "price": 64990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 256 ГБ (Чёрный | Black)"
           },
           {
             "color": "Blue",
-            "price": 63990,
+            "price": 64990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 256 ГБ (Голубой | Blue)"
           },
@@ -622,7 +622,7 @@
           },
           {
             "color": "Green",
-            "price": 67990,
+            "price": 69990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 256 ГБ (Зелёный | Green)"
           },
