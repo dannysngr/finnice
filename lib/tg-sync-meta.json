@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-08-12T16:01:56+00:00",
+  "syncedAt": "2026-08-13T04:54:10+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1497,
+      "linesTotal": 1491,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -1705,8 +1705,7 @@
       "tgKey": "Apple|iPhone 17e|256 ГБ|SIM",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 55500,
-        "biggeek": 60990
+        "mistore095": 55500
       },
       "details": {
         "mistore095": [
@@ -1721,26 +1720,6 @@
             "price": 55400,
             "simType": "SIM",
             "raw": "Apple iPhone 17e 256GB Pink 🇮🇳"
-          }
-        ],
-        "biggeek": [
-          {
-            "color": "Black",
-            "price": 60990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 17e 256 ГБ (Чёрный | Black)"
-          },
-          {
-            "color": "White",
-            "price": 60990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 17e 256 ГБ (Белый | White)"
-          },
-          {
-            "color": "Soft Pink",
-            "price": 60990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 17e 256 ГБ (Бледно-розовый | Soft Pink)"
           }
         ]
       }
@@ -1979,7 +1958,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 71500,
-        "biggeek": 65990
+        "biggeek": 66990
       },
       "details": {
         "mistore095": [
@@ -2029,7 +2008,7 @@
         "biggeek": [
           {
             "color": "Синий/ярко-синий",
-            "price": 65990,
+            "price": 66990,
             "simType": "—",
             "raw": "Часы Apple Watch Ultra 3, 49 мм, титан светлого цвета, ремешок Trail цвета «синий/ярко-синий» (2025)"
           }
