@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-08-17T15:27:57+00:00",
+  "syncedAt": "2026-08-18T03:47:41+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -90,7 +90,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 16200,
-        "biggeek": 15990
+        "biggeek": 16490
       },
       "details": {
         "mistore095": [
@@ -104,7 +104,7 @@
         "biggeek": [
           {
             "color": "",
-            "price": 15990,
+            "price": 16490,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods 4 с активным шумоподавлением (ANC) и беспроводным зарядным футляром (2024)"
           }
@@ -220,7 +220,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 19200,
-        "biggeek": 19990
+        "biggeek": 20990
       },
       "details": {
         "mistore095": [
@@ -234,7 +234,7 @@
         "biggeek": [
           {
             "color": "",
-            "price": 19990,
+            "price": 20990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Pro 3 (2025)"
           }
