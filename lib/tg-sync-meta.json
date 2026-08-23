@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-08-23T03:53:46+00:00",
+  "syncedAt": "2026-08-23T15:26:09+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1502,
+      "linesTotal": 1480,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -122,7 +122,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 44000,
-        "biggeek": 44990
+        "biggeek": 43990
       },
       "details": {
         "mistore095": [
@@ -148,7 +148,7 @@
         "biggeek": [
           {
             "color": "Midnight",
-            "price": 45990,
+            "price": 43990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max (USB-C) («Тёмная ночь» | Midnight) (2024)"
           },
@@ -172,7 +172,7 @@
           },
           {
             "color": "Blue",
-            "price": 44990,
+            "price": 43990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max (USB-C) (Голубой | Blue) (2024)"
           },
