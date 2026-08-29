@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-08-28T15:03:32+00:00",
+  "syncedAt": "2026-08-29T09:49:59+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -584,7 +584,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 61400,
-        "biggeek": 64990
+        "biggeek": 67990
       },
       "details": {
         "mistore095": [
@@ -646,19 +646,19 @@
           },
           {
             "color": "Pink",
-            "price": 64990,
+            "price": 68990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Розовый | Pink)"
           },
           {
             "color": "Green",
-            "price": 64990,
+            "price": 68990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Зелёный | Green)"
           },
           {
             "color": "Yellow",
-            "price": 64990,
+            "price": 67990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Жёлтый | Yellow)"
           }
