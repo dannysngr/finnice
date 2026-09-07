@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-09-07T08:07:13+00:00",
+  "syncedAt": "2026-09-07T19:07:23+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1361,
+      "linesTotal": 1355,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -252,7 +252,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 46000,
-        "biggeek": 47990
+        "biggeek": 48990
       },
       "details": {
         "mistore095": [
@@ -266,7 +266,7 @@
         "biggeek": [
           {
             "color": "Midnight",
-            "price": 47990,
+            "price": 48990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 13 128 ГБ («Тёмная ночь» | Midnight)"
           },
@@ -750,7 +750,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 75500,
-        "biggeek": 81990
+        "biggeek": 83990
       },
       "details": {
         "mistore095": [
@@ -788,31 +788,31 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 82990,
+            "price": 83990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Чёрный | Black)"
           },
           {
             "color": "Lavender",
-            "price": 82990,
+            "price": 83990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Лавандовый | Lavender)"
           },
           {
             "color": "White",
-            "price": 82990,
+            "price": 83990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Белый | White)"
           },
           {
             "color": "Mist Blue",
-            "price": 81990,
+            "price": 83990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Туманно-голубой | Mist Blue)"
           },
           {
             "color": "Sage",
-            "price": 81990,
+            "price": 83990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Шалфейный | Sage)"
           }
@@ -830,7 +830,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 75500,
-        "biggeek": 81990
+        "biggeek": 83990
       },
       "details": {
         "mistore095": [
@@ -868,31 +868,31 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 82990,
+            "price": 83990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Чёрный | Black)"
           },
           {
             "color": "Lavender",
-            "price": 82990,
+            "price": 83990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Лавандовый | Lavender)"
           },
           {
             "color": "White",
-            "price": 82990,
+            "price": 83990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Белый | White)"
           },
           {
             "color": "Mist Blue",
-            "price": 81990,
+            "price": 83990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Туманно-голубой | Mist Blue)"
           },
           {
             "color": "Sage",
-            "price": 81990,
+            "price": 83990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 256 ГБ (Шалфейный | Sage)"
           }
@@ -910,7 +910,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 91500,
-        "biggeek": 95990
+        "biggeek": 96990
       },
       "details": {
         "mistore095": [
@@ -936,31 +936,31 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 97990,
+            "price": 98990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Чёрный | Black)"
           },
           {
             "color": "White",
-            "price": 95990,
+            "price": 96990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Белый | White)"
           },
           {
             "color": "Mist Blue",
-            "price": 99990,
+            "price": 100990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Туманно-голубой | Mist Blue)"
           },
           {
             "color": "Lavender",
-            "price": 100990,
+            "price": 101990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Лавандовый | Lavender)"
           },
           {
             "color": "Sage",
-            "price": 100990,
+            "price": 101990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Шалфейный | Sage)"
           }
@@ -978,7 +978,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 91500,
-        "biggeek": 95990
+        "biggeek": 96990
       },
       "details": {
         "mistore095": [
@@ -1004,31 +1004,31 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 97990,
+            "price": 98990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Чёрный | Black)"
           },
           {
             "color": "White",
-            "price": 95990,
+            "price": 96990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Белый | White)"
           },
           {
             "color": "Mist Blue",
-            "price": 99990,
+            "price": 100990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Туманно-голубой | Mist Blue)"
           },
           {
             "color": "Lavender",
-            "price": 100990,
+            "price": 101990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Лавандовый | Lavender)"
           },
           {
             "color": "Sage",
-            "price": 100990,
+            "price": 101990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Шалфейный | Sage)"
           }
@@ -1706,7 +1706,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 55500,
-        "biggeek": 61990
+        "biggeek": 62990
       },
       "details": {
         "mistore095": [
@@ -1726,19 +1726,19 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 63990,
+            "price": 64990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17e 256 ГБ (Чёрный | Black)"
           },
           {
             "color": "White",
-            "price": 62990,
+            "price": 63990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17e 256 ГБ (Белый | White)"
           },
           {
             "color": "Soft Pink",
-            "price": 61990,
+            "price": 62990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17e 256 ГБ (Бледно-розовый | Soft Pink)"
           }
