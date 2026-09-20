@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-09-20T08:24:08+00:00",
+  "syncedAt": "2026-09-20T18:05:09+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -960,7 +960,7 @@
           },
           {
             "color": "Sage",
-            "price": 106990,
+            "price": 103990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Шалфейный | Sage)"
           }
@@ -1028,7 +1028,7 @@
           },
           {
             "color": "Sage",
-            "price": 106990,
+            "price": 103990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Шалфейный | Sage)"
           }
@@ -1756,7 +1756,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 75000,
-        "biggeek": 82990
+        "biggeek": 83990
       },
       "details": {
         "mistore095": [
@@ -1788,7 +1788,7 @@
           },
           {
             "color": "Sky Blue",
-            "price": 82990,
+            "price": 83990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone Air 256 ГБ (Небесно-голубой | Sky Blue)"
           },
@@ -1874,7 +1874,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 30900,
-        "biggeek": 32990
+        "biggeek": 33990
       },
       "details": {
         "mistore095": [
@@ -1900,7 +1900,7 @@
         "biggeek": [
           {
             "color": "Розовое золото",
-            "price": 32990,
+            "price": 33990,
             "simType": "—",
             "raw": "Часы Apple Watch Series 11, 42 мм, алюминий цвета «розовое золото», ремешок Sport Band цвета «светлые румяна»"
           }
