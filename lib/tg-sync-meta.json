@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-09-27T18:58:03+00:00",
+  "syncedAt": "2026-09-28T09:29:39+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1323,
+      "linesTotal": 1325,
       "winsMax": 0,
       "displayOnly": true
     }
