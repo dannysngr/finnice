@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-10-06T20:03:23+00:00",
+  "syncedAt": "2026-10-07T09:59:27+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1246,
+      "linesTotal": 1248,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -1184,7 +1184,7 @@
         "biggeek": [
           {
             "color": "Silver",
-            "price": 107990,
+            "price": 108990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 256 ГБ (Серебристый | Silver)"
           },
@@ -1240,7 +1240,7 @@
         "biggeek": [
           {
             "color": "Silver",
-            "price": 107990,
+            "price": 108990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 256 ГБ (Серебристый | Silver)"
           },
@@ -1632,7 +1632,7 @@
           },
           {
             "color": "Deep Blue",
-            "price": 131990,
+            "price": 132990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 512 ГБ («Насыщенный синий» | Deep Blue)"
           }
@@ -1688,7 +1688,7 @@
           },
           {
             "color": "Deep Blue",
-            "price": 131990,
+            "price": 132990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 512 ГБ («Насыщенный синий» | Deep Blue)"
           }
@@ -1776,13 +1776,13 @@
         "biggeek": [
           {
             "color": "Space Black",
-            "price": 82990,
+            "price": 83990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone Air 256 ГБ («Космический чёрный» | Space Black)"
           },
           {
             "color": "Cloud White",
-            "price": 81990,
+            "price": 82990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone Air 256 ГБ (Облачно-белый | Cloud White)"
           },
@@ -1838,13 +1838,13 @@
         "biggeek": [
           {
             "color": "Space Black",
-            "price": 90990,
+            "price": 93990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone Air 512 ГБ («Космический чёрный» | Space Black)"
           },
           {
             "color": "Cloud White",
-            "price": 94990,
+            "price": 96990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone Air 512 ГБ (Облачно-белый | Cloud White)"
           },
