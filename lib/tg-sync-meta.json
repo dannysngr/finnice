@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-10-08T10:11:51+00:00",
+  "syncedAt": "2026-10-08T20:34:17+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1248,
+      "linesTotal": 1252,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -122,7 +122,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 44000,
-        "biggeek": 44990
+        "biggeek": 43990
       },
       "details": {
         "mistore095": [
@@ -148,7 +148,7 @@
         "biggeek": [
           {
             "color": "Midnight",
-            "price": 44990,
+            "price": 43990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max (USB-C) («Тёмная ночь» | Midnight) (2024)"
           },
@@ -160,7 +160,7 @@
           },
           {
             "color": "Starlight",
-            "price": 44990,
+            "price": 43990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max (USB-C) («Сияющая звезда» | Starlight) (2024)"
           },
@@ -172,7 +172,7 @@
           },
           {
             "color": "Blue",
-            "price": 44990,
+            "price": 43990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max (USB-C) (Голубой | Blue) (2024)"
           },
@@ -184,7 +184,7 @@
           },
           {
             "color": "Purple",
-            "price": 44990,
+            "price": 43990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max (USB-C) (Фиолетовый | Purple) (2024)"
           },
@@ -1874,7 +1874,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 30900,
-        "biggeek": 32990
+        "biggeek": 33990
       },
       "details": {
         "mistore095": [
@@ -1900,7 +1900,7 @@
         "biggeek": [
           {
             "color": "Розовое золото",
-            "price": 32990,
+            "price": 33990,
             "simType": "—",
             "raw": "Часы Apple Watch Series 11, 42 мм, алюминий цвета «розовое золото», ремешок Sport Band цвета «светлые румяна»"
           }
