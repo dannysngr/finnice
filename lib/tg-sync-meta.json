@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-10-08T20:34:17+00:00",
+  "syncedAt": "2026-10-09T10:13:21+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -1812,7 +1812,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 85000,
-        "biggeek": 86990
+        "biggeek": 87990
       },
       "details": {
         "mistore095": [
@@ -1850,7 +1850,7 @@
           },
           {
             "color": "Light Gold",
-            "price": 86990,
+            "price": 87990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone Air 512 ГБ (Светло-золотой | Light Gold)"
           },
