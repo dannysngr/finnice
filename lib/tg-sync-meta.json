@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-10-12T10:25:16+00:00",
+  "syncedAt": "2026-10-12T22:26:39+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -178,7 +178,7 @@
           },
           {
             "color": "Blue",
-            "price": 47990,
+            "price": 48990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Голубой | Blue) (2026)"
           },
@@ -676,7 +676,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 62000,
-        "biggeek": 69990
+        "biggeek": 70990
       },
       "details": {
         "mistore095": [
@@ -708,13 +708,13 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 70990,
+            "price": 73990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Чёрный | Black)"
           },
           {
             "color": "White",
-            "price": 69990,
+            "price": 73990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Белый | White)"
           },
@@ -726,7 +726,7 @@
           },
           {
             "color": "Pink",
-            "price": 71990,
+            "price": 74990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Розовый | Pink)"
           },
