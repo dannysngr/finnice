@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-10-15T08:05:28+00:00",
+  "syncedAt": "2026-10-15T18:59:09+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1251,
+      "linesTotal": 1246,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -1414,7 +1414,7 @@
           },
           {
             "color": "Deep Blue",
-            "price": 152990,
+            "price": 153990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 1 ТБ («Насыщенный синий» | Deep Blue)"
           }
@@ -1464,7 +1464,7 @@
           },
           {
             "color": "Deep Blue",
-            "price": 152990,
+            "price": 153990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 1 ТБ («Насыщенный синий» | Deep Blue)"
           }
