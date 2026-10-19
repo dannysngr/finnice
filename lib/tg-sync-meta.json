@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-10-19T08:36:42+00:00",
+  "syncedAt": "2026-10-19T20:27:46+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1255,
+      "linesTotal": 1257,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -154,13 +154,13 @@
           },
           {
             "color": "Midnight",
-            "price": 46990,
+            "price": 50990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 («Тёмная ночь» | Midnight) (2026)"
           },
           {
             "color": "Starlight",
-            "price": 43990,
+            "price": 49990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max (USB-C) («Сияющая звезда» | Starlight) (2024)"
           },
@@ -184,7 +184,7 @@
           },
           {
             "color": "Purple",
-            "price": 43990,
+            "price": 49990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max (USB-C) (Фиолетовый | Purple) (2024)"
           },
@@ -676,7 +676,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 62000,
-        "biggeek": 70990
+        "biggeek": 68990
       },
       "details": {
         "mistore095": [
@@ -708,13 +708,13 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 73990,
+            "price": 70990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Чёрный | Black)"
           },
           {
             "color": "White",
-            "price": 73990,
+            "price": 69990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Белый | White)"
           },
@@ -726,13 +726,13 @@
           },
           {
             "color": "Pink",
-            "price": 74990,
+            "price": 71990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Розовый | Pink)"
           },
           {
             "color": "Teal",
-            "price": 70990,
+            "price": 68990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ («Морская бирюза» | Teal)"
           }
