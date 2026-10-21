@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-10-20T19:02:16+00:00",
+  "syncedAt": "2026-10-21T08:22:03+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -910,7 +910,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 91500,
-        "biggeek": 97990
+        "biggeek": 93990
       },
       "details": {
         "mistore095": [
@@ -960,7 +960,7 @@
           },
           {
             "color": "Sage",
-            "price": 97990,
+            "price": 93990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Шалфейный | Sage)"
           }
@@ -978,7 +978,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 91500,
-        "biggeek": 97990
+        "biggeek": 93990
       },
       "details": {
         "mistore095": [
@@ -1028,7 +1028,7 @@
           },
           {
             "color": "Sage",
-            "price": 97990,
+            "price": 93990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Шалфейный | Sage)"
           }
