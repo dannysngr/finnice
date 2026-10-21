@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-10-21T08:22:03+00:00",
+  "syncedAt": "2026-10-21T19:13:54+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1259,
+      "linesTotal": 1157,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -58,7 +58,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 12200,
-        "biggeek": 11990
+        "biggeek": 10990
       },
       "details": {
         "mistore095": [
@@ -72,7 +72,7 @@
         "biggeek": [
           {
             "color": "",
-            "price": 11990,
+            "price": 10990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods 4 без активного шумоподавления (2024)"
           }
@@ -90,7 +90,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 16200,
-        "biggeek": 14490
+        "biggeek": 13490
       },
       "details": {
         "mistore095": [
@@ -104,7 +104,7 @@
         "biggeek": [
           {
             "color": "",
-            "price": 14490,
+            "price": 13490,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods 4 с активным шумоподавлением (ANC) и беспроводным зарядным футляром (2024)"
           }
@@ -1705,8 +1705,7 @@
       "tgKey": "Apple|iPhone 17e|256 ГБ|SIM",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 55500,
-        "biggeek": 66990
+        "mistore095": 55500
       },
       "details": {
         "mistore095": [
@@ -1721,26 +1720,6 @@
             "price": 55400,
             "simType": "SIM",
             "raw": "Apple iPhone 17e 256GB Pink 🇮🇳"
-          }
-        ],
-        "biggeek": [
-          {
-            "color": "Black",
-            "price": 66990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 17e 256 ГБ (Чёрный | Black)"
-          },
-          {
-            "color": "White",
-            "price": 66990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 17e 256 ГБ (Белый | White)"
-          },
-          {
-            "color": "Soft Pink",
-            "price": 66990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 17e 256 ГБ (Бледно-розовый | Soft Pink)"
           }
         ]
       }
@@ -1979,7 +1958,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 71500,
-        "biggeek": 64990
+        "biggeek": 63990
       },
       "details": {
         "mistore095": [
@@ -2029,7 +2008,7 @@
         "biggeek": [
           {
             "color": "Синий/ярко-синий",
-            "price": 64990,
+            "price": 63990,
             "simType": "—",
             "raw": "Часы Apple Watch Ultra 3, 49 мм, титан светлого цвета, ремешок Trail цвета «синий/ярко-синий» (2025)"
           }
