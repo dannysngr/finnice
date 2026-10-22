@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-10-21T19:13:54+00:00",
+  "syncedAt": "2026-10-22T08:24:21+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1157,
+      "linesTotal": 1258,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -910,7 +910,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 91500,
-        "biggeek": 93990
+        "biggeek": 97990
       },
       "details": {
         "mistore095": [
@@ -960,7 +960,7 @@
           },
           {
             "color": "Sage",
-            "price": 93990,
+            "price": 97990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Шалфейный | Sage)"
           }
@@ -978,7 +978,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 91500,
-        "biggeek": 93990
+        "biggeek": 97990
       },
       "details": {
         "mistore095": [
@@ -1028,7 +1028,7 @@
           },
           {
             "color": "Sage",
-            "price": 93990,
+            "price": 97990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Шалфейный | Sage)"
           }
@@ -1705,7 +1705,8 @@
       "tgKey": "Apple|iPhone 17e|256 ГБ|SIM",
       "source": "mistore095",
       "perChannel": {
-        "mistore095": 55500
+        "mistore095": 55500,
+        "biggeek": 66990
       },
       "details": {
         "mistore095": [
@@ -1720,6 +1721,26 @@
             "price": 55400,
             "simType": "SIM",
             "raw": "Apple iPhone 17e 256GB Pink 🇮🇳"
+          }
+        ],
+        "biggeek": [
+          {
+            "color": "Black",
+            "price": 66990,
+            "simType": "—",
+            "raw": "Смартфон Apple iPhone 17e 256 ГБ (Чёрный | Black)"
+          },
+          {
+            "color": "White",
+            "price": 66990,
+            "simType": "—",
+            "raw": "Смартфон Apple iPhone 17e 256 ГБ (Белый | White)"
+          },
+          {
+            "color": "Soft Pink",
+            "price": 66990,
+            "simType": "—",
+            "raw": "Смартфон Apple iPhone 17e 256 ГБ (Бледно-розовый | Soft Pink)"
           }
         ]
       }
