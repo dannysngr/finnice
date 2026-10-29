@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-10-28T20:08:18+00:00",
+  "syncedAt": "2026-10-29T09:33:56+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -1520,7 +1520,7 @@
           },
           {
             "color": "Silver",
-            "price": 114990,
+            "price": 115990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 256 ГБ (Серебристый | Silver)"
           }
@@ -1576,7 +1576,7 @@
           },
           {
             "color": "Silver",
-            "price": 114990,
+            "price": 115990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 256 ГБ (Серебристый | Silver)"
           }
@@ -1594,7 +1594,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 127500,
-        "biggeek": 123990
+        "biggeek": 125990
       },
       "details": {
         "mistore095": [
@@ -1626,7 +1626,7 @@
           },
           {
             "color": "Cosmic Orange",
-            "price": 123990,
+            "price": 125990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 512 ГБ («Космический оранжевый» | Cosmic Orange)"
           },
@@ -1650,7 +1650,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 127500,
-        "biggeek": 123990
+        "biggeek": 125990
       },
       "details": {
         "mistore095": [
@@ -1682,7 +1682,7 @@
           },
           {
             "color": "Cosmic Orange",
-            "price": 123990,
+            "price": 125990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 512 ГБ («Космический оранжевый» | Cosmic Orange)"
           },
