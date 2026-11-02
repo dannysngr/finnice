@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-11-02T10:41:34+00:00",
+  "syncedAt": "2026-11-02T23:01:56+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1201,
+      "linesTotal": 1202,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -652,7 +652,7 @@
           },
           {
             "color": "Green",
-            "price": 71990,
+            "price": 68990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Зелёный | Green)"
           },
