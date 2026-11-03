@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-11-02T23:01:56+00:00",
+  "syncedAt": "2026-11-03T10:35:21+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -652,7 +652,7 @@
           },
           {
             "color": "Green",
-            "price": 68990,
+            "price": 71990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Зелёный | Green)"
           },
