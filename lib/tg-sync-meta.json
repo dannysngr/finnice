@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-11-05T10:31:22+00:00",
+  "syncedAt": "2026-11-05T21:22:47+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1202,
+      "linesTotal": 1201,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -148,13 +148,13 @@
         "biggeek": [
           {
             "color": "Midnight",
-            "price": 41990,
+            "price": 43990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max (USB-C) («Тёмная ночь» | Midnight) (2024)"
           },
           {
             "color": "Midnight",
-            "price": 45990,
+            "price": 46990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 («Тёмная ночь» | Midnight) (2026)"
           },
@@ -166,7 +166,7 @@
           },
           {
             "color": "Starlight",
-            "price": 45990,
+            "price": 46990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 («Сияющая звезда» | Starlight) (2026)"
           },
@@ -178,7 +178,7 @@
           },
           {
             "color": "Blue",
-            "price": 45990,
+            "price": 46990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Голубой | Blue) (2026)"
           },
