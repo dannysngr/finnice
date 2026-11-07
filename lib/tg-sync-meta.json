@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-11-07T09:45:18+00:00",
+  "syncedAt": "2026-11-07T19:19:07+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -456,7 +456,7 @@
           },
           {
             "color": "Blue",
-            "price": 69990,
+            "price": 70990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 Plus 512 ГБ (Синий | Blue)"
           },
@@ -1874,7 +1874,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 30900,
-        "biggeek": 35490
+        "biggeek": 35990
       },
       "details": {
         "mistore095": [
@@ -1900,7 +1900,7 @@
         "biggeek": [
           {
             "color": "Розовое золото",
-            "price": 35490,
+            "price": 35990,
             "simType": "—",
             "raw": "Часы Apple Watch Series 11, 42 мм, алюминий цвета «розовое золото», ремешок Sport Band цвета «светлые румяна»"
           }
