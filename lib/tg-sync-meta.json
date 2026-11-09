@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-11-09T11:03:49+00:00",
+  "syncedAt": "2026-11-09T23:44:29+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1189,
+      "linesTotal": 1192,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -1844,7 +1844,7 @@
           },
           {
             "color": "Cloud White",
-            "price": 99990,
+            "price": 95990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone Air 512 ГБ (Облачно-белый | Cloud White)"
           },
