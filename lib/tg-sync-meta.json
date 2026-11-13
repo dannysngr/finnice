@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-11-13T10:40:52+00:00",
+  "syncedAt": "2026-11-13T21:16:34+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1190,
+      "linesTotal": 1142,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -178,7 +178,7 @@
           },
           {
             "color": "Blue",
-            "price": 43990,
+            "price": 42990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max 2 (Голубой | Blue) (2026)"
           },
@@ -652,7 +652,7 @@
           },
           {
             "color": "Green",
-            "price": 71990,
+            "price": 69990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 15 Plus 256 ГБ (Зелёный | Green)"
           },
@@ -708,13 +708,13 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 64990,
+            "price": 63990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Чёрный | Black)"
           },
           {
             "color": "White",
-            "price": 64990,
+            "price": 63990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Белый | White)"
           },
