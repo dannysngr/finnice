@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-11-19T11:16:54+00:00",
+  "syncedAt": "2026-11-19T22:37:31+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -148,7 +148,7 @@
         "biggeek": [
           {
             "color": "Midnight",
-            "price": 43990,
+            "price": 42990,
             "simType": "—",
             "raw": "Беспроводные наушники Apple AirPods Max (USB-C) («Тёмная ночь» | Midnight) (2024)"
           },
@@ -1178,7 +1178,7 @@
         "biggeek": [
           {
             "color": "Silver",
-            "price": 110990,
+            "price": 111990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 256 ГБ (Серебристый | Silver)"
           },
@@ -1234,7 +1234,7 @@
         "biggeek": [
           {
             "color": "Silver",
-            "price": 110990,
+            "price": 111990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro 256 ГБ (Серебристый | Silver)"
           },
@@ -1476,7 +1476,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 110800,
-        "biggeek": 110990
+        "biggeek": 111990
       },
       "details": {
         "mistore095": [
@@ -1502,7 +1502,7 @@
         "biggeek": [
           {
             "color": "Cosmic Orange",
-            "price": 110990,
+            "price": 111990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 256 ГБ («Космический оранжевый» | Cosmic Orange)"
           },
@@ -1532,7 +1532,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 110800,
-        "biggeek": 110990
+        "biggeek": 111990
       },
       "details": {
         "mistore095": [
@@ -1558,7 +1558,7 @@
         "biggeek": [
           {
             "color": "Cosmic Orange",
-            "price": 110990,
+            "price": 111990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 Pro Max 256 ГБ («Космический оранжевый» | Cosmic Orange)"
           },
