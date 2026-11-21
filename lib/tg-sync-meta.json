@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-11-21T10:48:29+00:00",
+  "syncedAt": "2026-11-21T20:56:55+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -394,7 +394,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 54500,
-        "biggeek": 60990
+        "biggeek": 61990
       },
       "details": {
         "mistore095": [
@@ -420,7 +420,7 @@
           },
           {
             "color": "Blue",
-            "price": 60990,
+            "price": 61990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 512 ГБ (Синий | Blue)"
           },
@@ -670,7 +670,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 62000,
-        "biggeek": 65990
+        "biggeek": 64990
       },
       "details": {
         "mistore095": [
@@ -702,31 +702,31 @@
         "biggeek": [
           {
             "color": "Black",
-            "price": 66990,
+            "price": 64990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Чёрный | Black)"
           },
           {
             "color": "White",
-            "price": 66990,
+            "price": 67990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Белый | White)"
           },
           {
             "color": "Ultramarine",
-            "price": 66990,
+            "price": 67990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ («Ультрамарин» | Ultramarine)"
           },
           {
             "color": "Pink",
-            "price": 66990,
+            "price": 67990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ (Розовый | Pink)"
           },
           {
             "color": "Teal",
-            "price": 65990,
+            "price": 67990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 16 128 ГБ («Морская бирюза» | Teal)"
           }
