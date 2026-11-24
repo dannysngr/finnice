@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-11-24T02:03:06+00:00",
+  "syncedAt": "2026-11-24T13:24:47+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1199,
+      "linesTotal": 1197,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -373,12 +373,6 @@
             "price": 60990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 13 256 ГБ (Зелёный | Green)"
-          },
-          {
-            "color": "Pink",
-            "price": 70990,
-            "simType": "—",
-            "raw": "Смартфон Apple iPhone 13 mini 256 ГБ (Розовый | Pink)"
           }
         ]
       }
@@ -936,13 +930,13 @@
           },
           {
             "color": "White",
-            "price": 106990,
+            "price": 109990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Белый | White)"
           },
           {
             "color": "Mist Blue",
-            "price": 99990,
+            "price": 100990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Туманно-голубой | Mist Blue)"
           },
@@ -1004,13 +998,13 @@
           },
           {
             "color": "White",
-            "price": 106990,
+            "price": 109990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Белый | White)"
           },
           {
             "color": "Mist Blue",
-            "price": 99990,
+            "price": 100990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 17 512 ГБ (Туманно-голубой | Mist Blue)"
           },
@@ -1750,7 +1744,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 75000,
-        "biggeek": 82990
+        "biggeek": 83990
       },
       "details": {
         "mistore095": [
@@ -1788,7 +1782,7 @@
           },
           {
             "color": "Light Gold",
-            "price": 82990,
+            "price": 83990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone Air 256 ГБ (Светло-золотой | Light Gold)"
           }
