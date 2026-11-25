@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-11-24T23:48:23+00:00",
+  "syncedAt": "2026-11-25T12:16:39+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -1800,7 +1800,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 85000,
-        "biggeek": 87990
+        "biggeek": 88990
       },
       "details": {
         "mistore095": [
@@ -1838,13 +1838,13 @@
           },
           {
             "color": "Light Gold",
-            "price": 89990,
+            "price": 92990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone Air 512 ГБ (Светло-золотой | Light Gold)"
           },
           {
             "color": "Sky Blue",
-            "price": 87990,
+            "price": 88990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone Air 512 ГБ (Небесно-голубой | Sky Blue)"
           }
