@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-11-27T11:53:09+00:00",
+  "syncedAt": "2026-11-27T23:17:44+00:00",
   "markup": 1000,
   "strategy": "MAX across channels",
   "channels": [
@@ -36,7 +36,7 @@
       "name": "biggeek",
       "displayName": "BigGeek",
       "postIds": [],
-      "linesTotal": 1182,
+      "linesTotal": 1183,
       "winsMax": 0,
       "displayOnly": true
     }
@@ -388,7 +388,7 @@
       "source": "mistore095",
       "perChannel": {
         "mistore095": 54500,
-        "biggeek": 56990
+        "biggeek": 57990
       },
       "details": {
         "mistore095": [
@@ -414,7 +414,7 @@
           },
           {
             "color": "Blue",
-            "price": 56990,
+            "price": 57990,
             "simType": "—",
             "raw": "Смартфон Apple iPhone 14 512 ГБ (Синий | Blue)"
           },
